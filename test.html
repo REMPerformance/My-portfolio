@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>LP Webdesign | Moderné webstránky pre firmy, reštaurácie a značky</title>
+  <meta name="description" content="LP Webdesign tvorí moderné, rýchle a responzívne webstránky pre reštaurácie, lokálne firmy, salóny, barbery, fitness centrá a značky." />
+
+  <style>
+    :root{
+      --bg:#050505;
+      --bg2:#0b0b0d;
+      --card:#111114;
+      --card2:#17171b;
+      --text:#ffffff;
+      --muted:rgba(255,255,255,.68);
+      --soft:rgba(255,255,255,.10);
+      --line:rgba(255,255,255,.12);
+      --red:#b31f24;
+      --red2:#ef2d35;
+      --radius:24px;
+      --max:1180px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:Inter,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%,rgba(179,31,36,.24),transparent 34%),
+        radial-gradient(circle at 85% 22%,rgba(239,45,53,.12),transparent 30%),
+        linear-gradient(180deg,#050505,#09090b 50%,#050505);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+
+    .noise{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.12;
+      z-index:0;
+      background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px);
+      mix-blend-mode:screen;
+    }
+
+    .wrap{
+      width:min(var(--max),calc(100% - 36px));
+      margin:0 auto;
+      position:relative;
+      z-index:2;
+    }
+
+    .nav{
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter:blur(18px);
+      background:rgba(5,5,5,.72);
+      border-bottom:1px solid var(--line);
+    }
+
+    .nav-inner{
+      width:min(var(--max),calc(100% - 36px));
+      margin:0 auto;
+      height:76px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:24px;
+    }
+
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:900;
+      letter-spacing:-.04em;
+      font-size:22px;
+    }
+
+    .logo-mark{
+      width:38px;
+      height:38px;
+      border-radius:13px;
+      background:
+        radial-gradient(circle at 30% 25%,rgba(255,255,255,.32),transparent 26%),
+        linear-gradient(135deg,var(--red2),var(--red));
+      box-shadow:0 0 40px rgba(179,31,36,.45);
+      display:grid;
+      place-items:center;
+      font-weight:900;
+    }
+
+    .nav-links{
+      display:flex;
+      align-items:center;
+      gap:22px;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .nav-links a:hover{color:#fff}
+
+    .nav-cta{
+      padding:12px 18px;
+      border-radius:999px;
+      background:#fff;
+      color:#070707;
+      font-size:14px;
+      font-weight:900;
+    }
+
+    .hero{
+      min-height:calc(100vh - 76px);
+      display:grid;
+      align-items:center;
+      padding:92px 0 70px;
+      position:relative;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:54px;
+      align-items:center;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:9px 13px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      color:rgba(255,255,255,.82);
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:22px;
+    }
+
+    .dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--red2);
+      box-shadow:0 0 18px rgba(239,45,53,.9);
+    }
+
+    h1{
+      font-size:clamp(46px,6vw,88px);
+      line-height:.9;
+      letter-spacing:-.075em;
+      max-width:760px;
+    }
+
+    .red{color:var(--red2)}
+
+    .hero p{
+      margin-top:24px;
+      max-width:640px;
+      color:var(--muted);
+      font-size:19px;
+      line-height:1.65;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:34px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:52px;
+      padding:0 22px;
+      border-radius:16px;
+      font-weight:900;
+      border:1px solid transparent;
+      transition:.25s ease;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--red2),var(--red));
+      color:#fff;
+      box-shadow:0 16px 48px rgba(179,31,36,.28);
+    }
+
+    .btn-primary:hover{
+      transform:translateY(-2px);
+      box-shadow:0 20px 70px rgba(179,31,36,.42);
+    }
+
+    .btn-secondary{
+      border-color:var(--line);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+    }
+
+    .btn-secondary:hover{
+      background:rgba(255,255,255,.1);
+      transform:translateY(-2px);
+    }
+
+    .hero-card{
+      position:relative;
+      border:1px solid var(--line);
+      background:
+        radial-gradient(circle at 20% 20%,rgba(239,45,53,.18),transparent 34%),
+        linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035));
+      border-radius:34px;
+      padding:18px;
+      box-shadow:0 30px 110px rgba(0,0,0,.48);
+      overflow:hidden;
+    }
+
+    .browser{
+      border-radius:24px;
+      overflow:hidden;
+      background:#101014;
+      border:1px solid rgba(255,255,255,.13);
+    }
+
+    .browser-top{
+      height:42px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 16px;
+      border-bottom:1px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.05);
+    }
+
+    .circle{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.3)}
+    .screen{
+      min-height:430px;
+      padding:28px;
+      background:
+        radial-gradient(circle at 78% 18%,rgba(239,45,53,.28),transparent 28%),
+        linear-gradient(135deg,#111,#050505);
+    }
+
+    .mock-nav{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:70px;
+      color:rgba(255,255,255,.55);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .mock-title{
+      font-size:46px;
+      line-height:.92;
+      letter-spacing:-.06em;
+      font-weight:950;
+      max-width:330px;
+    }
+
+    .mock-text{
+      margin-top:16px;
+      color:rgba(255,255,255,.62);
+      line-height:1.55;
+      max-width:310px;
+    }
+
+    .mock-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-top:40px;
+    }
+
+    .mock-box{
+      min-height:90px;
+      border-radius:20px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.1);
+      padding:16px;
+    }
+
+    .mock-box strong{
+      display:block;
+      font-size:26px;
+      margin-bottom:8px;
+    }
+
+    section{padding:92px 0}
+
+    .section-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:28px;
+      margin-bottom:34px;
+    }
+
+    .eyebrow{
+      color:var(--red2);
+      font-weight:950;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-size:12px;
+      margin-bottom:10px;
+    }
+
+    h2{
+      font-size:clamp(34px,4vw,58px);
+      line-height:.96;
+      letter-spacing:-.055em;
+      max-width:720px;
+    }
+
+    .section-desc{
+      color:var(--muted);
+      line-height:1.65;
+      max-width:420px;
+    }
+
+    .services-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+
+    .service{
+      padding:28px;
+      min-height:260px;
+      border-radius:var(--radius);
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.032));
+      transition:.25s ease;
+    }
+
+    .service:hover{
+      transform:translateY(-5px);
+      border-color:rgba(239,45,53,.38);
+      box-shadow:0 20px 60px rgba(0,0,0,.34);
+    }
+
+    .icon{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      background:rgba(179,31,36,.18);
+      display:grid;
+      place-items:center;
+      color:#fff;
+      font-weight:950;
+      margin-bottom:22px;
+      border:1px solid rgba(239,45,53,.22);
+    }
+
+    .service h3{
+      font-size:23px;
+      letter-spacing:-.035em;
+      margin-bottom:12px;
+    }
+
+    .service p{
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .projects-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+    }
+
+    .project{
+      border-radius:28px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.055);
+      transition:.25s ease;
+    }
+
+    .project:hover{
+      transform:translateY(-6px);
+      box-shadow:0 26px 90px rgba(0,0,0,.4);
+    }
+
+    .project-img{
+      min-height:260px;
+      background:
+        radial-gradient(circle at 25% 20%,rgba(239,45,53,.26),transparent 30%),
+        linear-gradient(135deg,#18181d,#070707);
+      padding:20px;
+      display:flex;
+      align-items:flex-end;
+    }
+
+    .project-preview{
+      width:100%;
+      height:180px;
+      border-radius:22px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.11) 0 32%,transparent 32%),
+        radial-gradient(circle at 75% 25%,rgba(239,45,53,.36),transparent 30%),
+        #0c0c10;
+      border:1px solid rgba(255,255,255,.13);
+      padding:18px;
+    }
+
+    .project-preview span{
+      display:block;
+      width:44%;
+      height:12px;
+      border-radius:99px;
+      background:rgba(255,255,255,.42);
+      margin-bottom:12px;
+    }
+
+    .project-preview span:nth-child(2){width:68%;height:28px;background:#fff}
+    .project-preview span:nth-child(3){width:52%;background:rgba(255,255,255,.22)}
+
+    .project-body{
+      padding:22px;
+    }
+
+    .project-body h3{
+      font-size:24px;
+      letter-spacing:-.04em;
+      margin-bottom:9px;
+    }
+
+    .project-body p{
+      color:var(--muted);
+      line-height:1.55;
+      font-size:15px;
+    }
+
+    .tags{
+      margin-top:16px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .tag{
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.78);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .pricing-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+      align-items:stretch;
+    }
+
+    .price-card{
+      position:relative;
+      padding:30px;
+      border-radius:28px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.032));
+    }
+
+    .price-card.featured{
+      border-color:rgba(239,45,53,.42);
+      box-shadow:0 0 80px rgba(179,31,36,.16);
+      background:
+        radial-gradient(circle at 50% 0%,rgba(239,45,53,.22),transparent 36%),
+        linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035));
+    }
+
+    .label{
+      display:inline-flex;
+      padding:7px 11px;
+      border-radius:999px;
+      background:rgba(239,45,53,.16);
+      color:#fff;
+      font-size:12px;
+      font-weight:950;
+      margin-bottom:18px;
+    }
+
+    .price-card h3{
+      font-size:25px;
+      letter-spacing:-.04em;
+      margin-bottom:8px;
+    }
+
+    .price{
+      font-size:48px;
+      font-weight:950;
+      letter-spacing:-.06em;
+      margin:16px 0;
+    }
+
+    .price span{
+      font-size:16px;
+      color:var(--muted);
+      letter-spacing:0;
+    }
+
+    .price-card ul{
+      list-style:none;
+      display:grid;
+      gap:12px;
+      margin:22px 0 28px;
+      color:rgba(255,255,255,.76);
+      line-height:1.45;
+    }
+
+    .price-card li::before{
+      content:"✓";
+      color:var(--red2);
+      font-weight:950;
+      margin-right:9px;
+    }
+
+    .process{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+      counter-reset:step;
+    }
+
+    .step{
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:24px;
+      background:rgba(255,255,255,.055);
+      min-height:190px;
+      counter-increment:step;
+    }
+
+    .step::before{
+      content:"0" counter(step);
+      display:block;
+      color:var(--red2);
+      font-weight:950;
+      margin-bottom:22px;
+      font-size:13px;
+      letter-spacing:.12em;
+    }
+
+    .step h3{
+      font-size:20px;
+      margin-bottom:10px;
+      letter-spacing:-.035em;
+    }
+
+    .step p{
+      color:var(--muted);
+      line-height:1.55;
+      font-size:15px;
+    }
+
+    .cta{
+      border-radius:36px;
+      padding:56px;
+      border:1px solid rgba(239,45,53,.28);
+      background:
+        radial-gradient(circle at 25% 20%,rgba(239,45,53,.27),transparent 36%),
+        linear-gradient(135deg,rgba(255,255,255,.095),rgba(255,255,255,.035));
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:26px;
+      align-items:center;
+      box-shadow:0 30px 110px rgba(0,0,0,.32);
+    }
+
+    .cta h2{max-width:780px}
+    .cta p{
+      margin-top:16px;
+      color:var(--muted);
+      line-height:1.65;
+      max-width:650px;
+    }
+
+    .contact-box{
+      border-radius:26px;
+      background:rgba(0,0,0,.28);
+      border:1px solid var(--line);
+      padding:24px;
+      display:grid;
+      gap:12px;
+    }
+
+    .contact-link{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:center;
+      padding:15px 16px;
+      border-radius:17px;
+      background:rgba(255,255,255,.07);
+      color:#fff;
+      font-weight:850;
+      transition:.2s ease;
+    }
+
+    .contact-link:hover{
+      background:rgba(239,45,53,.18);
+      transform:translateX(3px);
+    }
+
+    footer{
+      padding:34px 0;
+      border-top:1px solid var(--line);
+      color:rgba(255,255,255,.55);
+      font-size:14px;
+    }
+
+    .footer-inner{
+      width:min(var(--max),calc(100% - 36px));
+      margin:0 auto;
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+    }
+
+    @media(max-width:920px){
+      .nav-links{display:none}
+      .hero-grid,
+      .cta{
+        grid-template-columns:1fr;
+      }
+      .services-grid,
+      .projects-grid,
+      .pricing-grid{
+        grid-template-columns:1fr;
+      }
+      .process{
+        grid-template-columns:1fr 1fr;
+      }
+      .hero{
+        padding:66px 0 48px;
+      }
+      .screen{min-height:340px}
+      .mock-title{font-size:38px}
+      .section-head{
+        display:block;
+      }
+      .section-desc{margin-top:14px}
+      .cta{padding:34px}
+    }
+
+    @media(max-width:560px){
+      .wrap,.nav-inner,.footer-inner{
+        width:min(100% - 28px,var(--max));
+      }
+      .nav-inner{height:68px}
+      .logo{font-size:19px}
+      .hero-actions .btn{
+        width:100%;
+      }
+      h1{font-size:44px}
+      .hero p{font-size:17px}
+      section{padding:64px 0}
+      .process{
+        grid-template-columns:1fr;
+      }
+      .service,
+      .price-card{
+        padding:24px;
+      }
+      .cta{
+        padding:26px;
+        border-radius:26px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="noise"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <span class="logo-mark">LP</span>
+        <span>LP Webdesign</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#sluzby">Služby</a>
+        <a href="#projekty">Projekty</a>
+        <a href="#cennik">Cenník</a>
+        <a href="#kontakt" class="nav-cta">Kontakt</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="badge">
+            <span class="dot"></span>
+            Moderné weby pre lokálne podniky
+          </div>
+
+          <h1>
+            Webstránky, ktoré vyzerajú <span class="red">drahšie</span>, než stoja.
+          </h1>
+
+          <p>
+            Tvorím rýchle, moderné a mobilné weby pre reštaurácie, salóny, barbery,
+            fitness centrá, detailing štúdiá a lokálne značky, ktoré nechcú pôsobiť ako z roku 2014.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#projekty" class="btn btn-primary">Pozrieť ukážky</a>
+            <a href="#kontakt" class="btn btn-secondary">Chcem web</a>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="browser">
+            <div class="browser-top">
+              <span class="circle"></span>
+              <span class="circle"></span>
+              <span class="circle"></span>
+            </div>
+
+            <div class="screen">
+              <div class="mock-nav">
+                <span>RESTAURANT CONCEPT</span>
+                <span>BOOK TABLE</span>
+              </div>
+
+              <div class="mock-title">
+                Moderný web pre gastro brand
+              </div>
+
+              <div class="mock-text">
+                Menu, rezervácie, kontakt, Google Maps a mobilná verzia pripravená pre zákazníkov.
+              </div>
+
+              <div class="mock-row">
+                <div class="mock-box">
+                  <strong>01</strong>
+                  Mobile-first
+                </div>
+                <div class="mock-box">
+                  <strong>02</strong>
+                  Rýchly web
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sluzby">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Služby</div>
+            <h2>Čo viem spraviť pre tvoj podnik</h2>
+          </div>
+          <p class="section-desc">
+            Žiadne zbytočné korporátne reči. Cieľ je jednoduchý: aby web dobre vyzeral,
+            rýchlo sa načítal a zákazník našiel to, čo potrebuje.
+          </p>
+        </div>
+
+        <div class="services-grid">
+          <article class="service">
+            <div class="icon">01</div>
+            <h3>Firemné weby</h3>
+            <p>Moderná prezentácia pre podnik, službu alebo osobnú značku. Čistý dizajn, silný prvý dojem a jasný kontakt.</p>
+          </article>
+
+          <article class="service">
+            <div class="icon">02</div>
+            <h3>Weby pre gastro</h3>
+            <p>Reštaurácie, bary, kaviarne, bistrá a food koncepty. Menu, galéria, otváracie hodiny, mapa a rezervácie.</p>
+          </article>
+
+          <article class="service">
+            <div class="icon">03</div>
+            <h3>Redizajn starého webu</h3>
+            <p>Ak web pôsobí zastaralo, pomaly alebo zle na mobile, prerobím ho na modernú a použiteľnú verziu.</p>
+          </article>
+
+          <article class="service">
+            <div class="icon">04</div>
+            <h3>Mobilná optimalizácia</h3>
+            <p>Väčšina zákazníkov príde z mobilu. Preto musí byť web prehľadný, rýchly a použiteľný hlavne na telefóne.</p>
+          </article>
+
+          <article class="service">
+            <div class="icon">05</div>
+            <h3>Základné SEO</h3>
+            <p>Nastavenie titulkov, popisov, štruktúry, rýchlosti a obsahu tak, aby web dával zmysel aj pre Google.</p>
+          </article>
+
+          <article class="service">
+            <div class="icon">06</div>
+            <h3>Landing pages</h3>
+            <p>Jednostránkové weby pre kampane, nové služby, eventy, produkty alebo rýchle overenie nápadu.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="projekty">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Portfólio</div>
+            <h2>Ukážky práce a koncepty</h2>
+          </div>
+          <p class="section-desc">
+            Na začiatok stačia aj vlastné projekty a demo koncepty. Dôležité je ukázať štýl, detail a schopnosť vytvoriť web, ktorý pôsobí profesionálne.
+          </p>
+        </div>
+
+        <div class="projects-grid">
+          <article class="project">
+            <div class="project-img">
+              <div class="project-preview">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="project-body">
+              <h3>RACEM</h3>
+              <p>Automotive e-shop s výrazným vizuálom, produktovými sekciami, kategóriami a moderným dark štýlom.</p>
+              <div class="tags">
+                <span class="tag">E-commerce</span>
+                <span class="tag">Shopify</span>
+                <span class="tag">Automotive</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="project">
+            <div class="project-img">
+              <div class="project-preview">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="project-body">
+              <h3>NatureFlow Head Spa</h3>
+              <p>Prezentačný web pre službu so zameraním na atmosféru, dôveru, vizuál a jednoduchú orientáciu.</p>
+              <div class="tags">
+                <span class="tag">Beauty</span>
+                <span class="tag">Služby</span>
+                <span class="tag">Branding</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="project">
+            <div class="project-img">
+              <div class="project-preview">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="project-body">
+              <h3>Gastro Demo Concept</h3>
+              <p>Demo návrh moderného webu pre reštauráciu s menu, rezerváciou, galériou a mobilným layoutom.</p>
+              <div class="tags">
+                <span class="tag">Restaurant</span>
+                <span class="tag">Demo</span>
+                <span class="tag">Mobile-first</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="cennik">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Cenník</div>
+            <h2>Jednoduché balíky bez zbytočného chaosu</h2>
+          </div>
+          <p class="section-desc">
+            Ceny sú nastavené hlavne pre malé podniky, ktoré chcú vyzerať profesionálne, ale nepotrebujú projekt za niekoľko tisíc eur.
+          </p>
+        </div>
+
+        <div class="pricing-grid">
+          <article class="price-card">
+            <span class="label">Štart</span>
+            <h3>Starter web</h3>
+            <div class="price">399€ <span>/ od</span></div>
+            <ul>
+              <li>Jednostránkový web</li>
+              <li>Mobilná optimalizácia</li>
+              <li>Kontakt a mapa</li>
+              <li>Základné SEO</li>
+              <li>Dodanie približne do 7 dní</li>
+            </ul>
+            <a href="#kontakt" class="btn btn-secondary">Mám záujem</a>
+          </article>
+
+          <article class="price-card featured">
+            <span class="label">Najčastejšia voľba</span>
+            <h3>Business web</h3>
+            <div class="price">699€ <span>/ od</span></div>
+            <ul>
+              <li>Moderný dizajn na mieru</li>
+              <li>Viac sekcií podľa služby</li>
+              <li>Galéria, menu alebo služby</li>
+              <li>Rezervačný alebo kontaktný formulár</li>
+              <li>Lepšia štruktúra pre Google</li>
+            </ul>
+            <a href="#kontakt" class="btn btn-primary">Chcem tento balík</a>
+          </article>
+
+          <article class="price-card">
+            <span class="label">Individuálne</span>
+            <h3>Redizajn / extra</h3>
+            <div class="price">Na mieru</div>
+            <ul>
+              <li>Redizajn existujúceho webu</li>
+              <li>Viac jazykov</li>
+              <li>Pokročilejšie formuláre</li>
+              <li>Texty, štruktúra a UX</li>
+              <li>Úpravy podľa rozsahu</li>
+            </ul>
+            <a href="#kontakt" class="btn btn-secondary">Napísať</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Postup</div>
+            <h2>Ako prebieha spolupráca</h2>
+          </div>
+        </div>
+
+        <div class="process">
+          <div class="step">
+            <h3>Krátke zadanie</h3>
+            <p>Povieš mi, čo robíš, čo má byť na webe a aký štýl chceš.</p>
+          </div>
+
+          <div class="step">
+            <h3>Návrh štruktúry</h3>
+            <p>Navrhnem rozloženie sekcií, obsah a základný vizuálny smer.</p>
+          </div>
+
+          <div class="step">
+            <h3>Tvorba webu</h3>
+            <p>Pripravím moderný responzívny web, ktorý bude fungovať hlavne na mobile.</p>
+          </div>
+
+          <div class="step">
+            <h3>Spustenie</h3>
+            <p>Po finálnych úpravách web zverejníme a nastavíme základné SEO.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="kontakt">
+      <div class="wrap">
+        <div class="cta">
+          <div>
+            <div class="eyebrow">Kontakt</div>
+            <h2>Chceš web, ktorý nebude vyzerať ako lacná šablóna?</h2>
+            <p>
+              Napíš mi, aký podnik máš, čo potrebuješ a pošlem ti návrh možností.
+              Najlepšie fungujú reštaurácie, bary, salóny, fitness, detailing, barber a lokálne služby.
+            </p>
+          </div>
+
+          <div class="contact-box">
+            <a class="contact-link" href="mailto:info@remperformance.sk">
+              <span>info@remperformance.sk</span>
+              <span>→</span>
+            </a>
+
+            <a class="contact-link" href="https://racem.sk" target="_blank">
+              <span>Ukážka: RACEM.sk</span>
+              <span>→</span>
+            </a>
+
+            <a class="contact-link" href="https://natureflowheadspa.sk" target="_blank">
+              <span>Ukážka: NatureFlow</span>
+              <span>→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>© 2026 LP Webdesign. Moderné weby pre lokálne podniky.</span>
+      <span>Webdesign • SEO základy • Mobile-first</span>
+    </div>
+  </footer>
+</body>
+</html>
