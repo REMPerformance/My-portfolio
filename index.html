@@ -1,1017 +1,2199 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>LP Webdesign | Moderné webstránky pre firmy, reštaurácie a značky</title>
-  <meta name="description" content="LP Webdesign tvorí moderné, rýchle a responzívne webstránky pre reštaurácie, lokálne firmy, salóny, barbery, fitness centrá a značky." />
-
-  <style>
-    :root{
-      --bg:#050505;
-      --bg2:#0b0b0d;
-      --card:#111114;
-      --card2:#17171b;
-      --text:#ffffff;
-      --muted:rgba(255,255,255,.68);
-      --soft:rgba(255,255,255,.10);
-      --line:rgba(255,255,255,.12);
-      --red:#b31f24;
-      --red2:#ef2d35;
-      --radius:24px;
-      --max:1180px;
-    }
-
-    *{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{
-      font-family:Inter,Arial,sans-serif;
-      background:
-        radial-gradient(circle at 15% 10%,rgba(179,31,36,.24),transparent 34%),
-        radial-gradient(circle at 85% 22%,rgba(239,45,53,.12),transparent 30%),
-        linear-gradient(180deg,#050505,#09090b 50%,#050505);
-      color:var(--text);
-      overflow-x:hidden;
-    }
-
-    a{color:inherit;text-decoration:none}
-    img{max-width:100%;display:block}
-
-    .noise{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:.12;
-      z-index:0;
-      background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px);
-      mix-blend-mode:screen;
-    }
-
-    .wrap{
-      width:min(var(--max),calc(100% - 36px));
-      margin:0 auto;
-      position:relative;
-      z-index:2;
-    }
-
-    .nav{
-      position:sticky;
-      top:0;
-      z-index:20;
-      backdrop-filter:blur(18px);
-      background:rgba(5,5,5,.72);
-      border-bottom:1px solid var(--line);
-    }
-
-    .nav-inner{
-      width:min(var(--max),calc(100% - 36px));
-      margin:0 auto;
-      height:76px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:24px;
-    }
-
-    .logo{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      font-weight:900;
-      letter-spacing:-.04em;
-      font-size:22px;
-    }
-
-    .logo-mark{
-      width:38px;
-      height:38px;
-      border-radius:13px;
-      background:
-        radial-gradient(circle at 30% 25%,rgba(255,255,255,.32),transparent 26%),
-        linear-gradient(135deg,var(--red2),var(--red));
-      box-shadow:0 0 40px rgba(179,31,36,.45);
-      display:grid;
-      place-items:center;
-      font-weight:900;
-    }
-
-    .nav-links{
-      display:flex;
-      align-items:center;
-      gap:22px;
-      color:var(--muted);
-      font-size:14px;
-      font-weight:700;
-    }
-
-    .nav-links a:hover{color:#fff}
-
-    .nav-cta{
-      padding:12px 18px;
-      border-radius:999px;
-      background:#fff;
-      color:#070707;
-      font-size:14px;
-      font-weight:900;
-    }
-
-    .hero{
-      min-height:calc(100vh - 76px);
-      display:grid;
-      align-items:center;
-      padding:92px 0 70px;
-      position:relative;
-    }
-
-    .hero-grid{
-      display:grid;
-      grid-template-columns:1.05fr .95fr;
-      gap:54px;
-      align-items:center;
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding:9px 13px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      background:rgba(255,255,255,.06);
-      color:rgba(255,255,255,.82);
-      font-size:13px;
-      font-weight:800;
-      margin-bottom:22px;
-    }
-
-    .dot{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--red2);
-      box-shadow:0 0 18px rgba(239,45,53,.9);
-    }
-
-    h1{
-      font-size:clamp(46px,6vw,88px);
-      line-height:.9;
-      letter-spacing:-.075em;
-      max-width:760px;
-    }
-
-    .red{color:var(--red2)}
-
-    .hero p{
-      margin-top:24px;
-      max-width:640px;
-      color:var(--muted);
-      font-size:19px;
-      line-height:1.65;
-    }
-
-    .hero-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:14px;
-      margin-top:34px;
-    }
-
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:52px;
-      padding:0 22px;
-      border-radius:16px;
-      font-weight:900;
-      border:1px solid transparent;
-      transition:.25s ease;
-    }
-
-    .btn-primary{
-      background:linear-gradient(135deg,var(--red2),var(--red));
-      color:#fff;
-      box-shadow:0 16px 48px rgba(179,31,36,.28);
-    }
-
-    .btn-primary:hover{
-      transform:translateY(-2px);
-      box-shadow:0 20px 70px rgba(179,31,36,.42);
-    }
-
-    .btn-secondary{
-      border-color:var(--line);
-      background:rgba(255,255,255,.06);
-      color:#fff;
-    }
-
-    .btn-secondary:hover{
-      background:rgba(255,255,255,.1);
-      transform:translateY(-2px);
-    }
-
-    .hero-card{
-      position:relative;
-      border:1px solid var(--line);
-      background:
-        radial-gradient(circle at 20% 20%,rgba(239,45,53,.18),transparent 34%),
-        linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035));
-      border-radius:34px;
-      padding:18px;
-      box-shadow:0 30px 110px rgba(0,0,0,.48);
-      overflow:hidden;
-    }
-
-    .browser{
-      border-radius:24px;
-      overflow:hidden;
-      background:#101014;
-      border:1px solid rgba(255,255,255,.13);
-    }
-
-    .browser-top{
-      height:42px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:0 16px;
-      border-bottom:1px solid rgba(255,255,255,.1);
-      background:rgba(255,255,255,.05);
-    }
-
-    .circle{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.3)}
-    .screen{
-      min-height:430px;
-      padding:28px;
-      background:
-        radial-gradient(circle at 78% 18%,rgba(239,45,53,.28),transparent 28%),
-        linear-gradient(135deg,#111,#050505);
-    }
-
-    .mock-nav{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:70px;
-      color:rgba(255,255,255,.55);
-      font-size:12px;
-      font-weight:800;
-    }
-
-    .mock-title{
-      font-size:46px;
-      line-height:.92;
-      letter-spacing:-.06em;
-      font-weight:950;
-      max-width:330px;
-    }
-
-    .mock-text{
-      margin-top:16px;
-      color:rgba(255,255,255,.62);
-      line-height:1.55;
-      max-width:310px;
-    }
-
-    .mock-row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-      margin-top:40px;
-    }
-
-    .mock-box{
-      min-height:90px;
-      border-radius:20px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.1);
-      padding:16px;
-    }
-
-    .mock-box strong{
-      display:block;
-      font-size:26px;
-      margin-bottom:8px;
-    }
-
-    section{padding:92px 0}
-
-    .section-head{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:28px;
-      margin-bottom:34px;
-    }
-
-    .eyebrow{
-      color:var(--red2);
-      font-weight:950;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      font-size:12px;
-      margin-bottom:10px;
-    }
-
-    h2{
-      font-size:clamp(34px,4vw,58px);
-      line-height:.96;
-      letter-spacing:-.055em;
-      max-width:720px;
-    }
-
-    .section-desc{
-      color:var(--muted);
-      line-height:1.65;
-      max-width:420px;
-    }
-
-    .services-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:16px;
-    }
-
-    .service{
-      padding:28px;
-      min-height:260px;
-      border-radius:var(--radius);
-      border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.032));
-      transition:.25s ease;
-    }
-
-    .service:hover{
-      transform:translateY(-5px);
-      border-color:rgba(239,45,53,.38);
-      box-shadow:0 20px 60px rgba(0,0,0,.34);
-    }
-
-    .icon{
-      width:48px;
-      height:48px;
-      border-radius:16px;
-      background:rgba(179,31,36,.18);
-      display:grid;
-      place-items:center;
-      color:#fff;
-      font-weight:950;
-      margin-bottom:22px;
-      border:1px solid rgba(239,45,53,.22);
-    }
-
-    .service h3{
-      font-size:23px;
-      letter-spacing:-.035em;
-      margin-bottom:12px;
-    }
-
-    .service p{
-      color:var(--muted);
-      line-height:1.6;
-    }
-
-    .projects-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:18px;
-    }
-
-    .project{
-      border-radius:28px;
-      overflow:hidden;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.055);
-      transition:.25s ease;
-    }
-
-    .project:hover{
-      transform:translateY(-6px);
-      box-shadow:0 26px 90px rgba(0,0,0,.4);
-    }
-
-    .project-img{
-      min-height:260px;
-      background:
-        radial-gradient(circle at 25% 20%,rgba(239,45,53,.26),transparent 30%),
-        linear-gradient(135deg,#18181d,#070707);
-      padding:20px;
-      display:flex;
-      align-items:flex-end;
-    }
-
-    .project-preview{
-      width:100%;
-      height:180px;
-      border-radius:22px;
-      background:
-        linear-gradient(90deg,rgba(255,255,255,.11) 0 32%,transparent 32%),
-        radial-gradient(circle at 75% 25%,rgba(239,45,53,.36),transparent 30%),
-        #0c0c10;
-      border:1px solid rgba(255,255,255,.13);
-      padding:18px;
-    }
-
-    .project-preview span{
-      display:block;
-      width:44%;
-      height:12px;
-      border-radius:99px;
-      background:rgba(255,255,255,.42);
-      margin-bottom:12px;
-    }
-
-    .project-preview span:nth-child(2){width:68%;height:28px;background:#fff}
-    .project-preview span:nth-child(3){width:52%;background:rgba(255,255,255,.22)}
-
-    .project-body{
-      padding:22px;
-    }
-
-    .project-body h3{
-      font-size:24px;
-      letter-spacing:-.04em;
-      margin-bottom:9px;
-    }
-
-    .project-body p{
-      color:var(--muted);
-      line-height:1.55;
-      font-size:15px;
-    }
-
-    .tags{
-      margin-top:16px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-
-    .tag{
-      padding:7px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      color:rgba(255,255,255,.78);
-      font-size:12px;
-      font-weight:800;
-    }
-
-    .pricing-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:18px;
-      align-items:stretch;
-    }
-
-    .price-card{
-      position:relative;
-      padding:30px;
-      border-radius:28px;
-      border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.032));
-    }
-
-    .price-card.featured{
-      border-color:rgba(239,45,53,.42);
-      box-shadow:0 0 80px rgba(179,31,36,.16);
-      background:
-        radial-gradient(circle at 50% 0%,rgba(239,45,53,.22),transparent 36%),
-        linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035));
-    }
-
-    .label{
-      display:inline-flex;
-      padding:7px 11px;
-      border-radius:999px;
-      background:rgba(239,45,53,.16);
-      color:#fff;
-      font-size:12px;
-      font-weight:950;
-      margin-bottom:18px;
-    }
-
-    .price-card h3{
-      font-size:25px;
-      letter-spacing:-.04em;
-      margin-bottom:8px;
-    }
-
-    .price{
-      font-size:48px;
-      font-weight:950;
-      letter-spacing:-.06em;
-      margin:16px 0;
-    }
-
-    .price span{
-      font-size:16px;
-      color:var(--muted);
-      letter-spacing:0;
-    }
-
-    .price-card ul{
-      list-style:none;
-      display:grid;
-      gap:12px;
-      margin:22px 0 28px;
-      color:rgba(255,255,255,.76);
-      line-height:1.45;
-    }
-
-    .price-card li::before{
-      content:"✓";
-      color:var(--red2);
-      font-weight:950;
-      margin-right:9px;
-    }
-
-    .process{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:14px;
-      counter-reset:step;
-    }
-
-    .step{
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:24px;
-      background:rgba(255,255,255,.055);
-      min-height:190px;
-      counter-increment:step;
-    }
-
-    .step::before{
-      content:"0" counter(step);
-      display:block;
-      color:var(--red2);
-      font-weight:950;
-      margin-bottom:22px;
-      font-size:13px;
-      letter-spacing:.12em;
-    }
-
-    .step h3{
-      font-size:20px;
-      margin-bottom:10px;
-      letter-spacing:-.035em;
-    }
-
-    .step p{
-      color:var(--muted);
-      line-height:1.55;
-      font-size:15px;
-    }
-
-    .cta{
-      border-radius:36px;
-      padding:56px;
-      border:1px solid rgba(239,45,53,.28);
-      background:
-        radial-gradient(circle at 25% 20%,rgba(239,45,53,.27),transparent 36%),
-        linear-gradient(135deg,rgba(255,255,255,.095),rgba(255,255,255,.035));
-      display:grid;
-      grid-template-columns:1.2fr .8fr;
-      gap:26px;
-      align-items:center;
-      box-shadow:0 30px 110px rgba(0,0,0,.32);
-    }
-
-    .cta h2{max-width:780px}
-    .cta p{
-      margin-top:16px;
-      color:var(--muted);
-      line-height:1.65;
-      max-width:650px;
-    }
-
-    .contact-box{
-      border-radius:26px;
-      background:rgba(0,0,0,.28);
-      border:1px solid var(--line);
-      padding:24px;
-      display:grid;
-      gap:12px;
-    }
-
-    .contact-link{
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      align-items:center;
-      padding:15px 16px;
-      border-radius:17px;
-      background:rgba(255,255,255,.07);
-      color:#fff;
-      font-weight:850;
-      transition:.2s ease;
-    }
-
-    .contact-link:hover{
-      background:rgba(239,45,53,.18);
-      transform:translateX(3px);
-    }
-
-    footer{
-      padding:34px 0;
-      border-top:1px solid var(--line);
-      color:rgba(255,255,255,.55);
-      font-size:14px;
-    }
-
-    .footer-inner{
-      width:min(var(--max),calc(100% - 36px));
-      margin:0 auto;
-      display:flex;
-      justify-content:space-between;
-      gap:18px;
-      flex-wrap:wrap;
-    }
-
-    @media(max-width:920px){
-      .nav-links{display:none}
-      .hero-grid,
-      .cta{
-        grid-template-columns:1fr;
-      }
-      .services-grid,
-      .projects-grid,
-      .pricing-grid{
-        grid-template-columns:1fr;
-      }
-      .process{
-        grid-template-columns:1fr 1fr;
-      }
-      .hero{
-        padding:66px 0 48px;
-      }
-      .screen{min-height:340px}
-      .mock-title{font-size:38px}
-      .section-head{
-        display:block;
-      }
-      .section-desc{margin-top:14px}
-      .cta{padding:34px}
-    }
-
-    @media(max-width:560px){
-      .wrap,.nav-inner,.footer-inner{
-        width:min(100% - 28px,var(--max));
-      }
-      .nav-inner{height:68px}
-      .logo{font-size:19px}
-      .hero-actions .btn{
-        width:100%;
-      }
-      h1{font-size:44px}
-      .hero p{font-size:17px}
-      section{padding:64px 0}
-      .process{
-        grid-template-columns:1fr;
-      }
-      .service,
-      .price-card{
-        padding:24px;
-      }
-      .cta{
-        padding:26px;
-        border-radius:26px;
-      }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="LP Webdesign — prémiové, brandované webstránky pre lokálne podniky na Slovensku. Zákazníky orientované, výkonné, plne editovateľné a prispôsobené vašej značke."/>
+<meta name="keywords" content="prémiový webdesign slovensko, brandovaný web, editovateľný web, výkonný web, zákazník orientovaný web, tvorba webstránok, performance web, moderný web"/>
+<meta name="author" content="LP Webdesign"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="LP Webdesign — Prémiové weby. Vaša značka."/>
+<meta property="og:description" content="Prémiové, brandované webstránky pre slovenské lokálne značky. Zákazníky orientované, plne editovateľné a výkonné."/>
+<meta property="og:locale" content="sk_SK"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="LP Webdesign — Prémiové weby pre vašu značku"/>
+<title>LP Webdesign — Prémiové brandované weby pre lokálne podniky</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+<style>
+/* ═══════════════════════════════════════════════
+   VARIABLES
+═══════════════════════════════════════════════ */
+:root {
+  --bg:      #0e0c10;
+  --bg2:     #161319;
+  --surface: rgba(255,255,255,.05);
+  --line:    rgba(255,255,255,0);
+  --text:    #f0eef8;
+  --muted:   rgba(240,238,248,.72);
+  --gold:    #e0b55a;
+  --gold2:   #f5d48a;
+  --blue:    #c8b89a;
+  --blue2:   #f0e6d4;
+  --ease:    cubic-bezier(.16,1,.3,1);
+  --max:     1360px;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════ */
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+a { color:inherit; text-decoration:none; }
+img { display:block; max-width:100%; }
+
+/* ═══════════════════════════════════════════════
+   CURSOR
+═══════════════════════════════════════════════ */
+@media(pointer:fine){ *,*::before,*::after { cursor:none; } }
+#cur-dot {
+  position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+  width:6px; height:6px; border-radius:50%;
+  background:var(--blue); transform:translate(-50%,-50%);
+  transition:width .18s, height .18s, background .18s;
+  mix-blend-mode:screen;
+}
+#cur-ring {
+  position:fixed; top:0; left:0; pointer-events:none; z-index:9998;
+  width:38px; height:38px; border-radius:50%;
+  border:1px solid rgba(130,196,248,.42);
+  transform:translate(-50%,-50%);
+  transition:width .26s var(--ease), height .26s var(--ease), border-color .26s;
+}
+body.hov #cur-dot  { width:10px; height:10px; background:var(--gold); }
+body.hov #cur-ring { width:52px; height:52px; border-color:rgba(224,181,90,.5); background:rgba(224,181,90,.04); }
+
+/* ═══════════════════════════════════════════════
+   LOADER  ← z FÓRM
+═══════════════════════════════════════════════ */
+#loader {
+  position:fixed; inset:0;
+  background:var(--bg);
+  z-index:9000;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  transition:opacity .7s var(--ease);
+}
+#loader.hide { opacity:0; pointer-events:none; }
+.loader-logo-img {
+  width:160px; height:160px; object-fit:contain;
+  margin-bottom:2.8rem;
+  opacity:0; animation:ldFadeIn .7s .25s var(--ease) forwards;
+  filter:brightness(1.1) saturate(1.1);
+}
+.loader-bar-wrap { width:180px; height:1px; background:rgba(255,255,255,.06); overflow:hidden; }
+.loader-bar { height:100%; background:var(--gold); width:0%; transition:width 1.9s cubic-bezier(.77,0,.175,1); }
+.loader-pct {
+  font-size:.62rem; letter-spacing:.22em; font-family:'Syne',sans-serif;
+  color:rgba(240,238,248,.28); margin-top:1rem; text-transform:uppercase;
+}
+@keyframes ldFadeIn { to { opacity:1; } }
+
+/* ═══════════════════════════════════════════════
+   FLYING LOGO
+═══════════════════════════════════════════════ */
+#logo-fly {
+  position:fixed; pointer-events:none; z-index:8999;
+  opacity:0; will-change:top,left,width,height;
+}
+#logo-fly img { width:100%; height:100%; object-fit:contain; display:block; filter:brightness(1.05) saturate(1.1); }
+.logo img { opacity:0; transition:opacity .3s ease; }
+.logo img.visible { opacity:1; }
+
+/* ═══════════════════════════════════════════════
+   STICKY FLOATING CTA
+═══════════════════════════════════════════════ */
+#sticky-cta {
+  position:fixed; bottom:2rem; right:2rem; z-index:700;
+  display:flex; align-items:center; gap:.65rem;
+  padding:.85rem 1.5rem;
+  background:var(--gold);
+  color:var(--bg);
+  font-family:'Syne',sans-serif;
+  font-size:.7rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  text-decoration:none;
+  box-shadow:0 8px 32px rgba(224,181,90,.35);
+  transform:translateY(100px);
+  opacity:0;
+  transition:transform .6s var(--ease), opacity .6s var(--ease), box-shadow .3s, background .3s;
+  will-change:transform;
+}
+#sticky-cta.show { transform:translateY(0); opacity:1; }
+#sticky-cta:hover {
+  background:var(--gold2);
+  box-shadow:0 12px 44px rgba(224,181,90,.5);
+  transform:translateY(-3px);
+}
+#sticky-cta .cta-arrow {
+  display:inline-block;
+  transition:transform .3s var(--ease);
+}
+#sticky-cta:hover .cta-arrow { transform:translateX(4px); }
+#sticky-cta .cta-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--bg); opacity:.5;
+  animation:ctaPulse 2s ease-in-out infinite;
+}
+@keyframes ctaPulse {
+  0%,100% { transform:scale(1); opacity:.5; }
+  50%      { transform:scale(1.5); opacity:.9; }
+}
+
+/* ═══════════════════════════════════════════════
+   SCROLL TO TOP
+═══════════════════════════════════════════════ */
+#scroll-top {
+  position:fixed; bottom:2rem; left:2rem; z-index:700;
+  width:42px; height:42px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(22,19,25,.85);
+  backdrop-filter:blur(12px);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--muted);
+  font-size:1.1rem; line-height:1;
+  cursor:pointer;
+  transform:translateY(80px); opacity:0;
+  transition:transform .5s var(--ease), opacity .5s var(--ease), border-color .3s, color .3s;
+}
+#scroll-top.show { transform:translateY(0); opacity:1; }
+#scroll-top:hover { border-color:var(--gold); color:var(--gold); }
+#scroll-top::before {
+  content:'↑';
+  transition:transform .3s var(--ease);
+  display:block;
+}
+#scroll-top:hover::before { transform:translateY(-3px); }
+
+/* ═══════════════════════════════════════════════
+   FAQ ACCORDION
+═══════════════════════════════════════════════ */
+.faq-section { padding:110px 44px; background:var(--bg2); border-top:1px solid rgba(255,255,255,.04); }
+.faq-inner { width:min(var(--max),100%); margin:0 auto; display:grid; grid-template-columns:1fr 1.4fr; gap:80px; align-items:start; }
+.faq-left { position:sticky; top:8rem; }
+.faq-left h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,4.2vw,66px); font-weight:300; line-height:.95; letter-spacing:-.025em; margin-top:12px; }
+.faq-left h2 em { font-style:italic; color:var(--gold); }
+.faq-left p { margin-top:24px; font-size:13.5px; line-height:1.8; color:var(--muted); max-width:380px; }
+.faq-list { display:flex; flex-direction:column; }
+.faq-item {
+  border-top:1px solid rgba(255,255,255,.06);
+  overflow:hidden;
+  transition:background .3s;
+}
+.faq-item:last-child { border-bottom:1px solid rgba(255,255,255,.06); }
+.faq-item:hover { background:rgba(255,255,255,.02); }
+.faq-q {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.6rem 0; gap:1.5rem;
+  cursor:pointer; user-select:none;
+  font-family:'Syne',sans-serif; font-size:1rem; font-weight:600;
+  color:var(--text); line-height:1.3;
+  transition:color .3s;
+}
+.faq-q:hover { color:var(--gold2); }
+.faq-icon {
+  width:28px; height:28px; flex-shrink:0;
+  border:1px solid rgba(255,255,255,.1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.85rem; color:var(--muted);
+  transition:border-color .3s, color .3s, transform .4s var(--ease), background .3s;
+}
+.faq-item.open .faq-icon {
+  transform:rotate(45deg);
+  border-color:var(--gold); color:var(--gold);
+  background:rgba(224,181,90,.08);
+}
+.faq-body {
+  max-height:0; overflow:hidden;
+  transition:max-height .55s cubic-bezier(.16,1,.3,1), padding .4s;
+  padding:0;
+}
+.faq-item.open .faq-body { max-height:400px; padding-bottom:1.6rem; }
+.faq-body p {
+  font-size:13.5px; line-height:1.82; color:var(--muted);
+  padding-right:2.5rem;
+}
+.faq-body strong { color:var(--gold2); font-weight:500; }
+
+/* ═══════════════════════════════════════════════
+   GOLD SHIMMER ON WORK CARDS
+═══════════════════════════════════════════════ */
+.wcard::after {
+  content:'';
+  position:absolute; inset:0; z-index:2;
+  pointer-events:none;
+  background:linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(224,181,90,.08) 50%,
+    transparent 65%,
+    transparent 100%
+  );
+  background-size:250% 100%;
+  background-position:200% 0;
+  transition:background-position .7s cubic-bezier(.16,1,.3,1), opacity .4s;
+  opacity:0;
+}
+.wcard:hover::after {
+  background-position:-50% 0;
+  opacity:1;
+}
+
+@media(max-width:900px){
+  .faq-inner { grid-template-columns:1fr; gap:40px; }
+  .faq-left { position:relative; top:auto; }
+}
+@media(max-width:760px){
+  .faq-section { padding-left:20px; padding-right:20px; }
+  #sticky-cta { bottom:1.2rem; right:1.2rem; padding:.75rem 1.2rem; font-size:.65rem; }
+  #scroll-top { bottom:1.2rem; left:1.2rem; }
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST  ← z FÓRM
+═══════════════════════════════════════════════ */
+.toast {
+  position:fixed; bottom:2rem; right:2rem;
+  background:var(--bg2); border:1px solid var(--gold);
+  padding:.9rem 1.5rem;
+  font-family:'Syne',sans-serif; font-size:.72rem;
+  color:var(--text); z-index:8999;
+  transform:translateY(80px); opacity:0;
+  transition:transform .4s var(--ease), opacity .4s;
+  display:flex; align-items:center; gap:.75rem;
+  backdrop-filter:blur(14px);
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+.toast.show { transform:translateY(0); opacity:1; }
+.toast-dot { width:5px; height:5px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+
+/* ═══════════════════════════════════════════════
+   RIPPLE  ← z FÓRM
+═══════════════════════════════════════════════ */
+.ripple-effect {
+  position:absolute; border-radius:50%;
+  background:rgba(224,181,90,.2);
+  pointer-events:none;
+  animation:rippleAnim .65s ease-out forwards;
+}
+@keyframes rippleAnim {
+  from { transform:scale(0); opacity:1; }
+  to   { transform:scale(4); opacity:0; }
+}
+
+/* ═══════════════════════════════════════════════
+   MARQUEE  ← z FÓRM
+═══════════════════════════════════════════════ */
+.marquee-wrap {
+  border-top:1px solid rgba(255,255,255,.06);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  overflow:hidden; padding:.9rem 0;
+  background:rgba(255,255,255,.012);
+  position:relative; z-index:2;
+}
+.marquee-track {
+  display:flex; width:max-content;
+  animation:marqueeRoll 32s linear infinite;
+}
+.marquee-track:hover { animation-play-state:paused; }
+.marquee-item {
+  display:flex; align-items:center;
+  gap:1.6rem; padding:0 1.6rem; white-space:nowrap;
+}
+.marquee-item span {
+  font-family:'Syne',sans-serif;
+  font-size:.62rem; letter-spacing:.24em;
+  text-transform:uppercase; color:rgba(240,238,248,.3);
+}
+.marquee-item i { color:var(--gold); font-style:normal; font-size:.8rem; }
+@keyframes marqueeRoll { to { transform:translateX(-50%); } }
+
+/* ═══════════════════════════════════════════════
+   WORK FILTER TABS  ← z FÓRM
+═══════════════════════════════════════════════ */
+.work-filter-tabs {
+  width:min(var(--max),100%); margin:0 auto 2rem;
+  display:flex; gap:.5rem; flex-wrap:wrap;
+}
+.wf-btn {
+  font-family:'Syne',sans-serif;
+  font-size:.62rem; letter-spacing:.18em; text-transform:uppercase;
+  color:rgba(237,242,248,.35); background:transparent;
+  border:1px solid rgba(255,255,255,.07);
+  padding:.45rem 1.1rem; cursor:pointer;
+  transition:color .3s, border-color .3s, background .3s;
+}
+.wf-btn.active, .wf-btn:hover {
+  color:var(--bg); background:var(--gold); border-color:var(--gold);
+}
+
+/* ═══════════════════════════════════════════════
+   BODY / BASE
+═══════════════════════════════════════════════ */
+body {
+  font-family:'Syne',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::before {
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  opacity:.055;
+  background:
+    linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+body {
+  background-image:
+    radial-gradient(ellipse 120% 60% at 80% 0%,   rgba(120,60,200,.08),  transparent 55%),
+    radial-gradient(ellipse 80%  50% at 0%   100%, rgba(190,140,70,.06), transparent 55%);
+  background-attachment:fixed;
+  background-repeat:no-repeat;
+}
+body::after {
+  content:""; position:fixed; inset:0; z-index:998; pointer-events:none;
+  opacity:.032;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px 200px;
+}
+.site { position:relative; z-index:2; }
+
+/* ═══════════════════════════════════════════════
+   SCROLL PROGRESS BAR
+═══════════════════════════════════════════════ */
+.scroll-bar {
+  position:fixed; top:0; left:0; height:2px; width:0%;
+  background:linear-gradient(90deg, transparent 0%, var(--gold) 20%, var(--blue2) 60%, var(--gold) 100%);
+  background-size:300% 100%;
+  z-index:9999; pointer-events:none;
+  transition:width .08s linear;
+  box-shadow:0 0 10px rgba(224,181,90,.45);
+}
+
+/* ═══════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════ */
+.nav {
+  position:fixed; top:0; left:0; width:100%; height:66px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 44px; z-index:100;
+  transition:background .42s, border-color .42s, backdrop-filter .42s;
+}
+.nav.scrolled {
+  background:rgba(6,11,17,.9);
+  backdrop-filter:blur(22px);
+}
+.logo { display:flex; align-items:center; gap:16px; }
+.logo img { width:48px; height:48px; object-fit:contain; filter:brightness(1.05) saturate(1.1); }
+.logo-text { display:flex; flex-direction:column; line-height:1.1; }
+.logo-text .l1 { font-size:13px; font-weight:700; letter-spacing:.26em; text-transform:uppercase; color:var(--text); }
+.logo-text .l2 { font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+.nav-links { display:flex; gap:36px; align-items:center; }
+.nav-link {
+  font-size:10.5px; letter-spacing:.2em; text-transform:uppercase;
+  color:rgba(237,242,248,.52); position:relative; transition:color .28s;
+}
+.nav-link::after {
+  content:""; position:absolute; bottom:-2px; left:0;
+  width:0; height:1px; background:var(--gold);
+  transition:width .3s var(--ease);
+}
+.nav-link:hover { color:var(--text); }
+.nav-link:hover::after, .nav-link.active-section::after { width:100%; }
+.nav-link.active-section { color:var(--text); }
+.nav-cta {
+  padding:10px 22px; border:1px solid rgba(201,168,108,.55);
+  font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold); position:relative; overflow:hidden;
+  transition:color .5s, background .5s, border-color .5s, box-shadow .5s;
+}
+.nav-cta span { position:relative; z-index:1; }
+.nav-cta:hover { color:var(--gold2); background:rgba(201,168,108,.12); border-color:var(--gold); box-shadow:0 4px 18px rgba(201,168,108,.15); }
+
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+.hero { display:flex; flex-direction:column; align-items:center; position:relative; overflow:hidden; }
+.hero-glow-a {
+  position:absolute; width:72vw; aspect-ratio:1; border-radius:50%;
+  right:-12vw; top:-10vh; filter:blur(100px); opacity:.18; pointer-events:none;
+  background:radial-gradient(circle at 38% 38%,rgba(140,80,220,.55),rgba(60,20,100,.4) 44%,transparent 70%);
+  animation:gfloat 13s ease-in-out infinite alternate;
+  transition:transform .6s ease;
+}
+.hero-glow-b {
+  position:absolute; width:38vw; aspect-ratio:1; border-radius:50%;
+  left:-4vw; bottom:10vh; filter:blur(120px); opacity:.11; pointer-events:none;
+  background:radial-gradient(circle,rgba(200,160,90,.7),transparent 68%);
+  animation:gfloat 17s ease-in-out infinite alternate-reverse;
+  transition:transform .6s ease;
+}
+@keyframes gfloat { from { transform:translateY(0) scale(1); } to { transform:translateY(38px) scale(1.07); } }
+.hero-main {
+  width:100%; min-height:calc(100dvh - 0px);
+  display:grid; grid-template-columns:1fr 1fr;
+  align-items:stretch; position:relative; z-index:2;
+}
+.hero-left { display:flex; flex-direction:column; justify-content:center; padding:120px 52px 72px 44px; }
+.hero-right { display:flex; align-items:center; justify-content:center; padding:80px 40px 80px; position:relative; background:rgba(255,255,255,.008); }
+.hero-bottom { width:100%; margin-top:60px; display:grid; grid-template-columns:1fr 1fr; position:relative; z-index:2; }
+.hero-bottom-left { padding:52px 60px 60px 44px; }
+.hero-bottom-right { padding:52px 52px 60px 60px; display:flex; flex-direction:column; justify-content:center; }
+.hero-visual { position:relative; width:100%; animation:fadeUp 1s var(--ease) .7s both; }
+.scene-nav { display:flex; gap:2px; margin-bottom:10px; background:rgba(255,255,255,.04); border-radius:6px; padding:3px; }
+.sn-btn {
+  flex:1; padding:7px 0; background:transparent; border:none; border-radius:4px;
+  font-family:'Syne',sans-serif; font-size:9px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--muted); cursor:pointer; transition:.3s var(--ease);
+}
+.sn-btn.active { background:rgba(255,255,255,.1); color:var(--text); }
+.browser-mock {
+  position:relative; border:1px solid rgba(255,255,255,.14); border-radius:12px; overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+.browser-bar {
+  height:38px; background:rgba(8,14,22,.97); border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex; align-items:center; padding:0 14px; gap:10px; position:relative; z-index:10;
+}
+.browser-dots { display:flex; gap:6px; }
+.browser-dots span { width:10px; height:10px; border-radius:50%; }
+.browser-dots span:nth-child(1){ background:#ff5f57; }
+.browser-dots span:nth-child(2){ background:#febc2e; }
+.browser-dots span:nth-child(3){ background:#38d860; }
+.browser-url {
+  flex:1; height:22px; background:rgba(255,255,255,.06); border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; letter-spacing:.04em; color:rgba(255,255,255,.35);
+}
+.browser-live { display:flex; align-items:center; gap:5px; font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.35); }
+.browser-live span { width:6px; height:6px; border-radius:50%; background:#38d860; animation:lpulse 1.8s ease-in-out infinite; }
+@keyframes lpulse { 0%,100%{ box-shadow:0 0 0 0 rgba(40,200,64,.5); } 50%{ box-shadow:0 0 0 5px rgba(40,200,64,0); } }
+.browser-progress { height:2px; background:rgba(255,255,255,.05); position:relative; z-index:10; }
+.browser-progress-fill { height:100%; width:0%; background:var(--gold); }
+.browser-scenes { position:relative; height:360px; overflow:hidden; }
+.bscene {
+  position:absolute; inset:0; overflow:hidden;
+  opacity:0; transform:scale(.96) translateY(10px);
+  transition:opacity .55s var(--ease), transform .55s var(--ease);
+  pointer-events:none;
+}
+.bscene.active { opacity:1; transform:none; pointer-events:auto; }
+.bscene.exit   { opacity:0; transform:scale(1.03) translateY(-10px); }
+.bs-nav {
+  position:absolute; top:0; left:0; right:0; z-index:5; height:32px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 12px; background:rgba(0,0,0,.35); backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.bs-nav-logo { width:44px; height:6px; border-radius:2px; }
+.bs-nav-links { display:flex; gap:8px; }
+.bs-nav-links span { width:20px; height:5px; border-radius:2px; background:rgba(255,255,255,.18); }
+.bs-nav-btn { width:42px; height:15px; border-radius:2px; border:1px solid; }
+.bs-hero { position:relative; width:100%; height:192px; overflow:hidden; }
+.bs-photo { position:absolute; inset:0; transition:transform 9s ease; }
+.bscene.active .bs-photo { transform:scale(1.07); }
+.gastro-photo { background: radial-gradient(ellipse at 65% 35%,rgba(190,64,8,.75),transparent 52%), radial-gradient(ellipse at 18% 75%,rgba(90,22,4,.8),transparent 48%), linear-gradient(160deg,#1e0c04,#2e1308,#0e0603); }
+.gastro-photo::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 38%,rgba(0,0,0,.84)); }
+.fitness-photo { background: radial-gradient(ellipse at 28% 52%,rgba(148,230,8,.22),transparent 55%), radial-gradient(ellipse at 80% 18%,rgba(70,110,4,.36),transparent 50%), linear-gradient(160deg,#070c02,#0e1604,#050901); }
+.fitness-photo::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0,transparent 1px,transparent 38px), linear-gradient(180deg,transparent 25%,rgba(0,0,0,.9)); }
+.salon-photo { background: radial-gradient(ellipse at 72% 28%,rgba(210,60,130,.32),transparent 52%), radial-gradient(ellipse at 18% 72%,rgba(110,22,65,.5),transparent 48%), linear-gradient(160deg,#170910,#280d1c,#0f050a); }
+.salon-photo::after { content:""; position:absolute; inset:0; background: radial-gradient(ellipse at 50% 0,rgba(255,150,200,.05),transparent 58%), linear-gradient(180deg,transparent 32%,rgba(0,0,0,.9)); }
+.bs-hero-content { position:absolute; bottom:12px; left:12px; right:12px; z-index:2; }
+.bs-eyebrow { font-size:8px; letter-spacing:.22em; text-transform:uppercase; color:var(--sa); margin-bottom:5px; opacity:0; transform:translateY(8px); transition:.4s var(--ease) .15s; }
+.bscene.active .bs-eyebrow { opacity:1; transform:none; }
+.bs-h1 { font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:300; line-height:1.08; letter-spacing:-.01em; color:#fff; margin-bottom:5px; opacity:0; transform:translateY(10px); transition:.5s var(--ease) .25s; }
+.bscene.active .bs-h1 { opacity:1; transform:none; }
+.bs-h1 em { font-style:italic; color:var(--sa); }
+.bs-sub { font-size:9.5px; color:rgba(255,255,255,.45); margin-bottom:10px; opacity:0; transform:translateY(8px); transition:.5s var(--ease) .35s; }
+.bscene.active .bs-sub { opacity:1; transform:none; }
+.bs-btns { display:flex; gap:6px; opacity:0; transform:translateY(8px); transition:.5s var(--ease) .45s; }
+.bscene.active .bs-btns { opacity:1; transform:none; }
+.bs-btn { padding:5px 11px; font-size:8px; letter-spacing:.12em; text-transform:uppercase; border:1px solid rgba(255,255,255,.22); color:rgba(255,255,255,.75); border-radius:2px; }
+.bs-btn.primary { background:var(--sa); border-color:var(--sa); color:#000; font-weight:700; }
+.bs-stats { display:flex; border-top:1px solid rgba(255,255,255,.06); }
+.bs-stat { flex:1; padding:9px 11px; border-right:1px solid rgba(255,255,255,.06); opacity:0; transform:translateY(6px); transition:.45s var(--ease); }
+.bs-stat:last-child { border-right:none; }
+.bscene.active .bs-stat:nth-child(1){ opacity:1; transform:none; transition-delay:.42s; }
+.bscene.active .bs-stat:nth-child(2){ opacity:1; transform:none; transition-delay:.54s; }
+.bscene.active .bs-stat:nth-child(3){ opacity:1; transform:none; transition-delay:.66s; }
+.bs-stat-num { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:300; line-height:1; color:var(--sa); letter-spacing:-.02em; }
+.bs-stat-lbl { font-size:7.5px; color:rgba(255,255,255,.3); margin-top:2px; letter-spacing:.06em; }
+.bs-float {
+  position:absolute; z-index:12;
+  background:rgba(8,14,22,.94); border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(14px); border-radius:8px; padding:9px 11px;
+  display:flex; align-items:center; gap:8px; font-size:10px;
+  box-shadow:0 10px 36px rgba(0,0,0,.55);
+  opacity:0; transform:translateX(18px); transition:.55s var(--ease) .72s;
+}
+.bscene.active .bs-float { opacity:1; transform:translateX(0); }
+.bs-float-icon { font-size:15px; }
+.bs-float-content { display:flex; flex-direction:column; gap:2px; }
+.bs-float-title { font-size:10px; color:var(--text); font-weight:600; }
+.bs-float-sub { font-size:8.5px; color:var(--muted); }
+.bs-float-tick { width:20px; height:20px; border-radius:50%; background:var(--sa); display:grid; place-items:center; font-size:11px; color:#000; flex-shrink:0; margin-left:4px; }
+.gastro-float { top:96px; right:8px; }
+.bscene-gastro { background:#0e0603; --sa:#e87030; }
+.bscene-fitness { background:#060a02; --sa:#c4f020; }
+.fitness-big { position:absolute; top:36px; left:0; right:0; height:156px; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:2; }
+.fitness-num { font-family:'Cormorant Garamond',serif; font-size:70px; font-weight:300; line-height:1; letter-spacing:-.04em; color:var(--sa); opacity:0; transform:scale(.82); transition:.62s var(--ease) .22s; }
+.bscene.active .fitness-num { opacity:1; transform:scale(1); }
+.fitness-label { font-size:8.5px; letter-spacing:.26em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-top:5px; opacity:0; transition:.5s var(--ease) .44s; }
+.bscene.active .fitness-label { opacity:1; }
+.fitness-grid { position:absolute; bottom:0; left:0; right:0; display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(255,255,255,.07); background:rgba(255,255,255,.025); }
+.fg-item { padding:11px 10px; border-right:1px solid rgba(255,255,255,.07); opacity:0; transform:translateY(8px); transition:.42s var(--ease); }
+.fg-item:last-child{ border-right:none; }
+.bscene.active .fg-item:nth-child(1){ opacity:1; transform:none; transition-delay:.34s; }
+.bscene.active .fg-item:nth-child(2){ opacity:1; transform:none; transition-delay:.46s; }
+.bscene.active .fg-item:nth-child(3){ opacity:1; transform:none; transition-delay:.58s; }
+.fg-bar { height:3px; background:rgba(255,255,255,.09); border-radius:2px; margin-bottom:6px; overflow:hidden; }
+.fg-fill { height:100%; border-radius:2px; background:var(--sa); width:0; transition:width 1.3s var(--ease) .65s; }
+.bscene.active .fg-fill { width:var(--w,70%); }
+.fg-num { font-size:14px; font-family:'Cormorant Garamond',serif; color:var(--sa); }
+.fg-lbl { font-size:7.5px; color:rgba(255,255,255,.3); margin-top:2px; }
+.bscene-salon { background:#0d0508; --sa:#f0a8c8; }
+.salon-services { padding:10px 12px; display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+.ss-card { background:rgba(255,255,255,.028); border:1px solid rgba(255,255,255,.07); border-radius:4px; padding:9px 10px; opacity:0; transform:translateY(10px); transition:.44s var(--ease); }
+.bscene.active .ss-card:nth-child(1){ opacity:1; transform:none; transition-delay:.28s; }
+.bscene.active .ss-card:nth-child(2){ opacity:1; transform:none; transition-delay:.40s; }
+.bscene.active .ss-card:nth-child(3){ opacity:1; transform:none; transition-delay:.52s; }
+.bscene.active .ss-card:nth-child(4){ opacity:1; transform:none; transition-delay:.64s; }
+.ss-icon { font-size:13px; margin-bottom:4px; }
+.ss-name { font-size:9.5px; color:rgba(255,255,255,.78); font-weight:600; }
+.ss-price { font-size:9px; color:var(--sa); margin-top:2px; }
+.mock-cursor {
+  position:absolute; z-index:50; pointer-events:none; width:16px; height:16px;
+  transition:left .65s cubic-bezier(.16,1,.3,1), top .65s cubic-bezier(.16,1,.3,1);
+}
+.mock-cursor svg { width:100%; height:100%; filter:drop-shadow(0 2px 5px rgba(0,0,0,.9)); }
+.mock-cursor.clicking { animation:cClick .28s var(--ease); }
+@keyframes cClick { 50%{ transform:scale(.65); } }
+.cur-ripple { position:absolute; top:0; left:0; width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.55); animation:cRipple .55s ease-out forwards; pointer-events:none; }
+@keyframes cRipple { to{ width:28px; height:28px; top:-10px; left:-10px; opacity:0; } }
+.chip-score {
+  position:absolute; bottom:-18px; right:-22px;
+  background:rgba(8,14,22,.93); border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(14px); border-radius:8px; padding:11px 14px;
+  display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+  box-shadow:0 10px 36px rgba(0,0,0,.5); white-space:nowrap;
+  animation:chipFloat 7s ease-in-out 2s infinite alternate;
+}
+.score-row { display:flex; align-items:center; gap:8px; width:100%; }
+.score-label { font-size:8px; color:var(--muted); letter-spacing:.06em; min-width:54px; }
+.score-bar { flex:1; height:4px; background:rgba(255,255,255,.1); border-radius:2px; overflow:hidden; min-width:60px; }
+.score-fill { height:100%; border-radius:2px; background:var(--gold); }
+.score-val { font-size:9px; color:var(--gold2); font-weight:600; min-width:24px; text-align:right; }
+@keyframes chipFloat { from{ transform:translateY(0); } to{ transform:translateY(-10px); } }
+
+/* ═══════════════════════════════════════════════
+   HERO TEXT & LAYOUT
+═══════════════════════════════════════════════ */
+.hero-eyebrow {
+  display:flex; align-items:center; gap:14px;
+  font-size:9px; letter-spacing:.34em; text-transform:uppercase; color:var(--gold);
+  opacity:0; animation:fadeUp .9s var(--ease) .2s forwards; margin-bottom:32px;
+}
+.eyebrow-line { height:1px; width:38px; background:linear-gradient(90deg,var(--gold),transparent); }
+.hero-h1 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(64px,10.5vw,170px);
+  font-weight:300; line-height:.88; letter-spacing:-.03em;
+}
+.hero-h1 em { display:block; font-style:italic; color:transparent; -webkit-text-stroke:1px rgba(237,242,248,.72); margin-top:6px; }
+/* H1 curtain line reveal ← z FÓRM */
+.h1-line-wrap { display:block; overflow:hidden; padding-bottom:.05em; line-height:.92; }
+.h1-line { display:block; transform:translateY(110%); animation:lineRise 1.1s cubic-bezier(.16,1,.3,1) both; }
+@keyframes lineRise { to { transform:translateY(0); } }
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; align-items:center; opacity:0; animation:fadeUp .95s var(--ease) .52s forwards; margin-top:48px; }
+.hero-desc-eyebrow { font-size:9px; letter-spacing:.26em; text-transform:uppercase; color:rgba(237,242,248,.3); margin-bottom:20px; }
+.hero-desc { font-size:15px; line-height:1.88; color:var(--muted); }
+.hero-desc strong { color:var(--gold2); font-weight:500; }
+.hero-features-label { font-size:8px; letter-spacing:.26em; text-transform:uppercase; color:rgba(237,242,248,.28); margin-bottom:18px; }
+.feature-list { display:flex; flex-direction:column; gap:11px; }
+.feature-item { display:flex; align-items:center; gap:11px; font-size:13px; line-height:1.45; color:rgba(237,242,248,.28); transition:color .7s ease; }
+.feature-item.lit { color:var(--gold2); }
+.feature-dot { width:5px; height:5px; border-radius:50%; background:rgba(201,168,108,.22); flex-shrink:0; transition:background .7s ease, box-shadow .7s ease; }
+.feature-item.lit .feature-dot { background:var(--gold); box-shadow:0 0 7px rgba(201,168,108,.55); }
+.consult-note { display:inline-flex; align-items:center; gap:8px; margin-top:28px; font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:rgba(240,238,248,.35); opacity:0; animation:fadeUp .9s var(--ease) .68s forwards; }
+.cn-dot { width:4px; height:4px; border-radius:50%; background:var(--gold); flex-shrink:0; opacity:.7; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(26px); } to { opacity:1; transform:translateY(0); } }
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  padding:14px 28px; border:1px solid rgba(238,242,250,.18);
+  font-family:'Syne',sans-serif; font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--text); position:relative; overflow:hidden;
+  transition:color .44s var(--ease), border-color .44s;
+  z-index:1; will-change:transform;
+}
+.btn::before { content:""; position:absolute; inset:0; background:rgba(238,242,250,.92); transform:translateX(-102%); transition:.44s var(--ease); z-index:-1; }
+.btn:hover { color:var(--bg2); border-color:var(--text); }
+.btn:hover::before { transform:translateX(0); }
+.btn.gold { border-color:rgba(212,170,101,.55); color:var(--gold); }
+.btn.gold::before { background:var(--gold); }
+.btn.gold:hover { color:var(--bg); border-color:var(--gold); }
+
+/* ═══════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════ */
+.stats { display:grid; grid-template-columns:repeat(4,1fr); padding:20px 0; }
+.stat { padding:58px 46px; position:relative; overflow:hidden; transition:background .38s; }
+.stat:last-child { border-right:none; }
+.stat:hover { background:rgba(255,255,255,.04); }
+.stat-num { font-family:'Cormorant Garamond',serif; font-size:clamp(44px,4.8vw,82px); font-weight:300; line-height:1; letter-spacing:-.02em; }
+.stat-num sup { font-size:.52em; color:var(--gold); font-style:italic; vertical-align:baseline; }
+.stat-label { margin-top:10px; font-size:9px; letter-spacing:.26em; text-transform:uppercase; color:var(--muted); }
+.stat-bar { position:absolute; bottom:0; left:0; height:1px; width:0; background:linear-gradient(90deg,var(--gold),transparent); transition:width .62s var(--ease); }
+.stat:hover .stat-bar { width:100%; }
+
+/* ═══════════════════════════════════════════════
+   EYEBROW
+═══════════════════════════════════════════════ */
+.ew { display:flex; align-items:center; gap:14px; font-size:9px; letter-spacing:.32em; text-transform:uppercase; color:var(--gold); margin-bottom:18px; }
+.ew::before { content:""; width:38px; height:1px; background:linear-gradient(90deg,var(--gold),transparent); }
+.ew.center { justify-content:center; }
+.ew.center::before { display:none; }
+.ew.center::after { content:""; width:38px; height:1px; background:linear-gradient(270deg,var(--gold),transparent); }
+
+/* ═══════════════════════════════════════════════
+   SPLIT — APPROACH
+═══════════════════════════════════════════════ */
+.split-section { display:grid; grid-template-columns:.88fr 1.12fr; }
+.split-sticky { position:sticky; top:0; height:100vh; display:flex; flex-direction:column; justify-content:center; padding:100px 60px; border-right:1px solid rgba(255,255,255,.04); background:linear-gradient(135deg,rgba(255,255,255,.03) 0%,rgba(255,255,255,.01) 100%); }
+.split-sticky h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,4.4vw,70px); font-weight:300; line-height:.97; letter-spacing:-.022em; max-width:480px; }
+.split-sticky h2 em { font-style:italic; color:var(--gold); }
+.split-sticky .desc { margin-top:28px; font-size:14px; line-height:1.86; color:var(--muted); max-width:420px; }
+.split-meta { margin-top:60px; padding-top:28px; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:rgba(237,242,248,.28); }
+.arow { padding:48px 60px; display:grid; grid-template-columns:70px 1fr; gap:28px; align-items:start; position:relative; overflow:hidden; transition:background .38s; }
+.arow::before { content:""; position:absolute; left:0; top:0; bottom:0; width:2px; background:rgba(201,168,108,.7); transform:scaleY(0); transform-origin:top; transition:transform .6s var(--ease); }
+.arow:hover { background:rgba(255,255,255,.025); }
+.arow:hover::before { transform:scaleY(1); }
+.arow-num { font-size:9px; letter-spacing:.26em; text-transform:uppercase; color:var(--gold); padding-top:7px; }
+.arow h3 { font-family:'Cormorant Garamond',serif; font-size:clamp(24px,2.4vw,40px); font-weight:400; line-height:1.04; letter-spacing:-.02em; margin-bottom:16px; }
+.arow p { font-size:13.5px; line-height:1.82; color:var(--muted); max-width:560px; }
+
+/* ═══════════════════════════════════════════════
+   WORK
+═══════════════════════════════════════════════ */
+.work-section { padding:110px 44px 140px; }
+.work-head { width:min(var(--max),100%); margin:0 auto 72px; display:grid; grid-template-columns:1fr .68fr; gap:52px; align-items:end; }
+.work-head h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(40px,5.2vw,84px); font-weight:300; line-height:.93; letter-spacing:-.025em; }
+.work-head h2 em { font-style:italic; color:var(--gold); }
+.work-head p { font-size:14px; line-height:1.8; color:var(--muted); max-width:460px; }
+.work-grid-top { width:min(var(--max),100%); margin:0 auto 16px; display:grid; grid-template-columns:1.15fr .85fr; gap:16px; }
+.work-grid-bot { width:min(var(--max),100%); margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.wcard { position:relative; overflow:hidden; transition:transform .5s var(--ease), border-color .5s; will-change:transform; transform-style:preserve-3d; }
+.wcard:hover { transform:translateY(-4px); border-color:rgba(201,168,108,.28); box-shadow:0 20px 48px rgba(0,0,0,.35); }
+.wcard.tall { min-height:420px; }
+.wcard.half { min-height:220px; }
+.wcard.short { min-height:240px; }
+.wcard-info { transition:transform .45s cubic-bezier(.16,1,.3,1); }
+.wcard:hover .wcard-info { transform:translateZ(18px); }
+.wcard-bg { position:absolute; inset:0; }
+.wcard-bg.warm { background: radial-gradient(circle at 76% 20%,rgba(201,168,108,.15),transparent 42%), linear-gradient(148deg,#181108,#241a0d 62%,#130e06); }
+.wcard-bg.hot  { background: radial-gradient(circle at 20% 76%,rgba(240,80,40,.1),transparent 42%), linear-gradient(148deg,#1a0e0c,#28130f 62%,#140a08); }
+.wcard-bg.tuning { background: radial-gradient(ellipse at 28% 72%,rgba(220,55,20,.28),transparent 48%), radial-gradient(ellipse at 76% 18%,rgba(180,80,10,.18),transparent 44%), linear-gradient(148deg,#1e0b06,#2e1208,#140804); }
+.wcard-bg.spa { background: radial-gradient(ellipse at 62% 28%,rgba(20,185,168,.22),transparent 50%), radial-gradient(ellipse at 18% 76%,rgba(8,130,118,.16),transparent 48%), linear-gradient(148deg,#071a18,#0d2624,#04120f); }
+.wcard-bg.fit { background: radial-gradient(ellipse at 24% 52%,rgba(148,220,8,.18),transparent 50%), linear-gradient(148deg,#0a1004,#121806,#070c02); }
+.wcard-bg.resto { background: radial-gradient(ellipse at 70% 38%,rgba(200,70,20,.22),transparent 50%), linear-gradient(148deg,#1a0c06,#261408,#100804); }
+.wcard-bg.custom { background: radial-gradient(ellipse at 50% 30%,rgba(100,120,220,.18),transparent 52%), linear-gradient(148deg,#0e1020,#151a30,#080d1c); }
+.wcard-deco { position:absolute; inset:0; width:100%; height:100%; opacity:.07; pointer-events:none; }
+.wcard-tag { position:absolute; top:22px; left:22px; padding:6px 12px; background:rgba(255,255,255,.04); font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+.wcard-info { position:absolute; left:22px; right:22px; bottom:24px; }
+.wcard-info h3 { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,3vw,54px); font-weight:300; line-height:1; letter-spacing:-.02em; }
+.wcard-info p { margin-top:12px; font-size:13px; line-height:1.66; color:var(--muted); max-width:320px; }
+/* work card filtered-out state */
+.wcard.filtered-out { opacity:.18; transform:scale(.97) !important; pointer-events:none; }
+
+/* ═══════════════════════════════════════════════
+   PROCESS
+═══════════════════════════════════════════════ */
+.process-section { padding:110px 44px; }
+.process-inner { width:min(var(--max),100%); margin:0 auto; }
+.process-inner h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,4.6vw,78px); font-weight:300; line-height:.95; letter-spacing:-.025em; margin-top:12px; max-width:720px; }
+.process-inner h2 em { font-style:italic; color:var(--gold); }
+.process-grid { margin-top:72px; display:grid; grid-template-columns:repeat(4,1fr); }
+.pstep { padding:48px 36px; min-height:290px; position:relative; overflow:hidden; transition:background .38s; }
+.pstep:hover { background:rgba(255,255,255,.04); }
+.pstep-ghost { position:absolute; top:10px; right:14px; font-family:'Cormorant Garamond',serif; font-size:86px; font-weight:300; line-height:1; color:rgba(237,242,248,.035); transition:color .4s; pointer-events:none; user-select:none; }
+.pstep:hover .pstep-ghost { color:rgba(201,168,108,.09); }
+.pstep-label { font-size:8.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:44px; }
+.pstep h3 { font-family:'Cormorant Garamond',serif; font-size:clamp(20px,2vw,30px); font-weight:400; letter-spacing:-.02em; line-height:1.1; margin-bottom:14px; }
+.pstep p { font-size:13px; line-height:1.7; color:var(--muted); }
+
+/* ═══════════════════════════════════════════════
+   PRICING
+═══════════════════════════════════════════════ */
+.pricing-section { padding:110px 44px; }
+.pricing-inner { width:min(var(--max),100%); margin:0 auto; }
+.pricing-inner h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,4.6vw,78px); font-weight:300; line-height:.95; letter-spacing:-.025em; margin-top:12px; max-width:860px; }
+.pricing-inner h2 em { font-style:italic; color:var(--gold); }
+.price-list { margin-top:72px; }
+.price-row { display:grid; grid-template-columns:.62fr .35fr 1fr auto; gap:28px; align-items:start; padding:36px 6px 28px; position:relative; overflow:hidden; transition:background .38s; }
+.price-row::after { content:""; position:absolute; bottom:-1px; left:0; height:1px; width:0; background:linear-gradient(90deg,var(--gold),transparent); transition:width .64s var(--ease); }
+.price-row:hover { background:rgba(255,255,255,.03); }
+.price-row:hover::after { width:100%; }
+.price-plan { font-size:8px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+.price-row h3 { font-family:'Cormorant Garamond',serif; font-size:clamp(22px,2.3vw,38px); font-weight:400; letter-spacing:-.02em; line-height:1.05; }
+.price-val { font-family:'Cormorant Garamond',serif; font-size:clamp(30px,3vw,58px); font-weight:300; letter-spacing:-.02em; line-height:1; color:var(--blue2); }
+.price-val.italic { font-style:italic; color:var(--gold); font-size:clamp(22px,2.3vw,42px); }
+.price-row p { font-size:13px; line-height:1.72; color:var(--muted); max-width:500px; }
+.price-features { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.pf-tag { display:inline-flex; align-items:center; gap:7px; padding:5px 13px; border:1px solid rgba(255,255,255,.1); border-radius:20px; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:rgba(240,238,248,.65); background:rgba(255,255,255,.05); transition:border-color .4s, color .4s, background .4s; }
+.price-row:hover .pf-tag { border-color:rgba(224,181,90,.3); color:rgba(240,238,248,.85); background:rgba(255,255,255,.07); }
+.pf-svg { width:11px; height:11px; flex-shrink:0; color:var(--gold); opacity:.9; }
+.price-domain { grid-column:1 / -1; display:flex; align-items:center; gap:7px; font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:rgba(238,242,250,.28); padding-top:14px; border-top:1px solid rgba(255,255,255,.06); margin-top:4px; }
+.pd-icon { font-size:12px; opacity:.55; }
+.price-featured { border-color:rgba(224,181,90,.2); }
+.price-badge { display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg,#d63030 0%,#9e1a1a 100%); color:#fff; font-size:7.5px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; padding:6px 20px 6px 12px; margin:10px 0 14px; clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%); box-shadow:0 4px 18px rgba(180,28,28,.45), inset 0 1px 0 rgba(255,255,255,.2); line-height:1; transition:box-shadow .3s; }
+.price-featured:hover .price-badge { box-shadow:0 6px 24px rgba(180,28,28,.6), inset 0 1px 0 rgba(255,255,255,.2); }
+.pb-star { font-size:11px; opacity:.9; }
+.pb-text { font-size:7px; letter-spacing:.2em; }
+
+/* ═══════════════════════════════════════════════
+   REVIEWS
+═══════════════════════════════════════════════ */
+.reviews-section { padding:110px 44px; }
+.reviews-inner { width:min(var(--max),100%); margin:0 auto; }
+.reviews-inner > h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(38px,4.6vw,72px); font-weight:300; line-height:.95; letter-spacing:-.025em; margin-top:12px; margin-bottom:64px; text-align:center; }
+.reviews-inner > h2 em { font-style:italic; color:var(--gold); }
+.reviews-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:56px; }
+.rev-card { background:var(--surface); padding:34px 32px; border-radius:4px; transition:border-color .4s, background .4s; position:relative; overflow:hidden; }
+.rev-card::after { content:""; position:absolute; bottom:0; left:0; height:1px; width:0; background:linear-gradient(90deg,var(--gold),transparent); transition:width .55s var(--ease); }
+.rev-card:hover { border-color:rgba(224,181,90,.28); background:rgba(255,255,255,.06); }
+.rev-card:hover::after { width:100%; }
+.rev-stars { display:flex; gap:4px; margin-bottom:20px; }
+.rev-star { width:13px; height:13px; color:var(--gold); flex-shrink:0; }
+.rev-text { font-family:'Cormorant Garamond',serif; font-size:17px; line-height:1.72; color:var(--muted); font-style:italic; margin-bottom:24px; }
+.rev-author { padding-top:16px; border-top:1px solid rgba(255,255,255,.06); }
+.rev-name { font-size:11px; font-weight:600; letter-spacing:.1em; color:var(--text); margin-bottom:4px; }
+.rev-role { font-size:8.5px; letter-spacing:.18em; text-transform:uppercase; color:rgba(240,238,248,.35); }
+.reviews-total { display:flex; align-items:center; justify-content:center; gap:24px; padding:36px 0; border-top:1px solid rgba(255,255,255,.06); }
+.rt-num { font-family:'Cormorant Garamond',serif; font-size:62px; font-weight:300; line-height:1; letter-spacing:-.03em; color:var(--gold); }
+.rt-num sup { font-size:.52em; vertical-align:super; }
+.rt-text { border-left:1px solid rgba(255,255,255,.07); padding-left:24px; }
+.rt-label { font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text); margin-bottom:6px; }
+.rt-sub { font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+
+/* ═══════════════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════════════ */
+.contact-section { min-height:76vh; display:grid; place-items:center; text-align:center; padding:84px 44px; position:relative; overflow:hidden; }
+.contact-glow { position:absolute; width:64vw; aspect-ratio:1; border-radius:50%; top:50%; left:50%; transform:translate(-50%,-50%); filter:blur(130px); opacity:.1; pointer-events:none; background:radial-gradient(circle,rgba(160,100,240,.6) 0%,rgba(200,160,90,.5) 55%,transparent 72%); }
+.contact-inner { max-width:860px; position:relative; z-index:1; }
+.contact-inner h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(50px,9vw,136px); font-weight:300; line-height:.88; letter-spacing:-.03em; margin-top:16px; }
+.contact-inner h2 em { font-style:italic; color:var(--gold); }
+.contact-inner .sub { margin:30px auto 44px; font-size:15px; line-height:1.8; color:var(--muted); max-width:520px; }
+.contact-links { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+footer { padding:28px 44px; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; border-top:1px solid rgba(255,255,255,.05); }
+.footer-logo { display:flex; align-items:center; gap:10px; }
+.footer-logo img { width:24px; height:24px; object-fit:contain; opacity:.48; }
+.footer-logo span { font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:rgba(237,242,248,.32); }
+.footer-r { font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:rgba(237,242,248,.22); }
+
+/* ═══════════════════════════════════════════════
+   SITE MODAL
+═══════════════════════════════════════════════ */
+.site-modal { position:fixed; inset:0; z-index:400; display:flex; align-items:center; justify-content:center; padding:24px; pointer-events:none; opacity:0; transition:opacity .38s var(--ease); }
+.site-modal.open { pointer-events:auto; opacity:1; }
+.sm-overlay { position:absolute; inset:0; background:rgba(10,8,18,.82); backdrop-filter:blur(10px); }
+.sm-panel { position:relative; z-index:1; width:min(860px,100%); background:var(--bg2); border:1px solid rgba(255,255,255,.1); border-radius:14px; overflow:hidden; transform:translateY(24px) scale(.97); transition:transform .45s var(--ease); box-shadow:0 48px 120px rgba(0,0,0,.65); }
+.site-modal.open .sm-panel { transform:none; }
+.sm-close-bar { display:flex; justify-content:space-between; align-items:center; padding:14px 22px; border-bottom:1px solid rgba(255,255,255,.07); }
+.sm-label { font-size:8.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); }
+.sm-close { width:30px; height:30px; border-radius:50%; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.05); color:var(--muted); font-size:16px; line-height:1; display:grid; place-items:center; transition:background .28s, color .28s; cursor:pointer; }
+.sm-close:hover { background:rgba(255,255,255,.12); color:var(--text); }
+.sm-preview-area { height:280px; position:relative; overflow:hidden; }
+.sm-bg-layer { position:absolute; inset:0; }
+.sm-preview-content { position:absolute; bottom:24px; left:28px; right:28px; z-index:2; }
+.sm-tag { font-size:8px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+.sm-title { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,4vw,48px); font-weight:300; line-height:.95; letter-spacing:-.02em; color:#fff; margin-bottom:12px; }
+.sm-desc { font-size:13.5px; line-height:1.72; color:rgba(255,255,255,.58); max-width:520px; }
+.sm-footer { padding:18px 22px; display:flex; gap:12px; flex-wrap:wrap; border-top:1px solid rgba(255,255,255,.07); }
+
+/* ═══════════════════════════════════════════════
+   REVEAL
+═══════════════════════════════════════════════ */
+.reveal { opacity:0; transform:translateY(32px) scale(.975); transition:opacity .82s var(--ease), transform .82s var(--ease); will-change:opacity,transform; }
+.reveal.show { opacity:1; transform:translateY(0) scale(1); }
+.rd1 { transition-delay:.1s; }
+.rd2 { transition-delay:.2s; }
+.rd3 { transition-delay:.3s; }
+.rd4 { transition-delay:.4s; }
+.arow.reveal { transform:translateX(-32px) scale(.99); opacity:0; }
+.arow.reveal.show { transform:translateX(0) scale(1); opacity:1; }
+.price-row.reveal { transform:translateX(28px) scale(.99); opacity:0; }
+.price-row.reveal.show { transform:translateX(0) scale(1); opacity:1; }
+.stat.reveal { transform:translateY(24px) scale(.94); }
+.stat.reveal.show { transform:translateY(0) scale(1); }
+.pstep.reveal { transform:translateY(38px) scale(.96); }
+.pstep.reveal.show { transform:translateY(0) scale(1); }
+.rev-card.reveal { transform:translateY(32px) rotateX(5deg); transform-origin:top center; opacity:0; }
+.rev-card.reveal.show { transform:translateY(0) rotateX(0deg); opacity:1; }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .stats { grid-template-columns:repeat(2,1fr); }
+  .process-grid { grid-template-columns:repeat(2,1fr); }
+  .work-grid-top { grid-template-columns:1fr; }
+  .work-grid-bot { grid-template-columns:1fr 1fr; }
+  .split-section { grid-template-columns:1fr; }
+  .split-sticky { position:relative; height:auto; border-right:none; }
+  .price-row { grid-template-columns:.9fr .6fr; grid-template-rows:auto auto; padding:30px 6px; }
+  .hero-main { grid-template-columns:1fr; }
+  .hero-left { padding:100px 44px 60px; }
+  .hero-right { padding:52px 44px 72px; }
+  .hero-bottom { grid-template-columns:1fr; }
+  .hero-bottom-left { padding:40px 44px; }
+  .hero-bottom-right { padding:36px 44px 48px; }
+}
+/* ═══════════════════════════════════════════════
+   LIVE BRANDING PREVIEW
+═══════════════════════════════════════════════ */
+.brand-section {
+  padding:110px 44px; background:var(--bg);
+  border-top:1px solid rgba(255,255,255,.04);
+}
+.brand-inner {
+  width:min(var(--max),100%); margin:0 auto;
+  display:grid; grid-template-columns:1fr 1.1fr;
+  gap:80px; align-items:center;
+}
+.brand-controls { display:flex; flex-direction:column; gap:1.4rem; margin-top:2.2rem; }
+.brand-field label {
+  display:block; font-size:8px; letter-spacing:.26em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:.65rem;
+}
+.brand-input {
+  width:100%; background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  padding:.85rem 1rem;
+  font-family:'Syne',sans-serif; font-size:1rem; font-weight:600;
+  color:var(--text); outline:none;
+  transition:border-color .3s, background .3s;
+}
+.brand-input::placeholder { color:rgba(240,238,248,.2); font-weight:400; font-size:.9rem; }
+.brand-input:focus { border-color:var(--gold); background:rgba(255,255,255,.06); }
+.color-swatches { display:flex; gap:.55rem; flex-wrap:wrap; }
+.color-swatch {
+  width:32px; height:32px; border-radius:50%; cursor:pointer;
+  border:2px solid transparent;
+  transition:transform .25s var(--ease), border-color .25s;
+  position:relative;
+}
+.color-swatch:hover { transform:scale(1.15); }
+.color-swatch.active {
+  border-color:rgba(255,255,255,.7);
+  transform:scale(1.2);
+  box-shadow:0 0 0 3px rgba(255,255,255,.12);
+}
+/* Browser preview */
+.brand-browser-wrap { position:relative; }
+.brand-browser {
+  border:1px solid rgba(255,255,255,.14); border-radius:12px; overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.65);
+  transition:box-shadow .6s;
+}
+.brand-browser-bar {
+  height:36px; background:rgba(8,14,22,.97);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex; align-items:center; padding:0 12px; gap:8px;
+}
+.brand-browser-dots { display:flex; gap:5px; }
+.brand-browser-dots span { width:9px; height:9px; border-radius:50%; }
+.brand-browser-dots span:nth-child(1){ background:#ff5f57; }
+.brand-browser-dots span:nth-child(2){ background:#febc2e; }
+.brand-browser-dots span:nth-child(3){ background:#38d860; }
+.brand-url-bar {
+  flex:1; height:20px; background:rgba(255,255,255,.05); border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; letter-spacing:.04em; color:rgba(255,255,255,.32);
+  transition:color .4s;
+}
+/* Preview body */
+.brand-preview-body {
+  height:340px; position:relative; overflow:hidden;
+  transition:background 0.7s ease;
+}
+.bp-bg-overlay {
+  position:absolute; inset:0; pointer-events:none;
+  transition:background 0.7s ease;
+}
+.bp-nav {
+  position:relative; z-index:2; height:36px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 18px; border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.3); backdrop-filter:blur(8px);
+}
+.bp-nav-logo {
+  font-family:'Cormorant Garamond',serif;
+  font-size:14px; font-weight:300; letter-spacing:.12em;
+  color:#fff; transition:color .5s;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;
+}
+.bp-nav-links { display:flex; gap:10px; }
+.bp-nav-links span { width:24px; height:4px; border-radius:2px; background:rgba(255,255,255,.18); }
+.bp-nav-cta {
+  height:18px; padding:0 8px; border-radius:2px;
+  font-size:7px; letter-spacing:.12em; text-transform:uppercase;
+  display:flex; align-items:center;
+  transition:background .5s, color .5s;
+  color:#000; font-weight:700;
+}
+/* Hero area inside preview */
+.bp-hero {
+  position:relative; z-index:2;
+  padding:28px 18px 20px;
+}
+.bp-eyebrow {
+  font-size:7px; letter-spacing:.28em; text-transform:uppercase;
+  margin-bottom:8px; transition:color .5s;
+}
+.bp-h1 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(22px,4vw,36px); font-weight:300; line-height:.95;
+  letter-spacing:-.02em; color:#fff; margin-bottom:8px;
+  transition:all .4s var(--ease);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.bp-sub { font-size:9px; color:rgba(255,255,255,.42); margin-bottom:14px; }
+.bp-cta {
+  display:inline-flex; align-items:center; gap:6px;
+  height:26px; padding:0 12px; border-radius:2px;
+  font-size:8px; letter-spacing:.14em; text-transform:uppercase;
+  color:#000; font-weight:700;
+  transition:background .5s;
+}
+/* Stats row at bottom of preview */
+.bp-stats {
+  position:absolute; bottom:0; left:0; right:0; z-index:2;
+  display:flex; border-top:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.35); backdrop-filter:blur(8px);
+}
+.bp-stat {
+  flex:1; padding:10px 14px;
+  border-right:1px solid rgba(255,255,255,.07);
+}
+.bp-stat:last-child { border-right:none; }
+.bp-stat-n {
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px; font-weight:300; line-height:1;
+  transition:color .5s;
+}
+.bp-stat-l { font-size:7px; color:rgba(255,255,255,.28); margin-top:2px; }
+/* Floating badge on preview */
+.brand-badge {
+  position:absolute; top:-14px; right:-14px;
+  background:rgba(8,14,22,.93); border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(14px); border-radius:8px; padding:10px 14px;
+  display:flex; flex-direction:column; gap:3px;
+  box-shadow:0 10px 32px rgba(0,0,0,.5);
+  animation:chipFloat 6s ease-in-out 1s infinite alternate;
+}
+.brand-badge-label {
+  font-size:7px; letter-spacing:.22em; text-transform:uppercase;
+  color:rgba(240,238,248,.35);
+}
+.brand-badge-val {
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px; font-weight:300; line-height:1;
+  transition:color .5s;
+}
+
+/* ═══════════════════════════════════════════════
+   PRICE CALCULATOR
+═══════════════════════════════════════════════ */
+.calc-section {
+  padding:110px 44px;
+  background:var(--bg2); border-top:1px solid rgba(255,255,255,.04);
+}
+.calc-inner {
+  width:min(var(--max),100%); margin:0 auto;
+  display:grid; grid-template-columns:1.1fr .9fr;
+  gap:80px; align-items:start;
+}
+.calc-options { display:flex; flex-direction:column; gap:2rem; }
+.calc-group-title {
+  font-size:8px; letter-spacing:.28em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:1rem;
+  display:flex; align-items:center; gap:.6rem;
+}
+.calc-group-title::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg,rgba(224,181,90,.25),transparent);
+}
+.calc-base-opts { display:flex; flex-direction:column; gap:.5rem; }
+.calc-base-btn {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1rem 1.2rem; background:transparent;
+  border:1px solid rgba(255,255,255,.07);
+  cursor:pointer; transition:background .3s, border-color .3s;
+  text-align:left; width:100%;
+}
+.calc-base-btn:hover { background:rgba(255,255,255,.03); border-color:rgba(255,255,255,.12); }
+.calc-base-btn.active {
+  background:rgba(224,181,90,.06);
+  border-color:rgba(224,181,90,.4);
+}
+.calc-base-btn.active .cb-radio { background:var(--gold); border-color:var(--gold); box-shadow:0 0 0 3px rgba(224,181,90,.15); }
+.cb-left { display:flex; align-items:center; gap:.85rem; }
+.cb-radio {
+  width:14px; height:14px; border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.2); flex-shrink:0;
+  transition:background .25s, border-color .25s, box-shadow .25s;
+}
+.cb-name {
+  font-family:'Syne',sans-serif; font-size:.9rem; font-weight:600; color:var(--text);
+}
+.cb-desc { font-size:.7rem; color:var(--muted); margin-top:.15rem; }
+.cb-price {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.3rem; font-weight:300; color:var(--blue2);
+  white-space:nowrap;
+}
+.calc-addons { display:flex; flex-direction:column; gap:.4rem; }
+.calc-addon {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.85rem 1.2rem; background:transparent;
+  border:1px solid rgba(255,255,255,.05);
+  cursor:pointer; transition:background .3s, border-color .3s;
+  text-align:left; width:100%;
+}
+.calc-addon:hover { background:rgba(255,255,255,.02); border-color:rgba(255,255,255,.09); }
+.calc-addon.active { background:rgba(224,181,90,.04); border-color:rgba(224,181,90,.25); }
+.calc-addon.active .ca-check { background:var(--gold); border-color:var(--gold); color:var(--bg); }
+.ca-left { display:flex; align-items:center; gap:.85rem; }
+.ca-check {
+  width:16px; height:16px; border:1.5px solid rgba(255,255,255,.2);
+  border-radius:3px; display:flex; align-items:center; justify-content:center;
+  font-size:10px; color:transparent; flex-shrink:0;
+  transition:background .25s, border-color .25s, color .25s;
+}
+.calc-addon.active .ca-check::after { content:'✓'; }
+.ca-name { font-size:.88rem; color:var(--text); font-family:'Syne',sans-serif; font-weight:500; }
+.ca-plus {
+  font-size:.7rem; color:var(--gold); letter-spacing:.08em;
+  white-space:nowrap; font-family:'Cormorant Garamond',serif; font-size:1.1rem;
+}
+/* Calculator result panel */
+.calc-result {
+  position:sticky; top:8rem;
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.08);
+  padding:2.5rem;
+}
+.cr-label {
+  font-size:8px; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:1.8rem;
+}
+.cr-price-wrap { margin-bottom:2rem; }
+.cr-price {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(52px,6vw,88px); font-weight:300;
+  line-height:1; letter-spacing:-.03em; color:var(--text);
+  transition:color .4s;
+}
+.cr-price-unit {
+  font-size:1.5rem; color:var(--muted); vertical-align:super;
+  font-family:'Syne',sans-serif; font-weight:400;
+}
+.cr-subtitle { font-size:.7rem; color:var(--muted); margin-top:.4rem; letter-spacing:.06em; }
+.cr-breakdown { display:flex; flex-direction:column; gap:.5rem; margin-bottom:2rem; }
+.cr-line {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:.78rem; color:var(--muted);
+  padding:.45rem 0; border-bottom:1px solid rgba(255,255,255,.04);
+  animation:crFadeIn .3s var(--ease);
+}
+@keyframes crFadeIn { from { opacity:0; transform:translateX(8px); } to { opacity:1; transform:none; } }
+.cr-line:last-child { border-bottom:none; }
+.cr-line span:last-child { color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:1rem; }
+.cr-total-line {
+  display:flex; justify-content:space-between;
+  padding:1rem 0 1.5rem;
+  border-top:1px solid rgba(255,255,255,.1);
+}
+.cr-total-label { font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+.cr-total-val {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.6rem; font-weight:300; color:var(--blue2);
+}
+@media(max-width:1100px){
+  .brand-inner,.calc-inner { grid-template-columns:1fr; gap:40px; }
+  .brand-browser-wrap .brand-badge { display:none; }
+}
+@media(max-width:760px){
+  .brand-section,.calc-section { padding-left:20px; padding-right:20px; }
+  .calc-result { position:relative; top:auto; margin-top:2rem; }
+}
+</style>
 </head>
-
 <body>
-  <div class="noise"></div>
 
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="#" class="logo">
-        <span class="logo-mark">LP</span>
-        <span>LP Webdesign</span>
-      </a>
+<!-- CURSOR -->
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
 
-      <div class="nav-links">
-        <a href="#sluzby">Služby</a>
-        <a href="#projekty">Projekty</a>
-        <a href="#cennik">Cenník</a>
-        <a href="#kontakt" class="nav-cta">Kontakt</a>
+<!-- SCROLL PROGRESS -->
+<div class="scroll-bar" id="scrollBar"></div>
+
+<!-- ══════════════════════════════════════
+     LOADER  ← z FÓRM
+══════════════════════════════════════ -->
+<div id="loader">
+  <img class="loader-logo-img" src="LP.png" alt="LP Webdesign"/>
+  <div class="loader-bar-wrap">
+    <div class="loader-bar" id="loaderBar"></div>
+  </div>
+  <div class="loader-pct" id="loaderPct">0%</div>
+</div>
+
+<!-- FLYING LOGO -->
+<div id="logo-fly"><img src="LP.png" alt=""/></div>
+
+<!-- TOAST  ← z FÓRM -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <span id="toastMsg">Správa odoslaná!</span>
+</div>
+
+<div class="site">
+
+<!-- NAV -->
+<nav class="nav" id="mainNav">
+  <a href="/" class="logo">
+    <img src="LP.png" alt="LP Webdesign logo"/>
+    <div class="logo-text">
+      <span class="l1">LP Webdesign</span>
+      <span class="l2">Premium solutions</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#pristup"    class="nav-link">O nás</a>
+    <a href="#projekty"   class="nav-link">Naše práce</a>
+    <a href="#cena"       class="nav-link">Cenník</a>
+    <a href="#referencie" class="nav-link">Referencie</a>
+    <a href="#kontakt"    class="nav-cta nav-link"><span>Kontakt</span></a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow-a"></div>
+  <div class="hero-glow-b"></div>
+
+  <div class="hero-main">
+    <div class="hero-left">
+      <div class="hero-eyebrow" id="heroEyebrow">
+        <div class="eyebrow-line"></div>
+        Premium webdesign studio
+      </div>
+
+      <h1 class="hero-h1" id="heroH1">
+        Prémiové<br/>weby pre<br/><em>vašu značku.</em>
+      </h1>
+
+      <div class="hero-actions">
+        <a href="#projekty" class="btn gold">Pozrieť štýl &nbsp;→</a>
+        <a href="#cena"     class="btn">Cenník</a>
+      </div>
+      <div class="consult-note">
+        <div class="cn-dot"></div>
+        Konzultácia zdarma — bez záväzkov
       </div>
     </div>
-  </nav>
 
-  <main>
-    <section class="hero">
-      <div class="wrap hero-grid">
-        <div>
-          <div class="badge">
-            <span class="dot"></span>
-            Moderné weby pre lokálne podniky
-          </div>
-
-          <h1>
-            Webstránky, ktoré vyzerajú <span class="red">drahšie</span>, než stoja.
-          </h1>
-
-          <p>
-            Tvorím rýchle, moderné a mobilné weby pre reštaurácie, salóny, barbery,
-            fitness centrá, detailing štúdiá a lokálne značky, ktoré nechcú pôsobiť ako z roku 2014.
-          </p>
-
-          <div class="hero-actions">
-            <a href="#projekty" class="btn btn-primary">Pozrieť ukážky</a>
-            <a href="#kontakt" class="btn btn-secondary">Chcem web</a>
-          </div>
+    <div class="hero-right">
+      <div class="hero-visual">
+        <div class="scene-nav">
+          <button class="sn-btn active" data-scene="0">🍽 Gastro</button>
+          <button class="sn-btn"        data-scene="1">💪 Fitness</button>
+          <button class="sn-btn"        data-scene="2">✂ Salon</button>
         </div>
-
-        <div class="hero-card">
-          <div class="browser">
-            <div class="browser-top">
-              <span class="circle"></span>
-              <span class="circle"></span>
-              <span class="circle"></span>
-            </div>
-
-            <div class="screen">
-              <div class="mock-nav">
-                <span>RESTAURANT CONCEPT</span>
-                <span>BOOK TABLE</span>
-              </div>
-
-              <div class="mock-title">
-                Moderný web pre gastro brand
-              </div>
-
-              <div class="mock-text">
-                Menu, rezervácie, kontakt, Google Maps a mobilná verzia pripravená pre zákazníkov.
-              </div>
-
-              <div class="mock-row">
-                <div class="mock-box">
-                  <strong>01</strong>
-                  Mobile-first
-                </div>
-                <div class="mock-box">
-                  <strong>02</strong>
-                  Rýchly web
+        <div class="browser-mock">
+          <div class="browser-bar">
+            <div class="browser-dots"><span></span><span></span><span></span></div>
+            <div class="browser-url" id="sceneUrl">gastro-concept.sk</div>
+            <div class="browser-live"><span></span>Live preview</div>
+          </div>
+          <div class="browser-progress"><div class="browser-progress-fill" id="bpFill"></div></div>
+          <div class="browser-scenes">
+            <!-- GASTRO -->
+            <div class="bscene bscene-gastro active" id="scene0">
+              <div class="bs-nav"><div class="bs-nav-logo" style="background:var(--sa)"></div><div class="bs-nav-links"><span></span><span></span><span></span></div><div class="bs-nav-btn" style="border-color:var(--sa)"></div></div>
+              <div class="bs-hero"><div class="bs-photo gastro-photo"></div>
+                <div class="bs-hero-content">
+                  <div class="bs-eyebrow">Zlaté Moravce · Reštaurácia</div>
+                  <div class="bs-h1">Zažite chuť<br/><em>domova.</em></div>
+                  <div class="bs-sub">Autentická kuchyňa. Moderná atmosféra.</div>
+                  <div class="bs-btns"><div class="bs-btn primary">Rezervovať →</div><div class="bs-btn">Menu</div></div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="sluzby">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Služby</div>
-            <h2>Čo viem spraviť pre tvoj podnik</h2>
-          </div>
-          <p class="section-desc">
-            Žiadne zbytočné korporátne reči. Cieľ je jednoduchý: aby web dobre vyzeral,
-            rýchlo sa načítal a zákazník našiel to, čo potrebuje.
-          </p>
-        </div>
-
-        <div class="services-grid">
-          <article class="service">
-            <div class="icon">01</div>
-            <h3>Firemné weby</h3>
-            <p>Moderná prezentácia pre podnik, službu alebo osobnú značku. Čistý dizajn, silný prvý dojem a jasný kontakt.</p>
-          </article>
-
-          <article class="service">
-            <div class="icon">02</div>
-            <h3>Weby pre gastro</h3>
-            <p>Reštaurácie, bary, kaviarne, bistrá a food koncepty. Menu, galéria, otváracie hodiny, mapa a rezervácie.</p>
-          </article>
-
-          <article class="service">
-            <div class="icon">03</div>
-            <h3>Redizajn starého webu</h3>
-            <p>Ak web pôsobí zastaralo, pomaly alebo zle na mobile, prerobím ho na modernú a použiteľnú verziu.</p>
-          </article>
-
-          <article class="service">
-            <div class="icon">04</div>
-            <h3>Mobilná optimalizácia</h3>
-            <p>Väčšina zákazníkov príde z mobilu. Preto musí byť web prehľadný, rýchly a použiteľný hlavne na telefóne.</p>
-          </article>
-
-          <article class="service">
-            <div class="icon">05</div>
-            <h3>Základné SEO</h3>
-            <p>Nastavenie titulkov, popisov, štruktúry, rýchlosti a obsahu tak, aby web dával zmysel aj pre Google.</p>
-          </article>
-
-          <article class="service">
-            <div class="icon">06</div>
-            <h3>Landing pages</h3>
-            <p>Jednostránkové weby pre kampane, nové služby, eventy, produkty alebo rýchle overenie nápadu.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="projekty">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Portfólio</div>
-            <h2>Ukážky práce a koncepty</h2>
-          </div>
-          <p class="section-desc">
-            Na začiatok stačia aj vlastné projekty a demo koncepty. Dôležité je ukázať štýl, detail a schopnosť vytvoriť web, ktorý pôsobí profesionálne.
-          </p>
-        </div>
-
-        <div class="projects-grid">
-          <article class="project">
-            <div class="project-img">
-              <div class="project-preview">
-                <span></span><span></span><span></span>
+              <div class="bs-stats">
+                <div class="bs-stat"><div class="bs-stat-num">12+</div><div class="bs-stat-lbl">Rokov</div></div>
+                <div class="bs-stat"><div class="bs-stat-num">4.9★</div><div class="bs-stat-lbl">Hodnotenie</div></div>
+                <div class="bs-stat"><div class="bs-stat-num">200+</div><div class="bs-stat-lbl">Jedál</div></div>
+              </div>
+              <div class="bs-float gastro-float">
+                <div class="bs-float-icon">🗓</div>
+                <div class="bs-float-content"><div class="bs-float-title">Stôl o 19:00 — dnes</div><div class="bs-float-sub">4 osoby · Terasa</div></div>
+                <div class="bs-float-tick">✓</div>
               </div>
             </div>
-            <div class="project-body">
-              <h3>RACEM</h3>
-              <p>Automotive e-shop s výrazným vizuálom, produktovými sekciami, kategóriami a moderným dark štýlom.</p>
-              <div class="tags">
-                <span class="tag">E-commerce</span>
-                <span class="tag">Shopify</span>
-                <span class="tag">Automotive</span>
+            <!-- FITNESS -->
+            <div class="bscene bscene-fitness" id="scene1">
+              <div class="bs-nav"><div class="bs-nav-logo" style="background:var(--sa)"></div><div class="bs-nav-links"><span></span><span></span><span></span></div><div class="bs-nav-btn" style="border-color:var(--sa)"></div></div>
+              <div class="bs-photo fitness-photo"></div>
+              <div class="fitness-big"><div class="fitness-num" id="fitNum">0%</div><div class="fitness-label">Výsledky za 3 mesiace</div></div>
+              <div class="fitness-grid">
+                <div class="fg-item"><div class="fg-bar"><div class="fg-fill" style="--w:82%"></div></div><div class="fg-num">82%</div><div class="fg-lbl">Sila</div></div>
+                <div class="fg-item"><div class="fg-bar"><div class="fg-fill" style="--w:91%"></div></div><div class="fg-num">91%</div><div class="fg-lbl">Výdrž</div></div>
+                <div class="fg-item"><div class="fg-bar"><div class="fg-fill" style="--w:96%"></div></div><div class="fg-num">96%</div><div class="fg-lbl">Spokojnosť</div></div>
               </div>
             </div>
-          </article>
-
-          <article class="project">
-            <div class="project-img">
-              <div class="project-preview">
-                <span></span><span></span><span></span>
+            <!-- SALON -->
+            <div class="bscene bscene-salon" id="scene2">
+              <div class="bs-nav"><div class="bs-nav-logo" style="background:var(--sa)"></div><div class="bs-nav-links"><span></span><span></span><span></span></div><div class="bs-nav-btn" style="border-color:var(--sa)"></div></div>
+              <div class="bs-hero"><div class="bs-photo salon-photo"></div>
+                <div class="bs-hero-content">
+                  <div class="bs-eyebrow">Beauty Studio · Premium</div>
+                  <div class="bs-h1">Váš nový<br/><em>look.</em></div>
+                  <div class="bs-sub">Profesionálna starostlivosť. Váš štýl.</div>
+                  <div class="bs-btns"><div class="bs-btn primary">Rezervácia →</div><div class="bs-btn">Služby</div></div>
+                </div>
+              </div>
+              <div class="salon-services">
+                <div class="ss-card"><div class="ss-icon">✂</div><div class="ss-name">Strih & Styling</div><div class="ss-price">od 35€</div></div>
+                <div class="ss-card"><div class="ss-icon">🎨</div><div class="ss-name">Farbenie</div><div class="ss-price">od 55€</div></div>
+                <div class="ss-card"><div class="ss-icon">💅</div><div class="ss-name">Manikúra</div><div class="ss-price">od 25€</div></div>
+                <div class="ss-card"><div class="ss-icon">🧴</div><div class="ss-name">Ošetrenie</div><div class="ss-price">od 45€</div></div>
               </div>
             </div>
-            <div class="project-body">
-              <h3>NatureFlow Head Spa</h3>
-              <p>Prezentačný web pre službu so zameraním na atmosféru, dôveru, vizuál a jednoduchú orientáciu.</p>
-              <div class="tags">
-                <span class="tag">Beauty</span>
-                <span class="tag">Služby</span>
-                <span class="tag">Branding</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="project">
-            <div class="project-img">
-              <div class="project-preview">
-                <span></span><span></span><span></span>
-              </div>
-            </div>
-            <div class="project-body">
-              <h3>Gastro Demo Concept</h3>
-              <p>Demo návrh moderného webu pre reštauráciu s menu, rezerváciou, galériou a mobilným layoutom.</p>
-              <div class="tags">
-                <span class="tag">Restaurant</span>
-                <span class="tag">Demo</span>
-                <span class="tag">Mobile-first</span>
-              </div>
-            </div>
-          </article>
+          </div>
+          <div class="mock-cursor" id="mockCursor">
+            <svg viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L1 16L5 12L7.5 18L9.5 17L7 11H13L1 1Z" fill="white" stroke="rgba(0,0,0,.6)" stroke-width=".8" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="chip-score">
+          <div class="score-row"><div class="score-label">Performance</div><div class="score-bar"><div class="score-fill" style="width:98%"></div></div><div class="score-val">98</div></div>
+          <div class="score-row"><div class="score-label">SEO</div><div class="score-bar"><div class="score-fill" style="width:100%;background:var(--gold)"></div></div><div class="score-val" style="color:var(--gold2)">100</div></div>
+          <div class="score-row"><div class="score-label">Mobile</div><div class="score-bar"><div class="score-fill" style="width:100%"></div></div><div class="score-val">100</div></div>
         </div>
       </div>
-    </section>
-
-    <section id="cennik">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Cenník</div>
-            <h2>Jednoduché balíky bez zbytočného chaosu</h2>
-          </div>
-          <p class="section-desc">
-            Ceny sú nastavené hlavne pre malé podniky, ktoré chcú vyzerať profesionálne, ale nepotrebujú projekt za niekoľko tisíc eur.
-          </p>
-        </div>
-
-        <div class="pricing-grid">
-          <article class="price-card">
-            <span class="label">Štart</span>
-            <h3>Starter web</h3>
-            <div class="price">399€ <span>/ od</span></div>
-            <ul>
-              <li>Jednostránkový web</li>
-              <li>Mobilná optimalizácia</li>
-              <li>Kontakt a mapa</li>
-              <li>Základné SEO</li>
-              <li>Dodanie približne do 7 dní</li>
-            </ul>
-            <a href="#kontakt" class="btn btn-secondary">Mám záujem</a>
-          </article>
-
-          <article class="price-card featured">
-            <span class="label">Najčastejšia voľba</span>
-            <h3>Business web</h3>
-            <div class="price">699€ <span>/ od</span></div>
-            <ul>
-              <li>Moderný dizajn na mieru</li>
-              <li>Viac sekcií podľa služby</li>
-              <li>Galéria, menu alebo služby</li>
-              <li>Rezervačný alebo kontaktný formulár</li>
-              <li>Lepšia štruktúra pre Google</li>
-            </ul>
-            <a href="#kontakt" class="btn btn-primary">Chcem tento balík</a>
-          </article>
-
-          <article class="price-card">
-            <span class="label">Individuálne</span>
-            <h3>Redizajn / extra</h3>
-            <div class="price">Na mieru</div>
-            <ul>
-              <li>Redizajn existujúceho webu</li>
-              <li>Viac jazykov</li>
-              <li>Pokročilejšie formuláre</li>
-              <li>Texty, štruktúra a UX</li>
-              <li>Úpravy podľa rozsahu</li>
-            </ul>
-            <a href="#kontakt" class="btn btn-secondary">Napísať</a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Postup</div>
-            <h2>Ako prebieha spolupráca</h2>
-          </div>
-        </div>
-
-        <div class="process">
-          <div class="step">
-            <h3>Krátke zadanie</h3>
-            <p>Povieš mi, čo robíš, čo má byť na webe a aký štýl chceš.</p>
-          </div>
-
-          <div class="step">
-            <h3>Návrh štruktúry</h3>
-            <p>Navrhnem rozloženie sekcií, obsah a základný vizuálny smer.</p>
-          </div>
-
-          <div class="step">
-            <h3>Tvorba webu</h3>
-            <p>Pripravím moderný responzívny web, ktorý bude fungovať hlavne na mobile.</p>
-          </div>
-
-          <div class="step">
-            <h3>Spustenie</h3>
-            <p>Po finálnych úpravách web zverejníme a nastavíme základné SEO.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="kontakt">
-      <div class="wrap">
-        <div class="cta">
-          <div>
-            <div class="eyebrow">Kontakt</div>
-            <h2>Chceš web, ktorý nebude vyzerať ako lacná šablóna?</h2>
-            <p>
-              Napíš mi, aký podnik máš, čo potrebuješ a pošlem ti návrh možností.
-              Najlepšie fungujú reštaurácie, bary, salóny, fitness, detailing, barber a lokálne služby.
-            </p>
-          </div>
-
-          <div class="contact-box">
-            <a class="contact-link" href="mailto:info@remperformance.sk">
-              <span>info@remperformance.sk</span>
-              <span>→</span>
-            </a>
-
-            <a class="contact-link" href="https://racem.sk" target="_blank">
-              <span>Ukážka: RACEM.sk</span>
-              <span>→</span>
-            </a>
-
-            <a class="contact-link" href="https://natureflowheadspa.sk" target="_blank">
-              <span>Ukážka: NatureFlow</span>
-              <span>→</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-      <span>© 2026 LP Webdesign. Moderné weby pre lokálne podniky.</span>
-      <span>Webdesign • SEO základy • Mobile-first</span>
     </div>
-  </footer>
+  </div>
+
+  <div class="hero-bottom">
+    <div class="hero-bottom-left">
+      <div class="hero-desc-eyebrow">O nás</div>
+      <p class="hero-desc">Tvoríme hladké, prémiové a plne brandované webstránky navrhnuté okolo vášho zákazníka. Každý web je výkonný, SEO optimalizovaný a plne editovateľný — <strong>pretože patrí vám.</strong></p>
+    </div>
+    <div class="hero-bottom-right">
+      <div class="hero-features-label">Čo je v cene</div>
+      <div class="feature-list" id="featureList">
+        <div class="feature-item lit"><div class="feature-dot"></div><span>Plne editovateľné — vy ste vlastníkom</span></div>
+        <div class="feature-item"><div class="feature-dot"></div><span>Navrhnuté okolo vášho zákazníka, nie okolo estetiky</span></div>
+        <div class="feature-item"><div class="feature-dot"></div><span>Váš brand, vaše farby, váš hlas</span></div>
+        <div class="feature-item"><div class="feature-dot"></div><span>Performance &amp; SEO optimalizácia v cene</span></div>
+        <div class="feature-item"><div class="feature-dot"></div><span>Mobile-first od prvého pixelu</span></div>
+        <div class="feature-item"><div class="feature-dot"></div><span>Premium dizajn — žiadne šablóny, žiadne kompromisy</span></div>
+        <div class="feature-item"><div class="feature-dot"></div><span>Rýchle načítanie — pod 2 sekundy</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     MARQUEE  ← z FÓRM
+══════════════════════════════════════ -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item"><span>Prémiový webdesign</span><i>✦</i></div>
+    <div class="marquee-item"><span>Brand Identity</span><i>✦</i></div>
+    <div class="marquee-item"><span>SEO Optimalizácia</span><i>✦</i></div>
+    <div class="marquee-item"><span>Mobile-first</span><i>✦</i></div>
+    <div class="marquee-item"><span>Performance 98+</span><i>✦</i></div>
+    <div class="marquee-item"><span>Plne editovateľné</span><i>✦</i></div>
+    <div class="marquee-item"><span>Žiadne šablóny</span><i>✦</i></div>
+    <div class="marquee-item"><span>Konzultácia zdarma</span><i>✦</i></div>
+    <!-- duplikát pre seamless loop -->
+    <div class="marquee-item"><span>Prémiový webdesign</span><i>✦</i></div>
+    <div class="marquee-item"><span>Brand Identity</span><i>✦</i></div>
+    <div class="marquee-item"><span>SEO Optimalizácia</span><i>✦</i></div>
+    <div class="marquee-item"><span>Mobile-first</span><i>✦</i></div>
+    <div class="marquee-item"><span>Performance 98+</span><i>✦</i></div>
+    <div class="marquee-item"><span>Plne editovateľné</span><i>✦</i></div>
+    <div class="marquee-item"><span>Žiadne šablóny</span><i>✦</i></div>
+    <div class="marquee-item"><span>Konzultácia zdarma</span><i>✦</i></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat reveal"><div class="stat-num"><span class="count" data-target="150">0</span><sup>+</sup></div><div class="stat-label">Spokojných zákazníkov</div><div class="stat-bar"></div></div>
+  <div class="stat reveal rd1"><div class="stat-num"><span class="count" data-target="72">0</span><sup>h</sup></div><div class="stat-label">Prvý návrh do 72 hodín</div><div class="stat-bar"></div></div>
+  <div class="stat reveal rd2"><div class="stat-num"><span class="count" data-target="0">0</span><sup>&nbsp;šablón</sup></div><div class="stat-label">Šablón — iba originály</div><div class="stat-bar"></div></div>
+  <div class="stat reveal rd3"><div class="stat-num"><span class="count" data-target="299">0</span><sup>€</sup></div><div class="stat-label">Prémiový web od 299 €</div><div class="stat-bar"></div></div>
+</div>
+
+<!-- APPROACH -->
+<section class="split-section" id="pristup">
+  <div class="split-sticky">
+    <div class="ew reveal">Prístup</div>
+    <h2 class="reveal">Váš<br/>zákazník.<br/>Vaša <em>značka.</em></h2>
+    <p class="desc reveal">Prémiový web nestačí vyzerať dobre — musí fungovať pre vášho zákazníka. Každý prvok je navrhnutý s jedným cieľom: priviesť zákazníka priamo k akcii.</p>
+    <div class="split-meta reveal">✦ &nbsp; LP Webdesign &nbsp;·&nbsp; Slovensko &nbsp;·&nbsp; 2025</div>
+  </div>
+  <div class="split-rows">
+    <div class="arow reveal"><div class="arow-num">01</div><div><h3>Zákazník na prvom mieste</h3><p>Každá sekcia, každý text aj každé tlačidlo sú umiestnené tak, aby viedli zákazníka k rozhodnutiu — nie aby predvádzali dizajnérske umenie. Konverzia je cieľ.</p></div></div>
+    <div class="arow reveal"><div class="arow-num">02</div><div><h3>Vaša značka, nie naše ego</h3><p>Web dostane vašu farebnú paletu, typografiu aj tón komunikácie. Výsledok vyzerá ako silná, rozpoznateľná identita — nie ako ďalší web z tej istej šablóny.</p></div></div>
+    <div class="arow reveal"><div class="arow-num">03</div><div><h3>Plne editovateľné — vy ste vlastníkom</h3><p>Po odovzdaní môžete meniť texty, fotky, ceny aj sekcie sami — bez vývojára, bez závislosti. Web je váš majetok od prvého dňa, nie produkt na prenájom.</p></div></div>
+    <div class="arow reveal"><div class="arow-num">04</div><div><h3>Výkon, nie len estetika</h3><p>Každý web prechádza optimalizáciou rýchlosti, SEO základov a mobilného zobrazenia. Prémiový dojem nestačí — web musí aj bleskovite načítavať a nájsť sa na Google.</p></div></div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section class="work-section" id="projekty">
+  <div class="work-head">
+    <div>
+      <div class="ew reveal">Ukážky štýlu</div>
+      <h2 class="reveal">Prémiový<br/>dizajn, čo <em>reprezentuje.</em></h2>
+    </div>
+    <p class="reveal">Prémiový web nie je len o vizuáli — je o tom, ako zákazník cíti vašu značku pri prvom kontakte.</p>
+  </div>
+
+  <!-- FILTER TABS ← z FÓRM -->
+  <div class="work-filter-tabs">
+    <button class="wf-btn active" onclick="filterWork(this,'all')">Všetko</button>
+    <button class="wf-btn" onclick="filterWork(this,'eshop')">E-shop</button>
+    <button class="wf-btn" onclick="filterWork(this,'beauty')">Beauty</button>
+    <button class="wf-btn" onclick="filterWork(this,'fitness')">Fitness</button>
+    <button class="wf-btn" onclick="filterWork(this,'gastro')">Gastro</button>
+    <button class="wf-btn" onclick="filterWork(this,'custom')">Na mieru</button>
+  </div>
+
+  <div class="work-grid-top">
+    <div class="wcard tall reveal" data-cat="eshop" data-title="Tuning Shop" data-tag="E-shop / Tuning" data-url="https://racem.sk" data-bg="tuning" data-desc="Plne funkčný e-shop pre tuning diely. Custom dizajn, katalóg produktov, košík a platobná brána — prémiový vzhľad pre auto nadšencov.">
+      <div class="wcard-bg tuning"></div>
+      <svg class="wcard-deco" viewBox="0 0 460 500" fill="none"><line x1="0" y1="260" x2="460" y2="260" stroke="white" stroke-width=".5"/><circle cx="230" cy="260" r="140" stroke="white" stroke-width=".8"/><circle cx="230" cy="260" r="80" stroke="white" stroke-width=".5"/><circle cx="230" cy="260" r="30" stroke="white" stroke-width=".5"/><line x1="90" y1="260" x2="370" y2="260" stroke="white" stroke-width=".4"/><line x1="230" y1="120" x2="230" y2="400" stroke="white" stroke-width=".4"/></svg>
+      <div class="wcard-tag">E-shop / Tuning</div>
+      <div class="wcard-info"><h3>Tuning Shop</h3><p>Plne funkčný e-shop pre tuning diely. Custom dizajn, katalóg produktov, košík a platobná brána.</p></div>
+    </div>
+    <div class="wcard tall reveal rd1" data-cat="beauty" data-title="NatureFlow Head Spa" data-tag="Beauty / Head Spa" data-url="https://natureflowheadspa.sk" data-bg="spa" data-desc="Prémiový web pre luxusné head spa. Online rezervácie, galéria procedúr, cenník a silná brandová identita v teal-bielej palete.">
+      <div class="wcard-bg spa"></div>
+      <svg class="wcard-deco" viewBox="0 0 400 500" fill="none"><ellipse cx="200" cy="250" rx="150" ry="200" stroke="white" stroke-width=".8"/><ellipse cx="200" cy="250" rx="90" ry="130" stroke="white" stroke-width=".5"/><ellipse cx="200" cy="250" rx="40" ry="60" stroke="white" stroke-width=".4"/><line x1="200" y1="50" x2="200" y2="450" stroke="white" stroke-width=".3"/><line x1="50" y1="250" x2="350" y2="250" stroke="white" stroke-width=".3"/></svg>
+      <div class="wcard-tag">Beauty / Head Spa</div>
+      <div class="wcard-info"><h3>NatureFlow Head Spa</h3><p>Prémiový web pre luxusné head spa. Online rezervácie, galéria procedúr a silná brandová identita.</p></div>
+    </div>
+  </div>
+
+  <div class="work-grid-bot">
+    <div class="wcard short reveal" data-cat="fitness" data-title="Fitness & Wellness" data-tag="Fitness / Wellness" data-url="#kontakt" data-bg="fit" data-desc="Prémiový web pre fitnessy a wellness štúdiá. Rozvrh tréningov, cenník, online rezervácie a motivačný vizuál.">
+      <div class="wcard-bg fit"></div>
+      <svg class="wcard-deco" viewBox="0 0 380 240" fill="none"><rect x="20" y="20" width="340" height="200" stroke="white" stroke-width=".7"/><rect x="50" y="50" width="120" height="14" fill="white" opacity=".15"/><rect x="50" y="76" width="80" height="9" fill="white" opacity=".08"/><rect x="220" y="50" width="110" height="140" fill="white" opacity=".04" stroke="white" stroke-width=".4"/></svg>
+      <div class="wcard-tag">Fitness / Wellness</div>
+      <div class="wcard-info"><h3>Fitness & Wellness</h3><p>Prémiový web pre fitnessy a wellness štúdiá. Rozvrh, cenník, online rezervácie.</p></div>
+    </div>
+    <div class="wcard short reveal rd1" data-cat="gastro" data-title="Gastro & Bar" data-tag="Gastro / Reštaurácia" data-url="#kontakt" data-bg="resto" data-desc="Prémiová prezentácia pre reštaurácie a bary. Menu, rezervácie stola, atmosféra a galéria — navrhnuté okolo zážitku zákazníka.">
+      <div class="wcard-bg resto"></div>
+      <svg class="wcard-deco" viewBox="0 0 380 240" fill="none"><circle cx="190" cy="120" r="100" stroke="white" stroke-width=".7"/><circle cx="190" cy="120" r="60" stroke="white" stroke-width=".5"/><circle cx="190" cy="120" r="22" stroke="white" stroke-width=".4"/><line x1="90" y1="120" x2="290" y2="120" stroke="white" stroke-width=".3"/><line x1="190" y1="20" x2="190" y2="220" stroke="white" stroke-width=".3"/></svg>
+      <div class="wcard-tag">Gastro / Reštaurácia</div>
+      <div class="wcard-info"><h3>Gastro & Bar</h3><p>Prémiová prezentácia pre reštaurácie a bary. Menu, rezervácie, atmosféra.</p></div>
+    </div>
+    <div class="wcard short reveal rd2" data-cat="custom" data-title="Váš projekt" data-tag="Na mieru / Custom" data-url="#kontakt" data-bg="custom" data-desc="Každý web tvoríme na mieru — od návrhu po spustenie. Napíšte nám čo robíte a spoločne navrheme niečo, čo vás bude reprezentovať.">
+      <div class="wcard-bg custom"></div>
+      <svg class="wcard-deco" viewBox="0 0 380 240" fill="none"><polygon points="190,20 360,220 20,220" stroke="white" stroke-width=".7" fill="none"/><polygon points="190,65 315,210 65,210" stroke="white" stroke-width=".5" fill="none"/><circle cx="190" cy="165" r="8" fill="white" opacity=".3"/></svg>
+      <div class="wcard-tag">Na mieru / Váš projekt</div>
+      <div class="wcard-info"><h3>Váš projekt</h3><p>Každý web tvoríme na mieru. Napíšte nám čo robíte — spoločne navrheme niečo prémiové.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE BRANDING PREVIEW -->
+<section class="brand-section" id="nahlad">
+  <div class="brand-inner">
+
+    <div class="brand-left">
+      <div class="ew reveal">Vyskúšajte to</div>
+      <h2 class="reveal" style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,4.4vw,66px);font-weight:300;line-height:.95;letter-spacing:-.025em;margin-top:12px;">Váš web<br/>za <em style="font-style:italic;color:var(--gold)">10 sekúnd.</em></h2>
+      <p class="reveal" style="margin-top:24px;font-size:14px;line-height:1.82;color:var(--muted);max-width:400px;">
+        Napíšte názov firmy a vyberte farebnú paletu — v reálnom čase uvidíte, ako by mohol vyzerať váš prémiový web. Ešte pred tým, než čokoľvek podpíšete.
+      </p>
+
+      <div class="brand-controls">
+        <div class="brand-field reveal">
+          <label>Názov vašej firmy</label>
+          <input class="brand-input" id="brandName" type="text" placeholder="napr. Pekáreň Novák" maxlength="28" autocomplete="off"/>
+        </div>
+        <div class="brand-field reveal">
+          <label>Farba značky</label>
+          <div class="color-swatches" id="colorSwatches">
+            <div class="color-swatch active" data-color="gold"   data-hex="#e0b55a" style="background:#e0b55a" title="Zlatá"></div>
+            <div class="color-swatch"        data-color="teal"   data-hex="#14b8a6" style="background:#14b8a6" title="Tyrkys"></div>
+            <div class="color-swatch"        data-color="blue"   data-hex="#3b82f6" style="background:#3b82f6" title="Modrá"></div>
+            <div class="color-swatch"        data-color="rose"   data-hex="#f43f5e" style="background:#f43f5e" title="Ružová"></div>
+            <div class="color-swatch"        data-color="violet" data-hex="#8b5cf6" style="background:#8b5cf6" title="Fialová"></div>
+            <div class="color-swatch"        data-color="green"  data-hex="#22c55e" style="background:#22c55e" title="Zelená"></div>
+          </div>
+        </div>
+        <a href="#kontakt" class="btn gold reveal" style="align-self:flex-start;margin-top:.5rem;">Chcem takýto web &nbsp;→</a>
+      </div>
+    </div>
+
+    <div class="brand-browser-wrap reveal-right">
+      <div class="brand-browser" id="brandBrowser">
+        <div class="brand-browser-bar">
+          <div class="brand-browser-dots"><span></span><span></span><span></span></div>
+          <div class="brand-url-bar" id="brandUrlBar">www.vasafirma.sk</div>
+        </div>
+        <div class="brand-preview-body" id="brandBody">
+          <div class="bp-bg-overlay" id="bpOverlay"></div>
+          <div class="bp-nav">
+            <div class="bp-nav-logo" id="bpLogo">Vaša Firma</div>
+            <div class="bp-nav-links"><span></span><span></span><span></span></div>
+            <div class="bp-nav-cta" id="bpNavCta">Kontakt</div>
+          </div>
+          <div class="bp-hero">
+            <div class="bp-eyebrow" id="bpEyebrow">Prémiový web · Slovensko</div>
+            <div class="bp-h1" id="bpH1">Vaša Firma</div>
+            <div class="bp-sub">Navrhnutý okolo vášho zákazníka.</div>
+            <div class="bp-cta" id="bpCta">Zistiť viac &nbsp;→</div>
+          </div>
+          <div class="bp-stats">
+            <div class="bp-stat"><div class="bp-stat-n" id="bpS1">4.9★</div><div class="bp-stat-l">Hodnotenie</div></div>
+            <div class="bp-stat"><div class="bp-stat-n" id="bpS2">100%</div><div class="bp-stat-l">Spokojnosť</div></div>
+            <div class="bp-stat"><div class="bp-stat-n" id="bpS3">24h</div><div class="bp-stat-l">Podpora</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="brand-badge">
+        <div class="brand-badge-label">Performance</div>
+        <div class="brand-badge-val" id="bpPerfVal" style="color:var(--gold)">98</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process-section" id="proces">
+  <div class="process-inner">
+    <div class="ew reveal">Proces</div>
+    <h2 class="reveal">Štruktúrovaný<br/>proces. <em>Čistý</em> výsledok.</h2>
+    <div class="process-grid">
+      <div class="pstep reveal"><div class="pstep-ghost">01</div><span class="pstep-label">01 / Zadanie</span><h3>Pochopíme vašu značku</h3><p>Zistíme čo predávate, kto je váš zákazník a aký dojem má web zanechať. Bez toho sa nedá navrhnúť web, ktorý skutočne funguje.</p></div>
+      <div class="pstep reveal rd1"><div class="pstep-ghost">02</div><span class="pstep-label">02 / Smer</span><h3>Navrhneme značkovú identitu</h3><p>Farby, typografia, štruktúra a rozloženie — všetko prispôsobené vašej značke, aby web nevyzeral genericky ani lacno.</p></div>
+      <div class="pstep reveal rd2"><div class="pstep-ghost">03</div><span class="pstep-label">03 / Web</span><h3>Postavíme a optimalizujeme</h3><p>Responzívny, rýchly web s dôrazom na výkon, SEO a plnú editovateľnosť. Žiadny zbytočný kód, žiadne závislosti od tretích strán.</p></div>
+      <div class="pstep reveal rd3"><div class="pstep-ghost">04</div><span class="pstep-label">04 / Spustenie</span><h3>Odovzdáme & spustíme</h3><p>Po finálnom schválení web spustíme, odovzdáme všetky prístupy a nastavíme základy pre Google. Vy ste vlastníkom od prvého dňa.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="cena">
+  <div class="pricing-inner">
+    <div class="ew reveal">Cenník</div>
+    <h2 class="reveal">Prémiový web.<br/>Férová <em>cena.</em></h2>
+    <div class="price-list">
+
+      <div class="price-row reveal">
+        <div><div class="price-plan">Starter</div><h3>Individual web</h3><div class="price-features"><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><path d="M2.5 1.5h5L9.5 4v6.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1"/></svg> 1-stránkový web</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><rect x="3" y="1" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1"/></svg> Responzívny dizajn</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/></svg> Doména v cene</span></div></div>
+        <div class="price-val">od 199€</div>
+        <p>Ideálny pre freelancerov, remeselníkov a začínajúce projekty. Jedna čistá, prémiovo vyzerajúca stránka — plne editovateľná a navrhnutá na mieru.</p>
+        <a href="#kontakt" class="btn gold">Chcem &nbsp;→</a>
+        <div class="price-domain"><span class="pd-icon">🌐</span> Doména zahrnutá v cene — alebo nahodíme na vašu vlastnú</div>
+      </div>
+
+      <div class="price-row reveal price-featured">
+        <div><div class="price-plan">Portfolio</div><h3>Prezentačný web</h3><div class="price-badge"><span class="pb-star">★</span><span class="pb-text">Obľúbené</span></div><div class="price-features"><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><path d="M2.5 1.5h5L9.5 4v6.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1"/></svg> Do 3 stránok</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><path d="M7.5 1L3.5 7H6.5L4.5 11L9.5 5H6.5L8.5 1H7.5Z" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg> JS animácie</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1"/><line x1="7.8" y1="7.8" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg> SEO základy</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/></svg> Doména v cene</span></div></div>
+        <div class="price-val">od 299€</div>
+        <p>Pre reštaurácie, salóny, fitnessy, remeselníkov a freelancerov. Jedna výkonná, plne editovateľná stránka navrhnutá okolo vášho zákazníka.</p>
+        <a href="#kontakt" class="btn gold">Chcem &nbsp;→</a>
+        <div class="price-domain"><span class="pd-icon">🌐</span> Doména zahrnutá v cene — alebo nahodíme na vašu vlastnú</div>
+      </div>
+
+      <div class="price-row reveal">
+        <div><div class="price-plan">Business</div><h3>Značkový web</h3><div class="price-features"><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><path d="M2.5 1.5h5L9.5 4v6.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1"/></svg> Do 7 stránok</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="2.5" width="9" height="7" rx="1.2" stroke="currentColor" stroke-width="1"/></svg> Galéria</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="2.5" width="9" height="8" rx="1.2" stroke="currentColor" stroke-width="1"/></svg> Rezervačný systém</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1"/><line x1="7.8" y1="7.8" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg> SEO optimalizácia</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/></svg> Doména v cene</span></div></div>
+        <div class="price-val">od 399€</div>
+        <p>Pre etablované podniky s väčšou online prítomnosťou. Prepracovaná značková identita, viac sekcií, galéria, formulár a rezervácie.</p>
+        <a href="#kontakt" class="btn">Chcem &nbsp;→</a>
+        <div class="price-domain"><span class="pd-icon">🌐</span> Doména zahrnutá v cene — alebo nahodíme na vašu vlastnú</div>
+      </div>
+
+      <div class="price-row reveal">
+        <div><div class="price-plan">Enterprise</div><h3>Riešenie na mieru</h3><div class="price-features"><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><path d="M1.5 2H3L4 8H9L10.5 4H4" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg> E-shop / E-commerce</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/></svg> Viacjazyčný web</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/></svg> Neobmedzený rozsah</span></div></div>
+        <div class="price-val italic">Objednávka</div>
+        <p>Pre komplexné projekty, redizajny existujúcich webov, viac jazykov, e-shop alebo silnú brandovú kampaň. Cena po konzultácii.</p>
+        <a href="#kontakt" class="btn">Napísať &nbsp;→</a>
+        <div class="price-domain"><span class="pd-icon">🌐</span> Doména zahrnutá v cene — alebo nahodíme na vašu vlastnú</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PRICE CALCULATOR -->
+<section class="calc-section" id="kalkulacka">
+  <div class="calc-inner">
+
+    <div class="calc-options">
+      <div>
+        <div class="ew reveal">Kalkulačka</div>
+        <h2 class="reveal" style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,4.4vw,66px);font-weight:300;line-height:.95;letter-spacing:-.025em;margin-top:12px;margin-bottom:2.5rem;">Poskladajte<br/>si <em style="font-style:italic;color:var(--gold)">vlastný web.</em></h2>
+      </div>
+
+      <div class="reveal">
+        <div class="calc-group-title">Základ webu</div>
+        <div class="calc-base-opts">
+          <button class="calc-base-btn" data-base="199" onclick="setBase(this)">
+            <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Individual</div><div class="cb-desc">1 stránka · Galéria, formulár &amp; doména v cene</div></div></div>
+            <div class="cb-price">199 €</div>
+          </button>
+          <button class="calc-base-btn active" data-base="299" onclick="setBase(this)">
+            <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Prezentačný web</div><div class="cb-desc">Do 3 stránok · Galéria, formulár &amp; doména v cene</div></div></div>
+            <div class="cb-price">299 €</div>
+          </button>
+          <button class="calc-base-btn" data-base="399" onclick="setBase(this)">
+            <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Značkový web</div><div class="cb-desc">Do 7 stránok · Galéria, formulár &amp; doména v cene</div></div></div>
+            <div class="cb-price">399 €</div>
+          </button>
+        </div>
+        <div style="margin-top:.9rem;padding:.75rem 1rem;background:rgba(224,181,90,.04);border:1px solid rgba(224,181,90,.12);display:flex;flex-wrap:wrap;gap:.5rem .9rem;">
+          <span style="font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(224,181,90,.6);">✓ Vždy v cene:</span>
+          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">Galéria fotografií</span>
+          <span style="font-size:.62rem;color:rgba(255,255,255,.15)">·</span>
+          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">Kontaktný formulár</span>
+          <span style="font-size:.62rem;color:rgba(255,255,255,.15)">·</span>
+          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">Doména &amp; hosting (1. rok)</span>
+          <span style="font-size:.62rem;color:rgba(255,255,255,.15)">·</span>
+          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">Mobile-first dizajn</span>
+          <span style="font-size:.62rem;color:rgba(255,255,255,.15)">·</span>
+          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">SEO základy</span>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="calc-group-title">Rozšírenia</div>
+        <div class="calc-addons">
+          <button class="calc-addon" data-addon="80" data-label="Rezervačný systém" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Rezervačný systém</div></div>
+            <div class="ca-plus">+ 80 €</div>
+          </button>
+          <button class="calc-addon" data-addon="100" data-label="Blog / Aktuality" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Blog / Aktuality</div></div>
+            <div class="ca-plus">+ 100 €</div>
+          </button>
+          <button class="calc-addon" data-addon="90" data-label="Pokročilé animácie & paralax" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé animácie &amp; paralax</div></div>
+            <div class="ca-plus">+ 90 €</div>
+          </button>
+          <button class="calc-addon" data-addon="80" data-label="Pokročilé SEO" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé SEO</div></div>
+            <div class="ca-plus">+ 80 €</div>
+          </button>
+          <button class="calc-addon" data-addon="35" data-label="Google Mapy & lokácia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Google Mapy &amp; lokácia</div></div>
+            <div class="ca-plus">+ 35 €</div>
+          </button>
+          <button class="calc-addon" data-addon="40" data-label="WhatsApp / Chat tlačidlo" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">WhatsApp / Chat tlačidlo</div></div>
+            <div class="ca-plus">+ 40 €</div>
+          </button>
+          <button class="calc-addon" data-addon="35" data-label="Vlastná e-mailová adresa" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Vlastná e-mailová adresa <span style="font-size:.7rem;color:var(--muted)">(info@firma.sk)</span></div></div>
+            <div class="ca-plus">+ 35 €</div>
+          </button>
+          <button class="calc-addon" data-addon="65" data-label="Pop-up / Lead magnet" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pop-up / Lead magnet</div></div>
+            <div class="ca-plus">+ 65 €</div>
+          </button>
+          <button class="calc-addon" data-addon="120" data-label="Viacjazyčná verzia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Viacjazyčná verzia</div></div>
+            <div class="ca-plus">+ 120 €</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-result reveal-right" id="calcResult">
+      <div class="cr-label">Váš web</div>
+      <div class="cr-price-wrap">
+        <div class="cr-price"><span id="calcTotal">299</span><span class="cr-price-unit"> €</span></div>
+        <div class="cr-subtitle">Odhadovaná cena · bez skrytých poplatkov</div>
+      </div>
+      <div class="cr-breakdown" id="crBreakdown">
+        <div class="cr-line"><span>Prezentačný web</span><span>299 €</span></div>
+      </div>
+      <div class="cr-total-line">
+        <span class="cr-total-label">Celkom</span>
+        <span class="cr-total-val"><span id="calcTotalSmall">299</span> €</span>
+      </div>
+      <a href="#kontakt" class="btn gold" style="width:100%;justify-content:center;margin-top:.5rem;">Nezáväzná konzultácia &nbsp;→</a>
+      <p style="font-size:.68rem;color:var(--muted);margin-top:1rem;line-height:1.6;letter-spacing:.04em;">Konzultácia a náhľad zdarma. Finálna cena po upresnení rozsahu.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="faq-inner">
+
+    <div class="faq-left reveal">
+      <div class="ew">FAQ</div>
+      <h2>Časté<br/><em>otázky.</em></h2>
+      <p>Všetko čo potrebujete vedieť pred tým, než sa rozhodnete. Ak tu odpoveď nenájdete — napíšte nám.</p>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Ako dlho trvá vytvorenie webu?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-body">
+          <p>Prvý návrh dostanete do <strong>72 hodín</strong> od začatia spolupráce. Celý web od zadania po spustenie trvá štandardne <strong>5–14 dní</strong>, podľa rozsahu projektu. Nepreťahujeme termíny — pracujeme rýchlo a s jasnou štruktúrou.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Budem môcť web sám editovať?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-body">
+          <p>Áno — <strong>plná editovateľnosť je štandard</strong> vo všetkých balíkoch. Texty, fotky, ceny, sekcie — meníte sami, bez vývojára, bez mesačného poplatku. Web dostanete aj s krátkym návodom ako na to.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Čo je zahrnuté v cene?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-body">
+          <p>Každý balík zahŕňa <strong>custom dizajn na mieru, responzívne zobrazenie, SEO základy, doménu a hosting na prvý rok</strong>. Neúčtujeme skryté poplatky. Po roku platíte len obnovu domény a hostingu (~20–40€/rok).</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Robíte aj e-shopy?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-body">
+          <p>Áno, e-shopy patria do balíka <strong>Enterprise</strong>. Cena závisí od rozsahu — počtu produktov, platobných brán a funkcií. <strong>Konzultácia je zdarma</strong> — napíšte nám čo potrebujete a do 24 hodín vám pošleme cenovú ponuku.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Čo ak mám už existujúci web?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-body">
+          <p>Radi spravíme <strong>kompletný redizajn</strong> existujúceho webu — zachováme vaše SEO pozície a presunieme obsah. Pošlite nám odkaz na váš aktuálny web a <strong>bezplatne posúdime</strong> čo by sa dalo zlepšiť.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Uvidím web ešte pred samotnou realizáciou?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-body">
+          <p>Áno — ešte <strong>pred začatím tvoríme bezplatný náhľad</strong> toho, ako by váš web mohol vyzerať. Vidíte rozvrhnutie, farby aj typografiu ešte predtým, než sa rozhodnete. Môžete navrhnúť zmeny, upraviť smer a až potom potvrdíte spoluprácu. <strong>Bez záväzkov, zadarmo.</strong></p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Ako prebieha platba?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-body">
+          <p>Štandardne <strong>50% pred začatím, 50% po odovzdaní</strong>. Platba prevodom. Pre väčšie projekty vieme dohodnúť splátkový plán. Faktúru vystavujeme vždy.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="kontakt">
+  <div class="contact-glow"></div>
+  <div class="contact-inner">
+    <div class="ew center reveal">Kontakt</div>
+    <h2 class="reveal">Začnime<br/>niečo <em>prémiové.</em></h2>
+    <p class="sub reveal">Pošlite nám čo predávate, aktuálnu stránku alebo Instagram — ukážeme vám, ako by mohol vyzerať váš prémiový, zákazníky orientovaný web.</p>
+    <div class="contact-links reveal">
+      <a href="mailto:info@remperformance.sk" class="btn gold">info@remperformance.sk</a>
+      <a href="https://racem.sk" target="_blank" rel="noopener noreferrer" class="btn">RACEM &nbsp;→</a>
+      <a href="https://natureflowheadspa.sk" target="_blank" rel="noopener noreferrer" class="btn">NatureFlow &nbsp;→</a>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="reviews-section" id="referencie">
+  <div class="reviews-inner">
+    <div class="ew center reveal">Referencie</div>
+    <h2 class="reveal">Čo hovoria<br/>naši <em>zákazníci.</em></h2>
+    <div class="reviews-grid">
+      <div class="rev-card reveal">
+        <div class="rev-stars"><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg></div>
+        <p class="rev-text">"Web presne zachytil atmosféru nášho podniku. Zákazníci nás nachádzajú oveľa ľahšie a rezervácie prišli hneď po spustení."</p>
+        <div class="rev-author"><div class="rev-name">Tomáš K.</div><div class="rev-role">Majiteľ reštaurácie · Bratislava</div></div>
+      </div>
+      <div class="rev-card reveal rd1">
+        <div class="rev-stars"><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg></div>
+        <p class="rev-text">"Prémiový look, rýchle dodanie a hlavne — web si viem editovať sama. Konečne nejsem závislá na vývojárovi pri každej zmene."</p>
+        <div class="rev-author"><div class="rev-name">Katarína S.</div><div class="rev-role">Majiteľka · NatureFlow Head Spa</div></div>
+      </div>
+      <div class="rev-card reveal rd2">
+        <div class="rev-stars"><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg><svg class="rev-star" viewBox="0 0 12 12"><path d="M6 1L7.5 4.4H11.2L8.4 6.6L9.4 10.5L6 8.3L2.6 10.5L3.6 6.6L.8 4.4H4.5L6 1Z" fill="currentColor"/></svg></div>
+        <p class="rev-text">"Konečne web, ktorý pôsobí profesionálne aj na mobile. Klienti mi píšu, že vyzerá lepšie ako od veľkých agentúr."</p>
+        <div class="rev-author"><div class="rev-name">Martin D.</div><div class="rev-role">Personal trainer · Fitness studio</div></div>
+      </div>
+    </div>
+    <div class="reviews-total reveal">
+      <div class="rt-num">150<sup>+</sup></div>
+      <div class="rt-text"><div class="rt-label">Spokojných zákazníkov</div><div class="rt-sub">Reštaurácie · Salóny · Fitnessy · E-shopy</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <img src="LP.png" alt="LP Webdesign"/>
+    <span>LP Webdesign &nbsp;·&nbsp; 2025</span>
+  </div>
+  <div class="footer-r">Premium webdesign &nbsp;/&nbsp; Zákazníky orientované &nbsp;/&nbsp; Plne editovateľné</div>
+</footer>
+
+<!-- SITE MODAL -->
+<div class="site-modal" id="siteModal" role="dialog" aria-modal="true">
+  <div class="sm-overlay" id="smOverlay"></div>
+  <div class="sm-panel">
+    <div class="sm-close-bar"><span class="sm-label" id="smLabel">Ukážka projektu</span><button class="sm-close" id="smClose" aria-label="Zavrieť">✕</button></div>
+    <div class="sm-preview-area"><div class="sm-bg-layer" id="smBg"></div><div class="sm-preview-content"><div class="sm-tag" id="smTag"></div><div class="sm-title" id="smTitle"></div><p class="sm-desc" id="smDesc"></p></div></div>
+    <div class="sm-footer"><a class="btn gold" id="smOpenBtn" target="_blank" rel="noopener noreferrer" style="display:none">Otvoriť web &nbsp;→</a><a class="btn" href="#kontakt" id="smContactBtn" style="display:none">Napísať nám &nbsp;→</a></div>
+  </div>
+</div>
+
+<!-- STICKY FLOATING CTA -->
+<a href="#kontakt" id="sticky-cta">
+  <div class="cta-dot"></div>
+  Začnime projekt
+  <span class="cta-arrow">→</span>
+</a>
+
+<!-- SCROLL TO TOP -->
+<button id="scroll-top" aria-label="Späť nahor" onclick="window.scrollTo({top:0,behavior:'smooth'})"></button>
+
+</div><!-- .site -->
+
+<!-- ═══════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════ -->
+<script>
+/* ══ LOADER + FLYING LOGO ══════════════════════ */
+(function(){
+  const bar  = document.getElementById('loaderBar');
+  const pct  = document.getElementById('loaderPct');
+  const ld   = document.getElementById('loader');
+  const fly  = document.getElementById('logo-fly');
+  const navImg = document.querySelector('.logo img');
+
+  let p = 0;
+  setTimeout(() => { bar.style.width = '100%'; }, 80);
+
+  const t = setInterval(() => {
+    p += Math.random() * 14 + 4;
+    if (p >= 100) {
+      p = 100;
+      clearInterval(t);
+
+      // 1) Hide loader
+      setTimeout(() => {
+        ld.classList.add('hide');
+
+        // 2) Show fly logo at center (same spot as loader logo)
+        fly.style.width   = '160px';
+        fly.style.height  = '160px';
+        fly.style.top     = (window.innerHeight / 2 - 80) + 'px';
+        fly.style.left    = (window.innerWidth  / 2 - 80) + 'px';
+        fly.style.opacity = '1';
+        fly.style.transition = 'none';
+
+        // 3) Next frame: start flying to nav position
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          const rect = navImg.getBoundingClientRect();
+          fly.style.transition =
+            'top .9s cubic-bezier(.16,1,.3,1),' +
+            'left .9s cubic-bezier(.16,1,.3,1),' +
+            'width .9s cubic-bezier(.16,1,.3,1),' +
+            'height .9s cubic-bezier(.16,1,.3,1)';
+          fly.style.top    = rect.top  + 'px';
+          fly.style.left   = rect.left + 'px';
+          fly.style.width  = rect.width  + 'px';
+          fly.style.height = rect.height + 'px';
+
+          // 4) When arrived: show real nav logo, fade out fly
+          setTimeout(() => {
+            navImg.classList.add('visible');
+            fly.style.transition = 'opacity .2s ease';
+            fly.style.opacity = '0';
+            setTimeout(() => fly.remove(), 220);
+          }, 920);
+        }));
+
+      }, 250);
+    }
+    pct.textContent = Math.floor(p) + '%';
+  }, 100);
+})();
+
+/* ══ CURSOR ════════════════════════════════════ */
+const dot  = document.getElementById('cur-dot');
+const ring = document.getElementById('cur-ring');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; dot.style.left=mx+'px'; dot.style.top=my+'px'; });
+(function lerp(){ rx+=(mx-rx)*.13; ry+=(my-ry)*.13; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(lerp); })();
+document.querySelectorAll('a,button,.stat,.wcard,.pstep,.arow,.price-row,.rev-card')
+  .forEach(el => { el.addEventListener('mouseenter', ()=>document.body.classList.add('hov')); el.addEventListener('mouseleave', ()=>document.body.classList.remove('hov')); });
+
+/* ══ SCROLL PROGRESS + NAV ═════════════════════ */
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', scrollY > 50);
+  const pct = scrollY / (document.body.scrollHeight - innerHeight);
+  document.getElementById('scrollBar').style.width = Math.min(pct*100,100)+'%';
+}, { passive:true });
+
+/* ══ REVEAL ════════════════════════════════════ */
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('show'); revObs.unobserve(e.target); } });
+}, { threshold:.08, rootMargin:'0px 0px -44px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+/* ══ COUNTER ═══════════════════════════════════ */
+function runCount(el) {
+  const target = +el.dataset.target;
+  if(target===0){ el.textContent='0'; return; }
+  const dur=1700, start=performance.now();
+  (function tick(now){ const p=Math.min((now-start)/dur,1), e=1-Math.pow(1-p,4); el.textContent=Math.round(e*target); if(p<1)requestAnimationFrame(tick); else el.textContent=target; })(start);
+}
+const cntObs = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting){ runCount(e.target); cntObs.unobserve(e.target); } }); }, { threshold:.5 });
+document.querySelectorAll('.count').forEach(c => cntObs.observe(c));
+
+/* ══ FEATURE HIGHLIGHT ═════════════════════════ */
+const ftItems = document.querySelectorAll('.feature-item');
+let ftCurrent = 0;
+setInterval(() => { ftItems[ftCurrent].classList.remove('lit'); ftCurrent=(ftCurrent+1)%ftItems.length; ftItems[ftCurrent].classList.add('lit'); }, 2000);
+
+/* ══ BROWSER SCENES ════════════════════════════ */
+const SCENES = [
+  { id:'scene0', url:'gastro-concept.sk',  accent:'#e87030' },
+  { id:'scene1', url:'fitzone-gym.sk',     accent:'#c4f020' },
+  { id:'scene2', url:'lumiere-salon.sk',   accent:'#f0a8c8' },
+];
+const CURSOR_PATHS = [
+  [{ x:180,y:20,delay:600 },{ x:52,y:158,delay:1400 },{ x:52,y:164,delay:2100,click:true },{ x:198,y:118,delay:3200 }],
+  [{ x:80,y:100,delay:500 },{ x:48,y:312,delay:1400 },{ x:140,y:312,delay:2300 },{ x:235,y:312,delay:3200,click:true }],
+  [{ x:52,y:150,delay:600,click:true },{ x:65,y:240,delay:1600 },{ x:192,y:240,delay:2500 },{ x:65,y:290,delay:3400 }],
+];
+let sceneIdx=0, autoCycle, cursorTimers=[];
+const sceneUrlEl=document.getElementById('sceneUrl'), bpFill=document.getElementById('bpFill'), mockCursor=document.getElementById('mockCursor'), snBtns=document.querySelectorAll('.sn-btn');
+function startProgress(accent){ bpFill.style.transition='none'; bpFill.style.background=accent; bpFill.style.width='0%'; requestAnimationFrame(()=>{ bpFill.style.transition='width 5s linear'; bpFill.style.width='100%'; }); }
+function runCursor(sIdx){ cursorTimers.forEach(clearTimeout); cursorTimers=[]; mockCursor.style.transition='none'; mockCursor.style.left='12px'; mockCursor.style.top='48px'; (CURSOR_PATHS[sIdx]||[]).forEach(pt=>{ const t1=setTimeout(()=>{ mockCursor.style.transition='left .7s cubic-bezier(.16,1,.3,1),top .7s cubic-bezier(.16,1,.3,1)'; mockCursor.style.left=pt.x+'px'; mockCursor.style.top=pt.y+'px'; if(pt.click){ const t2=setTimeout(()=>{ mockCursor.classList.add('clicking'); const rip=document.createElement('div'); rip.className='cur-ripple'; mockCursor.appendChild(rip); setTimeout(()=>{ mockCursor.classList.remove('clicking'); rip.remove(); },550); },720); cursorTimers.push(t2); } },pt.delay); cursorTimers.push(t1); }); }
+function goScene(next,manual){ const prev=document.getElementById(SCENES[sceneIdx].id); prev.classList.remove('active'); prev.classList.add('exit'); setTimeout(()=>prev.classList.remove('exit'),700); sceneIdx=next%SCENES.length; const cur=document.getElementById(SCENES[sceneIdx].id); cur.classList.add('active'); sceneUrlEl.textContent=SCENES[sceneIdx].url; snBtns.forEach((b,i)=>b.classList.toggle('active',i===sceneIdx)); startProgress(SCENES[sceneIdx].accent); if(sceneIdx===1)setTimeout(animateFitness,350); setTimeout(()=>runCursor(sceneIdx),250); if(manual){ clearInterval(autoCycle); autoCycle=setInterval(()=>goScene(sceneIdx+1),5000); } }
+function animateFitness(){ const el=document.getElementById('fitNum'); if(!el)return; const end=94,dur=1500,s=performance.now(); (function tick(now){ const p=Math.min((now-s)/dur,1),e=1-Math.pow(1-p,3); el.textContent=Math.round(e*end)+'%'; if(p<1)requestAnimationFrame(tick); })(s); }
+snBtns.forEach((b,i)=>b.addEventListener('click',()=>goScene(i,true)));
+setTimeout(()=>{ startProgress(SCENES[0].accent); runCursor(0); autoCycle=setInterval(()=>goScene(sceneIdx+1),5000); },1200);
+
+/* ══ FILTER WORK  ← z FÓRM ════════════════════ */
+function filterWork(btn, cat) {
+  document.querySelectorAll('.wf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.wcard').forEach(card => {
+    const match = cat === 'all' || card.dataset.cat === cat;
+    card.style.transition = 'opacity .4s, transform .4s';
+    card.classList.toggle('filtered-out', !match);
+  });
+}
+
+/* ══ RIPPLE ON BUTTONS  ← z FÓRM ══════════════ */
+document.querySelectorAll('.btn, .nav-cta').forEach(btn => {
+  btn.style.position = 'relative';
+  btn.addEventListener('click', function(e) {
+    const r = document.createElement('span');
+    r.className = 'ripple-effect';
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px;position:absolute;z-index:0;`;
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 650);
+  });
+});
+
+/* ══ BUTTONS — len jemný fill, žiadne trasenie ══ */
+
+/* ══ WORK CARD 3D TILT ══════════════════════════ */
+document.querySelectorAll('.wcard').forEach(card => {
+  card.addEventListener('mouseenter', () => { card.style.transition = 'transform .18s ease, border-color .5s, box-shadow .4s'; });
+  card.addEventListener('mousemove', e => {
+    const r=card.getBoundingClientRect(), xN=(e.clientX-r.left)/r.width-.5, yN=(e.clientY-r.top)/r.height-.5;
+    card.style.transform = `translateY(-5px) perspective(700px) rotateY(${xN*10}deg) rotateX(${-yN*10}deg)`;
+  });
+  card.addEventListener('mouseleave', () => { card.style.transition='transform .7s cubic-bezier(.16,1,.3,1), border-color .5s, box-shadow .5s'; card.style.transform=''; });
+});
+
+/* ══ HERO GLOW PARALLAX  ← z FÓRM ═════════════ */
+(function(){
+  const ga=document.querySelector('.hero-glow-a'), gb=document.querySelector('.hero-glow-b');
+  if(!ga||!gb) return;
+  let ticking=false;
+  window.addEventListener('mousemove', e => {
+    if(ticking) return; ticking=true;
+    requestAnimationFrame(()=>{
+      const cx=e.clientX/innerWidth-.5, cy=e.clientY/innerHeight-.5;
+      ga.style.transform=`translate(${cx*30}px,${cy*20+19}px) scale(1.05)`;
+      gb.style.transform=`translate(${-cx*18}px,${-cy*14}px)`;
+      ticking=false;
+    });
+  }, { passive:true });
+})();
+
+/* ══ HERO H1 CURTAIN  ← z FÓRM ════════════════ */
+(function(){
+  const h1 = document.getElementById('heroH1');
+  if(!h1) return;
+  const raw = h1.innerHTML;
+  const parts = raw.split(/<br\s*\/?>/i);
+  h1.innerHTML = parts.map((p,i) => {
+    const delay = (.25+i*.16).toFixed(2);
+    return `<span class="h1-line-wrap"><span class="h1-line" style="animation-delay:${delay}s">${p.trim()}</span></span>`;
+  }).join('');
+})();
+
+/* ══ TEXT SCRAMBLE on EYEBROW  ← z FÓRM ═══════ */
+(function(){
+  const el = document.getElementById('heroEyebrow');
+  if(!el) return;
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const orig = el.textContent.trim();
+  let frame = 0;
+  setTimeout(() => {
+    const t = setInterval(() => {
+      el.textContent = orig.split('').map((c,i) => i < frame ? orig[i] : chars[Math.floor(Math.random()*chars.length)]).join('');
+      frame += 2;
+      if(frame >= orig.length){ el.textContent = orig; clearInterval(t); }
+    }, 30);
+  }, 1600);
+})();
+
+/* ══ ACTIVE NAV  ← z FÓRM ═════════════════════ */
+(function(){
+  const links = document.querySelectorAll('.nav-link:not(.nav-cta)');
+  const sectionIds = ['pristup','projekty','cena','referencie'];
+  const sections = sectionIds.map(id=>document.getElementById(id)).filter(Boolean);
+  const idToHref = { pristup:'O nás', projekty:'Naše práce', cena:'Cenník', referencie:'Referencie' };
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(!e.isIntersecting) return;
+      links.forEach(l => l.classList.toggle('active-section', l.textContent.trim() === idToHref[e.target.id]));
+    });
+  }, { threshold:.3 });
+  sections.forEach(s => obs.observe(s));
+})();
+
+/* ══ LIVE BRANDING PREVIEW ══════════════════════ */
+(function(){
+  const COLORS = {
+    gold:   { hex:'#e0b55a', bg:'radial-gradient(ellipse at 70% 20%,rgba(140,90,0,.35),transparent 55%),linear-gradient(160deg,#14100a,#1e1608,#0a0906)' },
+    teal:   { hex:'#14b8a6', bg:'radial-gradient(ellipse at 70% 20%,rgba(0,120,110,.35),transparent 55%),linear-gradient(160deg,#071412,#0a1e1c,#040c0a)' },
+    blue:   { hex:'#3b82f6', bg:'radial-gradient(ellipse at 70% 20%,rgba(30,60,180,.35),transparent 55%),linear-gradient(160deg,#070c18,#0c1428,#04080e)' },
+    rose:   { hex:'#f43f5e', bg:'radial-gradient(ellipse at 70% 20%,rgba(160,20,40,.35),transparent 55%),linear-gradient(160deg,#14060a,#200810,#0a0406)' },
+    violet: { hex:'#8b5cf6', bg:'radial-gradient(ellipse at 70% 20%,rgba(80,30,180,.35),transparent 55%),linear-gradient(160deg,#0c0818,#14082a,#080410)' },
+    green:  { hex:'#22c55e', bg:'radial-gradient(ellipse at 70% 20%,rgba(10,120,40,.35),transparent 55%),linear-gradient(160deg,#080e08,#0c1a0e,#040806)' },
+  };
+
+  let activeColor = 'gold';
+  const input    = document.getElementById('brandName');
+  const urlBar   = document.getElementById('brandUrlBar');
+  const bpLogo   = document.getElementById('bpLogo');
+  const bpH1     = document.getElementById('bpH1');
+  const bpEyebrow= document.getElementById('bpEyebrow');
+  const bpBody   = document.getElementById('brandBody');
+  const bpOverlay= document.getElementById('bpOverlay');
+  const bpNavCta = document.getElementById('bpNavCta');
+  const bpCta    = document.getElementById('bpCta');
+  const bpS1     = document.getElementById('bpS1');
+  const bpS2     = document.getElementById('bpS2');
+  const bpS3     = document.getElementById('bpS3');
+  const perfVal  = document.getElementById('bpPerfVal');
+
+  function toSlug(s){ return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') || 'vasafirma'; }
+
+  function applyColor(key){
+    const c = COLORS[key];
+    bpOverlay.style.background    = c.bg;
+    bpEyebrow.style.color         = c.hex;
+    bpNavCta.style.background     = c.hex;
+    bpCta.style.background        = c.hex;
+    bpS1.style.color              = c.hex;
+    bpS2.style.color              = c.hex;
+    bpS3.style.color              = c.hex;
+    perfVal.style.color           = c.hex;
+  }
+
+  function applyName(val){
+    const name = val.trim() || 'Vaša Firma';
+    bpLogo.textContent = name;
+    bpH1.textContent   = name;
+    urlBar.textContent = 'www.' + toSlug(name) + '.sk';
+  }
+
+  // Color swatches
+  document.querySelectorAll('.color-swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+      activeColor = sw.dataset.color;
+      applyColor(activeColor);
+    });
+  });
+
+  // Name input — live update with slight debounce for URL bar
+  let urlTimer;
+  input.addEventListener('input', () => {
+    applyName(input.value);
+    clearTimeout(urlTimer);
+    urlTimer = setTimeout(() => { applyName(input.value); }, 120);
+  });
+
+  // Init
+  applyColor('gold');
+})();
+
+/* ══ PRICE CALCULATOR ══════════════════════════ */
+(function(){
+  let basePrice = 299;
+  let baseName  = 'Prezentačný web';
+  const addons  = {};
+
+  const totalEl      = document.getElementById('calcTotal');
+  const totalSmallEl = document.getElementById('calcTotalSmall');
+  const breakdown    = document.getElementById('crBreakdown');
+
+  let animTimer;
+  function animateTo(target){
+    clearInterval(animTimer);
+    let current = +(totalEl.textContent);
+    const diff  = target - current;
+    const steps = 24;
+    let i = 0;
+    animTimer = setInterval(() => {
+      i++;
+      const ease = 1 - Math.pow(1 - i/steps, 3);
+      const val  = Math.round(current + diff * ease);
+      totalEl.textContent      = val;
+      totalSmallEl.textContent = val;
+      if(i >= steps) clearInterval(animTimer);
+    }, 18);
+  }
+
+  function recalc(){
+    const addonTotal = Object.values(addons).reduce((a,b)=>a+b,0);
+    const total = basePrice + addonTotal;
+    animateTo(total);
+
+    breakdown.innerHTML = `<div class="cr-line"><span>${baseName}</span><span>${basePrice} €</span></div>`;
+    Object.entries(addons).forEach(([label, price]) => {
+      if(price === 0) breakdown.innerHTML += `<div class="cr-line"><span>${label}</span><span style="color:var(--muted)">zdarma</span></div>`;
+      else breakdown.innerHTML += `<div class="cr-line"><span>${label}</span><span>+ ${price} €</span></div>`;
+    });
+  }
+
+  window.setBase = function(btn){
+    document.querySelectorAll('.calc-base-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    basePrice = +btn.dataset.base;
+    baseName  = btn.querySelector('.cb-name').textContent;
+    recalc();
+  };
+
+  window.toggleAddon = function(btn){
+    btn.classList.toggle('active');
+    const label = btn.dataset.label;
+    const price = +btn.dataset.addon;
+    if(btn.classList.contains('active')) addons[label] = price;
+    else delete addons[label];
+    recalc();
+  };
+
+  // Mark first base btn (299) active on load
+  const defaultBase = document.querySelector('.calc-base-btn.active');
+  if(defaultBase){ basePrice = +defaultBase.dataset.base; baseName = defaultBase.querySelector('.cb-name').textContent; }
+  recalc();
+})();
+function showToast(msg) {
+  const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),4000);
+}
+
+/* ══ STICKY CTA + SCROLL-TO-TOP ════════════════ */
+(function(){
+  const cta  = document.getElementById('sticky-cta');
+  const st   = document.getElementById('scroll-top');
+  const hero = document.querySelector('.hero');
+  window.addEventListener('scroll', () => {
+    const past = scrollY > (hero ? hero.offsetHeight * 0.6 : 400);
+    cta.classList.toggle('show', past);
+    st.classList.toggle('show',  past);
+  }, { passive:true });
+})();
+
+/* ══ FAQ ACCORDION ═════════════════════════════ */
+function toggleFaq(qEl) {
+  const item = qEl.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  // close all
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  // open clicked (unless it was already open)
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ══ SITE MODAL ════════════════════════════════ */
+(function(){
+  const modal=document.getElementById('siteModal'), overlay=document.getElementById('smOverlay'), closeBtn=document.getElementById('smClose');
+  const smLabel=document.getElementById('smLabel'), smBg=document.getElementById('smBg'), smTag=document.getElementById('smTag'), smTitle=document.getElementById('smTitle'), smDesc=document.getElementById('smDesc'), smOpen=document.getElementById('smOpenBtn'), smContact=document.getElementById('smContactBtn');
+  const bgs = { tuning:'radial-gradient(ellipse at 28% 72%,rgba(220,55,20,.35),transparent 50%),linear-gradient(148deg,#1e0b06,#2e1208,#140804)', spa:'radial-gradient(ellipse at 62% 28%,rgba(20,185,168,.28),transparent 52%),linear-gradient(148deg,#071a18,#0d2624,#04120f)', fit:'radial-gradient(ellipse at 24% 52%,rgba(148,220,8,.22),transparent 52%),linear-gradient(148deg,#0a1004,#121806,#070c02)', resto:'radial-gradient(ellipse at 70% 38%,rgba(200,70,20,.28),transparent 52%),linear-gradient(148deg,#1a0c06,#261408,#100804)', custom:'radial-gradient(ellipse at 50% 30%,rgba(100,120,220,.22),transparent 54%),linear-gradient(148deg,#0e1020,#151a30,#080d1c)' };
+  function openModal(card){ smLabel.textContent=card.dataset.tag||''; smTag.textContent=card.dataset.tag||''; smTitle.textContent=card.dataset.title||''; smDesc.textContent=card.dataset.desc||''; smBg.style.background=bgs[card.dataset.bg]||bgs.custom; const url=card.dataset.url||''; if(url&&url!=='#kontakt'){ smOpen.href=url; smOpen.style.display=''; smContact.style.display='none'; } else { smOpen.style.display='none'; smContact.style.display=''; } modal.classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeModal(){ modal.classList.remove('open'); document.body.style.overflow=''; }
+  document.querySelectorAll('.wcard[data-title]').forEach(card => card.addEventListener('click', ()=>openModal(card)));
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+})();
+</script>
 </body>
 </html>
