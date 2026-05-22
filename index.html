@@ -1029,7 +1029,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 }
 .calc-options { display:flex; flex-direction:column; gap:2rem; }
 .calc-group-title {
-  font-size:8px; letter-spacing:.28em; text-transform:uppercase;
+  font-size:10px; letter-spacing:.24em; text-transform:uppercase;
   color:var(--gold); margin-bottom:1rem;
   display:flex; align-items:center; gap:.6rem;
 }
@@ -1137,10 +1137,509 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
   .brand-inner,.calc-inner { grid-template-columns:1fr; gap:40px; }
   .brand-browser-wrap .brand-badge { display:none; }
 }
-@media(max-width:760px){
-  .brand-section,.calc-section { padding-left:20px; padding-right:20px; }
-  .calc-result { position:relative; top:auto; margin-top:2rem; }
+/* ═══════════════════════════════════════════════
+   COMBINED CALC + BRAND SECTION
+═══════════════════════════════════════════════ */
+.cb-section {
+  padding:110px 44px;
+  background:var(--bg2); border-top:1px solid rgba(255,255,255,.04);
 }
+.cb-section-head {
+  width:min(var(--max),100%); margin:0 auto 3.5rem;
+  display:flex; align-items:flex-end; justify-content:space-between; gap:2rem;
+}
+.cb-section-head h2 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(36px,4.4vw,66px); font-weight:300;
+  line-height:.95; letter-spacing:-.025em; margin-top:.75rem;
+}
+.cb-section-head h2 em { font-style:italic; color:var(--gold); }
+.cb-section-head p { font-size:15px; line-height:1.8; color:var(--muted); max-width:380px; }
+
+.cb-grid {
+  width:min(var(--max),100%); margin:0 auto;
+  display:grid; grid-template-columns:.78fr 1.22fr;
+  gap:2.5rem; align-items:start;
+}
+
+/* ── Left: Calculator ── */
+.cb-calc { display:flex; flex-direction:column; gap:1.8rem; }
+.cb-group {}
+.cb-group-title {
+  font-size:8px; letter-spacing:.28em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:1rem;
+  display:flex; align-items:center; gap:.7rem;
+}
+.cb-group-title::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg,rgba(224,181,90,.2),transparent);
+}
+
+/* Base buttons */
+.calc-base-opts { display:flex; flex-direction:column; gap:.45rem; }
+.calc-base-btn {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.9rem 1.1rem; background:transparent;
+  border:1px solid rgba(255,255,255,.07);
+  cursor:pointer; transition:background .3s, border-color .3s;
+  text-align:left; width:100%;
+}
+.calc-base-btn:hover { background:rgba(255,255,255,.03); border-color:rgba(255,255,255,.12); }
+.calc-base-btn.active { background:rgba(224,181,90,.06); border-color:rgba(224,181,90,.4); }
+.calc-base-btn.active .cb-radio { background:var(--gold); border-color:var(--gold); box-shadow:0 0 0 3px rgba(224,181,90,.15); }
+.cb-left { display:flex; align-items:center; gap:.85rem; }
+.cb-radio { width:14px; height:14px; border-radius:50%; border:1.5px solid rgba(255,255,255,.2); flex-shrink:0; transition:background .25s, border-color .25s, box-shadow .25s; }
+.cb-name { font-family:'Syne',sans-serif; font-size:1rem; font-weight:600; color:var(--text); }
+.cb-desc { font-size:.78rem; color:var(--muted); margin-top:.14rem; }
+.cb-price { font-family:'Cormorant Garamond',serif; font-size:1.45rem; font-weight:300; color:var(--blue2); white-space:nowrap; }
+
+/* V cene vždy */
+.cb-included-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:.35rem .8rem;
+}
+.cb-inc-item {
+  display:flex; align-items:center; gap:.55rem;
+  font-size:.82rem; color:var(--muted); letter-spacing:.02em;
+}
+.cb-inc-check {
+  width:14px; height:14px; border-radius:3px; flex-shrink:0;
+  background:rgba(224,181,90,.1); border:1px solid rgba(224,181,90,.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; color:var(--gold);
+}
+
+/* Addons */
+.calc-addons { display:flex; flex-direction:column; gap:.38rem; }
+.calc-addon {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.75rem 1.1rem; background:transparent;
+  border:1px solid rgba(255,255,255,.05);
+  cursor:pointer; transition:background .3s, border-color .3s; text-align:left; width:100%;
+}
+.calc-addon:hover { background:rgba(255,255,255,.02); border-color:rgba(255,255,255,.09); }
+.calc-addon.active { background:rgba(224,181,90,.04); border-color:rgba(224,181,90,.25); }
+.calc-addon.active .ca-check { background:var(--gold); border-color:var(--gold); color:var(--bg); }
+.calc-addon.active .ca-check::after { content:'✓'; }
+.ca-left { display:flex; align-items:center; gap:.75rem; }
+.ca-check { width:15px; height:15px; border:1.5px solid rgba(255,255,255,.2); border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:9px; color:transparent; flex-shrink:0; transition:background .25s, border-color .25s, color .25s; }
+.ca-name { font-size:.96rem; color:var(--text); font-family:'Syne',sans-serif; font-weight:500; }
+.ca-plus { font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--gold); white-space:nowrap; }
+
+/* Result panel */
+.cb-result-panel {
+  background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.08);
+  padding:1.8rem 2rem; margin-top:1rem;
+}
+.cr-label { font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:1.2rem; }
+.cr-price { font-family:'Cormorant Garamond',serif; font-size:clamp(44px,5vw,72px); font-weight:300; line-height:1; letter-spacing:-.03em; color:var(--text); }
+.cr-price-unit { font-size:1.3rem; color:var(--muted); font-family:'Syne',sans-serif; font-weight:400; }
+.cr-subtitle { font-size:.78rem; color:var(--muted); margin-top:.3rem; letter-spacing:.06em; }
+.cr-breakdown { display:flex; flex-direction:column; gap:.35rem; margin:1.2rem 0; }
+.cr-line { display:flex; justify-content:space-between; font-size:.76rem; color:var(--muted); padding:.35rem 0; border-bottom:1px solid rgba(255,255,255,.04); animation:crFadeIn .3s var(--ease); }
+@keyframes crFadeIn { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:none} }
+.cr-line:last-child { border-bottom:none; }
+.cr-line span:last-child { color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:.95rem; }
+.cr-total-line { display:flex; justify-content:space-between; padding:.9rem 0 1.3rem; border-top:1px solid rgba(255,255,255,.1); }
+.cr-total-label { font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+.cr-total-val { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:300; color:var(--blue2); }
+
+/* ── Right: Brand Preview ── */
+.cb-brand { display:flex; flex-direction:column; gap:0; position:sticky; top:5rem; }
+
+.cb-controls {
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.09);
+  border-bottom:none; padding:1.4rem 1.6rem;
+  display:flex; flex-direction:column; gap:1.1rem;
+}
+.cb-ctrl-row { display:flex; gap:.9rem; align-items:flex-end; flex-wrap:wrap; }
+.cb-ctrl-group { display:flex; flex-direction:column; gap:.45rem; flex:1; min-width:110px; }
+.cb-ctrl-label { font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:rgba(240,238,248,.45); }
+.cb-ctrl-input {
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+  padding:.6rem .9rem; font-family:'Syne',sans-serif; font-size:.95rem;
+  color:var(--text); outline:none; width:100%; transition:border-color .3s;
+}
+.cb-ctrl-input:focus { border-color:var(--gold); }
+.cb-ctrl-input::placeholder { color:rgba(240,238,248,.18); font-size:.85rem; }
+
+/* URL editable bar */
+.cb-url-input {
+  flex:1; height:22px; background:rgba(255,255,255,.06); border-radius:4px;
+  border:1px solid transparent; padding:0 8px;
+  font-family:'Syne',sans-serif; font-size:9px; color:rgba(255,255,255,.45);
+  letter-spacing:.03em; outline:none; text-align:center;
+  transition:border-color .25s, color .25s, background .25s;
+}
+.cb-url-input:focus { border-color:rgba(224,181,90,.4); color:rgba(255,255,255,.75); background:rgba(255,255,255,.1); }
+
+/* Font buttons */
+.font-btns { display:flex; gap:.35rem; flex-wrap:wrap; }
+.font-btn {
+  padding:.42rem .8rem; background:transparent;
+  border:1px solid rgba(255,255,255,.1); font-size:.75rem;
+  color:var(--muted); cursor:pointer;
+  transition:border-color .25s, color .25s, background .25s; white-space:nowrap;
+}
+.font-btn.active { border-color:var(--gold); color:var(--gold); background:rgba(224,181,90,.07); }
+
+/* Align buttons */
+.align-btns { display:flex; gap:.35rem; }
+.align-btn {
+  width:32px; height:32px; background:transparent;
+  border:1px solid rgba(255,255,255,.1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.85rem; cursor:pointer; color:var(--muted);
+  transition:border-color .25s, color .25s, background .25s;
+}
+.align-btn.active { border-color:var(--gold); color:var(--gold); background:rgba(224,181,90,.07); }
+
+/* Button hover style selector */
+.hover-btns { display:flex; gap:.35rem; flex-wrap:wrap; }
+.hover-style-btn {
+  padding:.42rem .8rem; background:transparent;
+  border:1px solid rgba(255,255,255,.1); font-size:.75rem;
+  color:var(--muted); cursor:pointer;
+  transition:border-color .25s, color .25s, background .25s; white-space:nowrap;
+}
+.hover-style-btn.active { border-color:var(--gold); color:var(--gold); background:rgba(224,181,90,.07); }
+
+/* Color swatches */
+.color-swatches { display:flex; gap:.5rem; flex-wrap:wrap; }
+.color-swatch { width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform .25s var(--ease), border-color .25s; }
+.color-swatch:hover { transform:scale(1.2); }
+.color-swatch.active { border-color:rgba(255,255,255,.85); transform:scale(1.25); box-shadow:0 0 0 2px rgba(255,255,255,.14); }
+
+/* Background picker */
+.bg-btns { display:flex; gap:.38rem; flex-wrap:wrap; }
+.bg-btn {
+  padding:.32rem .6rem; background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07); border-radius:4px;
+  font-size:.95rem; cursor:pointer; line-height:1;
+  transition:background .25s, border-color .25s, transform .2s var(--ease);
+  display:flex; align-items:center; gap:.32rem;
+}
+.bg-btn:hover { transform:translateY(-2px); background:rgba(255,255,255,.08); }
+.bg-btn.active { border-color:var(--gold); background:rgba(224,181,90,.1); }
+.bg-btn-label { font-size:.65rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+
+/* ── Browser shell ── */
+.cb-browser { border:1px solid rgba(255,255,255,.14); border-radius:0 0 10px 10px; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,.65); display:flex; flex-direction:column; }
+.cb-browser-bar {
+  height:36px; background:rgba(6,10,18,.98);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex; align-items:center; padding:0 12px; gap:8px;
+  flex-shrink:0;
+}
+.cb-browser-dots { display:flex; gap:5px; }
+.cb-browser-dots span { width:9px; height:9px; border-radius:50%; }
+.cb-browser-dots span:nth-child(1){ background:#ff5f57; }
+.cb-browser-dots span:nth-child(2){ background:#febc2e; }
+.cb-browser-dots span:nth-child(3){ background:#38d860; }
+
+/* Scrollable preview body */
+.cb-preview-body {
+  flex:1; position:relative; overflow-y:auto; overflow-x:hidden;
+  scroll-behavior:smooth; background:#0c0a10;
+  height:500px; max-height:500px;
+}
+.cb-preview-body::-webkit-scrollbar { width:4px; }
+.cb-preview-body::-webkit-scrollbar-track { background:rgba(255,255,255,.03); }
+.cb-preview-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12); border-radius:2px; }
+
+/* Stats pinned to bottom of browser (outside scroll) */
+.cb-p-stats {
+  display:flex; border-top:1px solid rgba(255,255,255,.1);
+  background:rgba(4,4,8,.92); backdrop-filter:blur(10px);
+  flex-shrink:0;
+}
+.cb-p-stat { flex:1; padding:11px 16px; border-right:1px solid rgba(255,255,255,.07); }
+.cb-p-stat:last-child { border-right:none; }
+.cb-p-stat-n { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:300; line-height:1; transition:color .5s; }
+.cb-p-stat-l { font-size:7.5px; color:rgba(255,255,255,.32); margin-top:3px; letter-spacing:.06em; }
+
+/* Background layers (sticky hero bg) */
+.cb-bg-wrap { position:relative; }
+.cb-bg-overlay { position:absolute; inset:0; pointer-events:none; transition:background .7s ease; z-index:0; }
+
+/* Background decorative objects */
+.cb-bg-objects { position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
+.cb-bg-obj {
+  position:absolute; font-size:7.5rem; line-height:1;
+  opacity:.07; transition:all .7s ease; user-select:none; filter:blur(1px);
+}
+.cb-bg-obj:nth-child(1) { bottom:10%; right:5%;  transform:rotate(-15deg); }
+.cb-bg-obj:nth-child(2) { top:12%;  right:28%; transform:rotate(10deg) scale(.65); opacity:.045; }
+.cb-bg-obj:nth-child(3) { bottom:30%; left:3%;  transform:rotate(5deg) scale(.5); opacity:.04; }
+
+/* Nav in preview */
+.cb-p-nav {
+  position:sticky; top:0; z-index:10; height:36px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 18px; background:rgba(0,0,0,.45); backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.cb-p-logo {
+  font-family:'Cormorant Garamond',serif; font-size:14px; font-weight:300;
+  letter-spacing:.14em; color:#fff; transition:all .4s;
+  max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.cb-p-navlinks { display:flex; gap:10px; }
+.cb-p-navlinks span { width:22px; height:4px; border-radius:2px; background:rgba(255,255,255,.18); }
+.cb-p-navcta {
+  height:18px; padding:0 10px; font-size:7px; letter-spacing:.12em; text-transform:uppercase;
+  display:flex; align-items:center; color:#000; font-weight:700; border-radius:2px;
+  transition:background .4s, transform .2s, box-shadow .3s; cursor:pointer;
+}
+
+/* Hero area */
+.cb-p-hero-wrap { position:relative; min-height:220px; overflow:hidden; }
+.cb-p-hero { position:relative; z-index:2; padding:28px 18px 20px; transition:text-align .3s; }
+.cb-p-eyebrow { font-size:7px; letter-spacing:.26em; text-transform:uppercase; margin-bottom:8px; transition:color .5s; }
+.cb-p-h1 {
+  font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:300;
+  line-height:.95; letter-spacing:-.02em; color:#fff; margin-bottom:8px;
+  transition:all .35s var(--ease); overflow:hidden; text-overflow:ellipsis;
+}
+.cb-p-sub { font-size:9px; color:rgba(255,255,255,.4); margin-bottom:14px; transition:all .3s; }
+
+/* CTA button with 4 hover styles */
+.cb-p-cta {
+  display:inline-flex; align-items:center; gap:5px; position:relative; overflow:hidden;
+  height:26px; padding:0 14px; font-size:8px; letter-spacing:.14em;
+  text-transform:uppercase; color:#000; font-weight:700;
+  border-radius:2px; transition:background .4s, box-shadow .3s, transform .25s, color .3s;
+  cursor:pointer; z-index:1;
+}
+.cb-p-cta::before {
+  content:''; position:absolute; inset:0; z-index:-1;
+  transition:transform .4s var(--ease), opacity .3s;
+}
+
+/* hover-fill (default) */
+[data-hover="fill"] .cb-p-cta::before { background:rgba(255,255,255,.25); transform:translateX(-101%); }
+[data-hover="fill"] .cb-p-cta:hover::before { transform:translateX(0); }
+
+/* hover-glow */
+[data-hover="glow"] .cb-p-cta:hover { box-shadow:0 0 20px var(--cbAccent,#e0b55a), 0 0 40px rgba(224,181,90,.3); transform:translateY(-2px); }
+
+/* hover-outline */
+[data-hover="outline"] .cb-p-cta { background:transparent !important; border:2px solid var(--cbAccent,#e0b55a); color:var(--cbAccent,#e0b55a) !important; }
+[data-hover="outline"] .cb-p-cta:hover { background:var(--cbAccent,#e0b55a) !important; color:#000 !important; }
+
+/* hover-rise */
+[data-hover="rise"] .cb-p-cta { overflow:hidden; }
+[data-hover="rise"] .cb-p-cta:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,.4); }
+
+/* Stats bar — now pinned outside scroll, see above */
+
+/* ── Scrollable inner sections ── */
+.cb-prev-services {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  padding:18px; background:rgba(255,255,255,.015);
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.cb-prev-card {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07);
+  padding:12px 10px; border-radius:3px; transition:background .3s;
+}
+.cb-prev-card:hover { background:rgba(255,255,255,.07); }
+.cb-prev-card-icon { font-size:1.3rem; margin-bottom:5px; }
+.cb-prev-card-title { font-size:9px; font-weight:600; color:rgba(255,255,255,.82); margin-bottom:3px; }
+.cb-prev-card-sub { font-size:7.5px; color:rgba(255,255,255,.32); line-height:1.45; }
+.cb-prev-card-price { font-size:9px; margin-top:5px; transition:color .5s; font-weight:600; }
+
+/* About strip */
+.cb-prev-about {
+  padding:18px; border-top:1px solid rgba(255,255,255,.05);
+  display:flex; gap:14px; align-items:center;
+}
+.cb-prev-about-text { flex:1; }
+.cb-prev-about-title { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:300; color:#fff; margin-bottom:5px; transition:font-family .4s; }
+.cb-prev-about-body { font-size:8px; color:rgba(255,255,255,.35); line-height:1.6; }
+.cb-prev-about-img { width:60px; height:60px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; flex-shrink:0; }
+
+/* Google Map mock */
+.cb-prev-map-wrap {
+  margin:0; border-top:1px solid rgba(255,255,255,.06);
+}
+.cb-prev-map-label {
+  padding:10px 18px 0; font-size:7px; letter-spacing:.22em;
+  text-transform:uppercase; color:rgba(255,255,255,.25);
+}
+.cb-prev-map {
+  height:110px; background:#141b2d; position:relative; overflow:hidden; margin:8px 18px 0;
+  border:1px solid rgba(255,255,255,.07);
+}
+.cb-prev-map-grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size:18px 18px;
+}
+.cb-prev-map-road-h { position:absolute; height:5px; background:rgba(255,255,255,.09); left:0; right:0; border-radius:1px; }
+.cb-prev-map-road-v { position:absolute; width:5px; background:rgba(255,255,255,.09); top:0; bottom:0; border-radius:1px; }
+.cb-prev-map-block { position:absolute; background:rgba(255,255,255,.04); border-radius:1px; }
+.cb-prev-map-pin {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-100%);
+  z-index:2;
+}
+.cb-prev-map-pin::before {
+  content:''; display:block; width:14px; height:14px; border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg); margin:0 auto; transition:background .5s;
+}
+.cb-prev-map-pin::after {
+  content:''; display:block; width:5px; height:5px;
+  background:rgba(0,0,0,.4); border-radius:50%; margin:0 auto;
+  transform:translateY(1px);
+}
+.cb-prev-map-pulse {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:28px; height:28px; border-radius:50%;
+  animation:mapPulse 2s ease-out infinite; z-index:1;
+}
+@keyframes mapPulse { 0%{transform:translate(-50%,-50%) scale(.5);opacity:.8} 100%{transform:translate(-50%,-50%) scale(2.5);opacity:0} }
+
+/* Footer in preview */
+.cb-prev-footer {
+  background:rgba(0,0,0,.55); padding:14px 18px 12px;
+  border-top:1px solid rgba(255,255,255,.07);
+}
+.cb-prev-footer-top {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom:10px; gap:8px;
+}
+.cb-prev-footer-logo { font-family:'Cormorant Garamond',serif; font-size:14px; font-weight:300; letter-spacing:.12em; color:#fff; margin-bottom:3px; transition:all .4s; }
+.cb-prev-footer-sub { font-size:7px; color:rgba(255,255,255,.3); letter-spacing:.06em; }
+.cb-prev-footer-links { display:flex; gap:6px; flex-direction:column; }
+.cb-prev-footer-link { font-size:7px; color:rgba(255,255,255,.3); letter-spacing:.06em; }
+.cb-prev-social { display:flex; gap:5px; margin-top:3px; }
+.cb-prev-social-btn {
+  width:22px; height:22px; border:1px solid rgba(255,255,255,.12);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.6rem; color:rgba(255,255,255,.4);
+  transition:border-color .3s, color .3s; border-radius:2px; cursor:pointer;
+}
+.cb-prev-social-btn:hover { border-color:var(--cbAccent,#e0b55a); color:var(--cbAccent,#e0b55a); }
+.cb-prev-footer-bottom {
+  border-top:1px solid rgba(255,255,255,.05); padding-top:8px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.cb-prev-footer-copy { font-size:6.5px; color:rgba(255,255,255,.2); letter-spacing:.06em; }
+
+@media(max-width:1100px){
+  .cb-grid { grid-template-columns:1fr; }
+  .cb-brand { position:relative; top:auto; }
+  .cb-preview-body { height:420px; max-height:420px; }
+}
+/* ─── Interactive notice ─── */
+.cb-interactive-notice {
+  display:flex; align-items:center; gap:.65rem; justify-content:center;
+  padding:.55rem 1rem; margin-bottom:0;
+  background:rgba(224,181,90,.07); border:1px solid rgba(224,181,90,.2);
+  border-bottom:none;
+  font-family:'Syne',sans-serif; font-size:.7rem; font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--gold2);
+}
+.cb-notice-dot {
+  width:7px; height:7px; border-radius:50%; background:var(--gold);
+  animation:ctaPulse 1.8s ease-in-out infinite; flex-shrink:0;
+}
+
+/* ─── Language switcher addon ─── */
+.cb-p-lang { display:none; align-items:center; gap:3px; margin-left:6px; }
+.cb-p-lang.active { display:flex; animation:addonFade .4s var(--ease); }
+.cb-p-lang-btn { font-size:6px; letter-spacing:.1em; padding:2px 5px; border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.45); border-radius:2px; font-family:'Syne',sans-serif; }
+.cb-p-lang-btn.active { border-color:var(--cbAccent,#e0b55a); color:var(--cbAccent,#e0b55a); }
+
+/* ─── Booking widget ─── */
+.cb-addon-booking {
+  display:none; position:absolute; bottom:65px; right:10px; z-index:12;
+  background:rgba(6,10,18,.97); border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(18px); border-radius:8px; padding:12px 14px; width:158px;
+  box-shadow:0 12px 40px rgba(0,0,0,.65);
+}
+.cb-addon-booking.active { display:block; animation:addonSlide .4s var(--ease); }
+.cb-addon-book-title { font-size:8px; font-weight:700; color:var(--text); letter-spacing:.12em; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+.cb-addon-book-field { margin-bottom:5px; }
+.cb-addon-book-label { font-size:6px; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.3); margin-bottom:2px; display:block; }
+.cb-addon-book-input { width:100%; height:19px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:3px; font-size:7.5px; color:rgba(255,255,255,.65); padding:0 6px; font-family:'Syne',sans-serif; }
+.cb-addon-book-btn { width:100%; height:23px; border-radius:3px; font-size:7px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#000; display:flex; align-items:center; justify-content:center; margin-top:8px; transition:opacity .2s; }
+.cb-addon-book-btn:hover { opacity:.85; }
+
+/* ─── Blog section ─── */
+.cb-addon-blog { display:none; padding:14px 18px; border-top:1px solid rgba(255,255,255,.06); background:rgba(255,255,255,.01); }
+.cb-addon-blog.active { display:block; animation:addonFade .5s var(--ease); }
+.cb-addon-blog-label { font-size:7px; letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.cb-addon-blog-label::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.06); }
+.cb-addon-blog-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.cb-addon-blog-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:3px; overflow:hidden; }
+.cb-addon-blog-img { height:32px; }
+.cb-addon-blog-body { padding:6px; }
+.cb-addon-blog-tag { font-size:6px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:3px; }
+.cb-addon-blog-h { font-size:8px; font-weight:600; color:rgba(255,255,255,.8); line-height:1.3; margin-bottom:2px; }
+.cb-addon-blog-date { font-size:6.5px; color:rgba(255,255,255,.28); }
+
+/* ─── WhatsApp button ─── */
+.cb-addon-whatsapp {
+  display:none; position:absolute; bottom:12px; right:10px; z-index:18;
+  width:36px; height:36px; border-radius:50%; background:#25D366;
+  align-items:center; justify-content:center; font-size:1.15rem;
+  box-shadow:0 4px 18px rgba(37,211,102,.45); cursor:pointer;
+}
+.cb-addon-whatsapp.active { display:flex; animation:addonPop .5s var(--ease); }
+.cb-addon-whatsapp:hover { transform:scale(1.1); }
+
+/* ─── SEO snippet ─── */
+.cb-addon-seo { display:none; margin:0 18px 12px; border-radius:6px; overflow:hidden; }
+.cb-addon-seo.active { display:block; animation:addonFade .4s var(--ease); }
+.cb-addon-seo-wrap { background:rgba(250,250,252,.97); padding:10px 12px; }
+.cb-addon-seo-header { display:flex; align-items:center; gap:5px; margin-bottom:5px; }
+.cb-addon-seo-favicon { width:12px; height:12px; border-radius:2px; background:rgba(0,0,0,.1); }
+.cb-addon-seo-domain { font-size:8px; color:#202124; font-family:'Syne',sans-serif; font-weight:500; }
+.cb-addon-seo-title { font-size:13px; color:#1a0dab; margin-bottom:2px; font-weight:400; font-family:'Arial',sans-serif; line-height:1.2; }
+.cb-addon-seo-url { font-size:8px; color:#006621; margin-bottom:4px; }
+.cb-addon-seo-desc { font-size:8.5px; color:#4d5156; line-height:1.45; font-family:'Arial',sans-serif; }
+.cb-addon-seo-label { font-size:6px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.25); padding:5px 12px 4px; background:rgba(0,0,0,.5); display:block; }
+
+/* ─── Email section ─── */
+.cb-addon-email { display:none; padding:12px 18px; border-top:1px solid rgba(255,255,255,.05); background:rgba(255,255,255,.01); }
+.cb-addon-email.active { display:block; animation:addonFade .4s var(--ease); }
+.cb-addon-email-row { display:flex; align-items:center; gap:10px; }
+.cb-addon-email-icon { width:32px; height:32px; flex-shrink:0; border-radius:50%; background:rgba(224,181,90,.1); border:1px solid rgba(224,181,90,.25); display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.cb-addon-email-text {}
+.cb-addon-email-addr { font-size:9.5px; font-weight:600; font-family:'Syne',sans-serif; }
+.cb-addon-email-sub { font-size:7px; color:rgba(255,255,255,.3); margin-top:1px; }
+
+/* ─── Popup overlay ─── */
+.cb-addon-popup { display:none; position:absolute; inset:0; z-index:25; background:rgba(0,0,0,.65); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
+.cb-addon-popup.active { display:flex; }
+.cb-popup-box { background:rgba(12,10,16,.98); border:1px solid rgba(255,255,255,.14); border-radius:10px; padding:22px 20px; width:210px; position:relative; box-shadow:0 24px 64px rgba(0,0,0,.75); animation:addonPop .45s var(--ease); }
+.cb-popup-close { position:absolute; top:9px; right:12px; font-size:13px; color:rgba(255,255,255,.3); cursor:pointer; line-height:1; }
+.cb-popup-emoji { font-size:2rem; margin-bottom:8px; display:block; }
+.cb-popup-title { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:300; color:#fff; margin-bottom:5px; }
+.cb-popup-sub { font-size:8.5px; color:rgba(255,255,255,.4); margin-bottom:12px; line-height:1.55; }
+.cb-popup-input { width:100%; height:27px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:4px; font-size:8.5px; color:rgba(255,255,255,.7); padding:0 9px; margin-bottom:9px; font-family:'Syne',sans-serif; }
+.cb-popup-btn { width:100%; height:27px; border-radius:4px; font-size:8px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#000; display:flex; align-items:center; justify-content:center; transition:opacity .2s; }
+.cb-popup-btn:hover { opacity:.88; }
+
+/* ─── Animations particles ─── */
+.cb-addon-anim { display:none; position:absolute; inset:0; pointer-events:none; z-index:5; overflow:hidden; }
+.cb-addon-anim.active { display:block; }
+.cb-particle { position:absolute; width:3px; height:3px; border-radius:50%; animation:particleFloat linear infinite; }
+@keyframes particleFloat { 0%{transform:translateY(120%) scale(0);opacity:0} 8%{opacity:.7;transform:translateY(90%) scale(1)} 92%{opacity:.2} 100%{transform:translateY(-30px) scale(0);opacity:0} }
+
+/* ─── Map directions enhancement ─── */
+.cb-map-directions { display:none; align-items:center; gap:6px; margin:5px 18px 0; cursor:pointer; }
+.cb-map-directions.active { display:flex; animation:addonFade .3s var(--ease); }
+.cb-map-dir-btn { font-size:7px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; padding:4px 10px; border-radius:3px; display:flex; align-items:center; gap:4px; transition:opacity .2s; }
+.cb-map-dir-btn:hover { opacity:.8; }
+
+/* ─── Addon animations ─── */
+@keyframes addonFade { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes addonSlide { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:none} }
+@keyframes addonPop { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
 </style>
 </head>
 <body>
@@ -1424,70 +1923,444 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
   </div>
 </section>
 
-<!-- LIVE BRANDING PREVIEW -->
-<section class="brand-section" id="nahlad">
-  <div class="brand-inner">
+<!-- CALCULATOR + BRANDING PREVIEW -->
+<section class="cb-section" id="kalkulacka">
 
-    <div class="brand-left">
-      <div class="ew reveal">Vyskúšajte to</div>
-      <h2 class="reveal" style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,4.4vw,66px);font-weight:300;line-height:.95;letter-spacing:-.025em;margin-top:12px;">Váš web<br/>za <em style="font-style:italic;color:var(--gold)">10 sekúnd.</em></h2>
-      <p class="reveal" style="margin-top:24px;font-size:14px;line-height:1.82;color:var(--muted);max-width:400px;">
-        Napíšte názov firmy a vyberte farebnú paletu — v reálnom čase uvidíte, ako by mohol vyzerať váš prémiový web. Ešte pred tým, než čokoľvek podpíšete.
-      </p>
-
-      <div class="brand-controls">
-        <div class="brand-field reveal">
-          <label>Názov vašej firmy</label>
-          <input class="brand-input" id="brandName" type="text" placeholder="napr. Pekáreň Novák" maxlength="28" autocomplete="off"/>
-        </div>
-        <div class="brand-field reveal">
-          <label>Farba značky</label>
-          <div class="color-swatches" id="colorSwatches">
-            <div class="color-swatch active" data-color="gold"   data-hex="#e0b55a" style="background:#e0b55a" title="Zlatá"></div>
-            <div class="color-swatch"        data-color="teal"   data-hex="#14b8a6" style="background:#14b8a6" title="Tyrkys"></div>
-            <div class="color-swatch"        data-color="blue"   data-hex="#3b82f6" style="background:#3b82f6" title="Modrá"></div>
-            <div class="color-swatch"        data-color="rose"   data-hex="#f43f5e" style="background:#f43f5e" title="Ružová"></div>
-            <div class="color-swatch"        data-color="violet" data-hex="#8b5cf6" style="background:#8b5cf6" title="Fialová"></div>
-            <div class="color-swatch"        data-color="green"  data-hex="#22c55e" style="background:#22c55e" title="Zelená"></div>
-          </div>
-        </div>
-        <a href="#kontakt" class="btn gold reveal" style="align-self:flex-start;margin-top:.5rem;">Chcem takýto web &nbsp;→</a>
-      </div>
+  <div class="cb-section-head reveal">
+    <div>
+      <div class="ew">Kalkulačka & Náhľad</div>
+      <h2>Poskladajte si web.<br/><em>Uvidíte ho hneď.</em></h2>
     </div>
-
-    <div class="brand-browser-wrap reveal-right">
-      <div class="brand-browser" id="brandBrowser">
-        <div class="brand-browser-bar">
-          <div class="brand-browser-dots"><span></span><span></span><span></span></div>
-          <div class="brand-url-bar" id="brandUrlBar">www.vasafirma.sk</div>
-        </div>
-        <div class="brand-preview-body" id="brandBody">
-          <div class="bp-bg-overlay" id="bpOverlay"></div>
-          <div class="bp-nav">
-            <div class="bp-nav-logo" id="bpLogo">Vaša Firma</div>
-            <div class="bp-nav-links"><span></span><span></span><span></span></div>
-            <div class="bp-nav-cta" id="bpNavCta">Kontakt</div>
-          </div>
-          <div class="bp-hero">
-            <div class="bp-eyebrow" id="bpEyebrow">Prémiový web · Slovensko</div>
-            <div class="bp-h1" id="bpH1">Vaša Firma</div>
-            <div class="bp-sub">Navrhnutý okolo vášho zákazníka.</div>
-            <div class="bp-cta" id="bpCta">Zistiť viac &nbsp;→</div>
-          </div>
-          <div class="bp-stats">
-            <div class="bp-stat"><div class="bp-stat-n" id="bpS1">4.9★</div><div class="bp-stat-l">Hodnotenie</div></div>
-            <div class="bp-stat"><div class="bp-stat-n" id="bpS2">100%</div><div class="bp-stat-l">Spokojnosť</div></div>
-            <div class="bp-stat"><div class="bp-stat-n" id="bpS3">24h</div><div class="bp-stat-l">Podpora</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="brand-badge">
-        <div class="brand-badge-label">Performance</div>
-        <div class="brand-badge-val" id="bpPerfVal" style="color:var(--gold)">98</div>
-      </div>
-    </div>
-
+    <p>Vyberte balík a rozšírenia — cena sa prepočíta okamžite. Vpravo si nakonfigurujte, ako by váš web mohol vyzerať.</p>
   </div>
+
+  <div class="cb-grid">
+
+    <!-- ════ LEFT: CALCULATOR ════ -->
+    <div class="cb-calc">
+
+      <div class="cb-group reveal">
+        <div class="cb-group-title">Základ webu</div>
+        <div class="calc-base-opts">
+          <button class="calc-base-btn" data-base="199" onclick="setBase(this)">
+            <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Individual</div><div class="cb-desc">1 stránka · Freelanceri, remeselníci</div></div></div>
+            <div class="cb-price">199 €</div>
+          </button>
+          <button class="calc-base-btn active" data-base="299" onclick="setBase(this)">
+            <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Prezentačný web</div><div class="cb-desc">Do 3 stránok · Reštaurácie, salóny, fitnessy</div></div></div>
+            <div class="cb-price">299 €</div>
+          </button>
+          <button class="calc-base-btn" data-base="399" onclick="setBase(this)">
+            <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Značkový web</div><div class="cb-desc">Do 7 stránok · Etablované podniky</div></div></div>
+            <div class="cb-price">399 €</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="cb-group reveal">
+        <div class="cb-group-title">V cene vždy</div>
+        <div class="cb-included-grid">
+          <div class="cb-inc-item"><div class="cb-inc-check">✓</div>Galéria fotografií</div>
+          <div class="cb-inc-item"><div class="cb-inc-check">✓</div>Kontaktný formulár</div>
+          <div class="cb-inc-item"><div class="cb-inc-check">✓</div>Doména &amp; hosting (1. rok)</div>
+          <div class="cb-inc-item"><div class="cb-inc-check">✓</div>Mobile-first dizajn</div>
+          <div class="cb-inc-item"><div class="cb-inc-check">✓</div>SEO základy</div>
+          <div class="cb-inc-item"><div class="cb-inc-check">✓</div>Responzívny dizajn</div>
+          <div class="cb-inc-item"><div class="cb-inc-check">✓</div>SSL certifikát</div>
+          <div class="cb-inc-item"><div class="cb-inc-check">✓</div>Bezplatný náhľad webu</div>
+        </div>
+      </div>
+
+      <div class="cb-group reveal">
+        <div class="cb-group-title">Rozšírenia</div>
+        <div class="calc-addons">
+          <button class="calc-addon" data-addon="80" data-label="Rezervačný systém" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Rezervačný systém</div></div>
+            <div class="ca-plus">+80 €</div>
+          </button>
+          <button class="calc-addon" data-addon="100" data-label="Blog / Aktuality" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Blog / Aktuality</div></div>
+            <div class="ca-plus">+100 €</div>
+          </button>
+          <button class="calc-addon" data-addon="90" data-label="Pokročilé animácie & paralax" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé animácie &amp; paralax</div></div>
+            <div class="ca-plus">+90 €</div>
+          </button>
+          <button class="calc-addon" data-addon="80" data-label="Pokročilé SEO" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé SEO</div></div>
+            <div class="ca-plus">+80 €</div>
+          </button>
+          <button class="calc-addon" data-addon="35" data-label="Google Mapy & lokácia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Google Mapy &amp; lokácia</div></div>
+            <div class="ca-plus">+35 €</div>
+          </button>
+          <button class="calc-addon" data-addon="40" data-label="WhatsApp / Chat tlačidlo" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">WhatsApp / Chat tlačidlo</div></div>
+            <div class="ca-plus">+40 €</div>
+          </button>
+          <button class="calc-addon" data-addon="35" data-label="Vlastná e-mailová adresa" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Vlastná e-mail adresa <span style="font-size:.7rem;color:var(--muted)">(info@firma.sk)</span></div></div>
+            <div class="ca-plus">+35 €</div>
+          </button>
+          <button class="calc-addon" data-addon="65" data-label="Pop-up / Lead magnet" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pop-up / Lead magnet</div></div>
+            <div class="ca-plus">+65 €</div>
+          </button>
+          <button class="calc-addon" data-addon="120" data-label="Viacjazyčná verzia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Viacjazyčná verzia</div></div>
+            <div class="ca-plus">+120 €</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="cb-result-panel reveal">
+        <div class="cr-label">Vaša cena</div>
+        <div style="margin-bottom:.3rem">
+          <div class="cr-price"><span style="font-size:1.5rem;color:var(--muted);font-family:'Syne',sans-serif;font-weight:300;vertical-align:super;font-size:1rem">od </span><span id="calcTotal">299</span><span class="cr-price-unit"> €</span></div>
+          <div class="cr-subtitle">Orientačná cena · presná suma po konzultácii</div>
+        </div>
+        <div class="cr-breakdown" id="crBreakdown">
+          <div class="cr-line"><span>Prezentačný web</span><span>od 299 €</span></div>
+        </div>
+        <div class="cr-total-line">
+          <span class="cr-total-label">Celkom od</span>
+          <span class="cr-total-val"><span id="calcTotalSmall">299</span> €</span>
+        </div>
+        <a href="#kontakt" class="btn gold" style="width:100%;justify-content:center;">Nezáväzná konzultácia &nbsp;→</a>
+        <p style="font-size:.64rem;color:var(--muted);margin-top:.8rem;line-height:1.6;">Konzultácia a náhľad zdarma. Bez záväzkov.</p>
+      </div>
+
+    </div>
+
+    <!-- ════ RIGHT: BRANDING PREVIEW ════ -->
+    <div class="cb-brand reveal-right">
+
+      <!-- Controls -->
+      <div class="cb-controls">
+        <div class="cb-ctrl-row">
+          <div class="cb-ctrl-group" style="flex:1.5">
+            <div class="cb-ctrl-label">Názov firmy</div>
+            <input class="cb-ctrl-input" id="cbBrandName" type="text" placeholder="napr. Pekáreň Novák" maxlength="26" autocomplete="off"/>
+          </div>
+          <div class="cb-ctrl-group">
+            <div class="cb-ctrl-label">Font</div>
+            <div class="font-btns">
+              <button class="font-btn active" data-font="'Cormorant Garamond',serif" onclick="setFont(this)">Serif</button>
+              <button class="font-btn" data-font="'Syne',sans-serif" onclick="setFont(this)">Modern</button>
+              <button class="font-btn" data-font="Georgia,serif" onclick="setFont(this)">Classic</button>
+              <button class="font-btn" data-font="system-ui,sans-serif" onclick="setFont(this)">Clean</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cb-ctrl-row">
+          <div class="cb-ctrl-group">
+            <div class="cb-ctrl-label">Hlavný nadpis</div>
+            <input class="cb-ctrl-input" id="cbHeadline" type="text" placeholder="Váš nadpis…" maxlength="28" autocomplete="off"/>
+          </div>
+          <div class="cb-ctrl-group" style="max-width:140px">
+            <div class="cb-ctrl-label">Text tlačidla</div>
+            <input class="cb-ctrl-input" id="cbCtaText" type="text" placeholder="Rezervovať →" maxlength="18" autocomplete="off"/>
+          </div>
+        </div>
+
+        <div class="cb-ctrl-row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.9rem;">
+          <div style="display:flex;flex-direction:column;gap:.4rem;">
+            <div class="cb-ctrl-label">Zarovnanie textu</div>
+            <div class="align-btns">
+              <button class="align-btn active" data-align="left" onclick="setAlign(this)" title="Vľavo">⬛</button>
+              <button class="align-btn" data-align="center" onclick="setAlign(this)" title="Stred">☰</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.4rem;">
+            <div class="cb-ctrl-label">Hover štýl CTA</div>
+            <div class="hover-btns">
+              <button class="hover-style-btn active" data-hover="fill"    onclick="setHover(this)">Fill</button>
+              <button class="hover-style-btn"         data-hover="glow"    onclick="setHover(this)">Glow</button>
+              <button class="hover-style-btn"         data-hover="outline" onclick="setHover(this)">Outline</button>
+              <button class="hover-style-btn"         data-hover="rise"    onclick="setHover(this)">Rise</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cb-ctrl-row" style="justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.9rem;">
+          <div style="display:flex;flex-direction:column;gap:.4rem;">
+            <div class="cb-ctrl-label">Farba značky</div>
+            <div class="color-swatches">
+              <div class="color-swatch active" data-color="gold"   style="background:#e0b55a"></div>
+              <div class="color-swatch"        data-color="teal"   style="background:#14b8a6"></div>
+              <div class="color-swatch"        data-color="blue"   style="background:#3b82f6"></div>
+              <div class="color-swatch"        data-color="rose"   style="background:#f43f5e"></div>
+              <div class="color-swatch"        data-color="violet" style="background:#8b5cf6"></div>
+              <div class="color-swatch"        data-color="green"  style="background:#22c55e"></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.4rem;">
+            <div class="cb-ctrl-label">Pozadie / Odvetvie</div>
+            <div class="bg-btns">
+              <button class="bg-btn active" data-bg="gastro"  onclick="setBg(this)"><span>🍽</span><span class="bg-btn-label">Gastro</span></button>
+              <button class="bg-btn"        data-bg="fitness" onclick="setBg(this)"><span>💪</span><span class="bg-btn-label">Fitness</span></button>
+              <button class="bg-btn"        data-bg="salon"   onclick="setBg(this)"><span>✂</span><span class="bg-btn-label">Salón</span></button>
+              <button class="bg-btn"        data-bg="auto"    onclick="setBg(this)"><span>🚗</span><span class="bg-btn-label">Auto</span></button>
+              <button class="bg-btn"        data-bg="kavaren" onclick="setBg(this)"><span>☕</span><span class="bg-btn-label">Café</span></button>
+              <button class="bg-btn"        data-bg="spa"     onclick="setBg(this)"><span>🌿</span><span class="bg-btn-label">Spa</span></button>
+              <button class="bg-btn"        data-bg="obchod"  onclick="setBg(this)"><span>🛍</span><span class="bg-btn-label">Obchod</span></button>
+              <button class="bg-btn"        data-bg="hotel"   onclick="setBg(this)"><span>🏨</span><span class="bg-btn-label">Hotel</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browser chrome + scrollable preview -->
+      <div id="cbBrowserWrap" data-hover="fill">
+
+        <!-- Interactive notice -->
+        <div class="cb-interactive-notice">
+          <div class="cb-notice-dot"></div>
+          Interaktívny náhľad — kliknite na rozšírenia vľavo
+        </div>
+
+        <div class="cb-browser">
+          <div class="cb-browser-bar">
+            <div class="cb-browser-dots"><span></span><span></span><span></span></div>
+            <input class="cb-url-input" id="cbUrlInput" type="text" value="www.vasafirma.sk" autocomplete="off" spellcheck="false"/>
+            <div style="display:flex;align-items:center;gap:4px;font-size:8px;letter-spacing:.12em;color:rgba(255,255,255,.3);flex-shrink:0;">
+              <span style="width:5px;height:5px;border-radius:50%;background:#38d860;animation:lpulse 1.8s ease-in-out infinite;display:block;"></span>Live
+            </div>
+          </div>
+
+          <div class="cb-preview-body">
+
+            <!-- Background wrap -->
+            <div class="cb-bg-wrap" style="position:absolute;inset:0;pointer-events:none;">
+              <div class="cb-bg-overlay" id="cbBgOverlay"></div>
+              <div class="cb-bg-objects">
+                <div class="cb-bg-obj" id="cbObj1">🍽</div>
+                <div class="cb-bg-obj" id="cbObj2">🍷</div>
+                <div class="cb-bg-obj" id="cbObj3">🥘</div>
+              </div>
+            </div>
+
+            <!-- Addon: Animation particles -->
+            <div class="cb-addon-anim" id="addonAnim">
+              <div class="cb-particle" style="left:15%;animation-duration:3.2s;animation-delay:0s;background:#e0b55a;"></div>
+              <div class="cb-particle" style="left:32%;animation-duration:4.1s;animation-delay:.7s;background:#f0e6d4;"></div>
+              <div class="cb-particle" style="left:55%;animation-duration:2.8s;animation-delay:.3s;background:#e0b55a;"></div>
+              <div class="cb-particle" style="left:72%;animation-duration:3.7s;animation-delay:1.1s;background:#c8b89a;"></div>
+              <div class="cb-particle" style="left:88%;animation-duration:4.5s;animation-delay:.5s;background:#e0b55a;"></div>
+              <div class="cb-particle" style="left:43%;animation-duration:3.0s;animation-delay:1.8s;background:#f0e6d4;"></div>
+            </div>
+
+            <!-- Addon: Popup overlay -->
+            <div class="cb-addon-popup" id="addonPopup">
+              <div class="cb-popup-box">
+                <div class="cb-popup-close" onclick="document.getElementById('addonPopup').classList.remove('active')">✕</div>
+                <span class="cb-popup-emoji">🎁</span>
+                <div class="cb-popup-title" id="cbPopupTitle">Špeciálna ponuka!</div>
+                <div class="cb-popup-sub">Zanechajte e-mail a získajte bezplatnú konzultáciu k vášmu webu.</div>
+                <input class="cb-popup-input" type="text" placeholder="vás@email.sk"/>
+                <div class="cb-popup-btn" id="cbPopupBtn">Získať zadarmo →</div>
+              </div>
+            </div>
+
+            <!-- Sticky nav -->
+            <div class="cb-p-nav">
+              <div class="cb-p-logo" id="cbLogo">Vaša Firma</div>
+              <div class="cb-p-navlinks"><span></span><span></span><span></span></div>
+              <!-- Addon: Language switcher -->
+              <div class="cb-p-lang" id="addonLang">
+                <div class="cb-p-lang-btn active">SK</div>
+                <div class="cb-p-lang-btn">EN</div>
+                <div class="cb-p-lang-btn">DE</div>
+              </div>
+              <div class="cb-p-navcta" id="cbNavCta">Kontakt</div>
+            </div>
+
+            <!-- Hero -->
+            <div class="cb-p-hero-wrap" style="position:relative;">
+              <div class="cb-p-hero" id="cbHero">
+                <div class="cb-p-eyebrow" id="cbEyebrow">Prémiový web · Slovakia</div>
+                <div class="cb-p-h1" id="cbH1">Vaša Firma</div>
+                <div class="cb-p-sub" id="cbSub">Navrhnutý okolo vášho zákazníka.</div>
+                <div class="cb-p-cta" id="cbCta">Rezervovať →</div>
+              </div>
+              <!-- Addon: Booking widget -->
+              <div class="cb-addon-booking" id="addonBooking">
+                <div class="cb-addon-book-title">📅 Rezervácia</div>
+                <div class="cb-addon-book-field">
+                  <span class="cb-addon-book-label">Dátum</span>
+                  <input class="cb-addon-book-input" type="text" value="15. júna 2025"/>
+                </div>
+                <div class="cb-addon-book-field">
+                  <span class="cb-addon-book-label">Čas</span>
+                  <input class="cb-addon-book-input" type="text" value="19:00"/>
+                </div>
+                <div class="cb-addon-book-field">
+                  <span class="cb-addon-book-label">Počet osôb</span>
+                  <input class="cb-addon-book-input" type="text" value="2 osoby"/>
+                </div>
+                <div class="cb-addon-book-btn" id="cbBookBtn">Potvrdiť →</div>
+              </div>
+            </div>
+
+            <!-- Stats row moved to bottom of browser (outside scroll) -->
+
+            <!-- Services grid -->
+            <div class="cb-prev-services">
+              <div class="cb-prev-card">
+                <div class="cb-prev-card-icon" id="cbIcon1">🍽</div>
+                <div class="cb-prev-card-title">Služba 1</div>
+                <div class="cb-prev-card-sub">Profesionálna kvalita</div>
+                <div class="cb-prev-card-price" id="cbPrice1">od 12 €</div>
+              </div>
+              <div class="cb-prev-card">
+                <div class="cb-prev-card-icon" id="cbIcon2">🍷</div>
+                <div class="cb-prev-card-title">Služba 2</div>
+                <div class="cb-prev-card-sub">Prémiový zážitok</div>
+                <div class="cb-prev-card-price" id="cbPrice2">od 28 €</div>
+              </div>
+              <div class="cb-prev-card">
+                <div class="cb-prev-card-icon" id="cbIcon3">🥘</div>
+                <div class="cb-prev-card-title">Služba 3</div>
+                <div class="cb-prev-card-sub">Na mieru pre vás</div>
+                <div class="cb-prev-card-price" id="cbPrice3">od 18 €</div>
+              </div>
+            </div>
+
+            <!-- About strip -->
+            <div class="cb-prev-about">
+              <div class="cb-prev-about-text">
+                <div class="cb-prev-about-title" id="cbAboutTitle">O Vaša Firma</div>
+                <div class="cb-prev-about-body">Sme tu pre vás každý deň. Kvalita a spokojnosť zákazníka je naša priorita od roku 2015.</div>
+              </div>
+              <div class="cb-prev-about-img" id="cbAboutImg">🏆</div>
+            </div>
+
+            <!-- Addon: Blog section -->
+            <div class="cb-addon-blog" id="addonBlog">
+              <div class="cb-addon-blog-label">Blog &amp; Aktuality</div>
+              <div class="cb-addon-blog-grid">
+                <div class="cb-addon-blog-card">
+                  <div class="cb-addon-blog-img" id="cbBlogImg1" style="background:rgba(200,90,20,.25);"></div>
+                  <div class="cb-addon-blog-body">
+                    <div class="cb-addon-blog-tag" id="cbBlogTag1">Novinky</div>
+                    <div class="cb-addon-blog-h">Jar 2025: Nové v ponuke</div>
+                    <div class="cb-addon-blog-date">12. máj 2025</div>
+                  </div>
+                </div>
+                <div class="cb-addon-blog-card">
+                  <div class="cb-addon-blog-img" id="cbBlogImg2" style="background:rgba(90,140,200,.2);"></div>
+                  <div class="cb-addon-blog-body">
+                    <div class="cb-addon-blog-tag" id="cbBlogTag2">Tipy</div>
+                    <div class="cb-addon-blog-h">Ako vybrať správnu službu</div>
+                    <div class="cb-addon-blog-date">3. máj 2025</div>
+                  </div>
+                </div>
+                <div class="cb-addon-blog-card">
+                  <div class="cb-addon-blog-img" id="cbBlogImg3" style="background:rgba(100,180,100,.15);"></div>
+                  <div class="cb-addon-blog-body">
+                    <div class="cb-addon-blog-tag" id="cbBlogTag3">Príbeh</div>
+                    <div class="cb-addon-blog-h">Náš príbeh a hodnoty</div>
+                    <div class="cb-addon-blog-date">20. apr 2025</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addon: Email section -->
+            <div class="cb-addon-email" id="addonEmail">
+              <div class="cb-addon-email-row">
+                <div class="cb-addon-email-icon">✉️</div>
+                <div class="cb-addon-email-text">
+                  <div class="cb-addon-email-addr" id="cbEmailAddr">info@vasafirma.sk</div>
+                  <div class="cb-addon-email-sub">Odpovieme do 24 hodín</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Map -->
+            <div class="cb-prev-map-wrap">
+              <div class="cb-prev-map-label">Kde nás nájdete</div>
+              <div class="cb-prev-map">
+                <div class="cb-prev-map-grid"></div>
+                <div class="cb-prev-map-road-h" style="top:42%"></div>
+                <div class="cb-prev-map-road-h" style="top:67%"></div>
+                <div class="cb-prev-map-road-v" style="left:33%"></div>
+                <div class="cb-prev-map-road-v" style="left:62%"></div>
+                <div class="cb-prev-map-block" style="top:8%;left:8%;width:22%;height:28%"></div>
+                <div class="cb-prev-map-block" style="top:8%;left:38%;width:20%;height:28%"></div>
+                <div class="cb-prev-map-block" style="top:8%;left:66%;width:26%;height:28%"></div>
+                <div class="cb-prev-map-block" style="top:72%;left:5%;width:24%;height:22%"></div>
+                <div class="cb-prev-map-block" style="top:72%;left:38%;width:20%;height:22%"></div>
+                <div class="cb-prev-map-block" style="top:72%;left:66%;width:26%;height:22%"></div>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);z-index:3;">
+                  <div id="cbPinColor" style="width:14px;height:14px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);margin:0 auto;background:#e0b55a;transition:background .5s;box-shadow:0 2px 8px rgba(0,0,0,.5);"></div>
+                  <div style="width:5px;height:5px;background:rgba(0,0,0,.45);border-radius:50%;margin:0 auto;transform:translateY(1px);"></div>
+                </div>
+                <div id="cbMapPulse" class="cb-prev-map-pulse" style="background:rgba(224,181,90,.18);"></div>
+              </div>
+              <!-- Addon: Map directions -->
+              <div class="cb-map-directions" id="addonMap">
+                <div class="cb-map-dir-btn" id="cbMapBtn">🧭 Zobraziť trasu &nbsp;→</div>
+                <div style="font-size:7px;color:rgba(255,255,255,.28);letter-spacing:.06em;">Google Maps integrované</div>
+              </div>
+            </div>
+
+            <!-- Addon: SEO snippet -->
+            <div class="cb-addon-seo" id="addonSEO">
+              <span class="cb-addon-seo-label">Google Search Preview</span>
+              <div class="cb-addon-seo-wrap">
+                <div class="cb-addon-seo-header">
+                  <div class="cb-addon-seo-favicon"></div>
+                  <div class="cb-addon-seo-domain" id="cbSeoDomain">vasafirma.sk</div>
+                </div>
+                <div class="cb-addon-seo-title" id="cbSeoTitle">Vaša Firma | Prémiové služby na Slovensku</div>
+                <div class="cb-addon-seo-url" id="cbSeoUrl">https://www.vasafirma.sk</div>
+                <div class="cb-addon-seo-desc" id="cbSeoDesc">Profesionálne služby s dôrazom na kvalitu a zákazníka. Navštívte nás a presvedčte sa sami. ★★★★★ 4.9 hodnotenie.</div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="cb-prev-footer">
+              <div class="cb-prev-footer-top">
+                <div>
+                  <div class="cb-prev-footer-logo" id="cbFooterLogo">Vaša Firma</div>
+                  <div class="cb-prev-footer-sub" id="cbFooterSub">Prémiový web · Slovakia</div>
+                  <div class="cb-prev-social">
+                    <div class="cb-prev-social-btn">in</div>
+                    <div class="cb-prev-social-btn">fb</div>
+                    <div class="cb-prev-social-btn">ig</div>
+                  </div>
+                </div>
+                <div class="cb-prev-footer-links">
+                  <div class="cb-prev-footer-link">O nás</div>
+                  <div class="cb-prev-footer-link">Služby</div>
+                  <div class="cb-prev-footer-link">Kontakt</div>
+                </div>
+              </div>
+              <div class="cb-prev-footer-bottom">
+                <div class="cb-prev-footer-copy" id="cbFooterCopy">© 2025 Vaša Firma. Všetky práva vyhradené.</div>
+              </div>
+            </div>
+
+            <!-- Addon: WhatsApp floating button -->
+            <div class="cb-addon-whatsapp" id="addonWhatsApp">💬</div>
+
+          </div><!-- /cb-preview-body -->
+
+          <!-- Stats — always visible, pinned to bottom of browser -->
+          <div class="cb-p-stats">
+            <div class="cb-p-stat"><div class="cb-p-stat-n" id="cbStat1">4.9★</div><div class="cb-p-stat-l">Hodnotenie</div></div>
+            <div class="cb-p-stat"><div class="cb-p-stat-n" id="cbStat2">98+</div><div class="cb-p-stat-l">Performance</div></div>
+            <div class="cb-p-stat"><div class="cb-p-stat-n" id="cbStat3">100%</div><div class="cb-p-stat-l">Spokojnosť</div></div>
+            <div class="cb-p-stat"><div class="cb-p-stat-n" id="cbStat4">24h</div><div class="cb-p-stat-l">Podpora</div></div>
+          </div>
+
+        </div><!-- /cb-browser -->
+      </div><!-- /cbBrowserWrap -->
+
+    </div><!-- /cb-brand -->
+  </div><!-- /cb-grid -->
 </section>
 
 <!-- PROCESS -->
@@ -1547,108 +2420,6 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
   </div>
 </section>
 
-<!-- PRICE CALCULATOR -->
-<section class="calc-section" id="kalkulacka">
-  <div class="calc-inner">
-
-    <div class="calc-options">
-      <div>
-        <div class="ew reveal">Kalkulačka</div>
-        <h2 class="reveal" style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,4.4vw,66px);font-weight:300;line-height:.95;letter-spacing:-.025em;margin-top:12px;margin-bottom:2.5rem;">Poskladajte<br/>si <em style="font-style:italic;color:var(--gold)">vlastný web.</em></h2>
-      </div>
-
-      <div class="reveal">
-        <div class="calc-group-title">Základ webu</div>
-        <div class="calc-base-opts">
-          <button class="calc-base-btn" data-base="199" onclick="setBase(this)">
-            <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Individual</div><div class="cb-desc">1 stránka · Galéria, formulár &amp; doména v cene</div></div></div>
-            <div class="cb-price">199 €</div>
-          </button>
-          <button class="calc-base-btn active" data-base="299" onclick="setBase(this)">
-            <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Prezentačný web</div><div class="cb-desc">Do 3 stránok · Galéria, formulár &amp; doména v cene</div></div></div>
-            <div class="cb-price">299 €</div>
-          </button>
-          <button class="calc-base-btn" data-base="399" onclick="setBase(this)">
-            <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Značkový web</div><div class="cb-desc">Do 7 stránok · Galéria, formulár &amp; doména v cene</div></div></div>
-            <div class="cb-price">399 €</div>
-          </button>
-        </div>
-        <div style="margin-top:.9rem;padding:.75rem 1rem;background:rgba(224,181,90,.04);border:1px solid rgba(224,181,90,.12);display:flex;flex-wrap:wrap;gap:.5rem .9rem;">
-          <span style="font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(224,181,90,.6);">✓ Vždy v cene:</span>
-          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">Galéria fotografií</span>
-          <span style="font-size:.62rem;color:rgba(255,255,255,.15)">·</span>
-          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">Kontaktný formulár</span>
-          <span style="font-size:.62rem;color:rgba(255,255,255,.15)">·</span>
-          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">Doména &amp; hosting (1. rok)</span>
-          <span style="font-size:.62rem;color:rgba(255,255,255,.15)">·</span>
-          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">Mobile-first dizajn</span>
-          <span style="font-size:.62rem;color:rgba(255,255,255,.15)">·</span>
-          <span style="font-size:.62rem;color:var(--muted);letter-spacing:.06em;">SEO základy</span>
-        </div>
-      </div>
-
-      <div class="reveal">
-        <div class="calc-group-title">Rozšírenia</div>
-        <div class="calc-addons">
-          <button class="calc-addon" data-addon="80" data-label="Rezervačný systém" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Rezervačný systém</div></div>
-            <div class="ca-plus">+ 80 €</div>
-          </button>
-          <button class="calc-addon" data-addon="100" data-label="Blog / Aktuality" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Blog / Aktuality</div></div>
-            <div class="ca-plus">+ 100 €</div>
-          </button>
-          <button class="calc-addon" data-addon="90" data-label="Pokročilé animácie & paralax" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé animácie &amp; paralax</div></div>
-            <div class="ca-plus">+ 90 €</div>
-          </button>
-          <button class="calc-addon" data-addon="80" data-label="Pokročilé SEO" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé SEO</div></div>
-            <div class="ca-plus">+ 80 €</div>
-          </button>
-          <button class="calc-addon" data-addon="35" data-label="Google Mapy & lokácia" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Google Mapy &amp; lokácia</div></div>
-            <div class="ca-plus">+ 35 €</div>
-          </button>
-          <button class="calc-addon" data-addon="40" data-label="WhatsApp / Chat tlačidlo" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">WhatsApp / Chat tlačidlo</div></div>
-            <div class="ca-plus">+ 40 €</div>
-          </button>
-          <button class="calc-addon" data-addon="35" data-label="Vlastná e-mailová adresa" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Vlastná e-mailová adresa <span style="font-size:.7rem;color:var(--muted)">(info@firma.sk)</span></div></div>
-            <div class="ca-plus">+ 35 €</div>
-          </button>
-          <button class="calc-addon" data-addon="65" data-label="Pop-up / Lead magnet" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pop-up / Lead magnet</div></div>
-            <div class="ca-plus">+ 65 €</div>
-          </button>
-          <button class="calc-addon" data-addon="120" data-label="Viacjazyčná verzia" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Viacjazyčná verzia</div></div>
-            <div class="ca-plus">+ 120 €</div>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="calc-result reveal-right" id="calcResult">
-      <div class="cr-label">Váš web</div>
-      <div class="cr-price-wrap">
-        <div class="cr-price"><span id="calcTotal">299</span><span class="cr-price-unit"> €</span></div>
-        <div class="cr-subtitle">Odhadovaná cena · bez skrytých poplatkov</div>
-      </div>
-      <div class="cr-breakdown" id="crBreakdown">
-        <div class="cr-line"><span>Prezentačný web</span><span>299 €</span></div>
-      </div>
-      <div class="cr-total-line">
-        <span class="cr-total-label">Celkom</span>
-        <span class="cr-total-val"><span id="calcTotalSmall">299</span> €</span>
-      </div>
-      <a href="#kontakt" class="btn gold" style="width:100%;justify-content:center;margin-top:.5rem;">Nezáväzná konzultácia &nbsp;→</a>
-      <p style="font-size:.68rem;color:var(--muted);margin-top:1rem;line-height:1.6;letter-spacing:.04em;">Konzultácia a náhľad zdarma. Finálna cena po upresnení rozsahu.</p>
-    </div>
-
-  </div>
-</section>
 
 <!-- FAQ -->
 <section class="faq-section" id="faq">
@@ -2025,136 +2796,299 @@ document.querySelectorAll('.wcard').forEach(card => {
   sections.forEach(s => obs.observe(s));
 })();
 
-/* ══ LIVE BRANDING PREVIEW ══════════════════════ */
+/* ══ BRANDING PREVIEW + CALCULATOR ════════════ */
 (function(){
   const COLORS = {
-    gold:   { hex:'#e0b55a', bg:'radial-gradient(ellipse at 70% 20%,rgba(140,90,0,.35),transparent 55%),linear-gradient(160deg,#14100a,#1e1608,#0a0906)' },
-    teal:   { hex:'#14b8a6', bg:'radial-gradient(ellipse at 70% 20%,rgba(0,120,110,.35),transparent 55%),linear-gradient(160deg,#071412,#0a1e1c,#040c0a)' },
-    blue:   { hex:'#3b82f6', bg:'radial-gradient(ellipse at 70% 20%,rgba(30,60,180,.35),transparent 55%),linear-gradient(160deg,#070c18,#0c1428,#04080e)' },
-    rose:   { hex:'#f43f5e', bg:'radial-gradient(ellipse at 70% 20%,rgba(160,20,40,.35),transparent 55%),linear-gradient(160deg,#14060a,#200810,#0a0406)' },
-    violet: { hex:'#8b5cf6', bg:'radial-gradient(ellipse at 70% 20%,rgba(80,30,180,.35),transparent 55%),linear-gradient(160deg,#0c0818,#14082a,#080410)' },
-    green:  { hex:'#22c55e', bg:'radial-gradient(ellipse at 70% 20%,rgba(10,120,40,.35),transparent 55%),linear-gradient(160deg,#080e08,#0c1a0e,#040806)' },
+    gold:   '#e0b55a', teal:'#14b8a6', blue:'#3b82f6',
+    rose:   '#f43f5e', violet:'#8b5cf6', green:'#22c55e',
+  };
+  const BG_DATA = {
+    gastro:  { grad:'radial-gradient(ellipse at 65% 35%,rgba(190,64,8,.75),transparent 52%),radial-gradient(ellipse at 18% 75%,rgba(90,22,4,.8),transparent 48%),linear-gradient(160deg,#1e0c04,#2e1308,#0e0603)', objs:['🍽','🍷','🥘'], icons:['🍽','🥂','🍰'], about:'🏆', prices:['od 12 €','od 28 €','od 18 €'] },
+    fitness: { grad:'radial-gradient(ellipse at 28% 52%,rgba(148,230,8,.22),transparent 55%),radial-gradient(ellipse at 80% 18%,rgba(70,110,4,.36),transparent 50%),linear-gradient(160deg,#070c02,#0e1604,#050901)', objs:['💪','🏋️','⚡'], icons:['💪','🏃','🧘'], about:'🏆', prices:['od 20 €','od 45 €','od 35 €'] },
+    salon:   { grad:'radial-gradient(ellipse at 72% 28%,rgba(210,60,130,.32),transparent 52%),radial-gradient(ellipse at 18% 72%,rgba(110,22,65,.5),transparent 48%),linear-gradient(160deg,#170910,#280d1c,#0f050a)', objs:['✂','💄','💅'], icons:['✂','💄','💅'], about:'💎', prices:['od 25 €','od 55 €','od 35 €'] },
+    auto:    { grad:'radial-gradient(ellipse at 28% 72%,rgba(220,55,20,.38),transparent 48%),radial-gradient(ellipse at 76% 18%,rgba(180,80,10,.25),transparent 44%),linear-gradient(148deg,#1e0b06,#2e1208,#140804)', objs:['🚗','⚙️','🔧'], icons:['🚗','🔧','🛞'], about:'🏆', prices:['od 30 €','od 80 €','od 50 €'] },
+    kavaren: { grad:'radial-gradient(ellipse at 70% 30%,rgba(140,90,30,.45),transparent 52%),radial-gradient(ellipse at 20% 70%,rgba(90,50,10,.5),transparent 48%),linear-gradient(160deg,#140c04,#201408,#0e0904)', objs:['☕','🥐','🫖'], icons:['☕','🥐','🍰'], about:'☕', prices:['od 2.5 €','od 8 €','od 5 €'] },
+    spa:     { grad:'radial-gradient(ellipse at 62% 28%,rgba(20,185,168,.28),transparent 52%),radial-gradient(ellipse at 18% 76%,rgba(8,130,118,.2),transparent 48%),linear-gradient(148deg,#071a18,#0d2624,#04120f)', objs:['🌿','🌸','💆'], icons:['🌿','🧴','💆'], about:'🌺', prices:['od 35 €','od 75 €','od 55 €'] },
+    obchod:  { grad:'radial-gradient(ellipse at 50% 30%,rgba(100,120,220,.22),transparent 54%),linear-gradient(148deg,#0e1020,#151a30,#080d1c)', objs:['🛍','👜','🏷️'], icons:['🛍','👗','🎁'], about:'🏅', prices:['od 15 €','od 45 €','od 25 €'] },
+    hotel:   { grad:'radial-gradient(ellipse at 60% 25%,rgba(100,60,180,.38),transparent 52%),linear-gradient(160deg,#0e0c18,#14102a,#080614)', objs:['🏨','🗝️','🍾'], icons:['🏨','🛏️','🍾'], about:'⭐', prices:['od 60 €','od 120 €','od 90 €'] },
   };
 
-  let activeColor = 'gold';
-  const input    = document.getElementById('brandName');
-  const urlBar   = document.getElementById('brandUrlBar');
-  const bpLogo   = document.getElementById('bpLogo');
-  const bpH1     = document.getElementById('bpH1');
-  const bpEyebrow= document.getElementById('bpEyebrow');
-  const bpBody   = document.getElementById('brandBody');
-  const bpOverlay= document.getElementById('bpOverlay');
-  const bpNavCta = document.getElementById('bpNavCta');
-  const bpCta    = document.getElementById('bpCta');
-  const bpS1     = document.getElementById('bpS1');
-  const bpS2     = document.getElementById('bpS2');
-  const bpS3     = document.getElementById('bpS3');
-  const perfVal  = document.getElementById('bpPerfVal');
+  let state = {
+    color:'gold', bg:'gastro', font:"'Cormorant Garamond',serif",
+    align:'left', hover:'fill'
+  };
 
-  function toSlug(s){ return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') || 'vasafirma'; }
+  const nameIn   = document.getElementById('cbBrandName');
+  const headIn   = document.getElementById('cbHeadline');
+  const ctaIn    = document.getElementById('cbCtaText');
+  const urlInput = document.getElementById('cbUrlInput');
+  const cbLogo   = document.getElementById('cbLogo');
+  const cbH1     = document.getElementById('cbH1');
+  const cbSub    = document.getElementById('cbSub');
+  const cbCta    = document.getElementById('cbCta');
+  const cbNavCta = document.getElementById('cbNavCta');
+  const cbEyebrow= document.getElementById('cbEyebrow');
+  const cbOverlay= document.getElementById('cbBgOverlay');
+  const cbHero   = document.getElementById('cbHero');
+  const cbBrowser= document.getElementById('cbBrowserWrap');
+  const cbFooterLogo=document.getElementById('cbFooterLogo');
+  const cbFooterSub =document.getElementById('cbFooterSub');
+  const cbFooterCopy=document.getElementById('cbFooterCopy');
+  const cbAboutTitle=document.getElementById('cbAboutTitle');
+  const cbAboutImg  =document.getElementById('cbAboutImg');
+  const cbPinColor  =document.getElementById('cbPinColor');
+  const cbMapPulse  =document.getElementById('cbMapPulse');
 
-  function applyColor(key){
-    const c = COLORS[key];
-    bpOverlay.style.background    = c.bg;
-    bpEyebrow.style.color         = c.hex;
-    bpNavCta.style.background     = c.hex;
-    bpCta.style.background        = c.hex;
-    bpS1.style.color              = c.hex;
-    bpS2.style.color              = c.hex;
-    bpS3.style.color              = c.hex;
-    perfVal.style.color           = c.hex;
+  function toSlug(s){ return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')||'vasafirma'; }
+
+  function applyAll(){
+    const name = nameIn.value.trim()  || 'Vaša Firma';
+    const hl   = headIn.value.trim()  || name;
+    const cta  = ctaIn.value.trim()   || 'Rezervovať →';
+    const hex  = COLORS[state.color];
+    const bgd  = BG_DATA[state.bg];
+
+    // Text content
+    cbLogo.textContent      = name;
+    cbH1.textContent        = hl;
+    cbCta.textContent       = cta;
+    cbNavCta.textContent    = 'Kontakt';
+    cbFooterLogo.textContent= name;
+    cbFooterSub.textContent = 'Prémiový web · Slovakia';
+    cbFooterCopy.textContent= `© 2025 ${name}. Všetky práva vyhradené.`;
+    cbAboutTitle.textContent= 'O ' + name;
+
+    // URL bar (only if user hasn't manually edited it)
+    if (!urlInput._edited) urlInput.value = 'www.' + toSlug(name) + '.sk';
+
+    // Color
+    cbEyebrow.style.color        = hex;
+    cbNavCta.style.background    = hex;
+    cbCta.style.background       = hex;
+    cbPinColor.style.background  = hex;
+    cbMapPulse.style.background  = hex.replace(')',', .2)').replace('rgb','rgba');
+    document.querySelectorAll('.cb-p-stat-n').forEach(el => el.style.color = hex);
+    document.querySelectorAll('.cb-prev-card-price').forEach(el => el.style.color = hex);    document.documentElement.style.setProperty('--cbAccent', hex);
+
+    // Background gradient
+    cbOverlay.style.background = bgd.grad;
+
+    // Background objects
+    const objs = bgd.objs;
+    ['cbObj1','cbObj2','cbObj3'].forEach((id,i) => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = objs[i] || '';
+    });
+
+    // Service card icons
+    ['cbIcon1','cbIcon2','cbIcon3'].forEach((id,i) => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = bgd.icons[i] || '⭐';
+    });
+
+    // Service prices
+    ['cbPrice1','cbPrice2','cbPrice3'].forEach((id,i) => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = bgd.prices[i] || 'od 20 €';
+    });
+
+    // About icon
+    if(cbAboutImg) cbAboutImg.textContent = bgd.about || '🏆';
+
+    // Font
+    cbH1.style.fontFamily         = state.font;
+    cbLogo.style.fontFamily       = state.font;
+    cbFooterLogo.style.fontFamily = state.font;
+    cbAboutTitle.style.fontFamily = state.font;
+    document.querySelectorAll('.cb-p-stat-n,.cb-prev-card-title').forEach(el => {
+      el.style.fontFamily = state.font.includes('Cormorant') ? state.font : '';
+    });
+
+    // Align
+    cbHero.style.textAlign = state.align;
+
+    // Hover style on browser wrapper
+    cbBrowser.dataset.hover = state.hover;
+
+    // ── Sync addon element colors + content ──
+    const slug = toSlug(name);
+
+    // Booking button color
+    const bookBtn = document.getElementById('cbBookBtn');
+    if(bookBtn) bookBtn.style.background = hex;
+
+    // Popup button + title color
+    const popBtn = document.getElementById('cbPopupBtn');
+    if(popBtn) popBtn.style.background = hex;
+    const popTitle = document.getElementById('cbPopupTitle');
+    if(popTitle) popTitle.style.color = hex;
+
+    // Map directions button color
+    const mapBtn = document.getElementById('cbMapBtn');
+    if(mapBtn) mapBtn.style.background = hex;
+
+    // Email address text color + content
+    const emailAddr = document.getElementById('cbEmailAddr');
+    if(emailAddr){ emailAddr.style.color = hex; emailAddr.textContent = 'info@' + slug + '.sk'; }
+
+    // SEO snippet content
+    const seoDomain = document.getElementById('cbSeoDomain');
+    const seoTitle  = document.getElementById('cbSeoTitle');
+    const seoUrl    = document.getElementById('cbSeoUrl');
+    const seoDesc   = document.getElementById('cbSeoDesc');
+    if(seoDomain) seoDomain.textContent = slug + '.sk';
+    if(seoTitle)  seoTitle.textContent  = name + ' | Prémiové služby na Slovensku';
+    if(seoUrl)    seoUrl.textContent    = 'https://www.' + slug + '.sk';
+    if(seoDesc)   seoDesc.textContent   = 'Profesionálne služby s dôrazom na kvalitu. Navštívte ' + name + ' a presvedčte sa sami. ★★★★★ 4.9 hodnotenie.';
+
+    // Blog tag colors
+    document.querySelectorAll('.cb-addon-blog-tag').forEach(el => el.style.color = hex);
+
+    // WhatsApp box-shadow matches brand color
+    const wa = document.getElementById('addonWhatsApp');
+    if(wa) wa.style.boxShadow = '0 4px 18px rgba(37,211,102,.45)';
+
+    // Particle colors
+    document.querySelectorAll('.cb-particle').forEach((el, i) => {
+      el.style.background = i % 2 === 0 ? hex : 'rgba(255,255,255,.5)';
+    });
   }
 
-  function applyName(val){
-    const name = val.trim() || 'Vaša Firma';
-    bpLogo.textContent = name;
-    bpH1.textContent   = name;
-    urlBar.textContent = 'www.' + toSlug(name) + '.sk';
-  }
+  // URL input manual edit flag
+  urlInput.addEventListener('input', () => { urlInput._edited = true; });
+  urlInput.addEventListener('blur', () => { if(!urlInput.value.trim()) { urlInput._edited = false; applyAll(); } });
 
-  // Color swatches
-  document.querySelectorAll('.color-swatch').forEach(sw => {
+  // Name/headline/CTA inputs
+  [nameIn, headIn, ctaIn].forEach(inp => inp && inp.addEventListener('input', applyAll));
+
+  // Colors
+  document.querySelectorAll('.cb-brand .color-swatch').forEach(sw => {
     sw.addEventListener('click', () => {
-      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.cb-brand .color-swatch').forEach(s=>s.classList.remove('active'));
       sw.classList.add('active');
-      activeColor = sw.dataset.color;
-      applyColor(activeColor);
+      state.color = sw.dataset.color;
+      applyAll();
     });
   });
 
-  // Name input — live update with slight debounce for URL bar
-  let urlTimer;
-  input.addEventListener('input', () => {
-    applyName(input.value);
-    clearTimeout(urlTimer);
-    urlTimer = setTimeout(() => { applyName(input.value); }, 120);
-  });
+  window.setBg = function(btn){
+    document.querySelectorAll('.bg-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.bg = btn.dataset.bg;
+    applyAll();
+  };
+  window.setFont = function(btn){
+    document.querySelectorAll('.font-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.font = btn.dataset.font;
+    applyAll();
+  };
+  window.setAlign = function(btn){
+    document.querySelectorAll('.align-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.align = btn.dataset.align;
+    applyAll();
+  };
+  window.setHover = function(btn){
+    document.querySelectorAll('.hover-style-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.hover = btn.dataset.hover;
+    applyAll();
+  };
 
-  // Init
-  applyColor('gold');
+  applyAll();
 })();
 
-/* ══ PRICE CALCULATOR ══════════════════════════ */
+
+/* ══ PRICE CALCULATOR ═══════════════════════════ */
 (function(){
-  let basePrice = 299;
-  let baseName  = 'Prezentačný web';
+  let basePrice = 299, baseName = 'Prezentačný web';
   const addons  = {};
-
-  const totalEl      = document.getElementById('calcTotal');
-  const totalSmallEl = document.getElementById('calcTotalSmall');
-  const breakdown    = document.getElementById('crBreakdown');
-
+  const totalEl = document.getElementById('calcTotal');
+  const totalSm = document.getElementById('calcTotalSmall');
+  const breakdown = document.getElementById('crBreakdown');
   let animTimer;
+
+  // Addon label → preview element ID mapping
+  const ADDON_MAP = {
+    'Rezervačný systém':             'addonBooking',
+    'Blog / Aktuality':              'addonBlog',
+    'Pokročilé animácie & paralax':  'addonAnim',
+    'Pokročilé SEO':                 'addonSEO',
+    'Google Mapy & lokácia':         'addonMap',
+    'WhatsApp / Chat tlačidlo':      'addonWhatsApp',
+    'Vlastná e-mailová adresa':      'addonEmail',
+    'Pop-up / Lead magnet':          'addonPopup',
+    'Viacjazyčná verzia':            'addonLang',
+  };
+
   function animateTo(target){
     clearInterval(animTimer);
-    let current = +(totalEl.textContent);
-    const diff  = target - current;
-    const steps = 24;
-    let i = 0;
-    animTimer = setInterval(() => {
-      i++;
-      const ease = 1 - Math.pow(1 - i/steps, 3);
-      const val  = Math.round(current + diff * ease);
-      totalEl.textContent      = val;
-      totalSmallEl.textContent = val;
-      if(i >= steps) clearInterval(animTimer);
-    }, 18);
+    let cur = +(totalEl.textContent.replace(/\D/g,'')), diff = target - cur, i = 0;
+    animTimer = setInterval(()=>{
+      i++; const e = 1-Math.pow(1-i/24,3);
+      const v = Math.round(cur + diff*e);
+      totalEl.textContent = v; totalSm.textContent = v;
+      if(i>=24) clearInterval(animTimer);
+    }, 16);
   }
 
   function recalc(){
     const addonTotal = Object.values(addons).reduce((a,b)=>a+b,0);
-    const total = basePrice + addonTotal;
-    animateTo(total);
-
-    breakdown.innerHTML = `<div class="cr-line"><span>${baseName}</span><span>${basePrice} €</span></div>`;
-    Object.entries(addons).forEach(([label, price]) => {
-      if(price === 0) breakdown.innerHTML += `<div class="cr-line"><span>${label}</span><span style="color:var(--muted)">zdarma</span></div>`;
-      else breakdown.innerHTML += `<div class="cr-line"><span>${label}</span><span>+ ${price} €</span></div>`;
+    animateTo(basePrice + addonTotal);
+    breakdown.innerHTML = `<div class="cr-line"><span>${baseName}</span><span>od ${basePrice} €</span></div>`;
+    Object.entries(addons).forEach(([label, price])=>{
+      breakdown.innerHTML += `<div class="cr-line"><span>${label}</span><span>+${price} €</span></div>`;
     });
   }
 
   window.setBase = function(btn){
-    document.querySelectorAll('.calc-base-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.calc-base-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     basePrice = +btn.dataset.base;
-    baseName  = btn.querySelector('.cb-name').textContent;
+    baseName  = btn.querySelector('.cb-name').textContent.trim();
     recalc();
   };
 
   window.toggleAddon = function(btn){
     btn.classList.toggle('active');
-    const label = btn.dataset.label;
-    const price = +btn.dataset.addon;
-    if(btn.classList.contains('active')) addons[label] = price;
+    const label = btn.dataset.label, price = +btn.dataset.addon;
+    const isActive = btn.classList.contains('active');
+    if(isActive) addons[label] = price;
     else delete addons[label];
     recalc();
+
+    // Toggle corresponding preview element
+    const previewId = ADDON_MAP[label];
+    if(previewId){
+      const el = document.getElementById(previewId);
+      if(el){
+        // Remove and re-add to re-trigger animation
+        el.classList.remove('active');
+        if(isActive){
+          void el.offsetWidth; // reflow
+          el.classList.add('active');
+          // Scroll preview to make the element visible
+          const body = el.closest('.cb-preview-body');
+          if(body){
+            setTimeout(()=>{
+              const elTop = el.getBoundingClientRect().top;
+              const bodyTop = body.getBoundingClientRect().top;
+              if(elTop > bodyTop + body.clientHeight * 0.7){
+                body.scrollBy({ top: 120, behavior:'smooth' });
+              }
+            }, 150);
+          }
+        }
+      }
+    }
   };
 
-  // Mark first base btn (299) active on load
-  const defaultBase = document.querySelector('.calc-base-btn.active');
-  if(defaultBase){ basePrice = +defaultBase.dataset.base; baseName = defaultBase.querySelector('.cb-name').textContent; }
+  const def = document.querySelector('.calc-base-btn.active');
+  if(def){ basePrice=+def.dataset.base; baseName=def.querySelector('.cb-name').textContent.trim(); }
   recalc();
 })();
+
 function showToast(msg) {
   const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg;
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),4000);
