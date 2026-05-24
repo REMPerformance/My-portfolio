@@ -171,7 +171,8 @@ body.hov #cur-ring { width:52px; height:52px; border-color:rgba(224,181,90,.5); 
 /* ═══════════════════════════════════════════════
    FAQ ACCORDION
 ═══════════════════════════════════════════════ */
-.faq-section { padding:110px 44px; background:var(--bg2); border-top:1px solid rgba(255,255,255,.04); }
+.faq-section { padding:110px 44px; background:var(--bg2); border-top:none; position:relative; }
+.faq-section::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(201,168,90,.18) 20%,rgba(255,255,255,.1) 50%,rgba(201,168,90,.18) 80%,transparent); pointer-events:none; z-index:1; }
 .faq-inner { width:min(var(--max),100%); margin:0 auto; display:grid; grid-template-columns:1fr 1.4fr; gap:80px; align-items:start; }
 .faq-left { position:sticky; top:8rem; }
 .faq-left h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,4.2vw,66px); font-weight:300; line-height:.95; letter-spacing:-.025em; margin-top:12px; }
@@ -179,11 +180,11 @@ body.hov #cur-ring { width:52px; height:52px; border-color:rgba(224,181,90,.5); 
 .faq-left p { margin-top:24px; font-size:13.5px; line-height:1.8; color:var(--muted); max-width:380px; }
 .faq-list { display:flex; flex-direction:column; }
 .faq-item {
-  border-top:1px solid rgba(255,255,255,.06);
+  border-top:1px solid rgba(201,168,108,.1);
   overflow:hidden;
   transition:background .3s;
 }
-.faq-item:last-child { border-bottom:1px solid rgba(255,255,255,.06); }
+.faq-item:last-child { border-bottom:1px solid rgba(201,168,108,.1); }
 .faq-item:hover { background:rgba(255,255,255,.02); }
 .faq-q {
   display:flex; align-items:center; justify-content:space-between;
@@ -246,9 +247,13 @@ body.hov #cur-ring { width:52px; height:52px; border-color:rgba(224,181,90,.5); 
 @media(max-width:900px){
   .faq-inner { grid-template-columns:1fr; gap:40px; }
   .faq-left { position:relative; top:auto; }
+  .nav { padding:0 20px; }
+  footer { padding:24px 20px; }
 }
 @media(max-width:760px){
-  .faq-section { padding-left:20px; padding-right:20px; }
+  .faq-section,.work-section,.process-section,.pricing-section,.reviews-section,.cb-section,.timeline-section { padding-left:20px; padding-right:20px; }
+  .work-grid-bot { grid-template-columns:1fr; }
+  .stats { padding:0 !important; }
   #sticky-cta { bottom:1.2rem; right:1.2rem; padding:.75rem 1.2rem; font-size:.65rem; }
   #scroll-top { bottom:1.2rem; left:1.2rem; }
 }
@@ -289,8 +294,8 @@ body.hov #cur-ring { width:52px; height:52px; border-color:rgba(224,181,90,.5); 
    MARQUEE  ← z FÓRM
 ═══════════════════════════════════════════════ */
 .marquee-wrap {
-  border-top:1px solid rgba(255,255,255,.06);
-  border-bottom:1px solid rgba(255,255,255,.06);
+  border-top:none;
+  border-bottom:none;
   overflow:hidden; padding:.9rem 0;
   background:rgba(255,255,255,.012);
   position:relative; z-index:2;
@@ -436,15 +441,13 @@ body::after {
 }
 @keyframes gfloat { from { transform:translateY(0) scale(1); } to { transform:translateY(38px) scale(1.07); } }
 .hero-main {
-  width:100%; min-height:calc(100dvh - 0px);
+  width:100%;
+  min-height:100dvh;
   display:grid; grid-template-columns:1fr 1fr;
   align-items:stretch; position:relative; z-index:2;
 }
-.hero-left { display:flex; flex-direction:column; justify-content:center; padding:120px 52px 72px 44px; }
-.hero-right { display:flex; align-items:center; justify-content:center; padding:80px 40px 80px; position:relative; background:rgba(255,255,255,.008); }
-.hero-bottom { width:100%; margin-top:60px; display:grid; grid-template-columns:1fr 1fr; position:relative; z-index:2; }
-.hero-bottom-left { padding:52px 60px 60px 44px; }
-.hero-bottom-right { padding:52px 52px 60px 60px; display:flex; flex-direction:column; justify-content:center; }
+.hero-left { display:flex; flex-direction:column; justify-content:center; padding:120px 60px 80px max(60px,7vw); }
+.hero-right { display:flex; align-items:center; justify-content:center; padding:80px 60px 80px 40px; position:relative; background:rgba(255,255,255,.008); border-left:none; }
 .hero-visual { position:relative; width:100%; animation:fadeUp 1s var(--ease) .7s both; }
 .scene-nav { display:flex; gap:2px; margin-bottom:10px; background:rgba(255,255,255,.04); border-radius:6px; padding:3px; }
 .sn-btn {
@@ -643,15 +646,176 @@ body::after {
 .btn.gold:hover { color:var(--bg); border-color:var(--gold); }
 
 /* ═══════════════════════════════════════════════
-   STATS
+   PREMIUM SECTION SEPARATORS
 ═══════════════════════════════════════════════ */
-.stats { display:grid; grid-template-columns:repeat(4,1fr); padding:20px 0; }
-.stat { padding:58px 46px; position:relative; overflow:hidden; transition:background .38s; }
-.stat:last-child { border-right:none; }
+:is(.stats-wrap,.about-section,.split-section,.work-section,.cb-section,
+    .process-section,.timeline-section,.pricing-section,
+    .faq-section,.reviews-section,.contact-section) { position:relative; }
+
+:is(.stats-wrap,.about-section,.split-section,.work-section,.cb-section,
+    .process-section,.timeline-section,.pricing-section,
+    .faq-section,.reviews-section,.contact-section)::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent 0%,rgba(201,168,108,.1) 20%,rgba(220,190,130,.24) 50%,rgba(201,168,108,.1) 80%,transparent 100%);
+  pointer-events:none; z-index:1;
+}
+:is(.about-section,.cb-section,.faq-section)::before {
+  background:linear-gradient(90deg,transparent 0%,rgba(201,168,108,.14) 20%,rgba(225,195,130,.3) 50%,rgba(201,168,108,.14) 80%,transparent 100%);
+}
+.stats-wrap::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent 0%,rgba(201,168,108,.1) 20%,rgba(220,190,130,.2) 50%,rgba(201,168,108,.1) 80%,transparent 100%);
+  pointer-events:none;
+}
+.hero-right::before {
+  content:''; position:absolute; left:0; top:8%; bottom:8%; width:1px;
+  background:linear-gradient(180deg,transparent 0%,rgba(201,168,108,.14) 30%,rgba(201,168,108,.14) 70%,transparent 100%);
+  pointer-events:none; z-index:1;
+}
+.hero-right { border-left:none !important; }
+.split-head::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent 0%,rgba(201,168,108,.16) 30%,rgba(225,195,130,.26) 50%,rgba(201,168,108,.16) 70%,transparent 100%);
+}
+.split-rows { border-top:none !important; }
+.stat { border-right:none !important; }
+.stat:not(:last-child)::after {
+  content:''; position:absolute; right:0; top:18%; bottom:18%; width:1px;
+  background:linear-gradient(180deg,transparent 0%,rgba(201,168,108,.16) 40%,rgba(201,168,108,.16) 60%,transparent 100%);
+  pointer-events:none;
+}
+.arow { border-right:none !important; }
+.arow:not(:last-child)::after {
+  content:''; position:absolute; right:0; top:12%; bottom:12%; width:1px;
+  background:linear-gradient(180deg,transparent 0%,rgba(201,168,108,.14) 35%,rgba(201,168,108,.14) 65%,transparent 100%);
+  pointer-events:none;
+}
+.about-feat { border-bottom-color:rgba(201,168,108,.1) !important; }
+.faq-item { border-top-color:rgba(201,168,108,.1) !important; }
+.faq-item:last-child { border-bottom-color:rgba(201,168,108,.1) !important; }
+.price-domain { border-top-color:rgba(201,168,108,.1) !important; }
+.cr-total-line { border-top-color:rgba(201,168,108,.12) !important; }
+.rev-author { border-top-color:rgba(201,168,108,.1) !important; }
+.reviews-total { border-top-color:rgba(201,168,108,.12) !important; }
+footer { border-top-color:rgba(201,168,108,.1) !important; }
+
+/* ─── Stats wrapper ─── */
+
+/* ─── Work card screenshot overlays ─── */
+.wcard-screenshot {
+  position:absolute; inset:0; z-index:1;
+  background-size:cover; background-position:center top;
+  opacity:1;
+}
+
+.stats-wrap {
+  
+  background:rgba(255,255,255,.014);
+}
+.stats {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  width:100%;
+}
+.stat { padding:64px 52px; position:relative; overflow:hidden; transition:background .38s; border-right:none; }
+.stat + .stat::before { content:''; position:absolute; left:0; top:15%; bottom:15%; width:1px; background:linear-gradient(180deg,transparent,rgba(201,168,90,.15) 40%,rgba(255,255,255,.08) 50%,rgba(201,168,90,.15) 60%,transparent); }
 .stat:hover { background:rgba(255,255,255,.04); }
-.stat-num { font-family:'Cormorant Garamond',serif; font-size:clamp(44px,4.8vw,82px); font-weight:300; line-height:1; letter-spacing:-.02em; }
+
+/* ─── O nás section ─── */
+.about-section {
+  padding:110px 80px;
+  background:var(--bg2);
+  border-bottom:none;
+  position:relative;
+}
+.about-section::before, .about-section::after {
+  content:'';
+  position:absolute;
+  left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,90,.18) 20%,rgba(255,255,255,.1) 50%,rgba(201,168,90,.18) 80%,transparent);
+  pointer-events:none; z-index:1;
+}
+.about-section::before { top:0; }
+.about-section::after { bottom:0; }
+.about-inner {
+  width:100%; max-width:1480px; margin:0 auto;
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:100px; align-items:start;
+}
+.about-h2 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(40px,5vw,80px); font-weight:300;
+  line-height:.92; letter-spacing:-.028em;
+  margin-top:16px; margin-bottom:28px;
+}
+.about-h2 em { font-style:italic; color:var(--gold); }
+.about-desc {
+  font-size:16px; line-height:1.92; color:var(--muted);
+  max-width:100%; margin-bottom:40px;
+}
+.about-desc strong { color:var(--gold2); font-weight:500; }
+.about-cta-row { display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; }
+.about-note {
+  display:flex; align-items:center; gap:8px;
+  font-size:9px; letter-spacing:.22em; text-transform:uppercase;
+  color:rgba(240,238,248,.35);
+}
+.about-features-label {
+  font-size:8px; letter-spacing:.28em; text-transform:uppercase;
+  color:rgba(240,238,248,.35); margin-bottom:2rem;
+  display:flex; align-items:center; gap:.8rem;
+}
+.about-features-label::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg,rgba(255,255,255,.08),transparent);
+}
+.about-features { display:flex; flex-direction:column; gap:0; }
+.about-feat {
+  display:flex; align-items:flex-start; gap:1.2rem;
+  padding:1.4rem 0;
+  border-bottom:1px solid;
+  border-image:linear-gradient(90deg,rgba(201,168,90,.1) 0%,rgba(255,255,255,.05) 50%,transparent 100%) 1;
+  transition:background .3s;
+}
+.about-feat:last-child { border-bottom:none; }
+.af-icon {
+  color:var(--gold); font-size:.75rem; flex-shrink:0;
+  margin-top:.3rem; opacity:.7;
+  transition:opacity .3s;
+}
+.about-feat:hover .af-icon { opacity:1; }
+.af-title {
+  font-family:'Syne',sans-serif; font-size:1rem; font-weight:600;
+  color:var(--text); margin-bottom:.35rem;
+  transition:color .3s;
+}
+.about-feat:hover .af-title { color:var(--gold2); }
+.af-desc { font-size:13px; line-height:1.72; color:var(--muted); }
+
+@media(max-width:1100px){
+  .about-inner { grid-template-columns:1fr; gap:48px; }
+  .stats { grid-template-columns:repeat(2,1fr); }
+  .about-section { padding:80px 60px; }
+}
+@media(max-width:760px){
+  .about-section { padding:70px 20px; }
+  
+/* ─── Work card screenshot overlays ─── */
+.wcard-screenshot {
+  position:absolute; inset:0; z-index:1;
+  background-size:cover; background-position:center top;
+  opacity:1;
+}
+
+.stats-wrap { display:block; }
+  .about-inner { gap:36px; }
+}
+@media(max-width:640px){
+  .stats { grid-template-columns:1fr 1fr; }
+  .about-cta-row { flex-direction:column; align-items:flex-start; }
+}
+.stat-num { font-family:'Cormorant Garamond',serif; font-size:clamp(52px,5.8vw,100px); font-weight:300; line-height:1; letter-spacing:-.02em; }
 .stat-num sup { font-size:.52em; color:var(--gold); font-style:italic; vertical-align:baseline; }
-.stat-label { margin-top:10px; font-size:9px; letter-spacing:.26em; text-transform:uppercase; color:var(--muted); }
+.stat-label { margin-top:14px; font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--muted); }
 .stat-bar { position:absolute; bottom:0; left:0; height:1px; width:0; background:linear-gradient(90deg,var(--gold),transparent); transition:width .62s var(--ease); }
 .stat:hover .stat-bar { width:100%; }
 
@@ -667,13 +831,59 @@ body::after {
 /* ═══════════════════════════════════════════════
    SPLIT — APPROACH
 ═══════════════════════════════════════════════ */
-.split-section { display:grid; grid-template-columns:.88fr 1.12fr; }
-.split-sticky { position:sticky; top:0; height:100vh; display:flex; flex-direction:column; justify-content:center; padding:100px 60px; border-right:1px solid rgba(255,255,255,.04); background:linear-gradient(135deg,rgba(255,255,255,.03) 0%,rgba(255,255,255,.01) 100%); }
-.split-sticky h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,4.4vw,70px); font-weight:300; line-height:.97; letter-spacing:-.022em; max-width:480px; }
-.split-sticky h2 em { font-style:italic; color:var(--gold); }
-.split-sticky .desc { margin-top:28px; font-size:14px; line-height:1.86; color:var(--muted); max-width:420px; }
-.split-meta { margin-top:60px; padding-top:28px; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:rgba(237,242,248,.28); }
-.arow { padding:48px 60px; display:grid; grid-template-columns:70px 1fr; gap:28px; align-items:start; position:relative; overflow:hidden; transition:background .38s; }
+/* ─── PRÍSTUP — compact full-width grid ─── */
+.split-section {
+  padding:80px 44px;
+  background:var(--bg2);
+  border-top:none;
+  position:relative;
+}
+.split-section::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,90,.18) 20%,rgba(255,255,255,.1) 50%,rgba(201,168,90,.18) 80%,transparent);
+  pointer-events:none; z-index:1;
+}
+.split-inner {
+  width:100%; max-width:1480px; margin:0 auto;
+}
+.split-head {
+  display:grid; grid-template-columns:1fr 1.6fr;
+  gap:60px; align-items:end; margin-bottom:60px;
+  padding-bottom:60px;
+  border-bottom:none;
+  position:relative;
+}
+.split-head h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(40px,5vw,80px); font-weight:300; line-height:.92; letter-spacing:-.028em; }
+.split-head h2 em { font-style:italic; color:var(--gold); }
+.split-head-desc { font-size:15px; line-height:1.82; color:var(--muted); max-width:560px; padding-bottom:8px; }
+.split-rows { display:grid; grid-template-columns:repeat(4,1fr); gap:0; border-top:none; position:relative; }
+.split-rows::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(201,168,90,.14) 20%,rgba(255,255,255,.08) 50%,rgba(201,168,90,.14) 80%,transparent); pointer-events:none; }
+.arow {
+  padding:44px 36px 44px 36px;
+  display:flex; flex-direction:column; gap:0;
+  position:relative; overflow:hidden; transition:background .38s;
+  border-right:none;
+}
+.arow + .arow::before { content:''; position:absolute; left:0; top:10%; bottom:10%; width:1px; background:linear-gradient(180deg,transparent,rgba(201,168,90,.15) 35%,rgba(255,255,255,.08) 50%,rgba(201,168,90,.15) 65%,transparent); }
+.arow::before { content:""; position:absolute; left:0; top:0; bottom:0; width:2px; background:rgba(201,168,108,.7); transform:scaleY(0); transform-origin:top; transition:transform .6s var(--ease); }
+.arow:hover { background:rgba(255,255,255,.025); }
+.arow:hover::before { transform:scaleY(1); }
+.arow-num { font-size:8.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); margin-bottom:24px; display:block; }
+.arow h3 { font-family:'Cormorant Garamond',serif; font-size:clamp(20px,2vw,32px); font-weight:400; letter-spacing:-.02em; line-height:1.05; margin-bottom:14px; }
+.arow p { font-size:13px; line-height:1.7; color:var(--muted); }
+
+@media(max-width:1100px){
+  .split-rows { grid-template-columns:repeat(2,1fr); }
+  .split-head { grid-template-columns:1fr; gap:24px; margin-bottom:40px; }
+  .split-section { padding:70px 44px; }
+}
+@media(max-width:760px){
+  .split-section { padding:60px 20px; }
+  .split-rows { grid-template-columns:1fr; }
+  .arow { border-right:none; border-bottom:1px solid rgba(255,255,255,.05); }
+  .split-head { margin-bottom:28px; }
+}
 .arow::before { content:""; position:absolute; left:0; top:0; bottom:0; width:2px; background:rgba(201,168,108,.7); transform:scaleY(0); transform-origin:top; transition:transform .6s var(--ease); }
 .arow:hover { background:rgba(255,255,255,.025); }
 .arow:hover::before { transform:scaleY(1); }
@@ -681,39 +891,298 @@ body::after {
 .arow h3 { font-family:'Cormorant Garamond',serif; font-size:clamp(24px,2.4vw,40px); font-weight:400; line-height:1.04; letter-spacing:-.02em; margin-bottom:16px; }
 .arow p { font-size:13.5px; line-height:1.82; color:var(--muted); max-width:560px; }
 
-/* ═══════════════════════════════════════════════
-   WORK
+
+//* ═══════════════════════════════════════════════
+   WORK SECTION — PREMIUM
 ═══════════════════════════════════════════════ */
-.work-section { padding:110px 44px 140px; }
-.work-head { width:min(var(--max),100%); margin:0 auto 72px; display:grid; grid-template-columns:1fr .68fr; gap:52px; align-items:end; }
+.work-section {
+  padding: 130px 0 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg2);
+}
+.work-section::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,90,.18) 20%,
+    rgba(255,255,255,.1) 50%, rgba(201,168,90,.18) 80%, transparent);
+  pointer-events: none; z-index: 1;
+}
+.work-head {
+  width: min(var(--max), 100%);
+  margin: 0 auto;
+  padding: 0 44px 72px;
+  display: grid;
+  grid-template-columns: 1fr .72fr;
+  gap: 52px;
+  align-items: end;
+  position: relative;
+}
+.work-head::after {
+  content: '';
+  position: absolute; bottom: 0; left: 44px; right: 44px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,90,.22) 20%,
+    rgba(255,255,255,.12) 50%, rgba(201,168,90,.22) 80%, transparent);
+}
 .work-head h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(40px,5.2vw,84px); font-weight:300; line-height:.93; letter-spacing:-.025em; }
 .work-head h2 em { font-style:italic; color:var(--gold); }
+.work-head-right { display:flex; flex-direction:column; gap:20px; }
 .work-head p { font-size:14px; line-height:1.8; color:var(--muted); max-width:460px; }
-.work-grid-top { width:min(var(--max),100%); margin:0 auto 16px; display:grid; grid-template-columns:1.15fr .85fr; gap:16px; }
-.work-grid-bot { width:min(var(--max),100%); margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-.wcard { position:relative; overflow:hidden; transition:transform .5s var(--ease), border-color .5s; will-change:transform; transform-style:preserve-3d; }
-.wcard:hover { transform:translateY(-4px); border-color:rgba(201,168,108,.28); box-shadow:0 20px 48px rgba(0,0,0,.35); }
-.wcard.tall { min-height:420px; }
-.wcard.half { min-height:220px; }
-.wcard.short { min-height:240px; }
-.wcard-info { transition:transform .45s cubic-bezier(.16,1,.3,1); }
-.wcard:hover .wcard-info { transform:translateZ(18px); }
-.wcard-bg { position:absolute; inset:0; }
-.wcard-bg.warm { background: radial-gradient(circle at 76% 20%,rgba(201,168,108,.15),transparent 42%), linear-gradient(148deg,#181108,#241a0d 62%,#130e06); }
-.wcard-bg.hot  { background: radial-gradient(circle at 20% 76%,rgba(240,80,40,.1),transparent 42%), linear-gradient(148deg,#1a0e0c,#28130f 62%,#140a08); }
-.wcard-bg.tuning { background: radial-gradient(ellipse at 28% 72%,rgba(220,55,20,.28),transparent 48%), radial-gradient(ellipse at 76% 18%,rgba(180,80,10,.18),transparent 44%), linear-gradient(148deg,#1e0b06,#2e1208,#140804); }
-.wcard-bg.spa { background: radial-gradient(ellipse at 62% 28%,rgba(20,185,168,.22),transparent 50%), radial-gradient(ellipse at 18% 76%,rgba(8,130,118,.16),transparent 48%), linear-gradient(148deg,#071a18,#0d2624,#04120f); }
-.wcard-bg.fit { background: radial-gradient(ellipse at 24% 52%,rgba(148,220,8,.18),transparent 50%), linear-gradient(148deg,#0a1004,#121806,#070c02); }
-.wcard-bg.resto { background: radial-gradient(ellipse at 70% 38%,rgba(200,70,20,.22),transparent 50%), linear-gradient(148deg,#1a0c06,#261408,#100804); }
-.wcard-bg.custom { background: radial-gradient(ellipse at 50% 30%,rgba(100,120,220,.18),transparent 52%), linear-gradient(148deg,#0e1020,#151a30,#080d1c); }
-.wcard-deco { position:absolute; inset:0; width:100%; height:100%; opacity:.07; pointer-events:none; }
-.wcard-tag { position:absolute; top:22px; left:22px; padding:6px 12px; background:rgba(255,255,255,.04); font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
-.wcard-info { position:absolute; left:22px; right:22px; bottom:24px; }
-.wcard-info h3 { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,3vw,54px); font-weight:300; line-height:1; letter-spacing:-.02em; }
-.wcard-info p { margin-top:12px; font-size:13px; line-height:1.66; color:var(--muted); max-width:320px; }
-/* work card filtered-out state */
-.wcard.filtered-out { opacity:.18; transform:scale(.97) !important; pointer-events:none; }
+.work-count-row { display:flex; align-items:baseline; gap:10px; }
+.work-count-num { font-family:'Cormorant Garamond',serif; font-size:48px; font-weight:300; line-height:1; letter-spacing:-.04em; color:var(--gold); }
+.work-count-num sup { font-size:.5em; vertical-align:super; }
+.work-count-label { font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); line-height:1.6; max-width:90px; }
 
+.work-filter-tabs {
+  width: min(var(--max),100%); margin: 0 auto;
+  padding: 28px 44px 0;
+  display: flex; gap: .38rem; flex-wrap: wrap;
+}
+.wf-btn {
+  font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.2em; text-transform:uppercase;
+  color:rgba(237,242,248,.3); background:transparent;
+  border:1px solid rgba(255,255,255,.06);
+  padding:.38rem 1rem; cursor:pointer;
+  transition:color .3s,border-color .3s,background .3s;
+}
+.wf-btn.active,.wf-btn:hover { color:var(--bg); background:var(--gold); border-color:var(--gold); }
+
+/* CANVAS */
+.work-canvas { width:100%; margin-top:40px; display:flex; flex-direction:column; gap:0; }
+.work-row-featured {
+  display:grid; grid-template-columns:1fr 1fr; gap:2px;
+  background:rgba(201,168,90,.06);
+}
+.work-row-secondary {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
+  background:rgba(201,168,90,.06);
+  border-top:2px solid rgba(201,168,90,.06);
+}
+
+/* CARD BASE */
+.wcard {
+  position:relative; overflow:hidden; cursor:pointer;
+  background:#0a0810;
+}
+.wcard.featured { height:580px; }
+.wcard.secondary { height:360px; }
+
+/* Screenshot */
+.wcard-screenshot {
+  position:absolute; inset:0; z-index:1;
+  background-size:cover; background-position:center top;
+  transform:scale(1.04);
+  transition:transform 1.2s cubic-bezier(.16,1,.3,1);
+  will-change:transform;
+}
+.wcard:hover .wcard-screenshot { transform:scale(1.11); }
+
+/* Premium dark vignette */
+.wcard-vignette {
+  position:absolute; inset:0; z-index:2; pointer-events:none;
+  background:linear-gradient(
+    to bottom,
+    rgba(4,3,8,.15) 0%,
+    rgba(4,3,8,.1) 20%,
+    rgba(4,3,8,.45) 60%,
+    rgba(4,3,8,.97) 100%
+  );
+  transition:background .7s;
+}
+.wcard:hover .wcard-vignette {
+  background:linear-gradient(
+    to bottom,
+    rgba(4,3,8,.25) 0%,
+    rgba(4,3,8,.3) 25%,
+    rgba(4,3,8,.68) 60%,
+    rgba(4,3,8,1) 100%
+  );
+}
+
+/* Gold accent line at bottom of each card */
+.wcard::before {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px; z-index:10;
+  background:linear-gradient(90deg, transparent 0%, rgba(201,168,90,.0) 20%, rgba(201,168,90,.4) 50%, rgba(201,168,90,.0) 80%, transparent 100%);
+  transition:background .6s;
+}
+.wcard:hover::before {
+  background:linear-gradient(90deg, transparent 0%, rgba(201,168,90,.1) 10%, rgba(201,168,90,.7) 50%, rgba(201,168,90,.1) 90%, transparent 100%);
+}
+
+/* Gold shimmer sweep on hover */
+.wcard::after {
+  content:''; position:absolute; inset:0; z-index:9; pointer-events:none;
+  background:linear-gradient(115deg, transparent 0%, transparent 38%, rgba(201,168,90,.04) 50%, transparent 62%, transparent 100%);
+  background-size:280% 100%; background-position:220% 0;
+  transition:background-position .9s cubic-bezier(.16,1,.3,1), opacity .5s;
+  opacity:0;
+}
+.wcard:hover::after { background-position:-40% 0; opacity:1; }
+
+/* Fallback BGs */
+.wcard-bg { position:absolute; inset:0; z-index:0; }
+.wcard-bg.tuning  { background: radial-gradient(ellipse at 30% 70%,rgba(180,40,8,.45),transparent 50%), radial-gradient(ellipse at 78% 18%,rgba(120,55,5,.28),transparent 46%), linear-gradient(160deg,#100602,#1a0904,#090402); }
+.wcard-bg.spa     { background: radial-gradient(ellipse at 65% 28%,rgba(14,140,128,.32),transparent 54%), radial-gradient(ellipse at 16% 78%,rgba(5,90,82,.22),transparent 50%), linear-gradient(160deg,#040f0e,#071a18,#030a09); }
+.wcard-bg.fit     { background: radial-gradient(ellipse at 26% 55%,rgba(100,165,5,.26),transparent 52%), linear-gradient(160deg,#060a02,#0c1404,#040701); }
+.wcard-bg.resto   { background: radial-gradient(ellipse at 68% 36%,rgba(150,50,12,.32),transparent 54%), linear-gradient(160deg,#0e0804,#1a1006,#090604); }
+.wcard-bg.custom  { background: radial-gradient(ellipse at 52% 32%,rgba(72,88,175,.26),transparent 56%), linear-gradient(160deg,#08091a,#0f1128,#060710); }
+
+/* BROWSER CHROME */
+.wcard-chrome {
+  position:absolute; top:0; left:0; right:0; z-index:6;
+  height:36px; background:rgba(2,3,7,.98);
+  border-bottom:1px solid rgba(201,168,90,.12);
+  display:flex; align-items:center; padding:0 14px; gap:10px;
+  transform:translateY(-36px);
+  transition:transform .55s cubic-bezier(.16,1,.3,1);
+}
+.wcard:hover .wcard-chrome { transform:translateY(0); }
+.wbc2-dots { display:flex; gap:5px; }
+.wbc2-dots span { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.wbc2-dots span:nth-child(1){ background:#ff5f57; }
+.wbc2-dots span:nth-child(2){ background:#febc2e; }
+.wbc2-dots span:nth-child(3){ background:#38d860; }
+.wbc2-url { flex:1; height:19px; background:rgba(255,255,255,.06); border-radius:3px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:9px; letter-spacing:.04em; color:rgba(255,255,255,.35); }
+.wbc2-live { display:flex; align-items:center; gap:4px; font-size:7.5px; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.28); flex-shrink:0; }
+.wbc2-live span { width:5px; height:5px; border-radius:50%; background:#38d860; animation:lpulse 1.8s ease-in-out infinite; }
+
+/* GHOST NUMBER */
+.wcard-ghost-num {
+  position:absolute; bottom:-14px; right:10px; z-index:3;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(100px,17vw,240px); font-weight:300; line-height:.8;
+  color:rgba(255,255,255,.028); letter-spacing:-.08em;
+  pointer-events:none; user-select:none;
+  transition:color .7s, transform .8s cubic-bezier(.16,1,.3,1);
+}
+.wcard:hover .wcard-ghost-num { color:rgba(201,168,90,.048); transform:translateY(8px) scale(1.02); }
+
+/* INFO PANEL */
+.wcard-info-panel {
+  position:absolute; bottom:0; left:0; right:0; z-index:7;
+  padding:0 36px 32px;
+}
+.wcard-cat-tag {
+  display:inline-flex; align-items:center; gap:9px;
+  font-family:'Syne',sans-serif; font-size:8.5px; letter-spacing:.26em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:10px;
+  opacity:0; transform:translateY(10px);
+  transition:opacity .45s var(--ease) .06s, transform .45s var(--ease) .06s;
+}
+.wcard:hover .wcard-cat-tag { opacity:1; transform:translateY(0); }
+.wcard-cat-tag::before { content:''; width:22px; height:1px; background:linear-gradient(90deg,var(--gold),transparent); }
+
+/* TITLE — bigger on hover */
+.wcard-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(32px,3.8vw,64px); font-weight:300;
+  line-height:.96; letter-spacing:-.025em; color:#fff;
+  transition:font-size .4s var(--ease), color .3s;
+}
+.wcard.secondary .wcard-title {
+  font-size:clamp(28px,3vw,52px);
+}
+.wcard:hover .wcard-title {
+  color:var(--text);
+}
+
+/* EXPAND */
+.wcard-expand { max-height:0; overflow:hidden; transition:max-height .65s cubic-bezier(.16,1,.3,1); }
+.wcard:hover .wcard-expand { max-height:280px; }
+
+.wcard-sep {
+  width:0; height:1px;
+  background:linear-gradient(90deg, rgba(201,168,90,.55), rgba(201,168,90,.15), transparent);
+  margin:14px 0;
+  transition:width .55s var(--ease) .08s;
+}
+.wcard:hover .wcard-sep { width:80px; }
+
+.wcard-desc {
+  font-size:14.5px; line-height:1.78; color:rgba(240,238,248,.62);
+  max-width:500px;
+}
+.wcard.secondary .wcard-desc { font-size:13.5px; max-width:360px; }
+
+.wcard-techs { display:flex; flex-wrap:wrap; gap:6px; margin-top:13px; }
+.wcard-tech {
+  font-family:'Syne',sans-serif; font-size:8px; letter-spacing:.12em; text-transform:uppercase;
+  padding:4px 11px; border:1px solid rgba(201,168,90,.2);
+  color:rgba(240,238,248,.45); border-radius:20px;
+  transition:border-color .3s, color .3s, background .3s;
+}
+.wcard:hover .wcard-tech { border-color:rgba(201,168,90,.42); color:rgba(240,238,248,.82); background:rgba(201,168,90,.05); }
+
+.wcard-cta-row { display:flex; align-items:center; gap:18px; margin-top:16px; }
+.wcard-cta {
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:'Syne',sans-serif; font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold); transition:gap .3s;
+}
+.wcard-cta .cta-arrow2 { transition:transform .3s var(--ease); display:inline-block; }
+.wcard:hover .wcard-cta .cta-arrow2 { transform:translateX(6px); }
+.wcard-live-badge { display:flex; align-items:center; gap:5px; font-family:'Syne',sans-serif; font-size:8px; letter-spacing:.14em; text-transform:uppercase; }
+.wcard-live-dot2 { width:5px; height:5px; border-radius:50%; background:#38d860; box-shadow:0 0 7px rgba(56,216,96,.55); animation:ctaPulse 2s ease-in-out infinite; }
+.wcard-live-text { color:rgba(56,216,96,.82); }
+.wcard-concept-text { color:rgba(240,238,248,.28); }
+
+/* PERF CHIPS */
+.wcard-perf2 {
+  position:absolute; top:48px; right:16px; z-index:8;
+  display:flex; flex-direction:column; gap:4px;
+  opacity:0; transform:translateX(20px);
+  transition:opacity .45s var(--ease) .16s, transform .45s var(--ease) .16s;
+  pointer-events:none;
+}
+.wcard:hover .wcard-perf2 { opacity:1; transform:translateX(0); }
+.wp2-row {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(2,3,8,.97); border:1px solid rgba(201,168,90,.15);
+  backdrop-filter:blur(16px); border-radius:3px;
+  padding:5px 11px; white-space:nowrap;
+}
+.wp2-label { font-family:'Syne',sans-serif; font-size:7px; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.32); min-width:38px; }
+.wp2-bar { width:40px; height:2px; background:rgba(255,255,255,.1); border-radius:1px; overflow:hidden; }
+.wp2-fill { height:100%; border-radius:1px; background:var(--gold); }
+.wp2-val { font-family:'Cormorant Garamond',serif; font-size:15px; font-weight:300; color:var(--gold2); line-height:1; min-width:22px; text-align:right; }
+
+/* SECTION FOOTER */
+.work-section-footer {
+  width:min(var(--max),100%); margin:0 auto;
+  padding:64px 44px;
+  display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  position:relative;
+}
+.work-section-footer::before {
+  content:''; position:absolute; top:0; left:44px; right:44px; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(201,168,90,.18) 20%, rgba(255,255,255,.1) 50%, rgba(201,168,90,.18) 80%, transparent);
+}
+.wsf-note { font-size:13.5px; line-height:1.82; color:var(--muted); max-width:480px; }
+.wsf-note strong { color:var(--gold2); font-weight:500; }
+
+/* FILTERED */
+.wcard.filtered-out { opacity:.1; pointer-events:none; filter:grayscale(.8) blur(1px); transition:opacity .5s,filter .5s; }
+
+/* hide old grid wrappers */
+.work-grid-top, .work-grid-bot { display:none !important; }
+
+@media(max-width:1100px) {
+  .work-row-featured { grid-template-columns:1fr; }
+  .work-row-secondary { grid-template-columns:1fr 1fr; }
+  .wcard.featured { height:480px; }
+  .wcard.secondary { height:360px; }
+}
+@media(max-width:760px) {
+  .work-section { padding:80px 0 0; }
+  .work-head { grid-template-columns:1fr; gap:20px; padding:0 20px 48px; }
+  .work-filter-tabs { padding:24px 20px 0; }
+  .work-row-featured,.work-row-secondary { grid-template-columns:1fr; }
+  .wcard.featured { height:400px; }
+  .wcard.secondary { height:300px; }
+  .wcard-info-panel { padding:0 20px 22px; }
+  .wcard-title { font-size:clamp(24px,8vw,44px) !important; }
+  .work-section-footer { padding:44px 20px; flex-direction:column; }
+}
 /* ═══════════════════════════════════════════════
    PROCESS
 ═══════════════════════════════════════════════ */
@@ -751,7 +1220,7 @@ body::after {
 .pf-tag { display:inline-flex; align-items:center; gap:7px; padding:5px 13px; border:1px solid rgba(255,255,255,.1); border-radius:20px; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:rgba(240,238,248,.65); background:rgba(255,255,255,.05); transition:border-color .4s, color .4s, background .4s; }
 .price-row:hover .pf-tag { border-color:rgba(224,181,90,.3); color:rgba(240,238,248,.85); background:rgba(255,255,255,.07); }
 .pf-svg { width:11px; height:11px; flex-shrink:0; color:var(--gold); opacity:.9; }
-.price-domain { grid-column:1 / -1; display:flex; align-items:center; gap:7px; font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:rgba(238,242,250,.28); padding-top:14px; border-top:1px solid rgba(255,255,255,.06); margin-top:4px; }
+.price-domain { grid-column:1 / -1; display:flex; align-items:center; gap:7px; font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:rgba(238,242,250,.28); padding-top:14px; border-top:1px solid rgba(201,168,108,.1); margin-top:4px; }
 .pd-icon { font-size:12px; opacity:.55; }
 .price-featured { border-color:rgba(224,181,90,.2); }
 .price-badge { display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg,#d63030 0%,#9e1a1a 100%); color:#fff; font-size:7.5px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; padding:6px 20px 6px 12px; margin:10px 0 14px; clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%); box-shadow:0 4px 18px rgba(180,28,28,.45), inset 0 1px 0 rgba(255,255,255,.2); line-height:1; transition:box-shadow .3s; }
@@ -787,18 +1256,119 @@ body::after {
 /* ═══════════════════════════════════════════════
    CONTACT
 ═══════════════════════════════════════════════ */
-.contact-section { min-height:76vh; display:grid; place-items:center; text-align:center; padding:84px 44px; position:relative; overflow:hidden; }
+/* ─── Contact section & form ─── */
+.contact-section {
+  min-height:92vh; display:grid; place-items:center;
+  text-align:center; padding:110px 44px;
+  position:relative; overflow:hidden;
+}
 .contact-glow { position:absolute; width:64vw; aspect-ratio:1; border-radius:50%; top:50%; left:50%; transform:translate(-50%,-50%); filter:blur(130px); opacity:.1; pointer-events:none; background:radial-gradient(circle,rgba(160,100,240,.6) 0%,rgba(200,160,90,.5) 55%,transparent 72%); }
-.contact-inner { max-width:860px; position:relative; z-index:1; }
-.contact-inner h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(50px,9vw,136px); font-weight:300; line-height:.88; letter-spacing:-.03em; margin-top:16px; }
+.contact-inner { max-width:680px; width:100%; position:relative; z-index:1; }
+.contact-inner h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(50px,9vw,130px); font-weight:300; line-height:.88; letter-spacing:-.03em; margin-top:16px; }
 .contact-inner h2 em { font-style:italic; color:var(--gold); }
-.contact-inner .sub { margin:30px auto 44px; font-size:15px; line-height:1.8; color:var(--muted); max-width:520px; }
-.contact-links { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+.contact-inner .sub { margin:28px auto 0; font-size:15px; line-height:1.8; color:var(--muted); max-width:520px; }
+
+/* Form area */
+.contact-form-wrap { margin-top:48px; text-align:left; }
+
+/* Calc summary pill */
+.cf-calc-pill {
+  display:none; align-items:center; gap:.6rem; flex-wrap:wrap;
+  margin-bottom:1.4rem; padding:.65rem 1rem;
+  background:rgba(224,181,90,.06); border:1px solid rgba(224,181,90,.2);
+  font-size:.72rem; color:var(--gold2); letter-spacing:.06em; line-height:1.5;
+}
+.cf-calc-pill.show { display:flex; }
+.cf-calc-pill-icon { flex-shrink:0; }
+.cf-calc-pill strong { color:var(--gold); }
+
+/* Form grid */
+.cf-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.cf-field { display:flex; flex-direction:column; gap:.48rem; }
+.cf-field.full { grid-column:1/-1; }
+.cf-label {
+  font-size:8px; letter-spacing:.26em; text-transform:uppercase;
+  color:rgba(240,238,248,.38);
+}
+.cf-input, .cf-textarea {
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.09);
+  border-bottom-color:rgba(255,255,255,.16);
+  padding:.88rem 1rem;
+  font-family:'Syne',sans-serif; font-size:.9rem;
+  color:var(--text); outline:none; width:100%;
+  transition:border-color .28s, background .28s, box-shadow .28s;
+  border-radius:0;
+  -webkit-appearance:none;
+}
+.cf-input:focus, .cf-textarea:focus {
+  border-color:rgba(224,181,90,.6);
+  background:rgba(255,255,255,.055);
+  box-shadow:0 4px 24px rgba(224,181,90,.08);
+}
+.cf-input::placeholder, .cf-textarea::placeholder {
+  color:rgba(240,238,248,.18); font-size:.84rem;
+}
+.cf-textarea { resize:vertical; min-height:120px; line-height:1.65; }
+
+/* Field errors */
+.cf-error { font-size:.66rem; color:#f87185; letter-spacing:.04em; min-height:.85rem; display:block; }
+
+/* Form-level error */
+.cf-form-error {
+  display:none; margin-bottom:1.2rem; padding:.75rem 1rem;
+  background:rgba(244,63,94,.07); border:1px solid rgba(244,63,94,.2);
+  font-size:.76rem; color:#f87185;
+}
+.cf-form-error.show { display:block; animation:addonFade .3s var(--ease); }
+
+/* Submit row */
+.cf-footer {
+  margin-top:1.6rem;
+  display:flex; align-items:center; gap:1.4rem; flex-wrap:wrap;
+}
+.cf-submit {
+  display:inline-flex; align-items:center; justify-content:center; gap:.65rem;
+  padding:14px 32px; border:1px solid rgba(212,170,101,.55);
+  font-family:'Syne',sans-serif; font-size:.68rem;
+  font-weight:700; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--bg); background:var(--gold);
+  cursor:pointer; position:relative; overflow:hidden;
+  transition:background .35s, border-color .35s, transform .2s, box-shadow .3s, opacity .3s;
+}
+.cf-submit::before {
+  content:''; position:absolute; inset:0; background:rgba(255,255,255,.18);
+  transform:translateX(-102%); transition:.4s var(--ease);
+}
+.cf-submit:hover { background:var(--gold2); transform:translateY(-2px); box-shadow:0 8px 28px rgba(224,181,90,.38); }
+.cf-submit:hover::before { transform:translateX(0); }
+.cf-submit:disabled { opacity:.5; transform:none; cursor:wait; }
+.cf-alt { font-size:.74rem; color:rgba(240,238,248,.3); line-height:1.6; }
+.cf-alt a { color:var(--gold); }
+
+/* Success state */
+.cf-success {
+  display:none; text-align:center;
+  padding:2.5rem 1rem; animation:addonFade .5s var(--ease);
+}
+.cf-success.show { display:block; }
+.cf-success-icon { font-size:3rem; margin-bottom:1rem; display:block; }
+.cf-success-title { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:300; color:var(--gold); margin-bottom:.5rem; }
+.cf-success-sub { font-size:.88rem; color:var(--muted); line-height:1.7; }
+
+@media(max-width:640px){
+  .cf-grid { grid-template-columns:1fr; }
+  .contact-section { padding-left:20px; padding-right:20px; }
+  .hero-left,.hero-right { padding-left:20px !important; padding-right:20px !important; }
+  .cf-footer { flex-direction:column; align-items:stretch; }
+  .cf-submit { justify-content:center; }
+}
 
 /* ═══════════════════════════════════════════════
    FOOTER
 ═══════════════════════════════════════════════ */
-footer { padding:28px 44px; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; border-top:1px solid rgba(255,255,255,.05); }
+footer { padding:28px 44px; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; border-top:none; position:relative; }
+footer::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(201,168,90,.18) 20%,rgba(255,255,255,.1) 50%,rgba(201,168,90,.18) 80%,transparent); pointer-events:none; z-index:1; }
 .footer-logo { display:flex; align-items:center; gap:10px; }
 .footer-logo img { width:24px; height:24px; object-fit:contain; opacity:.48; }
 .footer-logo span { font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:rgba(237,242,248,.32); }
@@ -852,22 +1422,21 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
   .process-grid { grid-template-columns:repeat(2,1fr); }
   .work-grid-top { grid-template-columns:1fr; }
   .work-grid-bot { grid-template-columns:1fr 1fr; }
-  .split-section { grid-template-columns:1fr; }
-  .split-sticky { position:relative; height:auto; border-right:none; }
   .price-row { grid-template-columns:.9fr .6fr; grid-template-rows:auto auto; padding:30px 6px; }
   .hero-main { grid-template-columns:1fr; }
-  .hero-left { padding:100px 44px 60px; }
-  .hero-right { padding:52px 44px 72px; }
-  .hero-bottom { grid-template-columns:1fr; }
-  .hero-bottom-left { padding:40px 44px; }
-  .hero-bottom-right { padding:36px 44px 48px; }
+  .hero-left { padding:100px 28px 60px 28px; }
+  .hero-right { padding:52px 28px 72px; border-left:none; border-top:1px solid rgba(201,168,108,.12); }
+  .cb-grid { grid-template-columns:1fr; }
+  .cb-brand { position:relative; top:auto; }
+  .cb-preview-body { height:420px; max-height:420px; }
+  .work-head { grid-template-columns:1fr; gap:20px; }
 }
 /* ═══════════════════════════════════════════════
    LIVE BRANDING PREVIEW
 ═══════════════════════════════════════════════ */
 .brand-section {
   padding:110px 44px; background:var(--bg);
-  border-top:1px solid rgba(255,255,255,.04);
+  border-top:1px solid rgba(201,168,108,.1);
 }
 .brand-inner {
   width:min(var(--max),100%); margin:0 auto;
@@ -1020,7 +1589,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 ═══════════════════════════════════════════════ */
 .calc-section {
   padding:110px 44px;
-  background:var(--bg2); border-top:1px solid rgba(255,255,255,.04);
+  background:var(--bg2); border-top:1px solid rgba(201,168,108,.1);
 }
 .calc-inner {
   width:min(var(--max),100%); margin:0 auto;
@@ -1134,16 +1703,17 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
   font-size:1.6rem; font-weight:300; color:var(--blue2);
 }
 @media(max-width:1100px){
-  .brand-inner,.calc-inner { grid-template-columns:1fr; gap:40px; }
-  .brand-browser-wrap .brand-badge { display:none; }
+  .pstep { padding:40px 28px; }
 }
 /* ═══════════════════════════════════════════════
    COMBINED CALC + BRAND SECTION
 ═══════════════════════════════════════════════ */
 .cb-section {
   padding:110px 44px;
-  background:var(--bg2); border-top:1px solid rgba(255,255,255,.04);
+  background:var(--bg2); border-top:none;
+  position:relative;
 }
+.cb-section::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(201,168,90,.18) 20%,rgba(255,255,255,.1) 50%,rgba(201,168,90,.18) 80%,transparent); pointer-events:none; z-index:1; }
 .cb-section-head {
   width:min(var(--max),100%); margin:0 auto 3.5rem;
   display:flex; align-items:flex-end; justify-content:space-between; gap:2rem;
@@ -1226,22 +1796,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 .ca-plus { font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--gold); white-space:nowrap; }
 
 /* Result panel */
-.cb-result-panel {
-  background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.08);
-  padding:1.8rem 2rem; margin-top:1rem;
-}
-.cr-label { font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:1.2rem; }
-.cr-price { font-family:'Cormorant Garamond',serif; font-size:clamp(44px,5vw,72px); font-weight:300; line-height:1; letter-spacing:-.03em; color:var(--text); }
-.cr-price-unit { font-size:1.3rem; color:var(--muted); font-family:'Syne',sans-serif; font-weight:400; }
-.cr-subtitle { font-size:.78rem; color:var(--muted); margin-top:.3rem; letter-spacing:.06em; }
-.cr-breakdown { display:flex; flex-direction:column; gap:.35rem; margin:1.2rem 0; }
-.cr-line { display:flex; justify-content:space-between; font-size:.76rem; color:var(--muted); padding:.35rem 0; border-bottom:1px solid rgba(255,255,255,.04); animation:crFadeIn .3s var(--ease); }
-@keyframes crFadeIn { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:none} }
-.cr-line:last-child { border-bottom:none; }
-.cr-line span:last-child { color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:.95rem; }
-.cr-total-line { display:flex; justify-content:space-between; padding:.9rem 0 1.3rem; border-top:1px solid rgba(255,255,255,.1); }
-.cr-total-label { font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
-.cr-total-val { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:300; color:var(--blue2); }
+/* Result panel styles defined below in new section */
 
 /* ── Right: Brand Preview ── */
 .cb-brand { display:flex; flex-direction:column; gap:0; position:sticky; top:5rem; }
@@ -1436,7 +1991,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 .cb-prev-services {
   display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
   padding:18px; background:rgba(255,255,255,.015);
-  border-top:1px solid rgba(255,255,255,.06);
+  border-top:1px solid rgba(201,168,108,.1);
 }
 .cb-prev-card {
   background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07);
@@ -1450,7 +2005,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 
 /* About strip */
 .cb-prev-about {
-  padding:18px; border-top:1px solid rgba(255,255,255,.05);
+  padding:18px; border-top:1px solid rgba(201,168,108,.1);
   display:flex; gap:14px; align-items:center;
 }
 .cb-prev-about-text { flex:1; }
@@ -1460,7 +2015,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 
 /* Google Map mock */
 .cb-prev-map-wrap {
-  margin:0; border-top:1px solid rgba(255,255,255,.06);
+  margin:0; border-top:1px solid rgba(201,168,108,.1);
 }
 .cb-prev-map-label {
   padding:10px 18px 0; font-size:7px; letter-spacing:.22em;
@@ -1523,7 +2078,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 }
 .cb-prev-social-btn:hover { border-color:var(--cbAccent,#e0b55a); color:var(--cbAccent,#e0b55a); }
 .cb-prev-footer-bottom {
-  border-top:1px solid rgba(255,255,255,.05); padding-top:8px;
+  border-top:1px solid rgba(201,168,108,.1); padding-top:8px;
   display:flex; justify-content:space-between; align-items:center;
 }
 .cb-prev-footer-copy { font-size:6.5px; color:rgba(255,255,255,.2); letter-spacing:.06em; }
@@ -1604,7 +2159,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 .cb-addon-seo-label { font-size:6px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.25); padding:5px 12px 4px; background:rgba(0,0,0,.5); display:block; }
 
 /* ─── Email section ─── */
-.cb-addon-email { display:none; padding:12px 18px; border-top:1px solid rgba(255,255,255,.05); background:rgba(255,255,255,.01); }
+.cb-addon-email { display:none; padding:12px 18px; border-top:1px solid rgba(201,168,108,.1); background:rgba(255,255,255,.01); }
 .cb-addon-email.active { display:block; animation:addonFade .4s var(--ease); }
 .cb-addon-email-row { display:flex; align-items:center; gap:10px; }
 .cb-addon-email-icon { width:32px; height:32px; flex-shrink:0; border-radius:50%; background:rgba(224,181,90,.1); border:1px solid rgba(224,181,90,.25); display:flex; align-items:center; justify-content:center; font-size:1rem; }
@@ -1640,6 +2195,607 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 @keyframes addonFade { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
 @keyframes addonSlide { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:none} }
 @keyframes addonPop { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
+
+/* ─── Addon category labels ─── */
+.ca-category-label {
+  font-size:7.5px; letter-spacing:.24em; text-transform:uppercase;
+  color:rgba(240,238,248,.28); padding:.4rem 0 .3rem;
+  margin-top:.4rem; display:flex; align-items:center; gap:.5rem;
+}
+.ca-category-label::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg,rgba(255,255,255,.06),transparent);
+}
+
+/* ─── Min/Max price range ─── */
+.cr-range-wrap {
+  display:flex; align-items:center; gap:.8rem;
+  margin-bottom:.3rem; flex-wrap:wrap;
+}
+.cr-range-row { display:flex; flex-direction:column; gap:.1rem; }
+.cr-range-tag {
+  font-size:7px; letter-spacing:.22em; text-transform:uppercase;
+  color:rgba(240,238,248,.3);
+}
+.cr-range-tag-cur { color:var(--gold); }
+.cr-range-min {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(28px,3.5vw,46px); font-weight:300;
+  line-height:1; letter-spacing:-.02em; color:rgba(240,238,248,.45);
+}
+.cr-range-max {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(36px,4.5vw,62px); font-weight:300;
+  line-height:1; letter-spacing:-.03em; color:var(--text);
+  transition:color .3s;
+}
+.cr-range-divider {
+  font-family:'Cormorant Garamond',serif; font-size:2rem;
+  color:rgba(255,255,255,.15); align-self:center; padding-top:.5rem;
+}
+
+/* ─── Addon price range on buttons ─── */
+.ca-price-range {
+  font-family:'Cormorant Garamond',serif; font-size:.95rem;
+  color:rgba(240,238,248,.35); white-space:nowrap; font-weight:300;
+  transition:color .25s;
+}
+.calc-addon.active .ca-price-range { color:var(--gold); }
+.ca-price-incl {
+  font-size:.58rem; letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(224,181,90,.45); font-family:'Syne',sans-serif;
+  white-space:nowrap; border:1px solid rgba(224,181,90,.2);
+  padding:2px 7px; border-radius:20px;
+  transition:color .25s, border-color .25s;
+}
+.calc-addon.active .ca-price-incl { color:var(--gold); border-color:rgba(224,181,90,.5); }
+
+/* ─── Shared mockup section style ─── */
+.cb-addon-section {
+  display:none; border-top:1px solid rgba(255,255,255,.06);
+  padding:14px 18px; background:rgba(255,255,255,.01);
+}
+.cb-addon-section.active { display:block; animation:addonFade .45s var(--ease); }
+.cb-addon-sec-label {
+  font-size:6.5px; letter-spacing:.22em; text-transform:uppercase;
+  color:rgba(255,255,255,.22); margin-bottom:8px;
+  display:flex; align-items:center; gap:5px;
+}
+.cb-addon-sec-label::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.05); }
+
+/* Social links in nav */
+.cb-addon-social-bar { display:none; align-items:center; gap:4px; margin-right:4px; }
+.cb-addon-social-bar.active { display:flex; animation:addonFade .3s var(--ease); }
+.cb-soc-icon { width:16px; height:16px; border:1px solid rgba(255,255,255,.18); border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:6px; color:rgba(255,255,255,.45); }
+
+/* Cookie banner in preview */
+.cb-addon-cookie-bar {
+  display:none; position:absolute; bottom:0; left:0; right:0; z-index:20;
+  background:rgba(8,12,20,.97); border-top:1px solid rgba(224,181,90,.2);
+  padding:8px 14px; align-items:center; justify-content:space-between; gap:8px;
+}
+.cb-addon-cookie-bar.active { display:flex; animation:addonFade .4s var(--ease); }
+.cb-cookie-text { font-size:7px; color:rgba(255,255,255,.45); flex:1; line-height:1.5; }
+.cb-cookie-btns { display:flex; gap:5px; flex-shrink:0; }
+.cb-cookie-btn { font-size:6.5px; padding:3px 8px; border-radius:2px; letter-spacing:.1em; text-transform:uppercase; }
+.cb-cookie-btn.ok { color:#000; font-weight:700; }
+.cb-cookie-btn.no { background:rgba(255,255,255,.07); color:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.12); }
+
+/* Video overlay in hero */
+.cb-addon-video-overlay {
+  display:none; position:absolute; inset:0; z-index:4;
+  align-items:center; justify-content:center;
+  background:rgba(0,0,0,.35);
+}
+.cb-addon-video-overlay.active { display:flex; animation:addonFade .4s var(--ease); }
+.cb-play-btn {
+  width:44px; height:44px; border-radius:50%;
+  border:2px solid rgba(255,255,255,.7);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; color:#fff; background:rgba(255,255,255,.12);
+  backdrop-filter:blur(4px);
+  animation:ctaPulse 3s ease-in-out infinite;
+}
+
+/* Gallery grid - improved */
+.cb-addon-gallery-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  grid-template-rows:auto auto; gap:5px;
+}
+.cb-gal-item {
+  border-radius:3px; overflow:hidden; position:relative;
+  border:1px solid rgba(255,255,255,.1);
+  aspect-ratio:4/3;
+}
+.cb-gal-item.wide { grid-column:span 2; aspect-ratio:16/7; }
+.cb-gal-item .cb-gal-overlay {
+  position:absolute; inset:0;
+  background:linear-gradient(175deg,rgba(255,255,255,.06) 0%,transparent 55%);
+}
+.cb-gal-item .cb-gal-tag {
+  position:absolute; bottom:5px; left:6px;
+  font-size:6px; letter-spacing:.1em; text-transform:uppercase;
+  color:rgba(255,255,255,.5); background:rgba(0,0,0,.4);
+  padding:2px 5px; border-radius:2px;
+}
+.cb-gal-item .cb-gal-icon {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  font-size:1.4rem; opacity:.25;
+}
+
+/* Pricing table in preview - row layout */
+.cb-addon-cennik-table {
+  width:100%; border-collapse:collapse;
+}
+.cb-cennik-thead th {
+  font-size:7px; letter-spacing:.12em; text-transform:uppercase;
+  padding:6px 6px 4px; text-align:center; font-weight:600;
+  color:rgba(255,255,255,.4); border-bottom:1px solid rgba(255,255,255,.08);
+}
+.cb-cennik-thead th.feat { color:var(--cbAccent,#e0b55a); }
+.cb-cennik-tbody tr:nth-child(odd) { background:rgba(255,255,255,.02); }
+.cb-cennik-tbody td {
+  padding:4px 6px; font-size:8px; text-align:center;
+  color:rgba(255,255,255,.45); border-bottom:1px solid rgba(255,255,255,.04);
+}
+.cb-cennik-tbody td:first-child { text-align:left; color:rgba(255,255,255,.6); font-size:7.5px; }
+.cb-cennik-check { color:var(--cbAccent,#e0b55a); font-size:10px; }
+.cb-cennik-dash  { color:rgba(255,255,255,.16); }
+.cb-cennik-tfoot td {
+  padding:6px 6px 2px; font-family:'Cormorant Garamond',serif;
+  font-size:16px; font-weight:300; text-align:center; line-height:1;
+}
+.cb-cennik-tfoot td.feat { font-size:20px; color:var(--cbAccent,#e0b55a); }
+.cb-cennik-tfoot td:first-child { font-family:'Syne',sans-serif; font-size:7px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.3); }
+
+
+.cb-addon-faq-list { display:flex; flex-direction:column; gap:0; }
+.cb-faq-row { border-top:1px solid rgba(255,255,255,.06); padding:6px 0; display:flex; justify-content:space-between; align-items:center; }
+.cb-faq-q { font-size:8px; color:rgba(255,255,255,.7); }
+.cb-faq-icon { font-size:10px; color:rgba(255,255,255,.35); flex-shrink:0; }
+.cb-faq-row.open .cb-faq-icon { color:var(--cbAccent,#e0b55a); }
+.cb-faq-answer { font-size:7px; color:rgba(255,255,255,.32); padding:3px 0 6px; line-height:1.5; }
+
+/* ─── Bigger/more readable addon buttons ─── */
+.ca-name { font-size:1.02rem !important; }
+.ca-category-label { font-size:9px !important; letter-spacing:.2em !important; color:rgba(240,238,248,.45) !important; padding:.6rem 0 .35rem !important; margin-top:.5rem !important; }
+.calc-addon { padding:.92rem 1.2rem !important; }
+.ca-price-range { font-size:1.05rem !important; }
+.ca-price-incl { font-size:.66rem !important; padding:3px 9px !important; }
+.cb-group-title { font-size:9.5px !important; }
+.cb-addons-note { font-size:.79rem !important; padding:.55rem .8rem; background:rgba(224,181,90,.04); border:1px solid rgba(224,181,90,.12); border-radius:3px; }
+
+/* ─── Result panel: always-visible min–max range ─── */
+.cr-range-wrap {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:0; margin-bottom:.7rem;
+  border:1px solid rgba(255,255,255,.08); border-radius:4px; overflow:hidden;
+}
+.cr-range-col {
+  padding:1rem 1.3rem; display:flex; flex-direction:column; gap:.18rem;
+}
+.cr-range-col + .cr-range-col {
+  border-left:1px solid rgba(255,255,255,.08);
+  background:rgba(224,181,90,.04);
+}
+.cr-range-tag {
+  font-size:7px; letter-spacing:.22em; text-transform:uppercase;
+  color:rgba(240,238,248,.3);
+}
+.cr-range-tag-cur { color:var(--gold); }
+.cr-range-min {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(30px,3.8vw,50px); font-weight:300;
+  line-height:1; letter-spacing:-.02em; color:rgba(240,238,248,.55);
+}
+.cr-range-max {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(34px,4.2vw,56px); font-weight:300;
+  line-height:1; letter-spacing:-.03em; color:var(--gold2);
+  transition:color .3s;
+}
+
+/* Reviews in preview */
+.cb-addon-reviews-grid { display:flex; flex-direction:column; gap:5px; }
+.cb-rev-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.05); }
+.cb-rev-stars { display:flex; gap:1px; }
+.cb-rev-star { font-size:9px; }
+.cb-rev-body { flex:1; }
+.cb-rev-text-sm { font-size:7.5px; color:rgba(255,255,255,.6); font-style:italic; line-height:1.4; }
+.cb-rev-name-sm { font-size:6.5px; color:rgba(255,255,255,.3); margin-top:2px; }
+
+/* Stats/counters in preview */
+.cb-addon-stats-row { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid rgba(255,255,255,.07); }
+.cb-stat-mini { padding:9px 8px; border-right:1px solid rgba(255,255,255,.07); text-align:center; }
+.cb-stat-mini:last-child { border-right:none; }
+.cb-stat-num-sm { font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:300; line-height:1; }
+.cb-stat-lbl-sm { font-size:6px; color:rgba(255,255,255,.28); margin-top:2px; letter-spacing:.06em; }
+
+/* Newsletter in preview */
+.cb-addon-newsletter-box { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); padding:12px; }
+.cb-nl-title { font-family:'Cormorant Garamond',serif; font-size:15px; font-weight:300; color:#fff; margin-bottom:4px; }
+.cb-nl-sub { font-size:7.5px; color:rgba(255,255,255,.35); margin-bottom:8px; }
+.cb-nl-row { display:flex; gap:5px; }
+.cb-nl-input { flex:1; height:24px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); font-size:7.5px; color:rgba(255,255,255,.5); padding:0 8px; border-radius:2px; }
+.cb-nl-btn { height:24px; padding:0 10px; font-size:7px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#000; border-radius:2px; }
+
+/* Instagram grid in preview */
+.cb-addon-insta-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; }
+.cb-insta-cell {
+  aspect-ratio:1; border-radius:2px; overflow:hidden; position:relative;
+}
+.cb-insta-cell::after {
+  content:''; position:absolute; inset:0;
+  background:rgba(0,0,0,.3); opacity:0; transition:opacity .2s;
+}
+.cb-insta-cell:hover::after { opacity:1; }
+
+/* Live chat widget in preview */
+.cb-addon-chat-widget {
+  display:none; position:absolute; bottom:50px; right:10px; z-index:16;
+  width:160px; background:rgba(8,12,20,.97);
+  border:1px solid rgba(255,255,255,.12); border-radius:8px; overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+}
+.cb-addon-chat-widget.active { display:block; animation:addonSlide .4s var(--ease); }
+.cb-chat-header { padding:8px 10px; display:flex; align-items:center; gap:6px; border-bottom:1px solid rgba(255,255,255,.08); }
+.cb-chat-avatar { width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:.7rem; }
+.cb-chat-name { font-size:8px; font-weight:600; color:var(--text); }
+.cb-chat-status { font-size:7px; color:rgba(255,255,255,.35); }
+.cb-chat-msgs { padding:8px 10px; display:flex; flex-direction:column; gap:5px; }
+.cb-chat-msg { font-size:7.5px; padding:4px 8px; border-radius:8px; max-width:85%; line-height:1.4; }
+.cb-chat-msg.in { background:rgba(255,255,255,.08); color:rgba(255,255,255,.7); align-self:flex-start; }
+.cb-chat-msg.out { color:#000; font-weight:600; align-self:flex-end; border-radius:8px 8px 2px 8px; }
+.cb-chat-input-row { padding:6px 10px; border-top:1px solid rgba(255,255,255,.07); display:flex; gap:5px; }
+.cb-chat-inp { flex:1; height:18px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:10px; font-size:7px; padding:0 7px; color:rgba(255,255,255,.5); }
+.cb-chat-send { width:18px; height:18px; border-radius:50%; font-size:8px; display:flex; align-items:center; justify-content:center; color:#000; font-weight:700; }
+
+/* Analytics badge */
+.cb-addon-analytics-badge {
+  display:none; position:absolute; top:42px; right:10px; z-index:8;
+  background:rgba(6,10,18,.95); border:1px solid rgba(255,255,255,.1);
+  padding:5px 9px; border-radius:4px; gap:5px; align-items:center;
+}
+.cb-addon-analytics-badge.active { display:flex; animation:addonFade .3s var(--ease); }
+.cb-analytics-dot { width:6px; height:6px; border-radius:50%; background:#4285f4; animation:lpulse 2s ease-in-out infinite; }
+.cb-analytics-text { font-size:7px; color:rgba(255,255,255,.55); letter-spacing:.06em; }
+
+/* Payment icons in preview */
+.cb-addon-payment-strip {
+  display:none; flex-wrap:wrap; gap:4px; align-items:center;
+  padding:10px 18px; border-top:1px solid rgba(201,168,108,.1);
+  background:rgba(0,0,0,.25);
+}
+.cb-addon-payment-strip.active { display:flex; animation:addonFade .4s var(--ease); }
+.cb-pay-label { font-size:6.5px; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.25); margin-right:2px; }
+.cb-pay-icon {
+  height:16px; padding:0 7px; background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12); border-radius:3px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:7px; font-weight:700; color:rgba(255,255,255,.6); letter-spacing:.04em;
+}
+
+/* ─── Calc lead button ─── */
+.btn-calc-lead {
+  display:flex; align-items:center; justify-content:center; gap:.6rem;
+  width:100%; padding:.82rem 18px; margin-top:.65rem;
+  background:rgba(224,181,90,.07);
+  border:1px solid rgba(224,181,90,.3);
+  font-family:'Syne',sans-serif; font-size:.68rem;
+  font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--gold); cursor:pointer; border-radius:0;
+  transition:background .3s, border-color .3s, color .3s, transform .2s;
+  position:relative; overflow:hidden;
+}
+.btn-calc-lead:hover {
+  background:rgba(224,181,90,.14);
+  border-color:var(--gold);
+  transform:translateY(-1px);
+}
+
+/* ─── Result panel redesign ─── */
+.cb-result-panel {
+  background:rgba(224,181,90,.04);
+  border:1px solid rgba(224,181,90,.18);
+  padding:1.6rem 1.8rem; margin-top:1rem;
+  position:relative; overflow:hidden;
+}
+.cb-result-panel::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--gold), var(--gold2), var(--gold));
+}
+.cr-label {
+  font-size:8px; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:.8rem;
+  display:flex; align-items:center; gap:.6rem;
+}
+.cr-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(224,181,90,.25),transparent); }
+.cr-price-row {
+  display:flex; align-items:baseline; gap:.4rem;
+  margin-bottom:.2rem;
+}
+.cr-price {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(44px,5vw,72px); font-weight:300;
+  line-height:1; letter-spacing:-.03em; color:var(--text);
+}
+.cr-price-unit { font-size:1.3rem; color:var(--muted); font-family:'Syne',sans-serif; font-weight:400; }
+.cr-subtitle { font-size:.73rem; color:rgba(240,238,248,.38); margin-top:.25rem; letter-spacing:.04em; margin-bottom:1.1rem; }
+.cr-breakdown {
+  display:flex; flex-direction:column; gap:.28rem;
+  margin-bottom:1.2rem; padding:.9rem 1rem;
+  background:rgba(0,0,0,.2); border-radius:4px;
+  border:1px solid rgba(255,255,255,.05);
+}
+.cr-line {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:.76rem; color:var(--muted);
+  padding:.22rem 0;
+  animation:crFadeIn .3s var(--ease);
+}
+.cr-line + .cr-line { border-top:1px solid rgba(201,168,108,.1); padding-top:.44rem; }
+.cr-line span:first-child { display:flex; align-items:center; gap:.4rem; }
+.cr-line span:last-child { color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:.95rem; white-space:nowrap; }
+.cr-total-line {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:.7rem 0 1.2rem;
+}
+.cr-total-label { font-size:.68rem; letter-spacing:.18em; text-transform:uppercase; color:rgba(240,238,248,.35); }
+.cr-total-val { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:300; color:var(--blue2); }
+
+/* ─── Addon starting price note ─── */
+.cb-addons-note {
+  font-size:.7rem; color:var(--muted); margin-bottom:.65rem;
+  display:flex; align-items:center; gap:.4rem;
+}
+.cb-addons-note strong { color:var(--gold2); }
+#calc-modal {
+  position:fixed; inset:0; z-index:600;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px; pointer-events:none; opacity:0;
+  transition:opacity .38s var(--ease);
+}
+#calc-modal.open { pointer-events:auto; opacity:1; }
+#calc-modal .cm-overlay { position:absolute; inset:0; background:rgba(10,8,18,.85); backdrop-filter:blur(12px); }
+#calc-modal .cm-panel {
+  position:relative; z-index:1; width:min(520px,100%);
+  background:var(--bg2); border:1px solid rgba(255,255,255,.1);
+  border-radius:14px; overflow:hidden; padding:2.2rem 2.4rem;
+  transform:translateY(28px) scale(.96); transition:transform .45s var(--ease);
+  box-shadow:0 48px 120px rgba(0,0,0,.7);
+}
+#calc-modal.open .cm-panel { transform:none; }
+.cm-eyebrow { font-size:8px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); margin-bottom:.6rem; }
+.cm-title { font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3vw,38px); font-weight:300; line-height:1; letter-spacing:-.02em; margin-bottom:1.2rem; }
+.cm-title em { font-style:italic; color:var(--gold); }
+.cm-summary { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:6px; padding:1rem 1.2rem; margin-bottom:1.4rem; max-height:140px; overflow-y:auto; }
+.cm-summary-line { display:flex; justify-content:space-between; font-size:.8rem; color:var(--muted); padding:.25rem 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.cm-summary-line:last-child { border-bottom:none; }
+.cm-summary-line span:last-child { color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:.95rem; }
+.cm-total-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1.4rem; padding-top:.8rem; border-top:1px solid rgba(255,255,255,.1); }
+.cm-total-label { font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+.cm-total-price { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; color:var(--blue2); }
+.cm-form-label { font-size:8px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:.55rem; }
+.cm-input { width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); padding:.75rem 1rem; font-family:'Syne',sans-serif; font-size:.92rem; color:var(--text); outline:none; border-radius:4px; margin-bottom:1rem; transition:border-color .28s, background .28s; }
+.cm-input:focus { border-color:var(--gold); background:rgba(255,255,255,.08); }
+.cm-input::placeholder { color:rgba(240,238,248,.22); }
+.cm-send-btn { width:100%; padding:.95rem; background:var(--gold); border:none; border-radius:4px; font-family:'Syne',sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--bg); cursor:pointer; transition:background .3s, transform .2s, box-shadow .3s; display:flex; align-items:center; justify-content:center; gap:.6rem; }
+.cm-send-btn:hover { background:var(--gold2); transform:translateY(-2px); box-shadow:0 8px 24px rgba(224,181,90,.4); }
+.cm-close-btn { position:absolute; top:1rem; right:1.2rem; width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.05); color:var(--muted); font-size:14px; cursor:pointer; display:grid; place-items:center; transition:background .25s, color .25s; }
+.cm-close-btn:hover { background:rgba(255,255,255,.1); color:var(--text); }
+.cm-note { font-size:.66rem; color:rgba(240,238,248,.3); text-align:center; margin-top:.8rem; line-height:1.5; }
+.cm-success { display:none; flex-direction:column; align-items:center; text-align:center; padding:1.5rem 0; }
+.cm-success.show { display:flex; }
+.cm-success-icon { font-size:3rem; margin-bottom:1rem; }
+.cm-success-title { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; color:var(--gold); margin-bottom:.5rem; }
+.cm-success-sub { font-size:.82rem; color:var(--muted); line-height:1.6; }
+
+/* ─── C3: Timeline section ─── */
+.timeline-section { padding:110px 44px; background:var(--bg); border-top:none; overflow:hidden; position:relative; }
+.timeline-section::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(201,168,90,.18) 20%,rgba(255,255,255,.1) 50%,rgba(201,168,90,.18) 80%,transparent); pointer-events:none; z-index:1; }
+.timeline-inner { width:min(var(--max),100%); margin:0 auto; }
+.timeline-inner h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,4.6vw,78px); font-weight:300; line-height:.95; letter-spacing:-.025em; margin-top:12px; max-width:820px; }
+.timeline-inner h2 em { font-style:italic; color:var(--gold); }
+.timeline-track { margin-top:80px; position:relative; display:grid; grid-template-columns:repeat(4,1fr); }
+.timeline-track::before { content:''; position:absolute; top:22px; left:12%; right:12%; height:1px; background:linear-gradient(90deg,transparent,rgba(201,168,108,.2) 15%,rgba(201,168,108,.2) 85%,transparent); z-index:0; }
+.tl-fill-wrap { position:absolute; top:22px; left:12%; right:12%; height:1px; z-index:1; overflow:hidden; }
+.tl-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); width:0%; transition:width 2.6s cubic-bezier(.16,1,.3,1); box-shadow:0 0 8px rgba(224,181,90,.5); }
+.tl-fill.animate { width:100%; }
+.tl-step { display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 16px; position:relative; z-index:2; }
+.tl-dot { width:46px; height:46px; border-radius:50%; border:1.5px solid rgba(201,168,108,.2); background:var(--bg2); display:flex; align-items:center; justify-content:center; font-size:1.2rem; margin-bottom:1.4rem; transition:border-color .5s, box-shadow .5s, background .5s, transform .6s var(--ease); position:relative; }
+.tl-step.tl-active .tl-dot { border-color:var(--gold); background:rgba(224,181,90,.1); box-shadow:0 0 0 7px rgba(224,181,90,.07), 0 0 28px rgba(224,181,90,.18); transform:scale(1.1); }
+.tl-check { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:.8rem; color:var(--gold); opacity:0; transition:opacity .3s .3s; }
+.tl-step.tl-active .tl-check { opacity:1; }
+.tl-day { font-size:8px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; opacity:0; transform:translateY(8px); transition:opacity .5s var(--ease) .1s, transform .5s var(--ease) .1s; }
+.tl-step.tl-active .tl-day { opacity:1; transform:none; }
+.tl-step-title { font-family:'Cormorant Garamond',serif; font-size:clamp(18px,1.8vw,28px); font-weight:400; letter-spacing:-.02em; line-height:1.1; margin-bottom:.7rem; opacity:0; transform:translateY(10px); transition:opacity .55s var(--ease) .18s, transform .55s var(--ease) .18s; }
+.tl-step.tl-active .tl-step-title { opacity:1; transform:none; }
+.tl-step-desc { font-size:13px; line-height:1.7; color:var(--muted); max-width:220px; opacity:0; transform:translateY(8px); transition:opacity .55s var(--ease) .24s, transform .55s var(--ease) .24s; }
+.tl-step.tl-active .tl-step-desc { opacity:1; transform:none; }
+@media(max-width:900px){ .timeline-track { grid-template-columns:1fr 1fr; gap:3rem 0; } .timeline-track::before,.tl-fill-wrap { display:none; } }
+@media(max-width:560px){ .timeline-track { grid-template-columns:1fr; } .timeline-section { padding-left:20px; padding-right:20px; } }
+
+/* ─── C7: WhatsApp floating button ─── */
+#wa-float {
+  position:fixed; bottom:2rem; left:5.2rem; z-index:700;
+  width:42px; height:42px; border-radius:50%;
+  background:#25D366; display:flex; align-items:center; justify-content:center;
+  font-size:1.3rem; box-shadow:0 4px 18px rgba(37,211,102,.4);
+  transform:translateY(80px); opacity:0; text-decoration:none;
+  transition:transform .5s var(--ease), opacity .5s var(--ease), box-shadow .3s;
+}
+#wa-float.show { transform:translateY(0); opacity:1; }
+#wa-float:hover { box-shadow:0 6px 28px rgba(37,211,102,.6); transform:translateY(-3px) scale(1.08) !important; }
+.wa-tooltip { position:absolute; left:54px; bottom:50%; transform:translateY(50%); background:rgba(6,10,18,.95); border:1px solid rgba(255,255,255,.1); padding:.35rem .85rem; border-radius:4px; white-space:nowrap; font-family:'Syne',sans-serif; font-size:.62rem; letter-spacing:.1em; color:var(--text); pointer-events:none; opacity:0; transition:opacity .25s; }
+#wa-float:hover .wa-tooltip { opacity:1; }
+.wa-tooltip::before { content:''; position:absolute; right:100%; top:50%; transform:translateY(-50%); border:5px solid transparent; border-right-color:rgba(6,10,18,.95); }
+
+/* ─── C8: Cookie banner ─── */
+#cookie-banner {
+  position:fixed; bottom:0; left:0; right:0; z-index:800;
+  background:rgba(12,10,16,.97); border-top:1px solid rgba(224,181,90,.18);
+  backdrop-filter:blur(18px); padding:1rem 2.5rem;
+  display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap;
+  transform:translateY(100%); transition:transform .55s var(--ease);
+  box-shadow:0 -8px 40px rgba(0,0,0,.5);
+}
+#cookie-banner.show { transform:translateY(0); }
+.cookie-text { font-size:.74rem; line-height:1.65; color:var(--muted); max-width:700px; }
+.cookie-text strong { color:var(--gold2); font-weight:500; }
+.cookie-text a { color:var(--gold); text-decoration:underline; text-underline-offset:2px; }
+.cookie-btns { display:flex; gap:.65rem; flex-shrink:0; }
+.cookie-btn { padding:.55rem 1.4rem; font-family:'Syne',sans-serif; font-size:.65rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; border:none; border-radius:3px; cursor:pointer; transition:background .25s, transform .2s; }
+.cookie-btn.accept { background:var(--gold); color:var(--bg); }
+.cookie-btn.accept:hover { background:var(--gold2); transform:translateY(-1px); }
+.cookie-btn.decline { background:rgba(255,255,255,.07); color:var(--muted); border:1px solid rgba(255,255,255,.1); }
+.cookie-btn.decline:hover { background:rgba(255,255,255,.12); color:var(--text); }
+@media(max-width:760px){ #cookie-banner { padding:.85rem 1.2rem; } .cookie-text { font-size:.7rem; } #wa-float { left:4.8rem; } }
+
+/* ═══════════════════════════════════════════════
+   PREMIUM GRADIENT DIVIDERS
+═══════════════════════════════════════════════ */
+
+/* Horizontal section dividers — fade at both edges, subtle gold warmth */
+.sect-div-top {
+  position:relative;
+}
+.sect-div-top::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:1px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(201,168,90,.18) 20%,
+    rgba(255,255,255,.1) 50%,
+    rgba(201,168,90,.18) 80%,
+    transparent 100%);
+  pointer-events:none;
+  z-index:1;
+}
+/* Bottom version */
+.sect-div-bottom::after {
+  content:'';
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:1px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(201,168,90,.14) 20%,
+    rgba(255,255,255,.09) 50%,
+    rgba(201,168,90,.14) 80%,
+    transparent 100%);
+  pointer-events:none;
+  z-index:1;
+}
+/* Vertical divider — fade at top and bottom */
+.vert-div-right {
+  position:relative;
+}
+.vert-div-right::after {
+  content:'';
+  position:absolute;
+  top:12%; bottom:12%; right:0;
+  width:1px;
+  background:linear-gradient(180deg,
+    transparent 0%,
+    rgba(255,255,255,.09) 30%,
+    rgba(201,168,90,.1) 50%,
+    rgba(255,255,255,.09) 70%,
+    transparent 100%);
+  pointer-events:none;
+}
+/* ══ WORK CARDS — equal width + height ══ */
+.work-grid-top {
+  grid-template-columns: 1fr 1fr !important;
+  align-items: stretch;
+}
+.work-grid-top .wcard {
+  height: 420px;
+  min-height: unset;
+}
+.work-grid-top .wcard-screenshot {
+  background-size: cover;
+  background-position: center center;
+}
+.wcard.tall { min-height: 300px; }
+
+.work-grid-bot {
+  grid-template-columns: repeat(3,1fr);
+}
+.work-grid-bot .wcard.short {
+  height: 280px;
+  min-height: unset;
+}
+
+.wcard-screenshot {
+  transition: transform .8s cubic-bezier(.16,1,.3,1) !important;
+}
+.wcard:hover .wcard-screenshot { transform: scale(1.06); }
+
+.wcard-overlay-grad {
+  position:absolute; inset:0; z-index:2; pointer-events:none;
+  background:linear-gradient(to bottom, transparent 30%, rgba(4,4,8,.55) 62%, rgba(3,3,7,.93) 100%);
+}
+
+/* Browser chrome */
+.wcard-browser-chrome {
+  position:absolute; top:0; left:0; right:0; z-index:6;
+  height:38px; background:rgba(4,6,12,.98);
+  border-bottom:1px solid rgba(255,255,255,.13);
+  display:flex; align-items:center; padding:0 14px; gap:10px;
+}
+.wbc-dots { display:flex; gap:5px; }
+.wbc-dots span { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.wbc-dots span:nth-child(1){ background:#ff5f57; }
+.wbc-dots span:nth-child(2){ background:#febc2e; }
+.wbc-dots span:nth-child(3){ background:#38d860; }
+.wbc-url {
+  flex:1; height:22px; background:rgba(255,255,255,.08); border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-size:10px;
+  letter-spacing:.04em; color:rgba(255,255,255,.4);
+}
+.wbc-live {
+  display:flex; align-items:center; gap:5px; flex-shrink:0;
+  font-family:'Syne',sans-serif; font-size:8px;
+  letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.38);
+}
+.wbc-live span {
+  width:6px; height:6px; border-radius:50%; background:#38d860;
+  animation:lpulse 1.8s ease-in-out infinite;
+}
+
+/* Hover: performance chips */
+.wcard-perf {
+  position:absolute; top:54px; right:14px; z-index:7;
+  display:flex; flex-direction:column; gap:4px;
+  opacity:0; transform:translateX(16px);
+  transition:opacity .4s var(--ease) .1s, transform .4s var(--ease) .1s;
+  pointer-events:none;
+}
+.wcard:hover .wcard-perf { opacity:1; transform:translateX(0); }
+.wp-row {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(6,10,18,.95); border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(14px); border-radius:4px;
+  padding:5px 10px; white-space:nowrap;
+}
+.wp-label {
+  font-family:'Syne',sans-serif; font-size:7.5px;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(255,255,255,.38); min-width:40px;
+}
+.wp-bar { width:44px; height:3px; background:rgba(255,255,255,.1); border-radius:2px; overflow:hidden; }
+.wp-fill { height:100%; border-radius:2px; background:var(--gold); }
+.wp-val {
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px; font-weight:300; color:var(--gold2); line-height:1; min-width:24px; text-align:right;
+}
+.wcard-tag { z-index:5; }
+.wcard-info { z-index:5; }
+.wcard-deco { z-index:3; }
 </style>
 </head>
 <body>
@@ -1797,131 +2953,62 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
     </div>
   </div>
 
-  <div class="hero-bottom">
-    <div class="hero-bottom-left">
-      <div class="hero-desc-eyebrow">O nás</div>
-      <p class="hero-desc">Tvoríme hladké, prémiové a plne brandované webstránky navrhnuté okolo vášho zákazníka. Každý web je výkonný, SEO optimalizovaný a plne editovateľný — <strong>pretože patrí vám.</strong></p>
+</section>
+
+<!-- STATS -->
+<div class="stats-wrap">
+<div class="stats">
+  <div class="stat reveal"><div class="stat-num"><span class="count" data-target="150">0</span><sup>+</sup></div><div class="stat-label">Spokojných zákazníkov</div><div class="stat-bar"></div></div>
+  <div class="stat reveal rd1"><div class="stat-num"><span class="count" data-target="72">0</span><sup>h</sup></div><div class="stat-label">Prvý návrh do 72 hodín</div><div class="stat-bar"></div></div>
+  <div class="stat reveal rd2"><div class="stat-num"><span class="count" data-target="0">0</span><sup>&nbsp;šablón</sup></div><div class="stat-label">Šablón — iba originály</div><div class="stat-bar"></div></div>
+  <div class="stat reveal rd3"><div class="stat-num"><span class="count" data-target="149">0</span><sup>€</sup></div><div class="stat-label">Prémiový web od 149 €</div><div class="stat-bar"></div></div>
+</div>
+</div>
+
+<!-- O NÁS -->
+<section class="about-section">
+  <div class="about-inner">
+    <div class="about-left reveal">
+      <div class="ew">O nás</div>
+      <h2 class="about-h2">Prémiový web.<br/><em>Vaša značka.</em></h2>
+      <p class="about-desc">Tvoríme hladké, prémiové a plne brandované webstránky navrhnuté okolo vášho zákazníka. Každý web je výkonný, SEO optimalizovaný a plne editovateľný — <strong>pretože patrí vám.</strong></p>
+      <div class="about-cta-row">
+        <a href="#kontakt" class="btn gold">Začnime spoluprácu &nbsp;→</a>
+        <div class="about-note"><div class="cn-dot"></div>Konzultácia zdarma</div>
+      </div>
     </div>
-    <div class="hero-bottom-right">
-      <div class="hero-features-label">Čo je v cene</div>
-      <div class="feature-list" id="featureList">
-        <div class="feature-item lit"><div class="feature-dot"></div><span>Plne editovateľné — vy ste vlastníkom</span></div>
-        <div class="feature-item"><div class="feature-dot"></div><span>Navrhnuté okolo vášho zákazníka, nie okolo estetiky</span></div>
-        <div class="feature-item"><div class="feature-dot"></div><span>Váš brand, vaše farby, váš hlas</span></div>
-        <div class="feature-item"><div class="feature-dot"></div><span>Performance &amp; SEO optimalizácia v cene</span></div>
-        <div class="feature-item"><div class="feature-dot"></div><span>Mobile-first od prvého pixelu</span></div>
-        <div class="feature-item"><div class="feature-dot"></div><span>Premium dizajn — žiadne šablóny, žiadne kompromisy</span></div>
-        <div class="feature-item"><div class="feature-dot"></div><span>Rýchle načítanie — pod 2 sekundy</span></div>
+    <div class="about-right reveal rd1">
+      <div class="about-features-label">Čo dostanete v každom balíku</div>
+      <div class="about-features">
+        <div class="about-feat"><div class="af-icon">✦</div><div class="af-body"><div class="af-title">Plne editovateľné</div><div class="af-desc">Meníte texty, fotky a ceny sami — bez vývojára, bez mesačného poplatku.</div></div></div>
+        <div class="about-feat"><div class="af-icon">✦</div><div class="af-body"><div class="af-title">Zákazník na prvom mieste</div><div class="af-desc">Každý prvok navrhnutý tak, aby priviedol zákazníka k rozhodnutiu.</div></div></div>
+        <div class="about-feat"><div class="af-icon">✦</div><div class="af-body"><div class="af-title">Váš brand, vaše farby</div><div class="af-desc">Žiadna šablóna — originálny dizajn na mieru vašej značky.</div></div></div>
+        <div class="about-feat"><div class="af-icon">✦</div><div class="af-body"><div class="af-title">Performance &amp; SEO v cene</div><div class="af-desc">Rýchlosť pod 2 sekundy, SEO základy a mobile-first štandard.</div></div></div>
+        <div class="about-feat"><div class="af-icon">✦</div><div class="af-body"><div class="af-title">Náhľad pred zaplatením</div><div class="af-desc">Vidíte návrh webu zdarma ešte pred tým, než potvrdíte spoluprácu.</div></div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     MARQUEE  ← z FÓRM
-══════════════════════════════════════ -->
-<div class="marquee-wrap">
-  <div class="marquee-track">
-    <div class="marquee-item"><span>Prémiový webdesign</span><i>✦</i></div>
-    <div class="marquee-item"><span>Brand Identity</span><i>✦</i></div>
-    <div class="marquee-item"><span>SEO Optimalizácia</span><i>✦</i></div>
-    <div class="marquee-item"><span>Mobile-first</span><i>✦</i></div>
-    <div class="marquee-item"><span>Performance 98+</span><i>✦</i></div>
-    <div class="marquee-item"><span>Plne editovateľné</span><i>✦</i></div>
-    <div class="marquee-item"><span>Žiadne šablóny</span><i>✦</i></div>
-    <div class="marquee-item"><span>Konzultácia zdarma</span><i>✦</i></div>
-    <!-- duplikát pre seamless loop -->
-    <div class="marquee-item"><span>Prémiový webdesign</span><i>✦</i></div>
-    <div class="marquee-item"><span>Brand Identity</span><i>✦</i></div>
-    <div class="marquee-item"><span>SEO Optimalizácia</span><i>✦</i></div>
-    <div class="marquee-item"><span>Mobile-first</span><i>✦</i></div>
-    <div class="marquee-item"><span>Performance 98+</span><i>✦</i></div>
-    <div class="marquee-item"><span>Plne editovateľné</span><i>✦</i></div>
-    <div class="marquee-item"><span>Žiadne šablóny</span><i>✦</i></div>
-    <div class="marquee-item"><span>Konzultácia zdarma</span><i>✦</i></div>
-  </div>
-</div>
-
-<!-- STATS -->
-<div class="stats">
-  <div class="stat reveal"><div class="stat-num"><span class="count" data-target="150">0</span><sup>+</sup></div><div class="stat-label">Spokojných zákazníkov</div><div class="stat-bar"></div></div>
-  <div class="stat reveal rd1"><div class="stat-num"><span class="count" data-target="72">0</span><sup>h</sup></div><div class="stat-label">Prvý návrh do 72 hodín</div><div class="stat-bar"></div></div>
-  <div class="stat reveal rd2"><div class="stat-num"><span class="count" data-target="0">0</span><sup>&nbsp;šablón</sup></div><div class="stat-label">Šablón — iba originály</div><div class="stat-bar"></div></div>
-  <div class="stat reveal rd3"><div class="stat-num"><span class="count" data-target="299">0</span><sup>€</sup></div><div class="stat-label">Prémiový web od 299 €</div><div class="stat-bar"></div></div>
-</div>
-
 <!-- APPROACH -->
 <section class="split-section" id="pristup">
-  <div class="split-sticky">
-    <div class="ew reveal">Prístup</div>
-    <h2 class="reveal">Váš<br/>zákazník.<br/>Vaša <em>značka.</em></h2>
-    <p class="desc reveal">Prémiový web nestačí vyzerať dobre — musí fungovať pre vášho zákazníka. Každý prvok je navrhnutý s jedným cieľom: priviesť zákazníka priamo k akcii.</p>
-    <div class="split-meta reveal">✦ &nbsp; LP Webdesign &nbsp;·&nbsp; Slovensko &nbsp;·&nbsp; 2025</div>
-  </div>
-  <div class="split-rows">
-    <div class="arow reveal"><div class="arow-num">01</div><div><h3>Zákazník na prvom mieste</h3><p>Každá sekcia, každý text aj každé tlačidlo sú umiestnené tak, aby viedli zákazníka k rozhodnutiu — nie aby predvádzali dizajnérske umenie. Konverzia je cieľ.</p></div></div>
-    <div class="arow reveal"><div class="arow-num">02</div><div><h3>Vaša značka, nie naše ego</h3><p>Web dostane vašu farebnú paletu, typografiu aj tón komunikácie. Výsledok vyzerá ako silná, rozpoznateľná identita — nie ako ďalší web z tej istej šablóny.</p></div></div>
-    <div class="arow reveal"><div class="arow-num">03</div><div><h3>Plne editovateľné — vy ste vlastníkom</h3><p>Po odovzdaní môžete meniť texty, fotky, ceny aj sekcie sami — bez vývojára, bez závislosti. Web je váš majetok od prvého dňa, nie produkt na prenájom.</p></div></div>
-    <div class="arow reveal"><div class="arow-num">04</div><div><h3>Výkon, nie len estetika</h3><p>Každý web prechádza optimalizáciou rýchlosti, SEO základov a mobilného zobrazenia. Prémiový dojem nestačí — web musí aj bleskovite načítavať a nájsť sa na Google.</p></div></div>
-  </div>
-</section>
-
-<!-- WORK -->
-<section class="work-section" id="projekty">
-  <div class="work-head">
-    <div>
-      <div class="ew reveal">Ukážky štýlu</div>
-      <h2 class="reveal">Prémiový<br/>dizajn, čo <em>reprezentuje.</em></h2>
+  <div class="split-inner">
+    <div class="split-head">
+      <div>
+        <div class="ew reveal">Prístup</div>
+        <h2 class="reveal">Váš zákazník.<br/>Vaša <em>značka.</em></h2>
+      </div>
+      <p class="split-head-desc reveal">Prémiový web nestačí vyzerať dobre — musí fungovať pre vášho zákazníka. Každý prvok je navrhnutý s jedným cieľom: priviesť zákazníka priamo k akcii.</p>
     </div>
-    <p class="reveal">Prémiový web nie je len o vizuáli — je o tom, ako zákazník cíti vašu značku pri prvom kontakte.</p>
-  </div>
-
-  <!-- FILTER TABS ← z FÓRM -->
-  <div class="work-filter-tabs">
-    <button class="wf-btn active" onclick="filterWork(this,'all')">Všetko</button>
-    <button class="wf-btn" onclick="filterWork(this,'eshop')">E-shop</button>
-    <button class="wf-btn" onclick="filterWork(this,'beauty')">Beauty</button>
-    <button class="wf-btn" onclick="filterWork(this,'fitness')">Fitness</button>
-    <button class="wf-btn" onclick="filterWork(this,'gastro')">Gastro</button>
-    <button class="wf-btn" onclick="filterWork(this,'custom')">Na mieru</button>
-  </div>
-
-  <div class="work-grid-top">
-    <div class="wcard tall reveal" data-cat="eshop" data-title="Tuning Shop" data-tag="E-shop / Tuning" data-url="https://racem.sk" data-bg="tuning" data-desc="Plne funkčný e-shop pre tuning diely. Custom dizajn, katalóg produktov, košík a platobná brána — prémiový vzhľad pre auto nadšencov.">
-      <div class="wcard-bg tuning"></div>
-      <svg class="wcard-deco" viewBox="0 0 460 500" fill="none"><line x1="0" y1="260" x2="460" y2="260" stroke="white" stroke-width=".5"/><circle cx="230" cy="260" r="140" stroke="white" stroke-width=".8"/><circle cx="230" cy="260" r="80" stroke="white" stroke-width=".5"/><circle cx="230" cy="260" r="30" stroke="white" stroke-width=".5"/><line x1="90" y1="260" x2="370" y2="260" stroke="white" stroke-width=".4"/><line x1="230" y1="120" x2="230" y2="400" stroke="white" stroke-width=".4"/></svg>
-      <div class="wcard-tag">E-shop / Tuning</div>
-      <div class="wcard-info"><h3>Tuning Shop</h3><p>Plne funkčný e-shop pre tuning diely. Custom dizajn, katalóg produktov, košík a platobná brána.</p></div>
-    </div>
-    <div class="wcard tall reveal rd1" data-cat="beauty" data-title="NatureFlow Head Spa" data-tag="Beauty / Head Spa" data-url="https://natureflowheadspa.sk" data-bg="spa" data-desc="Prémiový web pre luxusné head spa. Online rezervácie, galéria procedúr, cenník a silná brandová identita v teal-bielej palete.">
-      <div class="wcard-bg spa"></div>
-      <svg class="wcard-deco" viewBox="0 0 400 500" fill="none"><ellipse cx="200" cy="250" rx="150" ry="200" stroke="white" stroke-width=".8"/><ellipse cx="200" cy="250" rx="90" ry="130" stroke="white" stroke-width=".5"/><ellipse cx="200" cy="250" rx="40" ry="60" stroke="white" stroke-width=".4"/><line x1="200" y1="50" x2="200" y2="450" stroke="white" stroke-width=".3"/><line x1="50" y1="250" x2="350" y2="250" stroke="white" stroke-width=".3"/></svg>
-      <div class="wcard-tag">Beauty / Head Spa</div>
-      <div class="wcard-info"><h3>NatureFlow Head Spa</h3><p>Prémiový web pre luxusné head spa. Online rezervácie, galéria procedúr a silná brandová identita.</p></div>
-    </div>
-  </div>
-
-  <div class="work-grid-bot">
-    <div class="wcard short reveal" data-cat="fitness" data-title="Fitness & Wellness" data-tag="Fitness / Wellness" data-url="#kontakt" data-bg="fit" data-desc="Prémiový web pre fitnessy a wellness štúdiá. Rozvrh tréningov, cenník, online rezervácie a motivačný vizuál.">
-      <div class="wcard-bg fit"></div>
-      <svg class="wcard-deco" viewBox="0 0 380 240" fill="none"><rect x="20" y="20" width="340" height="200" stroke="white" stroke-width=".7"/><rect x="50" y="50" width="120" height="14" fill="white" opacity=".15"/><rect x="50" y="76" width="80" height="9" fill="white" opacity=".08"/><rect x="220" y="50" width="110" height="140" fill="white" opacity=".04" stroke="white" stroke-width=".4"/></svg>
-      <div class="wcard-tag">Fitness / Wellness</div>
-      <div class="wcard-info"><h3>Fitness & Wellness</h3><p>Prémiový web pre fitnessy a wellness štúdiá. Rozvrh, cenník, online rezervácie.</p></div>
-    </div>
-    <div class="wcard short reveal rd1" data-cat="gastro" data-title="Gastro & Bar" data-tag="Gastro / Reštaurácia" data-url="#kontakt" data-bg="resto" data-desc="Prémiová prezentácia pre reštaurácie a bary. Menu, rezervácie stola, atmosféra a galéria — navrhnuté okolo zážitku zákazníka.">
-      <div class="wcard-bg resto"></div>
-      <svg class="wcard-deco" viewBox="0 0 380 240" fill="none"><circle cx="190" cy="120" r="100" stroke="white" stroke-width=".7"/><circle cx="190" cy="120" r="60" stroke="white" stroke-width=".5"/><circle cx="190" cy="120" r="22" stroke="white" stroke-width=".4"/><line x1="90" y1="120" x2="290" y2="120" stroke="white" stroke-width=".3"/><line x1="190" y1="20" x2="190" y2="220" stroke="white" stroke-width=".3"/></svg>
-      <div class="wcard-tag">Gastro / Reštaurácia</div>
-      <div class="wcard-info"><h3>Gastro & Bar</h3><p>Prémiová prezentácia pre reštaurácie a bary. Menu, rezervácie, atmosféra.</p></div>
-    </div>
-    <div class="wcard short reveal rd2" data-cat="custom" data-title="Váš projekt" data-tag="Na mieru / Custom" data-url="#kontakt" data-bg="custom" data-desc="Každý web tvoríme na mieru — od návrhu po spustenie. Napíšte nám čo robíte a spoločne navrheme niečo, čo vás bude reprezentovať.">
-      <div class="wcard-bg custom"></div>
-      <svg class="wcard-deco" viewBox="0 0 380 240" fill="none"><polygon points="190,20 360,220 20,220" stroke="white" stroke-width=".7" fill="none"/><polygon points="190,65 315,210 65,210" stroke="white" stroke-width=".5" fill="none"/><circle cx="190" cy="165" r="8" fill="white" opacity=".3"/></svg>
-      <div class="wcard-tag">Na mieru / Váš projekt</div>
-      <div class="wcard-info"><h3>Váš projekt</h3><p>Každý web tvoríme na mieru. Napíšte nám čo robíte — spoločne navrheme niečo prémiové.</p></div>
+    <div class="split-rows">
+      <div class="arow reveal"><span class="arow-num">01 / Zákazník</span><h3>Zákazník na prvom mieste</h3><p>Každá sekcia, každý text aj každé tlačidlo sú umiestnené tak, aby viedli zákazníka k rozhodnutiu — nie aby predvádzali dizajnérske umenie.</p></div>
+      <div class="arow reveal rd1"><span class="arow-num">02 / Identita</span><h3>Vaša značka, nie naše ego</h3><p>Web dostane vašu farebnú paletu, typografiu aj tón komunikácie — rozpoznateľná identita, nie ďalší web z tej istej šablóny.</p></div>
+      <div class="arow reveal rd2"><span class="arow-num">03 / Vlastníctvo</span><h3>Plne editovateľné</h3><p>Po odovzdaní môžete meniť texty, fotky, ceny aj sekcie sami — bez vývojára. Web je váš majetok od prvého dňa.</p></div>
+      <div class="arow reveal rd3"><span class="arow-num">04 / Výkon</span><h3>Výkon, nie len estetika</h3><p>Každý web prechádza optimalizáciou rýchlosti, SEO základov a mobilného zobrazenia. Musí bleskovite načítavať a nájsť sa na Google.</p></div>
     </div>
   </div>
 </section>
+
 
 <!-- CALCULATOR + BRANDING PREVIEW -->
 <section class="cb-section" id="kalkulacka">
@@ -1942,17 +3029,17 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
       <div class="cb-group reveal">
         <div class="cb-group-title">Základ webu</div>
         <div class="calc-base-opts">
-          <button class="calc-base-btn" data-base="199" onclick="setBase(this)">
+          <button class="calc-base-btn" data-base="149" onclick="setBase(this)">
             <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Individual</div><div class="cb-desc">1 stránka · Freelanceri, remeselníci</div></div></div>
-            <div class="cb-price">199 €</div>
+            <div class="cb-price">od 149 €</div>
           </button>
-          <button class="calc-base-btn active" data-base="299" onclick="setBase(this)">
+          <button class="calc-base-btn active" data-base="199" onclick="setBase(this)">
             <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Prezentačný web</div><div class="cb-desc">Do 3 stránok · Reštaurácie, salóny, fitnessy</div></div></div>
-            <div class="cb-price">299 €</div>
+            <div class="cb-price">od 199 €</div>
           </button>
-          <button class="calc-base-btn" data-base="399" onclick="setBase(this)">
+          <button class="calc-base-btn" data-base="299" onclick="setBase(this)">
             <div class="cb-left"><div class="cb-radio"></div><div><div class="cb-name">Značkový web</div><div class="cb-desc">Do 7 stránok · Etablované podniky</div></div></div>
-            <div class="cb-price">399 €</div>
+            <div class="cb-price">od 299 €</div>
           </button>
         </div>
       </div>
@@ -1973,64 +3060,140 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 
       <div class="cb-group reveal">
         <div class="cb-group-title">Rozšírenia</div>
-        <div class="calc-addons">
-          <button class="calc-addon" data-addon="80" data-label="Rezervačný systém" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Rezervačný systém</div></div>
-            <div class="ca-plus">+80 €</div>
-          </button>
-          <button class="calc-addon" data-addon="100" data-label="Blog / Aktuality" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Blog / Aktuality</div></div>
-            <div class="ca-plus">+100 €</div>
-          </button>
-          <button class="calc-addon" data-addon="90" data-label="Pokročilé animácie & paralax" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé animácie &amp; paralax</div></div>
-            <div class="ca-plus">+90 €</div>
-          </button>
-          <button class="calc-addon" data-addon="80" data-label="Pokročilé SEO" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé SEO</div></div>
-            <div class="ca-plus">+80 €</div>
-          </button>
-          <button class="calc-addon" data-addon="35" data-label="Google Mapy & lokácia" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Google Mapy &amp; lokácia</div></div>
-            <div class="ca-plus">+35 €</div>
-          </button>
-          <button class="calc-addon" data-addon="40" data-label="WhatsApp / Chat tlačidlo" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">WhatsApp / Chat tlačidlo</div></div>
-            <div class="ca-plus">+40 €</div>
-          </button>
-          <button class="calc-addon" data-addon="35" data-label="Vlastná e-mailová adresa" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Vlastná e-mail adresa <span style="font-size:.7rem;color:var(--muted)">(info@firma.sk)</span></div></div>
-            <div class="ca-plus">+35 €</div>
-          </button>
-          <button class="calc-addon" data-addon="65" data-label="Pop-up / Lead magnet" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pop-up / Lead magnet</div></div>
-            <div class="ca-plus">+65 €</div>
-          </button>
-          <button class="calc-addon" data-addon="120" data-label="Viacjazyčná verzia" onclick="toggleAddon(this)">
-            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Viacjazyčná verzia</div></div>
-            <div class="ca-plus">+120 €</div>
-          </button>
-        </div>
-      </div>
+        <div class="cb-addons-note">✦ Každé rozšírenie je <strong>orientačná cena</strong> — presný rozsah po konzultácii</div>
 
-      <div class="cb-result-panel reveal">
-        <div class="cr-label">Vaša cena</div>
-        <div style="margin-bottom:.3rem">
-          <div class="cr-price"><span style="font-size:1.5rem;color:var(--muted);font-family:'Syne',sans-serif;font-weight:300;vertical-align:super;font-size:1rem">od </span><span id="calcTotal">299</span><span class="cr-price-unit"> €</span></div>
-          <div class="cr-subtitle">Orientačná cena · presná suma po konzultácii</div>
+        <div class="ca-category-label">📍 Lokalizácia &amp; Kontakt</div>
+        <div class="calc-addons" style="margin-bottom:.7rem;">
+          <button class="calc-addon" data-addon="12" data-addon-max="29" data-label="WhatsApp / Chat tlačidlo" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">WhatsApp / Chat tlačidlo</div></div>
+            <div class="ca-price-range">od 12 do 29 €</div>
+          </button>
+          <button class="calc-addon" data-addon="12" data-addon-max="29" data-label="Google Mapy & lokácia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Google Mapy &amp; lokácia</div></div>
+            <div class="ca-price-range">od 12 do 29 €</div>
+          </button>
+          <button class="calc-addon" data-addon="11" data-addon-max="28" data-label="Vlastná e-mailová adresa" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Vlastná e-mail adresa</div></div>
+            <div class="ca-price-range">od 11 do 28 €</div>
+          </button>
+          <button class="calc-addon" data-addon="0" data-addon-max="0" data-label="Sociálne siete & linky" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Sociálne siete &amp; linky</div></div>
+            <div class="ca-price-incl">v cene</div>
+          </button>
+          <button class="calc-addon" data-addon="0" data-addon-max="0" data-label="Cookie banner / GDPR" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Cookie banner / GDPR</div></div>
+            <div class="ca-price-incl">v cene</div>
+          </button>
         </div>
+
+        <div class="ca-category-label">📄 Obsah &amp; Sekcie</div>
+        <div class="calc-addons" style="margin-bottom:.7rem;">
+          <button class="calc-addon" data-addon="0" data-addon-max="0" data-label="FAQ sekcia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">FAQ sekcia</div></div>
+            <div class="ca-price-incl">v cene</div>
+          </button>
+          <button class="calc-addon" data-addon="0" data-addon-max="0" data-label="Galéria / Fotogaléria" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Galéria / Fotogaléria</div></div>
+            <div class="ca-price-incl">v cene</div>
+          </button>
+          <button class="calc-addon" data-addon="0" data-addon-max="0" data-label="Cenník / Tarify sekcia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Cenník / Tarify sekcia</div></div>
+            <div class="ca-price-incl">v cene</div>
+          </button>
+          <button class="calc-addon" data-addon="29" data-addon-max="79" data-label="Hodnotenia zákazníkov" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Hodnotenia zákazníkov</div></div>
+            <div class="ca-price-range">od 29 do 79 €</div>
+          </button>
+          <button class="calc-addon" data-addon="119" data-addon-max="229" data-label="Počítadlo & Štatistiky" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Počítadlo &amp; Štatistiky</div></div>
+            <div class="ca-price-range">od 119 do 229 €</div>
+          </button>
+        </div>
+
+        <div class="ca-category-label">📢 Marketing &amp; Rast</div>
+        <div class="calc-addons" style="margin-bottom:.7rem;">
+          <button class="calc-addon" data-addon="5" data-addon-max="19" data-label="Pop-up / Lead magnet" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pop-up / Lead magnet</div></div>
+            <div class="ca-price-range">od 5 do 19 €</div>
+          </button>
+          <button class="calc-addon" data-addon="11" data-addon-max="29" data-label="Newsletter formulár" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Newsletter formulár</div></div>
+            <div class="ca-price-range">od 11 do 29 €</div>
+          </button>
+          <button class="calc-addon" data-addon="59" data-addon-max="79" data-label="Instagram feed" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Instagram feed</div></div>
+            <div class="ca-price-range">od 59 do 79 €</div>
+          </button>
+          <button class="calc-addon" data-addon="122" data-addon-max="189" data-label="Blog / Aktuality" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Blog / Aktuality</div></div>
+            <div class="ca-price-range">od 122 do 189 €</div>
+          </button>
+          <button class="calc-addon" data-addon="29" data-addon-max="39" data-label="Video hero sekcia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Video hero sekcia</div></div>
+            <div class="ca-price-range">od 29 do 39 €</div>
+          </button>
+        </div>
+
+        <div class="ca-category-label">⚙️ Funkcie &amp; Technológia</div>
+        <div class="calc-addons" style="margin-bottom:.7rem;">
+          <button class="calc-addon" data-addon="79" data-addon-max="290" data-label="Rezervačný systém" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Rezervačný systém</div></div>
+            <div class="ca-price-range">od 79 do 290 €</div>
+          </button>
+          <button class="calc-addon" data-addon="390" data-addon-max="790" data-label="Live chat integrácia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Live chat integrácia</div></div>
+            <div class="ca-price-range">od 390 do 790 €</div>
+          </button>
+          <button class="calc-addon" data-addon="29" data-addon-max="69" data-label="Google Analytics & Tracking" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Google Analytics &amp; Tracking</div></div>
+            <div class="ca-price-range">od 29 do 69 €</div>
+          </button>
+          <button class="calc-addon" data-addon="179" data-addon-max="359" data-label="Pokročilé SEO" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé SEO</div></div>
+            <div class="ca-price-range">od 179 do 359 €</div>
+          </button>
+          <button class="calc-addon" data-addon="66" data-addon-max="149" data-label="Pokročilé animácie & paralax" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Pokročilé animácie &amp; paralax</div></div>
+            <div class="ca-price-range">od 66 do 149 €</div>
+          </button>
+          <button class="calc-addon" data-addon="49" data-addon-max="109" data-label="Viacjazyčná verzia" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Viacjazyčná verzia</div></div>
+            <div class="ca-price-range">od 49 do 109 €</div>
+          </button>
+          <button class="calc-addon" data-addon="299" data-addon-max="599" data-label="Online platby / E-commerce" onclick="toggleAddon(this)">
+            <div class="ca-left"><div class="ca-check"></div><div class="ca-name">Online platby / E-commerce</div></div>
+            <div class="ca-price-range">od 299 do 599 €</div>
+          </button>
+        </div>
+      </div><!-- /addons cb-group -->
+
+      <!-- ─── RESULT PANEL ─── -->
+      <div class="cb-result-panel reveal">
+        <div class="cr-label">Orientačná cena</div>
+        <div class="cr-range-wrap">
+          <div class="cr-range-col">
+            <span class="cr-range-tag">Od (min)</span>
+            <span class="cr-range-min" id="calcMin">199 €</span>
+          </div>
+          <div class="cr-range-col">
+            <span class="cr-range-tag cr-range-tag-cur">Do (max)</span>
+            <span class="cr-range-max" id="calcTotal">199 €</span>
+          </div>
+        </div>
+        <div class="cr-subtitle">Orientačná kalkulácia · presná cena po konzultácii</div>
         <div class="cr-breakdown" id="crBreakdown">
-          <div class="cr-line"><span>Prezentačný web</span><span>od 299 €</span></div>
+          <div class="cr-line"><span>🌐 Prezentačný web</span><span>od 199 €</span></div>
         </div>
         <div class="cr-total-line">
-          <span class="cr-total-label">Celkom od</span>
-          <span class="cr-total-val"><span id="calcTotalSmall">299</span> €</span>
+          <span class="cr-total-label">Odhadovo spolu</span>
+          <span class="cr-total-val">od <span id="calcTotalSmall">199</span> €</span>
         </div>
         <a href="#kontakt" class="btn gold" style="width:100%;justify-content:center;">Nezáväzná konzultácia &nbsp;→</a>
-        <p style="font-size:.64rem;color:var(--muted);margin-top:.8rem;line-height:1.6;">Konzultácia a náhľad zdarma. Bez záväzkov.</p>
+        <button id="calcLeadBtn" onclick="openCalcModal()" class="btn-calc-lead">📩 &nbsp;Pošlite mi kalkuláciu</button>
+        <p style="font-size:.62rem;color:rgba(240,238,248,.28);margin-top:.65rem;line-height:1.55;text-align:center;">Konzultácia a náhľad zdarma &nbsp;·&nbsp; Bez záväzkov</p>
       </div>
 
-    </div>
+    </div><!-- /cb-calc -->
 
     <!-- ════ RIGHT: BRANDING PREVIEW ════ -->
     <div class="cb-brand reveal-right">
@@ -2109,7 +3272,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
             </div>
           </div>
         </div>
-      </div>
+      </div><!-- /cb-controls -->
 
       <!-- Browser chrome + scrollable preview -->
       <div id="cbBrowserWrap" data-hover="fill">
@@ -2167,6 +3330,12 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
             <div class="cb-p-nav">
               <div class="cb-p-logo" id="cbLogo">Vaša Firma</div>
               <div class="cb-p-navlinks"><span></span><span></span><span></span></div>
+              <!-- Addon: Social links -->
+              <div class="cb-addon-social-bar" id="addonSocial">
+                <div class="cb-soc-icon">fb</div>
+                <div class="cb-soc-icon">ig</div>
+                <div class="cb-soc-icon">in</div>
+              </div>
               <!-- Addon: Language switcher -->
               <div class="cb-p-lang" id="addonLang">
                 <div class="cb-p-lang-btn active">SK</div>
@@ -2178,6 +3347,15 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 
             <!-- Hero -->
             <div class="cb-p-hero-wrap" style="position:relative;">
+              <!-- Addon: Video overlay -->
+              <div class="cb-addon-video-overlay" id="addonVideo">
+                <div class="cb-play-btn">▶</div>
+              </div>
+              <!-- Addon: Analytics badge -->
+              <div class="cb-addon-analytics-badge" id="addonAnalytics">
+                <div class="cb-analytics-dot"></div>
+                <div class="cb-analytics-text">GA4 · Tracking aktívny</div>
+              </div>
               <div class="cb-p-hero" id="cbHero">
                 <div class="cb-p-eyebrow" id="cbEyebrow">Prémiový web · Slovakia</div>
                 <div class="cb-p-h1" id="cbH1">Vaša Firma</div>
@@ -2227,6 +3405,80 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
               </div>
             </div>
 
+            <!-- Addon: Gallery -->
+            <div class="cb-addon-section" id="addonGallery">
+              <div class="cb-addon-sec-label">🖼️ Fotogaléria</div>
+              <div class="cb-addon-gallery-grid">
+                <!-- Wide hero photo -->
+                <div class="cb-gal-item wide" style="background:linear-gradient(160deg,rgba(200,90,20,.55),rgba(80,20,5,.8));">
+                  <div class="cb-gal-overlay"></div>
+                  <div class="cb-gal-icon">🍽️</div>
+                  <div class="cb-gal-tag">Atmosféra</div>
+                </div>
+                <div class="cb-gal-item" style="background:linear-gradient(135deg,rgba(20,130,180,.45),rgba(5,50,100,.7));">
+                  <div class="cb-gal-overlay"></div>
+                  <div class="cb-gal-icon">📷</div>
+                </div>
+                <!-- Bottom row -->
+                <div class="cb-gal-item" style="background:linear-gradient(135deg,rgba(40,180,100,.4),rgba(10,60,35,.7));">
+                  <div class="cb-gal-overlay"></div>
+                  <div class="cb-gal-icon">🌿</div>
+                </div>
+                <div class="cb-gal-item" style="background:linear-gradient(135deg,rgba(200,160,20,.45),rgba(90,60,5,.7));">
+                  <div class="cb-gal-overlay"></div>
+                  <div class="cb-gal-icon">⭐</div>
+                  <div class="cb-gal-tag">Detail</div>
+                </div>
+                <div class="cb-gal-item" style="background:linear-gradient(135deg,rgba(200,60,80,.45),rgba(80,15,25,.7));">
+                  <div class="cb-gal-overlay"></div>
+                  <div class="cb-gal-icon">🎨</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addon: Cennik -->
+            <div class="cb-addon-section" id="addonCennik">
+              <div class="cb-addon-sec-label">💰 Cenník &amp; Tarify</div>
+              <table class="cb-addon-cennik-table">
+                <thead class="cb-cennik-thead">
+                  <tr>
+                    <th></th>
+                    <th>Základ</th>
+                    <th class="feat">Premium ★</th>
+                    <th>VIP</th>
+                  </tr>
+                </thead>
+                <tbody class="cb-cennik-tbody">
+                  <tr>
+                    <td>Konzultácia</td>
+                    <td class="cb-cennik-check">✓</td>
+                    <td class="cb-cennik-check">✓</td>
+                    <td class="cb-cennik-check">✓</td>
+                  </tr>
+                  <tr>
+                    <td>Priorita</td>
+                    <td class="cb-cennik-dash">—</td>
+                    <td class="cb-cennik-check">✓</td>
+                    <td class="cb-cennik-check">✓</td>
+                  </tr>
+                  <tr>
+                    <td>VIP prístup</td>
+                    <td class="cb-cennik-dash">—</td>
+                    <td class="cb-cennik-dash">—</td>
+                    <td class="cb-cennik-check">✓</td>
+                  </tr>
+                </tbody>
+                <tfoot class="cb-cennik-tfoot">
+                  <tr>
+                    <td>Cena</td>
+                    <td id="cbCennik1">od 15 €</td>
+                    <td class="feat" id="cbCennik2">od 35 €</td>
+                    <td id="cbCennik3">od 65 €</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
             <!-- About strip -->
             <div class="cb-prev-about">
               <div class="cb-prev-about-text">
@@ -2234,6 +3486,58 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
                 <div class="cb-prev-about-body">Sme tu pre vás každý deň. Kvalita a spokojnosť zákazníka je naša priorita od roku 2015.</div>
               </div>
               <div class="cb-prev-about-img" id="cbAboutImg">🏆</div>
+            </div>
+
+            <!-- Addon: FAQ -->
+            <div class="cb-addon-section" id="addonFaq">
+              <div class="cb-addon-sec-label">❓ FAQ sekcia</div>
+              <div class="cb-addon-faq-list">
+                <div class="cb-faq-row open">
+                  <div class="cb-faq-q">Ako dlho trvá realizácia?</div>
+                  <div class="cb-faq-icon">−</div>
+                </div>
+                <div class="cb-faq-answer">Prvý návrh dostanete do 72 hodín od začatia spolupráce.</div>
+                <div class="cb-faq-row">
+                  <div class="cb-faq-q">Čo je zahrnuté v cene?</div>
+                  <div class="cb-faq-icon">+</div>
+                </div>
+                <div class="cb-faq-row">
+                  <div class="cb-faq-q">Môžem web editovať sám?</div>
+                  <div class="cb-faq-icon">+</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addon: Reviews -->
+            <div class="cb-addon-section" id="addonReviews">
+              <div class="cb-addon-sec-label">⭐ Hodnotenia zákazníkov</div>
+              <div class="cb-addon-reviews-grid">
+                <div class="cb-rev-row">
+                  <div class="cb-rev-stars"><span class="cb-rev-star" id="cbRevStar1">★★★★★</span></div>
+                  <div class="cb-rev-body">
+                    <div class="cb-rev-text-sm">"Výborné služby, odporúčam každému!"</div>
+                    <div class="cb-rev-name-sm">Mária K. · Google</div>
+                  </div>
+                </div>
+                <div class="cb-rev-row">
+                  <div class="cb-rev-stars"><span class="cb-rev-star" id="cbRevStar2">★★★★★</span></div>
+                  <div class="cb-rev-body">
+                    <div class="cb-rev-text-sm">"Profesionálny prístup a rýchle dodanie."</div>
+                    <div class="cb-rev-name-sm">Tomáš N. · Google</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addon: Stats -->
+            <div class="cb-addon-section" id="addonStats">
+              <div class="cb-addon-sec-label">📊 Štatistiky &amp; Počítadlá</div>
+              <div class="cb-addon-stats-row">
+                <div class="cb-stat-mini"><div class="cb-stat-num-sm" id="cbStatA">150+</div><div class="cb-stat-lbl-sm">Zákazníkov</div></div>
+                <div class="cb-stat-mini"><div class="cb-stat-num-sm" id="cbStatB">98%</div><div class="cb-stat-lbl-sm">Spokojnosť</div></div>
+                <div class="cb-stat-mini"><div class="cb-stat-num-sm" id="cbStatC">12+</div><div class="cb-stat-lbl-sm">Rokov</div></div>
+                <div class="cb-stat-mini"><div class="cb-stat-num-sm" id="cbStatD">4.9★</div><div class="cb-stat-lbl-sm">Rating</div></div>
+              </div>
             </div>
 
             <!-- Addon: Blog section -->
@@ -2275,6 +3579,32 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
                   <div class="cb-addon-email-addr" id="cbEmailAddr">info@vasafirma.sk</div>
                   <div class="cb-addon-email-sub">Odpovieme do 24 hodín</div>
                 </div>
+              </div>
+            </div>
+
+            <!-- Addon: Newsletter -->
+            <div class="cb-addon-section" id="addonNewsletter">
+              <div class="cb-addon-sec-label">📧 Newsletter</div>
+              <div class="cb-addon-newsletter-box">
+                <div class="cb-nl-title" id="cbNlTitle">Novinky priamo do e-mailu</div>
+                <div class="cb-nl-sub">Prihláste sa k odberú — žiadny spam, iba to najlepšie.</div>
+                <div class="cb-nl-row">
+                  <input class="cb-nl-input" type="text" placeholder="váš@email.sk" readonly/>
+                  <div class="cb-nl-btn" id="cbNlBtn">Prihlásiť →</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addon: Instagram feed -->
+            <div class="cb-addon-section" id="addonInstagram">
+              <div class="cb-addon-sec-label">📸 Instagram feed</div>
+              <div class="cb-addon-insta-grid">
+                <div class="cb-insta-cell" style="background:linear-gradient(135deg,rgba(180,60,20,.5),rgba(80,20,5,.7));"></div>
+                <div class="cb-insta-cell" style="background:linear-gradient(135deg,rgba(20,120,160,.4),rgba(5,50,90,.6));"></div>
+                <div class="cb-insta-cell" style="background:linear-gradient(135deg,rgba(120,60,190,.4),rgba(50,15,90,.6));"></div>
+                <div class="cb-insta-cell" style="background:linear-gradient(135deg,rgba(30,160,90,.35),rgba(8,70,35,.5));"></div>
+                <div class="cb-insta-cell" style="background:linear-gradient(135deg,rgba(180,140,15,.35),rgba(80,60,5,.5));"></div>
+                <div class="cb-insta-cell" style="background:linear-gradient(135deg,rgba(180,50,70,.4),rgba(80,15,25,.6));"></div>
               </div>
             </div>
 
@@ -2338,8 +3668,45 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
                   <div class="cb-prev-footer-link">Kontakt</div>
                 </div>
               </div>
+              <!-- Addon: Payment icons -->
+              <div class="cb-addon-payment-strip" id="addonPayment">
+                <span class="cb-pay-label">Platba:</span>
+                <div class="cb-pay-icon">VISA</div>
+                <div class="cb-pay-icon">MC</div>
+                <div class="cb-pay-icon">PayPal</div>
+                <div class="cb-pay-icon">GPay</div>
+                <div class="cb-pay-icon">IBAN</div>
+              </div>
               <div class="cb-prev-footer-bottom">
                 <div class="cb-prev-footer-copy" id="cbFooterCopy">© 2025 Vaša Firma. Všetky práva vyhradené.</div>
+              </div>
+            </div>
+
+            <!-- Addon: Live chat widget -->
+            <div class="cb-addon-chat-widget" id="addonChat">
+              <div class="cb-chat-header">
+                <div class="cb-chat-avatar">💬</div>
+                <div>
+                  <div class="cb-chat-name">Podpora</div>
+                  <div class="cb-chat-status">● Online teraz</div>
+                </div>
+              </div>
+              <div class="cb-chat-msgs">
+                <div class="cb-chat-msg in">Dobrý deň! Ako vám môžem pomôcť? 👋</div>
+                <div class="cb-chat-msg out" id="cbChatBtn" style="background:#e0b55a;">Mám otázku →</div>
+              </div>
+              <div class="cb-chat-input-row">
+                <input class="cb-chat-inp" type="text" placeholder="Napíšte správu…" readonly/>
+                <div class="cb-chat-send" id="cbChatSend" style="background:#e0b55a;">→</div>
+              </div>
+            </div>
+
+            <!-- Addon: Cookie bar -->
+            <div class="cb-addon-cookie-bar" id="addonCookie">
+              <div class="cb-cookie-text">🍪 Táto stránka používa cookies na zlepšenie vášho zážitku.</div>
+              <div class="cb-cookie-btns">
+                <div class="cb-cookie-btn no">Odmietnuť</div>
+                <div class="cb-cookie-btn ok" id="cbCookieOk">Akceptovať</div>
               </div>
             </div>
 
@@ -2377,6 +3744,47 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
   </div>
 </section>
 
+<!-- TIMELINE -->
+<section class="timeline-section" id="casovyplan">
+  <div class="timeline-inner">
+    <div class="ew reveal">Časový plán</div>
+    <h2 class="reveal">Váš web od <em>zadania po spustenie.</em></h2>
+
+    <div class="timeline-track">
+      <!-- Progress fill line -->
+      <div class="tl-fill-wrap"><div class="tl-fill" id="tlFill"></div></div>
+
+      <div class="tl-step" data-tl-delay="0">
+        <div class="tl-dot">📋<span class="tl-check">✓</span></div>
+        <div class="tl-day">Deň 1</div>
+        <div class="tl-step-title">Brief &amp; Zadanie</div>
+        <div class="tl-step-desc">Zistíme čo predávate, kto je zákazník a aký dojem má web zanechať. Rýchly online hovor stačí.</div>
+      </div>
+
+      <div class="tl-step" data-tl-delay="200">
+        <div class="tl-dot">🎨<span class="tl-check">✓</span></div>
+        <div class="tl-day">Deň 2–3</div>
+        <div class="tl-step-title">Návrh &amp; Identita</div>
+        <div class="tl-step-desc">Dostanete živý náhľad webu — farby, typografiu, rozloženie. Vidíte ešte pred zaplatením.</div>
+      </div>
+
+      <div class="tl-step" data-tl-delay="400">
+        <div class="tl-dot">✏️<span class="tl-check">✓</span></div>
+        <div class="tl-day">Deň 4–6</div>
+        <div class="tl-step-title">Feedback &amp; Úpravy</div>
+        <div class="tl-step-desc">Prepíšeme texty, vyladíme farby, pridáme fotky. Dve kolá úprav sú vždy v cene bez doplátku.</div>
+      </div>
+
+      <div class="tl-step" data-tl-delay="600">
+        <div class="tl-dot">🚀<span class="tl-check">✓</span></div>
+        <div class="tl-day">Deň 7–14</div>
+        <div class="tl-step-title">Spustenie &amp; Odovzdanie</div>
+        <div class="tl-step-desc">Web ide live, dostanete všetky prístupy a krátky návod. Vy ste vlastníkom od prvého dňa.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- PRICING -->
 <section class="pricing-section" id="cena">
   <div class="pricing-inner">
@@ -2386,7 +3794,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 
       <div class="price-row reveal">
         <div><div class="price-plan">Starter</div><h3>Individual web</h3><div class="price-features"><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><path d="M2.5 1.5h5L9.5 4v6.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1"/></svg> 1-stránkový web</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><rect x="3" y="1" width="6" height="10" rx="1.5" stroke="currentColor" stroke-width="1"/></svg> Responzívny dizajn</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/></svg> Doména v cene</span></div></div>
-        <div class="price-val">od 199€</div>
+        <div class="price-val">od 149€</div>
         <p>Ideálny pre freelancerov, remeselníkov a začínajúce projekty. Jedna čistá, prémiovo vyzerajúca stránka — plne editovateľná a navrhnutá na mieru.</p>
         <a href="#kontakt" class="btn gold">Chcem &nbsp;→</a>
         <div class="price-domain"><span class="pd-icon">🌐</span> Doména zahrnutá v cene — alebo nahodíme na vašu vlastnú</div>
@@ -2394,7 +3802,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 
       <div class="price-row reveal price-featured">
         <div><div class="price-plan">Portfolio</div><h3>Prezentačný web</h3><div class="price-badge"><span class="pb-star">★</span><span class="pb-text">Obľúbené</span></div><div class="price-features"><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><path d="M2.5 1.5h5L9.5 4v6.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1"/></svg> Do 3 stránok</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><path d="M7.5 1L3.5 7H6.5L4.5 11L9.5 5H6.5L8.5 1H7.5Z" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg> JS animácie</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1"/><line x1="7.8" y1="7.8" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg> SEO základy</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/></svg> Doména v cene</span></div></div>
-        <div class="price-val">od 299€</div>
+        <div class="price-val">od 199€</div>
         <p>Pre reštaurácie, salóny, fitnessy, remeselníkov a freelancerov. Jedna výkonná, plne editovateľná stránka navrhnutá okolo vášho zákazníka.</p>
         <a href="#kontakt" class="btn gold">Chcem &nbsp;→</a>
         <div class="price-domain"><span class="pd-icon">🌐</span> Doména zahrnutá v cene — alebo nahodíme na vašu vlastnú</div>
@@ -2402,7 +3810,7 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 
       <div class="price-row reveal">
         <div><div class="price-plan">Business</div><h3>Značkový web</h3><div class="price-features"><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><path d="M2.5 1.5h5L9.5 4v6.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1"/></svg> Do 7 stránok</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="2.5" width="9" height="7" rx="1.2" stroke="currentColor" stroke-width="1"/></svg> Galéria</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="2.5" width="9" height="8" rx="1.2" stroke="currentColor" stroke-width="1"/></svg> Rezervačný systém</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="3.5" stroke="currentColor" stroke-width="1"/><line x1="7.8" y1="7.8" x2="10.5" y2="10.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg> SEO optimalizácia</span><span class="pf-tag"><svg class="pf-svg" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1"/></svg> Doména v cene</span></div></div>
-        <div class="price-val">od 399€</div>
+        <div class="price-val">od 299€</div>
         <p>Pre etablované podniky s väčšou online prítomnosťou. Prepracovaná značková identita, viac sekcií, galéria, formulár a rezervácie.</p>
         <a href="#kontakt" class="btn">Chcem &nbsp;→</a>
         <div class="price-domain"><span class="pd-icon">🌐</span> Doména zahrnutá v cene — alebo nahodíme na vašu vlastnú</div>
@@ -2506,17 +3914,313 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
   </div>
 </section>
 
+<section class="work-section" id="projekty">
+  <div class="work-head">
+    <div>
+      <div class="ew reveal">Portfólio</div>
+      <h2 class="reveal">Weby, čo<br/>predávajú <em>za vás.</em></h2>
+    </div>
+    <div class="work-head-right reveal">
+      <p>Každý projekt je navrhnutý okolo jedného cieľa — priviesť zákazníka k akcii. Pozrite si ukážky z rôznych odvetví.</p>
+      <div class="work-count-row">
+        <div class="work-count-num"><span class="count" data-target="150">0</span><sup>+</sup></div>
+        <div class="work-count-label">Spokojných klientov</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="work-filter-tabs">
+    <button class="wf-btn active" onclick="filterWork(this,'all')">Všetko</button>
+    <button class="wf-btn" onclick="filterWork(this,'eshop')">E-shop</button>
+    <button class="wf-btn" onclick="filterWork(this,'beauty')">Beauty</button>
+    <button class="wf-btn" onclick="filterWork(this,'fitness')">Fitness</button>
+    <button class="wf-btn" onclick="filterWork(this,'gastro')">Gastro</button>
+    <button class="wf-btn" onclick="filterWork(this,'custom')">Na mieru</button>
+  </div>
+
+  <div class="work-canvas">
+
+    <div class="work-row-featured">
+
+      <!-- 01 — Tuning Shop -->
+      <div class="wcard featured reveal"
+           data-cat="eshop"
+           data-title="E-SHOP pre autodiely"
+           data-tag="E-shop / Automotive"
+           data-url="https://racem.sk"
+           data-bg="tuning"
+           data-desc="Plne funkčný e-shop pre tuning diely s certifikáciou. Custom dizajn, katalóg produktov, košík a platobná brána — prémiový vzhľad pre auto nadšencov.">
+        <div class="wcard-bg tuning"></div>
+        <div class="wcard-screenshot" style="background-image:url('Screenshot 2026-05-08 201238.png');"></div>
+        <div class="wcard-vignette"></div>
+        <div class="wcard-ghost-num">01</div>
+        <div class="wcard-chrome">
+          <div class="wbc2-dots"><span></span><span></span><span></span></div>
+          <div class="wbc2-url">racem.sk</div>
+          <div class="wbc2-live"><span></span>Live</div>
+        </div>
+        <div class="wcard-perf2">
+          <div class="wp2-row"><span class="wp2-label">Perf.</span><div class="wp2-bar"><div class="wp2-fill" style="width:98%"></div></div><span class="wp2-val">98</span></div>
+          <div class="wp2-row"><span class="wp2-label">SEO</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%;background:var(--gold)"></div></div><span class="wp2-val" style="color:var(--gold2)">100</span></div>
+          <div class="wp2-row"><span class="wp2-label">Mobile</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%"></div></div><span class="wp2-val">100</span></div>
+        </div>
+        <div class="wcard-info-panel">
+          <div class="wcard-cat-tag">E-shop &nbsp;·&nbsp; Automotive</div>
+          <div class="wcard-title">REM Performance<br/>Tuning obchod</div>
+          <div class="wcard-expand">
+            <div class="wcard-sep"></div>
+            <p class="wcard-desc">Plne funkčný e-shop pre tuning diely s certifikáciou. Katalóg produktov, košík, platobná brána a prémiový vizuál pre auto nadšencov.</p>
+            <div class="wcard-techs">
+              <span class="wcard-tech">E-commerce</span>
+              <span class="wcard-tech">Produktový katalóg</span>
+              <span class="wcard-tech">Platobná brána</span>
+              <span class="wcard-tech">SEO</span>
+            </div>
+            <div class="wcard-cta-row">
+              <a href="https://racem.sk" target="_blank" class="wcard-cta">Otvoriť web <span class="cta-arrow2">→</span></a>
+              <div class="wcard-live-badge"><div class="wcard-live-dot2"></div><span class="wcard-live-text">Živý web</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 — NatureFlow Head Spa -->
+      <div class="wcard featured reveal rd1"
+           data-cat="beauty"
+           data-title="NatureFlow Head Spa"
+           data-tag="Beauty / Wellness"
+           data-url="https://natureflowheadspa.sk"
+           data-bg="spa"
+           data-desc="Prémiový web pre luxusné head spa. Online rezervácie, galéria procedúr a silná brandová identita v teal-bielej palete.">
+        <div class="wcard-bg spa"></div>
+        <div class="wcard-screenshot" style="background-image:url('Screenshot 2026-05-08 201339.png');"></div>
+        <div class="wcard-vignette"></div>
+        <div class="wcard-ghost-num">02</div>
+        <div class="wcard-chrome">
+          <div class="wbc2-dots"><span></span><span></span><span></span></div>
+          <div class="wbc2-url">natureflowheadspa.sk</div>
+          <div class="wbc2-live"><span></span>Live</div>
+        </div>
+        <div class="wcard-perf2">
+          <div class="wp2-row"><span class="wp2-label">Perf.</span><div class="wp2-bar"><div class="wp2-fill" style="width:96%"></div></div><span class="wp2-val">96</span></div>
+          <div class="wp2-row"><span class="wp2-label">SEO</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%;background:var(--gold)"></div></div><span class="wp2-val" style="color:var(--gold2)">100</span></div>
+          <div class="wp2-row"><span class="wp2-label">Mobile</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%"></div></div><span class="wp2-val">100</span></div>
+        </div>
+        <div class="wcard-info-panel">
+          <div class="wcard-cat-tag">Beauty &nbsp;·&nbsp; Wellness</div>
+          <div class="wcard-title">NatureFlow<br/>Head Spa</div>
+          <div class="wcard-expand">
+            <div class="wcard-sep"></div>
+            <p class="wcard-desc">Luxusný web pre head spa štúdio. Online rezervácie, galéria procedúr a silná brandová identita — web, ktorý predáva zážitok ešte pred prvou návštevou.</p>
+            <div class="wcard-techs">
+              <span class="wcard-tech">Rezervačný systém</span>
+              <span class="wcard-tech">Galéria procedúr</span>
+              <span class="wcard-tech">Brand identita</span>
+              <span class="wcard-tech">SEO</span>
+            </div>
+            <div class="wcard-cta-row">
+              <a href="https://natureflowheadspa.sk" target="_blank" class="wcard-cta">Otvoriť web <span class="cta-arrow2">→</span></a>
+              <div class="wcard-live-badge"><div class="wcard-live-dot2"></div><span class="wcard-live-text">Živý web</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-row-secondary">
+
+      <!-- 03 — Fitness -->
+      <div class="wcard secondary reveal"
+           data-cat="fitness"
+           data-title="Apex Fitness Studio"
+           data-tag="Fitness / Training"
+           data-url="#kontakt"
+           data-bg="fit"
+           data-desc="Prémiový web pre fitness studio. Rozvrh tréningov, cenník, online rezervácie a motivačný vizuál navrhnutý pre konverziu nových členov.">
+        <div class="wcard-bg fit"></div>
+        <div class="wcard-vignette"></div>
+        <div class="wcard-ghost-num">03</div>
+        <div class="wcard-chrome">
+          <div class="wbc2-dots"><span></span><span></span><span></span></div>
+          <div class="wbc2-url">apexfitness.sk</div>
+          <div class="wbc2-live"><span></span>Demo</div>
+        </div>
+        <div class="wcard-perf2">
+          <div class="wp2-row"><span class="wp2-label">Perf.</span><div class="wp2-bar"><div class="wp2-fill" style="width:98%"></div></div><span class="wp2-val">98</span></div>
+          <div class="wp2-row"><span class="wp2-label">SEO</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%;background:var(--gold)"></div></div><span class="wp2-val" style="color:var(--gold2)">100</span></div>
+        </div>
+        <div class="wcard-info-panel">
+          <div class="wcard-cat-tag">Fitness &nbsp;·&nbsp; Training</div>
+          <div class="wcard-title">Apex<br/>Fitness Studio</div>
+          <div class="wcard-expand">
+            <div class="wcard-sep"></div>
+            <p class="wcard-desc secondary">Prémiový web pre fitnessy a personal trénerov. Rozvrh, cenník, rezervácie a vizuál, ktorý motivuje.</p>
+            <div class="wcard-techs"><span class="wcard-tech">Rozvrh tréningov</span><span class="wcard-tech">Online rezervácie</span><span class="wcard-tech">SEO</span></div>
+            <div class="wcard-cta-row">
+              <div class="wcard-cta">Chcem podobný <span class="cta-arrow2">→</span></div>
+              <div class="wcard-live-badge"><span class="wcard-concept-text">Ukážka štýlu</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 — Gastro -->
+      <div class="wcard secondary reveal rd1"
+           data-cat="gastro"
+           data-title="Bistro Noir"
+           data-tag="Gastro / Restaurant"
+           data-url="#kontakt"
+           data-bg="resto"
+           data-desc="Prémiová prezentácia pre reštaurácie a bary. Menu, rezervácie stola, atmosféra a galéria — navrhnuté okolo zážitku zákazníka.">
+        <div class="wcard-bg resto"></div>
+        <div class="wcard-vignette"></div>
+        <div class="wcard-ghost-num">04</div>
+        <div class="wcard-chrome">
+          <div class="wbc2-dots"><span></span><span></span><span></span></div>
+          <div class="wbc2-url">bistronoir.sk</div>
+          <div class="wbc2-live"><span></span>Demo</div>
+        </div>
+        <div class="wcard-perf2">
+          <div class="wp2-row"><span class="wp2-label">Perf.</span><div class="wp2-bar"><div class="wp2-fill" style="width:99%"></div></div><span class="wp2-val">99</span></div>
+          <div class="wp2-row"><span class="wp2-label">SEO</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%;background:var(--gold)"></div></div><span class="wp2-val" style="color:var(--gold2)">100</span></div>
+        </div>
+        <div class="wcard-info-panel">
+          <div class="wcard-cat-tag">Gastro &nbsp;·&nbsp; Restaurant</div>
+          <div class="wcard-title">Bistro<br/>Noir</div>
+          <div class="wcard-expand">
+            <div class="wcard-sep"></div>
+            <p class="wcard-desc secondary">Prémiová prezentácia pre reštaurácie. Menu, online rezervácie stola, atmosféra a galéria v jednom.</p>
+            <div class="wcard-techs"><span class="wcard-tech">Rezervácie stola</span><span class="wcard-tech">Digitálne menu</span><span class="wcard-tech">Galéria</span></div>
+            <div class="wcard-cta-row">
+              <div class="wcard-cta">Chcem podobný <span class="cta-arrow2">→</span></div>
+              <div class="wcard-live-badge"><span class="wcard-concept-text">Ukážka štýlu</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 — Custom CTA -->
+      <div class="wcard secondary reveal rd2"
+           data-cat="custom"
+           data-title="Váš projekt"
+           data-tag="Na mieru / Custom"
+           data-url="#kontakt"
+           data-bg="custom"
+           data-desc="Každý web tvoríme na mieru — od návrhu po spustenie. Napíšte nám čo robíte a spoločne navrheme niečo, čo vás bude reprezentovať.">
+        <div class="wcard-bg custom"></div>
+        <div class="wcard-vignette" style="background:linear-gradient(to bottom,rgba(4,3,8,.5) 0%,rgba(4,3,8,.65) 50%,rgba(4,3,8,.99) 100%)!important;"></div>
+        <div class="wcard-ghost-num">05</div>
+        <div style="position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:28px;text-align:center;pointer-events:none;">
+          <div style="width:52px;height:52px;border:1px solid rgba(201,168,90,.28);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:rgba(201,168,90,.05);">✦</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(22px,2.6vw,36px);font-weight:300;line-height:1.02;color:#fff;letter-spacing:-.02em;">Váš<br/><em style='font-style:italic;color:var(--gold)'>projekt</em></div>
+          <div style="font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;color:rgba(240,238,248,.28);">Na mieru · Custom</div>
+        </div>
+        <div class="wcard-chrome">
+          <div class="wbc2-dots"><span></span><span></span><span></span></div>
+          <div class="wbc2-url">vasafirma.sk</div>
+          <div class="wbc2-live"><span></span>Váš web</div>
+        </div>
+        <div class="wcard-info-panel">
+          <div class="wcard-cat-tag">Na mieru &nbsp;·&nbsp; Custom</div>
+          <div class="wcard-title" style="font-size:clamp(24px,3vw,46px);">Váš<br/>projekt</div>
+          <div class="wcard-expand">
+            <div class="wcard-sep"></div>
+            <p class="wcard-desc secondary">Napíšte nám čo robíte — spoločne navrheme niečo prémiové, čo vás bude reprezentovať a predávať.</p>
+            <div class="wcard-cta-row">
+              <div class="wcard-cta">Nezáväzná konzultácia <span class="cta-arrow2">→</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="work-section-footer">
+    <p class="wsf-note">Každý web tvoríme <strong>od nuly, na mieru</strong> — žiadne šablóny. Konzultácia a prvý náhľad vždy <strong>zdarma, bez záväzkov.</strong></p>
+    <a href="#kontakt" class="btn gold">Začnime projekt &nbsp;→</a>
+  </div>
+
+  <div class="work-grid-top"></div>
+  <div class="work-grid-bot"></div>
+</section>
+
+
 <!-- CONTACT -->
 <section class="contact-section" id="kontakt">
   <div class="contact-glow"></div>
   <div class="contact-inner">
+
     <div class="ew center reveal">Kontakt</div>
     <h2 class="reveal">Začnime<br/>niečo <em>prémiové.</em></h2>
-    <p class="sub reveal">Pošlite nám čo predávate, aktuálnu stránku alebo Instagram — ukážeme vám, ako by mohol vyzerať váš prémiový, zákazníky orientovaný web.</p>
-    <div class="contact-links reveal">
-      <a href="mailto:info@remperformance.sk" class="btn gold">info@remperformance.sk</a>
-      <a href="https://racem.sk" target="_blank" rel="noopener noreferrer" class="btn">RACEM &nbsp;→</a>
-      <a href="https://natureflowheadspa.sk" target="_blank" rel="noopener noreferrer" class="btn">NatureFlow &nbsp;→</a>
+    <p class="sub reveal">Pošlite nám čo predávate, aktuálnu stránku alebo Instagram — prvý náhľad <strong style="color:var(--gold2)">zdarma, bez záväzkov.</strong></p>
+
+    <div class="contact-form-wrap reveal">
+
+      <!-- Success -->
+      <div class="cf-success" id="cfSuccess" data-fs-success>
+        <span class="cf-success-icon">✦</span>
+        <div class="cf-success-title">Správa odoslaná.</div>
+        <p class="cf-success-sub">Ozveme sa vám do 24 hodín.<br/>Tešíme sa na spoluprácu.</p>
+      </div>
+
+      <!-- Form error banner -->
+      <div class="cf-form-error" id="cfFormError" data-fs-error></div>
+
+      <!-- Calculator summary pill (shows if something is selected) -->
+      <div class="cf-calc-pill" id="cfCalcPill">
+        <span class="cf-calc-pill-icon">🧮</span>
+        <span id="cfCalcPillText">Váš výber z kalkulačky bude priložený k správe.</span>
+      </div>
+
+      <form id="contact-form" novalidate>
+
+        <!-- Hidden: calculator state -->
+        <input type="hidden" name="_subject" value="LP Webdesign — nová dopyt z webu"/>
+        <input type="hidden" name="konfiguracia_webu" id="cfCalcHidden"/>
+
+        <div class="cf-grid">
+          <div class="cf-field">
+            <label class="cf-label" for="cf-name">Meno</label>
+            <input class="cf-input" id="cf-name" name="name" type="text"
+              placeholder="Ján Novák" autocomplete="name" data-fs-field/>
+            <span class="cf-error" data-fs-error="name"></span>
+          </div>
+          <div class="cf-field">
+            <label class="cf-label" for="cf-email">E-mail <span style="color:rgba(248,113,113,.8)">*</span></label>
+            <input class="cf-input" id="cf-email" name="email" type="email"
+              placeholder="jan@firma.sk" autocomplete="email" required data-fs-field/>
+            <span class="cf-error" data-fs-error="email"></span>
+          </div>
+          <div class="cf-field">
+            <label class="cf-label" for="cf-phone">Telefón</label>
+            <input class="cf-input" id="cf-phone" name="phone" type="tel"
+              placeholder="+421 9xx xxx xxx" autocomplete="tel"/>
+          </div>
+          <div class="cf-field">
+            <label class="cf-label" for="cf-web">Web alebo Instagram</label>
+            <input class="cf-input" id="cf-web" name="web_instagram" type="text"
+              placeholder="firma.sk alebo @firma"/>
+          </div>
+          <div class="cf-field full">
+            <label class="cf-label" for="cf-msg">Čo predávate &amp; čo potrebujete?</label>
+            <textarea class="cf-textarea" id="cf-msg" name="message" required data-fs-field
+              placeholder="Napr.: Som kaderníčka v Bratislave, mám starý web na Wixe, potrebujem prémiový dizajn, zákazníci ma nevedia nájsť na Google…"></textarea>
+            <span class="cf-error" data-fs-error="message"></span>
+          </div>
+        </div>
+
+        <div class="cf-footer">
+          <button class="cf-submit" type="submit" data-fs-submit-btn>
+            Odoslať správu &nbsp;→
+          </button>
+          <span class="cf-alt">
+            alebo &nbsp;<a href="https://wa.me/421918277009" target="_blank">WhatsApp</a>
+            &nbsp;·&nbsp; <a href="mailto:info@remperformance.sk">info@remperformance.sk</a>
+          </span>
+        </div>
+
+      </form>
     </div>
   </div>
 </section>
@@ -2578,6 +4282,49 @@ footer { padding:28px 44px; display:flex; justify-content:space-between; align-i
 
 <!-- SCROLL TO TOP -->
 <button id="scroll-top" aria-label="Späť nahor" onclick="window.scrollTo({top:0,behavior:'smooth'})"></button>
+
+<!-- C2: Calculator lead modal -->
+<div id="calc-modal">
+  <div class="cm-overlay" onclick="closeCalcModal()"></div>
+  <div class="cm-panel">
+    <button class="cm-close-btn" onclick="closeCalcModal()">✕</button>
+    <div id="cmMainContent">
+      <div class="cm-eyebrow">Kalkulácia projektu</div>
+      <h2 class="cm-title">Pošlite mi <em>kalkuláciu.</em></h2>
+      <div class="cm-summary" id="cmSummary"></div>
+      <div class="cm-total-row">
+        <span class="cm-total-label">Celkom od</span>
+        <span class="cm-total-price" id="cmTotalPrice">199 €</span>
+      </div>
+      <label class="cm-form-label">Váš e-mail</label>
+      <input class="cm-input" id="cmEmail" type="email" placeholder="meno@firma.sk" autocomplete="email"/>
+      <label class="cm-form-label">Vaše meno (voliteľné)</label>
+      <input class="cm-input" id="cmName" type="text" placeholder="Ján Novák" autocomplete="name"/>
+      <button class="cm-send-btn" onclick="sendCalcLead()">📩 &nbsp;Poslať kalkuláciu</button>
+      <p class="cm-note">Kalkuláciu vám pošleme na e-mail do pár sekúnd. Žiadny spam, žiadne záväzky.</p>
+    </div>
+    <div class="cm-success" id="cmSuccess">
+      <div class="cm-success-icon">✅</div>
+      <div class="cm-success-title">Odoslané!</div>
+      <p class="cm-success-sub">Kalkulácia bola odoslaná na váš e-mail.<br/>Ozveme sa vám do 24 hodín.</p>
+    </div>
+  </div>
+</div>
+
+<!-- C7: WhatsApp floating button -->
+<a id="wa-float" href="https://wa.me/421918277009" target="_blank" rel="noopener noreferrer" aria-label="Napíšte nám na WhatsApp">
+  💬
+  <span class="wa-tooltip">Napíšte nám na WhatsApp</span>
+</a>
+
+<!-- C8: Cookie consent banner -->
+<div id="cookie-banner">
+  <p class="cookie-text"><strong>Používame cookies</strong> — na zlepšenie vášho zážitku a analýzu návštevnosti. Kliknutím na Akceptovať súhlasíte s ich používaním. Viac info v <a href="https://racem.sk/policies/terms-of-service" target="_blank" rel="noopener">zásadách ochrany súkromia</a>.</p>
+  <div class="cookie-btns">
+    <button class="cookie-btn decline" onclick="cookieDecline()">Odmietnuť</button>
+    <button class="cookie-btn accept" onclick="cookieAccept()">Akceptovať ✓</button>
+  </div>
+</div>
 
 </div><!-- .site -->
 
@@ -2675,10 +4422,7 @@ function runCount(el) {
 const cntObs = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting){ runCount(e.target); cntObs.unobserve(e.target); } }); }, { threshold:.5 });
 document.querySelectorAll('.count').forEach(c => cntObs.observe(c));
 
-/* ══ FEATURE HIGHLIGHT ═════════════════════════ */
-const ftItems = document.querySelectorAll('.feature-item');
-let ftCurrent = 0;
-setInterval(() => { ftItems[ftCurrent].classList.remove('lit'); ftCurrent=(ftCurrent+1)%ftItems.length; ftItems[ftCurrent].classList.add('lit'); }, 2000);
+
 
 /* ══ BROWSER SCENES ════════════════════════════ */
 const SCENES = [
@@ -3002,43 +4746,109 @@ document.querySelectorAll('.wcard').forEach(card => {
 
 /* ══ PRICE CALCULATOR ═══════════════════════════ */
 (function(){
-  let basePrice = 299, baseName = 'Prezentačný web';
-  const addons  = {};
-  const totalEl = document.getElementById('calcTotal');
-  const totalSm = document.getElementById('calcTotalSmall');
-  const breakdown = document.getElementById('crBreakdown');
+  let basePrice = 199, baseName = 'Prezentačný web';
   let animTimer;
 
-  // Addon label → preview element ID mapping
+  // Addon label → preview element ID mapping (all 22)
   const ADDON_MAP = {
-    'Rezervačný systém':             'addonBooking',
-    'Blog / Aktuality':              'addonBlog',
-    'Pokročilé animácie & paralax':  'addonAnim',
-    'Pokročilé SEO':                 'addonSEO',
-    'Google Mapy & lokácia':         'addonMap',
-    'WhatsApp / Chat tlačidlo':      'addonWhatsApp',
-    'Vlastná e-mailová adresa':      'addonEmail',
-    'Pop-up / Lead magnet':          'addonPopup',
-    'Viacjazyčná verzia':            'addonLang',
+    'WhatsApp / Chat tlačidlo':          'addonWhatsApp',
+    'Google Mapy & lokácia':             'addonMap',
+    'Vlastná e-mailová adresa':          'addonEmail',
+    'Sociálne siete & linky':            'addonSocial',
+    'Cookie banner / GDPR':              'addonCookie',
+    'FAQ sekcia':                        'addonFaq',
+    'Galéria / Fotogaléria':             'addonGallery',
+    'Cenník / Tarify sekcia':            'addonCennik',
+    'Hodnotenia zákazníkov':             'addonReviews',
+    'Počítadlo & Štatistiky':            'addonStats',
+    'Pop-up / Lead magnet':              'addonPopup',
+    'Newsletter formulár':               'addonNewsletter',
+    'Instagram feed':                    'addonInstagram',
+    'Blog / Aktuality':                  'addonBlog',
+    'Video hero sekcia':                 'addonVideo',
+    'Rezervačný systém':                 'addonBooking',
+    'Live chat integrácia':              'addonChat',
+    'Google Analytics & Tracking':       'addonAnalytics',
+    'Pokročilé SEO':                     'addonSEO',
+    'Pokročilé animácie & paralax':      'addonAnim',
+    'Viacjazyčná verzia':                'addonLang',
+    'Online platby / E-commerce':        'addonPayment',
   };
 
-  function animateTo(target){
+  const ADDON_ICONS = {
+    'WhatsApp / Chat tlačidlo':          '💬',
+    'Google Mapy & lokácia':             '📍',
+    'Vlastná e-mailová adresa':          '✉️',
+    'Sociálne siete & linky':            '📲',
+    'Cookie banner / GDPR':              '🍪',
+    'FAQ sekcia':                        '❓',
+    'Galéria / Fotogaléria':             '🖼️',
+    'Cenník / Tarify sekcia':            '💰',
+    'Hodnotenia zákazníkov':             '⭐',
+    'Počítadlo & Štatistiky':            '📊',
+    'Pop-up / Lead magnet':              '🎁',
+    'Newsletter formulár':               '📧',
+    'Instagram feed':                    '📸',
+    'Blog / Aktuality':                  '📝',
+    'Video hero sekcia':                 '🎬',
+    'Rezervačný systém':                 '📅',
+    'Live chat integrácia':              '💭',
+    'Google Analytics & Tracking':       '📈',
+    'Pokročilé SEO':                     '🔍',
+    'Pokročilé animácie & paralax':      '✨',
+    'Viacjazyčná verzia':                '🌍',
+    'Online platby / E-commerce':        '💳',
+  };
+
+  function animateTo(minVal, maxVal){
     clearInterval(animTimer);
-    let cur = +(totalEl.textContent.replace(/\D/g,'')), diff = target - cur, i = 0;
+    const minEl = document.getElementById('calcMin');
+    const maxEl = document.getElementById('calcTotal');
+    const totalSm = document.getElementById('calcTotalSmall');
+    if(!maxEl) return;
+    let curMin = +(minEl ? minEl.textContent.replace(/\D/g,'') : 0) || minVal;
+    let curMax = +(maxEl.textContent.replace(/\D/g,'')) || maxVal;
+    let diffMin = minVal - curMin, diffMax = maxVal - curMax, i = 0;
     animTimer = setInterval(()=>{
-      i++; const e = 1-Math.pow(1-i/24,3);
-      const v = Math.round(cur + diff*e);
-      totalEl.textContent = v; totalSm.textContent = v;
-      if(i>=24) clearInterval(animTimer);
+      i++; const e = 1-Math.pow(1-i/22,3);
+      const vMin = Math.round(curMin + diffMin*e);
+      const vMax = Math.round(curMax + diffMax*e);
+      if(minEl) minEl.textContent = vMin + ' €';
+      maxEl.textContent = vMax + ' €';
+      if(totalSm) totalSm.textContent = vMin;
+      if(i>=22){
+        if(minEl) minEl.textContent = minVal + ' €';
+        maxEl.textContent = maxVal + ' €';
+        if(totalSm) totalSm.textContent = minVal;
+        clearInterval(animTimer);
+      }
     }, 16);
   }
 
   function recalc(){
-    const addonTotal = Object.values(addons).reduce((a,b)=>a+b,0);
-    animateTo(basePrice + addonTotal);
-    breakdown.innerHTML = `<div class="cr-line"><span>${baseName}</span><span>od ${basePrice} €</span></div>`;
-    Object.entries(addons).forEach(([label, price])=>{
-      breakdown.innerHTML += `<div class="cr-line"><span>${label}</span><span>+${price} €</span></div>`;
+    // Collect min and max from active addons
+    const activeAddons = document.querySelectorAll('.calc-addon.active');
+    let addonMin = 0, addonMax = 0;
+    activeAddons.forEach(btn => {
+      addonMin += +(btn.dataset.addon||0);
+      addonMax += +(btn.dataset.addonMax||btn.dataset.addon||0);
+    });
+    const totalMin = basePrice + addonMin;
+    const totalMax = basePrice + addonMax;
+    animateTo(totalMin, totalMax);
+
+    const breakdown = document.getElementById('crBreakdown');
+    if(!breakdown) return;
+    const baseEmoji = basePrice <= 149 ? '📄' : basePrice <= 199 ? '🌐' : '🏆';
+    breakdown.innerHTML = `<div class="cr-line"><span>${baseEmoji} ${baseName}</span><span>od ${basePrice} €</span></div>`;
+    activeAddons.forEach(btn => {
+      const label = btn.dataset.label;
+      const min = btn.dataset.addon;
+      const max = btn.dataset.addonMax;
+      const icon = ADDON_ICONS[label] || '✦';
+      const priceStr = +min === 0 ? '<span style="color:rgba(224,181,90,.5);font-size:.8rem">v cene</span>'
+                                  : (min === max ? `+${min} €` : `${min}–${max} €`);
+      breakdown.innerHTML += `<div class="cr-line"><span>${icon} ${label}</span><span>${priceStr}</span></div>`;
     });
   }
 
@@ -3052,33 +4862,21 @@ document.querySelectorAll('.wcard').forEach(card => {
 
   window.toggleAddon = function(btn){
     btn.classList.toggle('active');
-    const label = btn.dataset.label, price = +btn.dataset.addon;
+    const label = btn.dataset.label;
     const isActive = btn.classList.contains('active');
-    if(isActive) addons[label] = price;
-    else delete addons[label];
     recalc();
 
-    // Toggle corresponding preview element
-    const previewId = ADDON_MAP[label];
+    // Toggle preview element
+    const previewId = ADDON_MAP[label] || ADDON_MAP[label.replace(/&amp;/g,'&')];
     if(previewId){
       const el = document.getElementById(previewId);
       if(el){
-        // Remove and re-add to re-trigger animation
         el.classList.remove('active');
         if(isActive){
-          void el.offsetWidth; // reflow
+          void el.offsetWidth;
           el.classList.add('active');
-          // Scroll preview to make the element visible
           const body = el.closest('.cb-preview-body');
-          if(body){
-            setTimeout(()=>{
-              const elTop = el.getBoundingClientRect().top;
-              const bodyTop = body.getBoundingClientRect().top;
-              if(elTop > bodyTop + body.clientHeight * 0.7){
-                body.scrollBy({ top: 120, behavior:'smooth' });
-              }
-            }, 150);
-          }
+          if(body){ setTimeout(()=>{ const eT=el.getBoundingClientRect().top,bT=body.getBoundingClientRect().top; if(eT>bT+body.clientHeight*.7) body.scrollBy({top:140,behavior:'smooth'}); },150); }
         }
       }
     }
@@ -3094,16 +4892,126 @@ function showToast(msg) {
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),4000);
 }
 
-/* ══ STICKY CTA + SCROLL-TO-TOP ════════════════ */
+/* ══ C7: WhatsApp + C8: Cookies ════════════════ */
 (function(){
   const cta  = document.getElementById('sticky-cta');
   const st   = document.getElementById('scroll-top');
+  const wa   = document.getElementById('wa-float');
   const hero = document.querySelector('.hero');
   window.addEventListener('scroll', () => {
     const past = scrollY > (hero ? hero.offsetHeight * 0.6 : 400);
     cta.classList.toggle('show', past);
     st.classList.toggle('show',  past);
+    wa.classList.toggle('show',  past);
   }, { passive:true });
+
+  // Cookies
+  if(!localStorage.getItem('lpw_cookies')){
+    setTimeout(()=>{ const b=document.getElementById('cookie-banner'); if(b) b.classList.add('show'); }, 1800);
+  }
+})();
+
+window.cookieAccept = function(){
+  localStorage.setItem('lpw_cookies','accepted');
+  const b=document.getElementById('cookie-banner');
+  b.style.transition='transform .4s ease'; b.classList.remove('show');
+};
+window.cookieDecline = function(){
+  localStorage.setItem('lpw_cookies','declined');
+  const b=document.getElementById('cookie-banner');
+  b.style.transition='transform .4s ease'; b.classList.remove('show');
+};
+
+/* ══ C2: Calculator lead modal ═════════════════ */
+window.openCalcModal = function(){
+  // Populate summary from current calculator state
+  const breakdown = document.getElementById('crBreakdown');
+  const totalEl   = document.getElementById('calcTotal');
+  const cmSummary = document.getElementById('cmSummary');
+  const cmTotal   = document.getElementById('cmTotalPrice');
+  if(breakdown && cmSummary){
+    cmSummary.innerHTML = breakdown.innerHTML.replace(/class="cr-line"/g,'class="cm-summary-line"');
+  }
+  if(totalEl && cmTotal) cmTotal.textContent = totalEl.textContent + ' €';
+  document.getElementById('cmSuccess').classList.remove('show');
+  document.getElementById('cmMainContent').style.display = '';
+  document.getElementById('calc-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+window.closeCalcModal = function(){
+  document.getElementById('calc-modal').classList.remove('open');
+  document.body.style.overflow = '';
+};
+window.sendCalcLead = function(){
+  const email = document.getElementById('cmEmail').value.trim();
+  if(!email || !email.includes('@')){
+    const inp = document.getElementById('cmEmail');
+    inp.style.borderColor='#f43f5e'; inp.focus(); return;
+  }
+  const btn = document.querySelector('.cm-send-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Odosiela sa…'; }
+
+  // Build summary from breakdown
+  const breakdown = document.getElementById('crBreakdown');
+  const total = document.getElementById('calcTotal');
+  const lines = breakdown ? Array.from(breakdown.querySelectorAll('.cr-line')).map(l=>l.textContent.trim()).join(' | ') : '';
+  const name = document.getElementById('cmName').value.trim();
+
+  fetch('https://formspree.io/f/xeedkarb', {
+    method:'POST',
+    headers:{'Accept':'application/json','Content-Type':'application/json'},
+    body: JSON.stringify({
+      email,
+      name: name || '(nezadané)',
+      _subject: 'LP Webdesign — Kalkulácia projektu',
+      kalkulacia: lines,
+      celkova_cena: 'od ' + (total ? total.textContent : '?') + ' €',
+      zdroj: 'Kalkulačka na webe'
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.ok || data.next){
+      document.getElementById('cmMainContent').style.display='none';
+      document.getElementById('cmSuccess').classList.add('show');
+      showToast('Kalkulácia odoslaná na ' + email);
+      setTimeout(()=>window.closeCalcModal(), 3200);
+    } else {
+      throw new Error(data.error || 'Chyba');
+    }
+  })
+  .catch(()=>{
+    if(btn){ btn.disabled=false; btn.innerHTML='📩 &nbsp;Pošlite mi kalkuláciu'; }
+    showToast('Chyba — skúste znova alebo napíšte priamo na email.');
+  });
+};
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') window.closeCalcModal();
+});
+
+/* ══ C3: Timeline animation ════════════════════ */
+(function(){
+  const steps  = document.querySelectorAll('.tl-step');
+  const fill   = document.getElementById('tlFill');
+  if(!steps.length) return;
+
+  let triggered = false;
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting && !triggered){
+        triggered = true;
+        if(fill) setTimeout(()=>fill.classList.add('animate'), 200);
+        steps.forEach((step, i) => {
+          const delay = +(step.dataset.tlDelay||0);
+          setTimeout(()=>step.classList.add('tl-active'), 250 + delay);
+        });
+        obs.disconnect();
+      }
+    });
+  }, { threshold:.2 });
+
+  const section = document.querySelector('.timeline-section');
+  if(section) obs.observe(section);
 })();
 
 /* ══ FAQ ACCORDION ═════════════════════════════ */
@@ -3128,6 +5036,79 @@ function toggleFaq(qEl) {
   overlay.addEventListener('click', closeModal);
   document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
 })();
+/* ══ FORMSPREE — Contact form ══════════════════ */
+(function(){
+  // Sync calculator state → contact form hidden field + pill
+  function syncCalcToForm(){
+    const activeBase = document.querySelector('.calc-base-btn.active');
+    const activeAddons = Array.from(document.querySelectorAll('.calc-addon.active'));
+    const totalEl = document.getElementById('calcTotal');
+    const hidden = document.getElementById('cfCalcHidden');
+    const pill = document.getElementById('cfCalcPill');
+    const pillText = document.getElementById('cfCalcPillText');
+
+    if(!hidden || !pill) return;
+
+    if(activeBase || activeAddons.length){
+      const baseName = activeBase ? activeBase.querySelector('.cb-name')?.textContent.trim() : '';
+      const basePrice = activeBase ? activeBase.dataset.base : '';
+      const addons = activeAddons.map(a => a.dataset.label).filter(Boolean);
+      const total = totalEl ? totalEl.textContent : '?';
+
+      const summary = [
+        baseName ? `Základ: ${baseName} (od ${basePrice} €)` : '',
+        addons.length ? `Rozšírenia: ${addons.join(', ')}` : '',
+        `Celkom od: ${total} €`
+      ].filter(Boolean).join(' | ');
+
+      hidden.value = summary;
+
+      // Show pill if anything is selected beyond default
+      const hasCustom = activeAddons.length > 0 || (activeBase && activeBase.dataset.base !== '199');
+      if(hasCustom){
+        pill.classList.add('show');
+        pillText.innerHTML = `<strong>Z kalkulačky:</strong> ${baseName}${addons.length ? ' + ' + addons.length + ' rozšírenie(a)' : ''} — od ${total} €`;
+      } else {
+        pill.classList.remove('show');
+      }
+    } else {
+      hidden.value = '';
+      pill.classList.remove('show');
+    }
+  }
+
+  // Observe calculator changes
+  const calcSection = document.getElementById('kalkulacka');
+  if(calcSection){
+    const obs = new MutationObserver(syncCalcToForm);
+    obs.observe(calcSection, { subtree:true, attributes:true, attributeFilter:['class'] });
+  }
+  // Also sync when contact section scrolls into view
+  const contactSection = document.getElementById('kontakt');
+  if(contactSection){
+    new IntersectionObserver(e => { if(e[0].isIntersecting) syncCalcToForm(); }, { threshold:.1 }).observe(contactSection);
+  }
+
+  // Formspree SDK init
+  function initContactForm(){
+    if(typeof window.formspree === 'undefined'){
+      setTimeout(initContactForm, 100); return;
+    }
+    window.formspree('initForm', {
+      formElement: '#contact-form',
+      formId: 'xeedkarb'
+    });
+  }
+  initContactForm();
+})();
+
 </script>
+
+<!-- Formspree Ajax SDK -->
+<script>
+  window.formspree = window.formspree || function(){ (formspree.q = formspree.q || []).push(arguments); };
+</script>
+<script src="https://unpkg.com/@formspree/ajax@1" defer></script>
+
 </body>
 </html>
