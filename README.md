@@ -1,26 +1,37 @@
-# REM Performance by RACEM – autá z amerických aukcií
+# REM Performance by RACEM – dovoz áut z USA
 
-Statický web pre **remperformance.sk** (GitHub Pages) v dizajne RACEM.sk (farby, písma Barlow / Barlow Condensed, tlačidlá). Sprostredkovanie dovozu áut z Copartu a IAAI na Slovensko + bonus kredit do RACEM.sk.
+Web **remperformance.sk**: ponuka áut z aukcií Copart/IAAI, podstránka pre každé auto, kalkulačka dovozu, VOP, GDPR a admin panel.
 
-Logo a hero fotka sa načítavajú z CDN racem.sk – ak ich na Shopify zmažeš alebo premenuješ, uprav URL v `index.html`.
+- **Frontend:** Next.js 16 (App Router), server-rendering + ISR (obnova každú minútu, po uložení v admine okamžite)
+- **Dáta, fotky, prihlásenie:** Supabase projekt `rem-performance` (Frankfurt)
+- **Hosting:** Vercel (tím REMACI)
+- **Dizajn:** RACEM (#050505 / #c8102e, Barlow + Barlow Condensed)
 
-## Štruktúra
-| Súbor | Čo to je |
-|---|---|
-| `index.html` | celý web (dizajn, kalkulačka, ponuka, formulár) |
-| `data/cars.js` | **ponuka áut – tu pridávaš autá** |
-| `CNAME` | doména remperformance.sk |
+## Admin
+`/admin` – prihlásenie e-mailom a heslom (`info@remperformance.sk`).
 
-## Ako pridať auto
-1. Otvor `data/cars.js`, skopíruj jeden blok `{ ... }` a vyplň údaje (popis polí je hore v súbore).
-2. `end` zadaj v tvare `"2026-10-03T18:00:00+02:00"` (čas konca aukcie).
-3. Fotky: do `images` daj URL fotiek (alebo ich nahraj do priečinka `img/` a daj `"img/mustang-1.jpg"`).
-4. Commit + push. Po skončení aukcie sa auto samo presunie medzi „Skončené aukcie“.
+- **Autá** – prehľad s počtom zobrazení a záujemcov, zverejnenie, predané, kópia, zmazanie
+- **Pridať / upraviť auto** – všetky údaje, drag & drop fotky (automatické zmenšenie na WebP, poradie ťahaním), nákres poškodenia zhora (klikanie na časti auta), cena na SK, uzávierka objednávok, koniec aukcie, SEO titulok a popis s náhľadom Google, živý výpočet ceny
+- **Dopyty** – všetci záujemcovia, filter podľa auta a stavu, poznámky, export CSV
+- **Kalkulačka** – všetky sadzby (kurz, poplatky, doprava, clo, DPH, záloha, kredit RACEM)
+- **Účet** – zmena hesla
 
-**Pred spustením vymaž ukážkové autá (`demo: true`).**
+## SEO
+- Každé auto má vlastnú URL `/auta/{slug}` generovanú na serveri, s meta tagmi, Open Graph a štruktúrovanými dátami `Car` + `Offer`
+- `AutoDealer`, `WebSite`, `BreadcrumbList`, `FAQPage`, `ItemList` JSON-LD
+- `sitemap.xml` (vrátane fotiek áut) a `robots.txt` generované automaticky, admin je `noindex`
+- Obsahové stránky na kľúčové slová: kalkulačka dovozu, ako to funguje, časté otázky
 
-## Kalkulačka – kde meniť čísla
-V `index.html` je na začiatku skriptu objekt `CONFIG`: kurz, aukčné poplatky, doprava podľa regiónu, clo, DPH, prístav, kamión, homologácia, tvoj poplatok (`serviceFeeEur`) a úrovne kreditu RACEM. Všetky čísla sú **odhady** – nahraď ich cenami od svojho brokera a špeditéra.
+## Lokálny vývoj
+```bash
+npm install
+npm run dev
+```
+Premenné sú v `.env.local` (Supabase URL + publishable key – verejné, chránené RLS).
 
-## Formulár
-Dopyty idú cez Formspree (`CONFIG.formEndpoint`). Teraz je tam starý formulár z LP Webdesign – odporúčam založiť nový pre autá.
+## Databáza (Supabase)
+- `cars` – autá (verejne čitateľné len `published` a `sold`)
+- `leads` – dopyty (vkladať môže ktokoľvek, čítať len admin; po uzávierke objednávok databáza dopyt na dané auto odmietne)
+- `settings` – nastavenia kalkulačky
+- `admins` – zoznam administrátorov
+- storage bucket `car-images`
