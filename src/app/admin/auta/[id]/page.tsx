@@ -99,7 +99,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
 
   if (!f || !cfg) return <p className="note">Načítavam…</p>;
   const titleLen = (f.seo_title || "").length, descLen = (f.seo_description || "").length;
-  const autoTitle = `${[f.year, f.make, f.model, f.trim].filter(Boolean).join(" ")} z USA – odhad ${est ? eur(est.total) : ""} na SK značkách`;
+  const autoTitle = `${[f.year, f.make, f.model, f.trim].filter(Boolean).join(" ")} z USA – ${est ? eur(est.total) : ""} na SK značkách`;
   const autoDesc = `${[f.year, f.make, f.model, f.trim].filter(Boolean).join(" ")} z aukcie ${f.auction || "Copart"} (${f.location || "USA"}). Odhad celkovej ceny na Slovensku ${est ? eur(est.total) : ""} vrátane cla, DPH a dopravy.`;
 
   return (
@@ -141,7 +141,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
             </div>
             <div className="field">
               <label>URL adresa (slug)</label>
-              <div className="iw"><input className="input" value={f.slug} onChange={(e) => { setSlugTouched(true); set("slug", slugify(e.target.value)); }} style={{ paddingLeft: 118 }} /><span className="u" style={{ left: 14, right: "auto" }}>/auta/</span></div>
+              <div className="iw"><input className="input" value={f.slug} onChange={(e) => { setSlugTouched(true); set("slug", slugify(e.target.value)); }} style={{ paddingLeft: 66 }} /><span className="u" style={{ left: 14, right: "auto" }}>/auta/</span></div>
               <span className="hint">Vytvorí sa automaticky. Po zverejnení ju už radšej nemeňte (SEO).</span>
             </div>
             <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
@@ -247,7 +247,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
             <div className="lbl-sm" style={{ marginBottom: 8 }}>Náhľad vo výsledkoch Google</div>
             <div className="serp">
               <div className="u">remperformance.sk › auta › {f.slug || "…"}</div>
-              <div className="t">{(f.seo_title || autoTitle).slice(0, 65)} | REM Performance</div>
+              <div className="t">{(() => { const t = f.seo_title || autoTitle; return (t.length > 58 ? t : t + " | REM").slice(0, 70); })()}</div>
               <div className="d">{(f.seo_description || autoDesc).slice(0, 160)}</div>
             </div>
           </div>

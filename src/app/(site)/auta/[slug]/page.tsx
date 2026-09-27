@@ -30,13 +30,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [car, cfg] = await Promise.all([getCarBySlug(slug), getCalcConfig()]);
   if (!car) return { title: "Auto sa nenašlo", robots: { index: false } };
   const est = carEstimate(cfg, car);
-  const title = car.seo_title || `${carFullName(car)} z USA – odhad ${eur(est.total)} na SK značkách`;
+  const title = car.seo_title || `${carFullName(car)} z USA – ${eur(est.total)} na SK značkách`;
   const description =
     car.seo_description ||
     `${carFullName(car)} z aukcie ${car.auction ?? "Copart"} (${car.location ?? "USA"}), ${km(car.odometer_mi)}${car.primary_damage ? `, poškodenie: ${car.primary_damage.toLowerCase()}` : ""}. Odhad celkovej ceny na Slovensku ${eur(est.total)} vrátane cla, DPH a dopravy${car.sk_price_eur ? `, na SK trhu od ${eur(car.sk_price_eur)}` : ""}.`;
   const img = car.images?.[0] || SITE.ogImage;
   return {
-    title,
+    title: { absolute: title.length > 58 ? title : `${title} | REM` },
     description: description.slice(0, 300),
     alternates: { canonical: `/auta/${car.slug}` },
     openGraph: { type: "website", url: `/auta/${car.slug}`, title, description, images: [{ url: img, alt: carFullName(car) }] },
@@ -124,7 +124,7 @@ export default async function CarPage({ params }: Props) {
           <h1 className="ctitle">{car.year} {car.make} {car.model} <span style={{ color: "var(--rc-red-hi)" }}>{car.trim}</span></h1>
           <p className="csub">{[TYPE_LABEL[car.type], km(car.odometer_mi), car.location, car.auction].filter(Boolean).join(" · ")}</p>
           <div className="detail" style={{ marginTop: 22 }}>
-            <div>
+            <div className="detail__gal">
               <Gallery car={car}>
                 <div className="car__tags">
                   {car.is_demo && <span className="tag tag--warn"><span>Ukážka</span></span>}
@@ -132,8 +132,9 @@ export default async function CarPage({ params }: Props) {
                   {car.title_type && <span className={`tag ${(car.title_type || "").toLowerCase() === "clean" ? "tag--ok" : "tag--sal"}`}><span>{car.title_type}</span></span>}
                 </div>
               </Gallery>
-
-              <div className="block">
+            </div>
+            <div className="detail__rest">
+              <div className="block" style={{ marginTop: 0 }}>
                 <h2>Parametre</h2>
                 <dl className="spec-table">
                   {specs.map(([k, v]) => (<div key={k}><dt>{k}</dt><dd>{v}</dd></div>))}

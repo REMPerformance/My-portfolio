@@ -66,22 +66,16 @@ export function DamageMap({
         <text x="100" y="432" textAnchor="middle" fill="rgba(255,255,255,.45)" fontSize="9" fontWeight="700" letterSpacing="2">ZADOK</text>
         {/* kolesá */}
         {["fl_wheel", "fr_wheel", "rl_wheel", "rr_wheel"].map((id) => (
-          <path key={id} d={SHAPES[id].d} className="dmg-zone" fill={sev(id) ? fill(id) : "#0a0a0c"} stroke="rgba(255,255,255,.35)" strokeWidth="1.2" onClick={() => cycle(id)}>
-            <title>{damageLabel(id)}{sev(id) ? ` – ${SEVERITY[sev(id)!].label}` : ""}</title>
-          </path>
+          <path key={id} d={SHAPES[id].d} className="dmg-zone" fill={sev(id) ? fill(id) : "#0a0a0c"} stroke="rgba(255,255,255,.35)" strokeWidth="1.2" onClick={() => cycle(id)} />
         ))}
         <path d={BODY} fill={BASE} />
         <g clipPath="url(#dmg-body)">
           {Object.entries(SHAPES).filter(([id]) => SHAPES[id].clip).map(([id, s]) => (
-            <path key={id} d={s.d} className="dmg-zone" fill={fill(id)} stroke="#050505" strokeWidth="1.5" filter={sev(id) === "heavy" ? "url(#dmg-glow)" : undefined} onClick={() => cycle(id)}>
-              <title>{damageLabel(id)}{sev(id) ? ` – ${SEVERITY[sev(id)!].label}` : ""}</title>
-            </path>
+            <path key={id} d={s.d} className="dmg-zone" fill={fill(id)} stroke="#050505" strokeWidth="1.5" filter={sev(id) === "heavy" ? "url(#dmg-glow)" : undefined} onClick={() => cycle(id)} />
           ))}
         </g>
         {["windshield", "roof", "rear_window"].map((id) => (
-          <path key={id} d={SHAPES[id].d} className="dmg-zone" fill={fill(id, id === "roof" ? "#121318" : GLASS)} stroke="#050505" strokeWidth="1.5" onClick={() => cycle(id)}>
-            <title>{damageLabel(id)}{sev(id) ? ` – ${SEVERITY[sev(id)!].label}` : ""}</title>
-          </path>
+          <path key={id} d={SHAPES[id].d} className="dmg-zone" fill={fill(id, id === "roof" ? "#121318" : GLASS)} stroke="#050505" strokeWidth="1.5" onClick={() => cycle(id)} />
         ))}
         {/* obrys a detaily */}
         <path d={BODY} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="2" pointerEvents="none" />
