@@ -1,13 +1,14 @@
-# REM Performance – autá z amerických aukcií
+# REM Performance by RACEM – autá z amerických aukcií
 
-Statický web pre **remperformance.sk** (GitHub Pages). Sprostredkovanie dovozu áut z Copartu a IAAI na Slovensko + bonus kredit do RACEM.sk.
+Statický web pre **remperformance.sk** (GitHub Pages) v dizajne RACEM.sk (farby, písma Barlow / Barlow Condensed, tlačidlá). Sprostredkovanie dovozu áut z Copartu a IAAI na Slovensko + bonus kredit do RACEM.sk.
+
+Logo a hero fotka sa načítavajú z CDN racem.sk – ak ich na Shopify zmažeš alebo premenuješ, uprav URL v `index.html`.
 
 ## Štruktúra
 | Súbor | Čo to je |
 |---|---|
 | `index.html` | celý web (dizajn, kalkulačka, ponuka, formulár) |
 | `data/cars.js` | **ponuka áut – tu pridávaš autá** |
-| `lp-webdesign/` | pôvodný web LP Webdesign (dostupný na `/lp-webdesign/`) |
 | `CNAME` | doména remperformance.sk |
 
 ## Ako pridať auto
@@ -22,4 +23,4 @@ Statický web pre **remperformance.sk** (GitHub Pages). Sprostredkovanie dovozu 
 V `index.html` je na začiatku skriptu objekt `CONFIG`: kurz, aukčné poplatky, doprava podľa regiónu, clo, DPH, prístav, kamión, homologácia, tvoj poplatok (`serviceFeeEur`) a úrovne kreditu RACEM. Všetky čísla sú **odhady** – nahraď ich cenami od svojho brokera a špeditéra.
 
 ## Formulár
-Dopyty idú cez Formspree (`CONFIG.formEndpoint`). Teraz je tam ten istý formulár ako na LP Webdesign – odporúčam si vytvoriť nový, aby sa dopyty nemiešali.
+Dopyty idú cez Formspree (`CONFIG.formEndpoint`). Teraz je tam starý formulár z LP Webdesign – odporúčam založiť nový pre autá.
