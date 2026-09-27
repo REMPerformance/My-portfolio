@@ -27,6 +27,7 @@ export function Breakdown({ r, skPrice, compact = false }: { r: CalcResult; skPr
         {row("Homologizácia, STK, EČV", r.homologEur)}
         {row("Náš poplatok za sprostredkovanie", r.serviceFeeEur, "fixný")}
         {r.repairEur > 0 && row("Odhad opravy", r.repairEur)}
+        {r.extraCosts?.map((x) => <div className="bd" key={x.label}><span>{x.label}</span><span>{eur(x.eur)}</span></div>)}
       </div>
       <div className="bd-total">
         <div><small>Odhad celkovej ceny na SK značkách</small><b>{eur(r.total)}</b></div>

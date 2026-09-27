@@ -15,7 +15,7 @@ export function Brand() {
   );
 }
 
-export function Header() {
+export function Header({ topbar }: { topbar?: string }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
@@ -23,7 +23,7 @@ export function Header() {
     <>
       <div className="topbar">
         <div className="wrap">
-          <span>Odhad ceny vrátane cla a DPH<span className="hide-sm"> · K autu až 700 € na tuning</span></span>
+          <span>{(() => { const [a, ...r] = (topbar || "").split(" · "); return <>{a}{r.length ? <span className="hide-sm"> · {r.join(" · ")}</span> : null}</>; })()}</span>
           <a href={SITE.racemUrl} target="_blank" rel="noopener"><span>RACEM.SK</span></a>
         </div>
       </div>

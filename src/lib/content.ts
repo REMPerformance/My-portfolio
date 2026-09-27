@@ -54,3 +54,72 @@ export const CREDIT_TIERS = [
   { label: "Auto 15 000 – 30 000 €", v: 400 },
   { label: "Auto nad 30 000 €", v: 700 }
 ];
+
+/* ═══════════ Upraviteľný obsah webu (admin → Obsah webu) ═══════════ */
+export interface SiteContent {
+  topbar: string;
+  hero: { title1: string; title2: string; title3: string; lead: string; pills: { b: string; t: string }[] };
+  quick: { title: string; bidUsd: number; repairEur: number; skPrice: number };
+  feats: { t: string; d: string }[];
+  steps: { t: string; d: string; tag: string }[];
+  why: { t: string; d: string }[];
+  risk: string;
+  bonus: { title: string; text: string; points: string[]; tiers: { label: string; v: number }[] };
+  faq: { q: string; a: string }[];
+  contact: { human: string; phone: string; hours: string };
+}
+
+export const DEFAULT_CONTENT: SiteContent = {
+  topbar: "Odhad ceny vrátane cla a DPH · K autu až 700 € na tuning",
+  hero: {
+    title1: "Dovoz auta z USA.",
+    title2: "Na kľúč",
+    title3: "na Slovensko.",
+    lead: "Vyberte si auto z amerických aukcií Copart a IAAI. Vydražíme ho za Vás, dovezieme, preclíme, homologizujeme a prihlásime. Celkovú cenu vidíte vopred, vrátane cla a DPH.",
+    pills: [
+      { b: "6–10", t: "týždňov do SR" },
+      { b: "10 %", t: "clo + 23 % DPH v cene" },
+      { b: "700 €", t: "na tuning" }
+    ]
+  },
+  quick: { title: "Ford Mustang GT 2020", bidUsd: 11500, repairEur: 2800, skPrice: 36900 },
+  feats: [
+    { t: "Cena do eura vopred", d: "Aukcia, doprava, clo, DPH aj homologizácia." },
+    { t: "Neprekročíme limit", d: "Prihadzujeme len do sumy, ktorú nastavíte." },
+    { t: "Na kľúč s EČV", d: "Preclenie, STK aj prihlásenie vybavíme." },
+    { t: "Kredit do RACEM", d: "Až 700 € na aero, disky a podvozok." }
+  ],
+  steps: STEPS,
+  why: [
+    { t: "Cena rozpísaná do eura", d: "Pri každom aute vidíte všetky položky: aukciu, poplatky, dopravu, clo, DPH, homologizáciu aj našu odmenu. Náš poplatok je fixný, nie percentá z ceny auta." },
+    { t: "Zmluva a doklady", d: "Na základe zmluvy o sprostredkovaní Vás zastupujeme na aukcii. Nad Váš limit neprihodíme a každú platbu máte zdokladovanú faktúrou." },
+    { t: "Tuning v jednej ruke", d: "Za nami stojí RACEM, slovenský e-shop s certifikovanými performance dielmi. Auto Vám pomôžeme dotiahnuť od opravy až po finálny vzhľad." }
+  ],
+  risk: "Väčšina áut na Coparte a IAAI sú poškodené autá (salvage). Kupujú sa tak, ako stoja a ležia, podľa fotiek a popisu aukcie, bez testovacej jazdy. Skryté poškodenia sa môžu ukázať až pri oprave. Preto ku každému autu uvádzame vlastný odhad opravy a odporúčame rezervu 10 až 15 %.",
+  bonus: {
+    title: "Dovezieme Vám auto. K nemu dostanete kredit na tuning.",
+    text: "Ku každému autu dovezenému cez REM Performance dostanete kredit do e-shopu RACEM.sk na certifikované aero, widebody kity, disky, podvozok a ďalšie.",
+    points: ["Kredit dostanete ako unikátny kód pri odovzdaní auta", "Platí na celý sortiment RACEM", "Platnosť 12 mesiacov od odovzdania"],
+    tiers: CREDIT_TIERS
+  },
+  faq: FAQ,
+  contact: { human: "Ozve sa Vám reálny človek, nie automat.", phone: "", hours: "" }
+};
+
+export function mergeContent(v: unknown): SiteContent {
+  const o = (v && typeof v === "object" ? v : {}) as Partial<SiteContent>;
+  const d = DEFAULT_CONTENT;
+  const arr = <T,>(x: T[] | undefined, def: T[]) => (Array.isArray(x) && x.length ? x : def);
+  return {
+    topbar: o.topbar ?? d.topbar,
+    hero: { ...d.hero, ...(o.hero || {}), pills: arr(o.hero?.pills, d.hero.pills) },
+    quick: { ...d.quick, ...(o.quick || {}) },
+    feats: arr(o.feats, d.feats),
+    steps: arr(o.steps, d.steps),
+    why: arr(o.why, d.why),
+    risk: o.risk ?? d.risk,
+    bonus: { ...d.bonus, ...(o.bonus || {}), points: arr(o.bonus?.points, d.bonus.points), tiers: arr(o.bonus?.tiers, d.bonus.tiers) },
+    faq: arr(o.faq, d.faq),
+    contact: { ...d.contact, ...(o.contact || {}) }
+  };
+}

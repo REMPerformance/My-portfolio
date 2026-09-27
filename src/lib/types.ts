@@ -1,7 +1,25 @@
 export type CarType = "car" | "suv" | "truck" | "moto";
 export type Region = "east" | "central" | "west";
 export type Severity = "light" | "medium" | "heavy";
-export type DamageZone = { zone: string; severity: Severity };
+export type DamageZone = { zone: string; severity: Severity; note?: string };
+
+export interface CarExtra {
+  specs?: { label: string; value: string }[];
+  equipment?: string[];
+  history?: string;
+}
+
+export interface CalcOverride {
+  usdToEur?: number;
+  serviceFeeEur?: number;
+  dutyRate?: number;
+  inlandUsd?: number;
+  oceanUsd?: number;
+  euPortEur?: number;
+  truckEur?: number;
+  homologEur?: number;
+  extraCosts?: { label: string; eur: number }[];
+}
 export type CarStatus = "draft" | "published" | "sold" | "archived";
 export type RunStatus = "run_drive" | "starts" | "no_start" | "unknown";
 
@@ -46,6 +64,8 @@ export interface Car {
   note: string | null;
   seo_title: string | null;
   seo_description: string | null;
+  extra: CarExtra;
+  calc_override: CalcOverride;
   views: number;
   leads_count: number;
   created_at: string;

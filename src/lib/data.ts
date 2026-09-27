@@ -29,3 +29,9 @@ export async function getCardCars() {
   const [cars, cfg] = await Promise.all([getPublicCars(), getCalcConfig()]);
   return { cfg, cars: cars.map((c) => ({ ...c, est: carEstimate(cfg, c) })) };
 }
+
+import { mergeContent, type SiteContent } from "./content";
+export const getContent = cache(async (): Promise<SiteContent> => {
+  const { data } = await serverClient().from("settings").select("value").eq("key", "content").maybeSingle();
+  return mergeContent(data?.value);
+});

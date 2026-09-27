@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { Brand } from "./Header";
 
-export function Footer() {
+export function Footer({ phone }: { phone?: string }) {
   const c = SITE.company;
   return (
     <footer className="foot">
@@ -37,6 +37,7 @@ export function Footer() {
               <li>{c.street}, {c.zip} {c.city}</li>
               <li>IČO: {c.ico} · IČ DPH: {c.icDph}</li>
               <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+              {phone ? <li><a href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a></li> : null}
             </ul>
           </div>
         </div>

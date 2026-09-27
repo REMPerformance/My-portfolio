@@ -74,8 +74,10 @@ export default async function CarPage({ params }: Props) {
     ["Titul", car.title_type || "—"],
     ["VIN", car.vin || "Na vyžiadanie"],
     ["Aukcia", [car.auction, car.lot && `lot ${car.lot}`].filter(Boolean).join(" · ") || "—"],
-    ["Lokalita", car.location || "—"]
+    ["Lokalita", car.location || "—"],
+    ...((car.extra?.specs || []).filter((x) => x.label && x.value).map((x) => [x.label, x.value] as [string, React.ReactNode]))
   ];
+  const equipment = (car.extra?.equipment || []).filter(Boolean);
 
   const availability = phase === "open" ? "https://schema.org/InStock" : phase === "closed" ? "https://schema.org/SoldOut" : "https://schema.org/Discontinued";
   const carLd = {
@@ -140,6 +142,20 @@ export default async function CarPage({ params }: Props) {
                   {specs.map(([k, v]) => (<div key={k}><dt>{k}</dt><dd>{v}</dd></div>))}
                 </dl>
               </div>
+
+              {equipment.length > 0 && (
+                <div className="block">
+                  <h2>Výbava</h2>
+                  <ul className="equip">{equipment.map((e) => <li key={e}>{e}</li>)}</ul>
+                </div>
+              )}
+
+              {car.extra?.history && (
+                <div className="block">
+                  <h2>História a doplňujúce info</h2>
+                  <div className="prose">{car.extra.history.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}</div>
+                </div>
+              )}
 
               <div className="block">
                 <h2>Rozsah poškodenia</h2>

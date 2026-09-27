@@ -9,6 +9,7 @@ import { eur, regionFromLocation, slugify } from "@/lib/format";
 import { useAdmin } from "@/components/admin/AdminApp";
 import { ImageManager } from "@/components/admin/ImageManager";
 import { DamageMap } from "@/components/DamageMap";
+import { CalcOverridePanel, ExtrasPanel } from "@/components/admin/CarExtras";
 import { Breakdown } from "@/components/Breakdown";
 
 type Form = Omit<Car, "created_at" | "updated_at" | "views" | "leads_count">;
@@ -28,7 +29,7 @@ function blank(): Form {
     keys: true, run_status: "run_drive", title_type: "Salvage", primary_damage: "", secondary_damage: "", damage_zones: [],
     location: "", region: "central", auction: "Copart", lot: "", auction_url: "", images: [],
     current_bid_usd: null, est_bid_usd: null, repair_eur: null, sk_price_eur: null, sk_price_source: "",
-    order_close_at: null, auction_end_at: null, description: "", note: "", seo_title: "", seo_description: ""
+    order_close_at: null, auction_end_at: null, description: "", note: "", seo_title: "", seo_description: "", extra: {}, calc_override: {}
   };
 }
 
@@ -238,6 +239,10 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
             <div className="field"><label>Popis auta (zobrazí sa na webe, dôležité pre Google)</label><textarea className="input" rows={6} value={f.description ?? ""} onChange={(e) => set("description", e.target.value)} placeholder="Napíšte 2–4 vety: výbava, stav, čo treba opraviť, prečo sa auto oplatí. Odseky oddeľte prázdnym riadkom." /></div>
             <div className="field"><label>Váš komentár (zvýraznená poznámka)</label><textarea className="input" rows={3} value={f.note ?? ""} onChange={(e) => set("note", e.target.value)} /></div>
           </div>
+
+          <ExtrasPanel extra={f.extra || {}} onChange={(x) => set("extra", x)} />
+
+          <CalcOverridePanel o={f.calc_override || {}} onChange={(x) => set("calc_override", x)} cfg={cfg} type={f.type} region={f.region} />
 
           <div className="panel">
             <h2>SEO (Google)</h2>

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getCardCars } from "@/lib/data";
 import { SITE } from "@/lib/site";
 import { carFullName, carPhase } from "@/lib/format";
+import { Suspense } from "react";
+import { CarBrowser } from "@/components/CarBrowser";
 import { CarGrid } from "@/components/CarGrid";
 import { PageHead, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
@@ -40,7 +42,9 @@ export default async function Ponuka() {
       />
       <section style={{ paddingTop: 40 }}>
         <div className="wrap">
-          <CarGrid cars={cars} serverNow={serverNow} />
+          <Suspense fallback={<CarGrid cars={cars} serverNow={serverNow} showFilters={false} />}>
+            <CarBrowser cars={cars} serverNow={serverNow} />
+          </Suspense>
           <p className="more">Nevidíte svoje auto? <Link href="/kontakt">Napíšte nám, čo hľadáte</Link> a nájdeme ho na aukcii za Vás.</p>
         </div>
       </section>

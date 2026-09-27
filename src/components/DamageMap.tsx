@@ -1,35 +1,126 @@
 "use client";
+import { useId, useMemo, useState } from "react";
 import type { DamageZone, Severity } from "@/lib/types";
-import { DAMAGE_FLAGS, DAMAGE_ZONES, SEVERITY, SEVERITY_ORDER, damageLabel } from "@/lib/damage";
+import { DAMAGE_FLAGS, SEVERITY, damageLabel, isBodyZone, sevRank } from "@/lib/damage";
+import { VIEWS, viewZones, type Part, type View } from "@/lib/damageViews";
 
-const BODY = "M60,12 Q100,2 140,12 Q176,20 178,62 L180,358 Q178,400 140,408 Q100,416 60,408 Q22,400 20,358 L22,62 Q24,20 60,12 Z";
+/* ───────── Jeden nákres ───────── */
+function CarView({
+  view,
+  sev,
+  selected,
+  onPick,
+  small = false
+}: {
+  view: View;
+  sev: (id: string) => Severity | null;
+  selected?: string | null;
+  onPick?: (id: string) => void;
+  small?: boolean;
+}) {
+  const uid = useId().replace(/[:«»]/g, "");
+  const clip = `b-${uid}`;
+  const dmgFill = (id?: string) => (id && sev(id) ? SEVERITY[sev(id)!].color : null);
+  const edit = !!onPick;
+  const cls = (id?: string) => ["dz", edit && id ? "dz-edit" : "", id && selected === id ? "dz-sel" : ""].join(" ");
+  const click = (id?: string) => (edit && id ? () => onPick!(id) : undefined);
 
-/** Geometria zón na nákrese zhora (predok hore). */
-const SHAPES: Record<string, { d: string; clip?: boolean }> = {
-  front_bumper: { d: "M18,4 H182 V38 H18 Z", clip: true },
-  hood: { d: "M50,38 H150 V118 H50 Z", clip: true },
-  fl_fender: { d: "M18,38 H50 V118 H18 Z", clip: true },
-  fr_fender: { d: "M150,38 H182 V118 H150 Z", clip: true },
-  windshield: { d: "M54,120 H146 L140,154 H60 Z" },
-  roof: { d: "M60,156 H140 V262 H60 Z" },
-  fl_door: { d: "M18,120 H52 V198 H18 Z", clip: true },
-  rl_door: { d: "M18,200 H52 V276 H18 Z", clip: true },
-  fr_door: { d: "M148,120 H182 V198 H148 Z", clip: true },
-  rr_door: { d: "M148,200 H182 V276 H148 Z", clip: true },
-  rear_window: { d: "M60,264 H140 L146,292 H54 Z" },
-  rl_quarter: { d: "M18,278 H52 V370 H18 Z", clip: true },
-  rr_quarter: { d: "M148,278 H182 V370 H148 Z", clip: true },
-  trunk: { d: "M52,294 H148 V370 H52 Z", clip: true },
-  rear_bumper: { d: "M18,370 H182 V420 H18 Z", clip: true },
-  fl_wheel: { d: "M4,62 h14 a3,3 0 0 1 3,3 v38 a3,3 0 0 1 -3,3 h-14 a3,3 0 0 1 -3,-3 v-38 a3,3 0 0 1 3,-3 Z" },
-  fr_wheel: { d: "M182,62 h14 a3,3 0 0 1 3,3 v38 a3,3 0 0 1 -3,3 h-14 a3,3 0 0 1 -3,-3 v-38 a3,3 0 0 1 3,-3 Z" },
-  rl_wheel: { d: "M4,300 h14 a3,3 0 0 1 3,3 v38 a3,3 0 0 1 -3,3 h-14 a3,3 0 0 1 -3,-3 v-38 a3,3 0 0 1 3,-3 Z" },
-  rr_wheel: { d: "M182,300 h14 a3,3 0 0 1 3,3 v38 a3,3 0 0 1 -3,3 h-14 a3,3 0 0 1 -3,-3 v-38 a3,3 0 0 1 3,-3 Z" }
-};
+  const baseFill = (p: Part) =>
+    p.kind === "glass" ? `url(#glass-${uid})` : p.kind === "light" ? `url(#light-${uid})` : p.kind === "tail" ? `url(#tail-${uid})` : p.kind === "grille" ? "#0b0c0f" : p.kind === "tire" ? "#0a0a0b" : p.kind === "trim" ? "#1b1c21" : "transparent";
 
-const BASE = "#17181d";
-const GLASS = "#0f1a22";
+  const renderPart = (p: Part, i: number) => {
+    const f = dmgFill(p.zone);
+    const heavy = p.zone && sev(p.zone) === "heavy";
+    return (
+      <path
+        key={(p.zone || "x") + i}
+        d={p.d}
+        className={cls(p.zone)}
+        fill={f ?? baseFill(p)}
+        fillOpacity={f ? 0.9 : 1}
+        stroke={p.kind === "panel" ? "rgba(0,0,0,.55)" : "rgba(255,255,255,.28)"}
+        strokeWidth={p.kind === "panel" ? 1.2 : 1}
+        filter={heavy ? `url(#glow-${uid})` : undefined}
+        onClick={click(p.zone)}
+        aria-label={p.zone ? damageLabel(p.zone) : undefined}
+      />
+    );
+  };
 
+  const inner = (
+    <>
+      {(view.under || []).map(renderPart)}
+      <path d={view.body} fill={`url(#paint-${uid})`} />
+      <g clipPath={`url(#${clip})`}>{view.parts.filter((p) => p.clip).map(renderPart)}</g>
+      {/* lesk karosérie */}
+      <path d={view.body} fill={`url(#sheen-${uid})`} pointerEvents="none" />
+      {view.parts.filter((p) => !p.clip).map(renderPart)}
+      {(view.wheels || []).map((w) => {
+        const f = dmgFill(w.zone);
+        return (
+          <g key={w.zone} className={cls(w.zone)} onClick={click(w.zone)} aria-label={damageLabel(w.zone)}>
+            <circle cx={w.cx} cy={w.cy} r={w.r} fill={f ?? "#0a0a0b"} fillOpacity={f ? 0.9 : 1} stroke="rgba(255,255,255,.25)" strokeWidth="1.5" />
+            <circle cx={w.cx} cy={w.cy} r={w.r * 0.62} fill={`url(#rim-${uid})`} stroke="rgba(255,255,255,.35)" strokeWidth="1" pointerEvents="none" />
+            {Array.from({ length: 5 }, (_, k) => {
+              const a = (k * 72 * Math.PI) / 180;
+              return <line key={k} x1={w.cx} y1={w.cy} x2={w.cx + Math.cos(a) * w.r * 0.58} y2={w.cy + Math.sin(a) * w.r * 0.58} stroke="rgba(0,0,0,.55)" strokeWidth={w.r * 0.12} strokeLinecap="round" pointerEvents="none" />;
+            })}
+            <circle cx={w.cx} cy={w.cy} r={w.r * 0.14} fill="#c8102e" pointerEvents="none" />
+          </g>
+        );
+      })}
+      <path d={view.body} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="1.8" pointerEvents="none" />
+      <path d={view.deco} fill="none" stroke="rgba(255,255,255,.16)" strokeWidth="1.2" pointerEvents="none" />
+    </>
+  );
+
+  const pad = 26;
+  return (
+    <svg viewBox={`-10 ${-pad} ${view.w + 20} ${view.h + pad + 10}`} className={small ? "dv-svg small" : "dv-svg"} role="img" aria-label={`Nákres auta – ${view.label}`}>
+      <defs>
+        <clipPath id={clip}><path d={view.body} /></clipPath>
+        <linearGradient id={`paint-${uid}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#3a3d46" />
+          <stop offset=".45" stopColor="#23252c" />
+          <stop offset="1" stopColor="#121317" />
+        </linearGradient>
+        <linearGradient id={`sheen-${uid}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity=".10" />
+          <stop offset=".35" stopColor="#fff" stopOpacity="0" />
+          <stop offset=".7" stopColor="#fff" stopOpacity=".04" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={`glass-${uid}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#3b5366" />
+          <stop offset=".5" stopColor="#152029" />
+          <stop offset="1" stopColor="#0b1117" />
+        </linearGradient>
+        <linearGradient id={`light-${uid}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#e8eef5" />
+          <stop offset="1" stopColor="#7d8894" />
+        </linearGradient>
+        <linearGradient id={`tail-${uid}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#ff2e35" />
+          <stop offset="1" stopColor="#6d0714" />
+        </linearGradient>
+        <radialGradient id={`rim-${uid}`}>
+          <stop offset="0" stopColor="#9aa1ad" />
+          <stop offset="1" stopColor="#3a3e47" />
+        </radialGradient>
+        <filter id={`glow-${uid}`} x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="3" result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+      {view.labels.map((l) => (
+        <text key={l.t} x={l.x} y={l.y - (view.id === "top" ? 12 : 12)} textAnchor={l.a || "middle"} fill="rgba(255,255,255,.45)" fontSize={view.id === "top" ? 11 : 12} fontWeight="700" letterSpacing="2">{l.t}</text>
+      ))}
+      {view.mirror ? <g transform={`translate(${view.w},0) scale(-1,1)`}>{inner}</g> : inner}
+    </svg>
+  );
+}
+
+/* ───────── Mapa poškodenia (zobrazenie + editor) ───────── */
 export function DamageMap({
   zones,
   onChange,
@@ -40,89 +131,116 @@ export function DamageMap({
   showList?: boolean;
 }) {
   const edit = !!onChange;
-  const sev = (id: string) => zones.find((z) => z.zone === id)?.severity ?? null;
-  const cycle = (id: string) => {
+  const byId = useMemo(() => new Map(zones.map((z) => [z.zone, z])), [zones]);
+  const sev = (id: string) => byId.get(id)?.severity ?? null;
+  const counts = useMemo(() => VIEWS.map((v) => { const s = viewZones(v); return zones.filter((z) => s.has(z.zone)).length; }), [zones]);
+  const firstWithDamage = counts.findIndex((c) => c > 0);
+  const [vi, setVi] = useState(edit ? 0 : Math.max(0, firstWithDamage));
+  const [sel, setSel] = useState<string | null>(null);
+  const view = VIEWS[vi];
+
+  const setZone = (id: string, patch: Partial<DamageZone> | null) => {
     if (!onChange) return;
-    const cur = sev(id);
-    const next = SEVERITY_ORDER[(SEVERITY_ORDER.indexOf(cur) + 1) % SEVERITY_ORDER.length];
     const rest = zones.filter((z) => z.zone !== id);
-    onChange(next ? [...rest, { zone: id, severity: next as Severity }] : rest);
+    if (!patch) return onChange(rest);
+    const cur = byId.get(id);
+    onChange([...rest, { zone: id, severity: patch.severity ?? cur?.severity ?? "medium", note: patch.note ?? cur?.note ?? "" }]);
   };
-  const fill = (id: string, base = BASE) => {
-    const s = sev(id);
-    return s ? SEVERITY[s].color : base;
-  };
-  const ordered = [...zones].sort((a, b) => SEVERITY_ORDER.indexOf(b.severity) - SEVERITY_ORDER.indexOf(a.severity));
-  const flags = DAMAGE_FLAGS.filter((f) => edit || sev(f.id));
+
+  const body = [...zones].filter((z) => isBodyZone(z.zone)).sort((a, b) => sevRank(b.severity) - sevRank(a.severity));
+  const flags = zones.filter((z) => !isBodyZone(z.zone));
+  const selZone = sel ? byId.get(sel) : null;
 
   return (
-    <div className={`dmg${edit ? " edit" : ""}`}>
-      <svg viewBox="-4 -14 208 450" role="img" aria-label="Nákres auta zhora s vyznačeným poškodením">
-        <defs>
-          <clipPath id="dmg-body"><path d={BODY} /></clipPath>
-          <filter id="dmg-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
-        </defs>
-        <text x="100" y="-3" textAnchor="middle" fill="rgba(255,255,255,.45)" fontSize="9" fontWeight="700" letterSpacing="2">PREDOK</text>
-        <text x="100" y="432" textAnchor="middle" fill="rgba(255,255,255,.45)" fontSize="9" fontWeight="700" letterSpacing="2">ZADOK</text>
-        {/* kolesá */}
-        {["fl_wheel", "fr_wheel", "rl_wheel", "rr_wheel"].map((id) => (
-          <path key={id} d={SHAPES[id].d} className="dmg-zone" fill={sev(id) ? fill(id) : "#0a0a0c"} stroke="rgba(255,255,255,.35)" strokeWidth="1.2" onClick={() => cycle(id)} />
+    <div className={`dmg2${edit ? " edit" : ""}`}>
+      <div className="dv-tabs" role="tablist" aria-label="Pohľad na auto">
+        {VIEWS.map((v, i) => (
+          <button key={v.id} type="button" role="tab" aria-selected={vi === i} className={`dv-tab${vi === i ? " on" : ""}`} onClick={() => setVi(i)}>
+            {v.label}{counts[i] > 0 && <span className="dv-count">{counts[i]}</span>}
+          </button>
         ))}
-        <path d={BODY} fill={BASE} />
-        <g clipPath="url(#dmg-body)">
-          {Object.entries(SHAPES).filter(([id]) => SHAPES[id].clip).map(([id, s]) => (
-            <path key={id} d={s.d} className="dmg-zone" fill={fill(id)} stroke="#050505" strokeWidth="1.5" filter={sev(id) === "heavy" ? "url(#dmg-glow)" : undefined} onClick={() => cycle(id)} />
-          ))}
-        </g>
-        {["windshield", "roof", "rear_window"].map((id) => (
-          <path key={id} d={SHAPES[id].d} className="dmg-zone" fill={fill(id, id === "roof" ? "#121318" : GLASS)} stroke="#050505" strokeWidth="1.5" onClick={() => cycle(id)} />
-        ))}
-        {/* obrys a detaily */}
-        <path d={BODY} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="2" pointerEvents="none" />
-        <g stroke="rgba(255,255,255,.18)" strokeWidth="1" fill="none" pointerEvents="none">
-          <path d="M52,120 V276 M148,120 V276 M52,198 H60 M140,198 H148" />
-          <path d="M18,128 l-10,6 v8 l10,2 M182,128 l10,6 v8 l-10,2" stroke="rgba(255,255,255,.4)" />
-        </g>
-        <rect x="28" y="16" width="22" height="7" rx="3" fill="rgba(255,255,255,.7)" pointerEvents="none" />
-        <rect x="150" y="16" width="22" height="7" rx="3" fill="rgba(255,255,255,.7)" pointerEvents="none" />
-        <rect x="26" y="396" width="24" height="6" rx="2" fill="#c8102e" pointerEvents="none" />
-        <rect x="150" y="396" width="24" height="6" rx="2" fill="#c8102e" pointerEvents="none" />
-      </svg>
+      </div>
 
-      <div>
-        <div className="dmg-legend" aria-hidden="true">
-          {(Object.keys(SEVERITY) as Severity[]).map((k) => (
-            <span key={k}><i style={{ background: SEVERITY[k].color }} />{SEVERITY[k].label}</span>
-          ))}
-          <span><i style={{ background: BASE, border: "1px solid rgba(255,255,255,.3)" }} />Bez poškodenia</span>
+      <div className="dv-grid">
+        <div className="dv-stage">
+          <CarView view={view} sev={sev} selected={sel} onPick={edit ? (id) => setSel(id) : undefined} />
+          <div className="dmg-legend" aria-hidden="true">
+            {(Object.keys(SEVERITY) as Severity[]).map((k) => (
+              <span key={k}><i style={{ background: SEVERITY[k].color }} />{SEVERITY[k].label}</span>
+            ))}
+            <span><i style={{ background: "#2a2c33", border: "1px solid rgba(255,255,255,.3)" }} />Bez poškodenia</span>
+          </div>
+          <div className="dv-thumbs" aria-hidden="true">
+            {VIEWS.map((v, i) => (
+              <button type="button" key={v.id} className={`dv-thumb${vi === i ? " on" : ""}`} onClick={() => setVi(i)} tabIndex={-1}>
+                <CarView view={v} sev={sev} small />
+              </button>
+            ))}
+          </div>
         </div>
-        {edit && <p className="note" style={{ marginTop: 0, marginBottom: 12 }}>Kliknite na časť auta: ľahké → stredné → ťažké → bez poškodenia.</p>}
-        {showList && (
-          ordered.filter((z) => DAMAGE_ZONES.some((d) => d.id === z.zone)).length > 0 ? (
-            <ul className="dmg-list">
-              {ordered.filter((z) => DAMAGE_ZONES.some((d) => d.id === z.zone)).map((z) => (
-                <li key={z.zone}><span>{damageLabel(z.zone)}</span><b style={{ color: SEVERITY[z.severity].color }}>{SEVERITY[z.severity].label}</b></li>
-              ))}
-            </ul>
-          ) : !edit ? <p className="note" style={{ marginTop: 0 }}>Na karosérii nie je vyznačené poškodenie.</p> : null
-        )}
-        {flags.length > 0 && (
-          <>
-            <div className="lbl-sm" style={{ marginTop: 16 }}>{edit ? "Ďalšie poškodenia (klikni)" : "Ďalšie poškodenia"}</div>
-            <div className="flags">
-              {flags.map((f) => {
-                const s = sev(f.id);
-                return edit ? (
-                  <button type="button" key={f.id} className="flag" onClick={() => cycle(f.id)} style={s ? { borderColor: SEVERITY[s].color, color: SEVERITY[s].color } : undefined}>
-                    {f.label}{s ? ` · ${SEVERITY[s].label}` : ""}
-                  </button>
-                ) : (
-                  <span key={f.id} className="flag" style={{ borderColor: SEVERITY[s!].color, color: SEVERITY[s!].color }}>{f.label} · {SEVERITY[s!].label}</span>
-                );
-              })}
+
+        <div className="dv-side">
+          {edit && (
+            <div className="dv-editor">
+              {sel ? (
+                <>
+                  <div className="lbl-sm">Vybraná časť</div>
+                  <b className="dv-selname">{damageLabel(sel)}</b>
+                  <div className="dv-sevbtns">
+                    {(Object.keys(SEVERITY) as Severity[]).map((k) => (
+                      <button type="button" key={k} className={`dv-sev${selZone?.severity === k ? " on" : ""}`} style={{ "--c": SEVERITY[k].color } as React.CSSProperties} onClick={() => setZone(sel, { severity: k })}>
+                        {SEVERITY[k].label}
+                      </button>
+                    ))}
+                    <button type="button" className="dv-sev clear" onClick={() => setZone(sel, null)}>Bez poškodenia</button>
+                  </div>
+                  {selZone && (
+                    <input className="input" placeholder="Poznámka (napr. prasknutý kryt, treba vymeniť)" value={selZone.note || ""} onChange={(e) => setZone(sel, { note: e.target.value })} />
+                  )}
+                </>
+              ) : (
+                <p className="note" style={{ margin: 0 }}>Kliknite na časť auta v nákrese a nastavte rozsah poškodenia a poznámku. Pohľady prepínate hore.</p>
+              )}
             </div>
-          </>
-        )}
+          )}
+
+          {showList && (
+            body.length ? (
+              <ul className="dmg-list">
+                {body.map((z) => (
+                  <li key={z.zone} className={sel === z.zone ? "on" : ""} onClick={edit ? () => setSel(z.zone) : undefined}>
+                    <span>
+                      {damageLabel(z.zone)}
+                      {z.note ? <small>{z.note}</small> : null}
+                    </span>
+                    <b style={{ color: SEVERITY[z.severity].color }}>{SEVERITY[z.severity].label}</b>
+                  </li>
+                ))}
+              </ul>
+            ) : !edit ? <p className="note" style={{ marginTop: 0 }}>Na karosérii nie je vyznačené poškodenie.</p> : null
+          )}
+
+          {(edit || flags.length > 0) && (
+            <>
+              <div className="lbl-sm" style={{ marginTop: 16 }}>{edit ? "Ďalšie poškodenia (klikni pre zmenu)" : "Ďalšie poškodenia"}</div>
+              <div className="flags">
+                {(edit ? DAMAGE_FLAGS : DAMAGE_FLAGS.filter((f) => byId.has(f.id))).map((f) => {
+                  const s = sev(f.id);
+                  const st = s ? { borderColor: SEVERITY[s].color, color: SEVERITY[s].color } : undefined;
+                  return edit ? (
+                    <button type="button" key={f.id} className={`flag${sel === f.id ? " sel" : ""}`} style={st} onClick={() => { if (!s) setZone(f.id, { severity: "medium" }); setSel(f.id); }}>
+                      {f.label}{s ? ` · ${SEVERITY[s].label}` : ""}
+                    </button>
+                  ) : (
+                    <span key={f.id} className="flag" style={st} title={byId.get(f.id)?.note || undefined}>
+                      {f.label} · {SEVERITY[s!].label}{byId.get(f.id)?.note ? ` – ${byId.get(f.id)!.note}` : ""}
+                    </span>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

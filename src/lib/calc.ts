@@ -1,4 +1,4 @@
-import type { CalcConfig, CarType, Region, Car } from "./types";
+import type { CalcConfig, CarType, Region, Car, CalcOverride } from "./types";
 
 export const DEFAULT_CALC: CalcConfig = {
   usdToEur: 0.86,
@@ -33,6 +33,7 @@ export interface CalcResult {
   homologEur: number;
   serviceFeeEur: number;
   repairEur: number;
+  extraCosts: { label: string; eur: number }[];
   total: number;
   credit: number;
   deposit: number;
@@ -45,7 +46,7 @@ export function auctionFee(cfg: CalcConfig, bid: number) {
 
 export function calc(
   cfg: CalcConfig,
-  { bidUsd, type = "car", region = "central", repairEur = 0, rate }: { bidUsd: number; type?: CarType; region?: Region; repairEur?: number; rate?: number }
+  { bidUsd, type = "car", region = "central", repairEur = 0, rate, extraCosts = [] }: { bidUsd: number; type?: CarType; region?: Region; repairEur?: number; rate?: number; extraCosts?: { label: string; eur: number }[] }
 ): CalcResult {
   const r = rate || cfg.usdToEur;
   const carEur = bidUsd * r;
@@ -56,18 +57,39 @@ export function calc(
   const dutyRate = cfg.dutyRate[type] ?? 0.1;
   const duty = cif * dutyRate;
   const vat = (cif + duty + cfg.euPortEur + cfg.truckEur) * cfg.vatRate;
-  const total = cif + duty + cfg.euPortEur + cfg.truckEur + vat + cfg.homologEur + cfg.serviceFeeEur + repairEur;
+  const extras = extraCosts.filter((x) => x && x.label && Number(x.eur));
+  const extraSum = extras.reduce((a, x) => a + Number(x.eur), 0);
+  const total = cif + duty + cfg.euPortEur + cfg.truckEur + vat + cfg.homologEur + cfg.serviceFeeEur + repairEur + extraSum;
   const credit = (cfg.racemCredit.find(([max]) => total <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
   const deposit = Math.max(cfg.depositMinEur, Math.round((total * cfg.depositPct) / 50) * 50);
   return {
     bidUsd, carEur, feeEur, inlandEur, oceanEur, cif, dutyRate, duty, vat,
     euPortEur: cfg.euPortEur, truckEur: cfg.truckEur, homologEur: cfg.homologEur, serviceFeeEur: cfg.serviceFeeEur,
-    repairEur, total, credit, deposit
+    repairEur, extraCosts: extras, total, credit, deposit
   };
 }
 
-export function carEstimate(cfg: CalcConfig, car: Pick<Car, "est_bid_usd" | "current_bid_usd" | "type" | "region" | "repair_eur">) {
-  return calc(cfg, {
+/** Globálne nastavenia + výnimky pre konkrétne auto (prázdne polia = globálna hodnota). */
+export function applyOverride(cfg: CalcConfig, o: CalcOverride | null | undefined, type: CarType, region: Region): CalcConfig {
+  if (!o) return cfg;
+  const n = (v: unknown) => typeof v === "number" && isFinite(v);
+  return {
+    ...cfg,
+    usdToEur: n(o.usdToEur) ? o.usdToEur! : cfg.usdToEur,
+    serviceFeeEur: n(o.serviceFeeEur) ? o.serviceFeeEur! : cfg.serviceFeeEur,
+    euPortEur: n(o.euPortEur) ? o.euPortEur! : cfg.euPortEur,
+    truckEur: n(o.truckEur) ? o.truckEur! : cfg.truckEur,
+    homologEur: n(o.homologEur) ? o.homologEur! : cfg.homologEur,
+    dutyRate: n(o.dutyRate) ? { ...cfg.dutyRate, [type]: o.dutyRate! } : cfg.dutyRate,
+    inlandUsd: n(o.inlandUsd) ? { ...cfg.inlandUsd, [region]: o.inlandUsd! } : cfg.inlandUsd,
+    oceanUsd: n(o.oceanUsd) ? { ...cfg.oceanUsd, [region]: o.oceanUsd! } : cfg.oceanUsd
+  };
+}
+
+export function carEstimate(cfg: CalcConfig, car: Pick<Car, "est_bid_usd" | "current_bid_usd" | "type" | "region" | "repair_eur"> & { calc_override?: CalcOverride | null }) {
+  const c = applyOverride(cfg, car.calc_override, car.type, car.region);
+  return calc(c, {
+    extraCosts: car.calc_override?.extraCosts || [],
     bidUsd: car.est_bid_usd || car.current_bid_usd || 0,
     type: car.type,
     region: car.region,

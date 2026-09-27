@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getCalcConfig } from "@/lib/data";
+import { getCalcConfig, getContent } from "@/lib/data";
 import { eur } from "@/lib/format";
 import { Bonus, Faq, PageHead, Steps, Why, breadcrumbLd, faqLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { IArrow } from "@/components/Icons";
-import { FAQ } from "@/lib/content";
 
 export const revalidate = 300;
 
@@ -17,9 +16,9 @@ export const metadata: Metadata = {
 };
 
 export default async function HowPage() {
-  const cfg = await getCalcConfig();
+  const [cfg, ct] = await Promise.all([getCalcConfig(), getContent()]);
   const crumbs = [{ name: "Domov", path: "/" }, { name: "Ako to funguje", path: "/ako-to-funguje" }];
-  const faq = FAQ.filter((f) => /záloha|dlho|clo|prihlásiť|objednať|titul/i.test(f.q));
+  const faq = ct.faq.filter((f) => /záloha|dlho|clo|prihlásiť|objednať|titul/i.test(f.q));
   return (
     <>
       <JsonLd data={breadcrumbLd(crumbs)} />
@@ -28,7 +27,7 @@ export default async function HowPage() {
 
       <section>
         <div className="wrap">
-          <Steps />
+          <Steps items={ct.steps} />
         </div>
       </section>
 
@@ -71,11 +70,11 @@ export default async function HowPage() {
       <section>
         <div className="wrap">
           <div className="sec-head"><div><span className="eyebrow">Prečo cez nás</span><h2 className="title">Férovo a <em>otvorene</em></h2></div></div>
-          <Why />
+          <Why items={ct.why} risk={ct.risk} />
         </div>
       </section>
 
-      <Bonus />
+      <Bonus b={ct.bonus} />
 
       <section>
         <div className="wrap">

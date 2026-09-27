@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Faq, PageHead, breadcrumbLd, faqLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
-import { FAQ } from "@/lib/content";
+import { getContent } from "@/lib/data";
 import { LeadForm } from "@/components/LeadForm";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Časté otázky o dovoze auta z USA",
@@ -11,15 +13,16 @@ export const metadata: Metadata = {
   openGraph: { url: "/caste-otazky" }
 };
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const ct = await getContent();
   const crumbs = [{ name: "Domov", path: "/" }, { name: "Časté otázky", path: "/caste-otazky" }];
   return (
     <>
       <JsonLd data={breadcrumbLd(crumbs)} />
-      <JsonLd data={faqLd(FAQ)} />
+      <JsonLd data={faqLd(ct.faq)} />
       <PageHead crumbs={crumbs} title={<>Časté <em>otázky</em></>} sub="Všetko, čo potrebujete vedieť pred objednaním auta z USA. Ak tu odpoveď nenájdete, napíšte nám." />
       <section style={{ paddingTop: 40 }}>
-        <div className="wrap"><Faq /></div>
+        <div className="wrap"><Faq items={ct.faq} /></div>
       </section>
       <section className="alt">
         <div className="wrap contact">

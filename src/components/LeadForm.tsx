@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { browserClient } from "@/lib/supabase";
 import { SITE } from "@/lib/site";
 
 export function LeadForm({
@@ -31,20 +30,25 @@ export function LeadForm({
     if (!f.get("gdpr") || !f.get("terms")) { setState("err"); setMsg("Potvrďte prosím oba súhlasy."); return; }
     setState("sending");
     const budget = Number(f.get("budget")) || null;
-    const { error } = await browserClient().from("leads").insert({
-      car_id: car?.id ?? null,
-      car_label: car?.label ?? null,
-      name, email, phone,
-      max_budget_eur: budget,
-      link: String(f.get("link") || "").trim() || null,
-      message: String(f.get("message") || "").trim() || null,
-      consent_gdpr: true,
-      consent_terms: true,
-      page_url: typeof window !== "undefined" ? window.location.href.slice(0, 500) : null
-    });
-    if (error) {
+    const res = await fetch("/api/lead", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        car_id: car?.id ?? null,
+        car_label: car?.label ?? null,
+        name, email, phone,
+        max_budget_eur: budget,
+        link: String(f.get("link") || "").trim() || null,
+        message: String(f.get("message") || "").trim() || null,
+        consent_gdpr: true,
+        consent_terms: true,
+        page_url: typeof window !== "undefined" ? window.location.href.slice(0, 500) : null
+      })
+    }).catch(() => null);
+    if (!res || !res.ok) {
+      const j = res ? await res.json().catch(() => ({})) : {};
       setState("err");
-      setMsg(/uzavret|nie je v ponuke/i.test(error.message) ? error.message : `Odoslanie sa nepodarilo. Napíšte nám prosím na ${SITE.email}.`);
+      setMsg((j as { error?: string }).error || `Odoslanie sa nepodarilo. Napíšte nám prosím na ${SITE.email}.`);
       return;
     }
     (e.target as HTMLFormElement).reset();

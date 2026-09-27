@@ -16,6 +16,9 @@ export default function AdminCars() {
   const [cars, setCars] = useState<Car[] | null>(null);
   const [q, setQ] = useState("");
   const [st, setSt] = useState("all");
+  const [mk, setMk] = useState("");
+  const [ph, setPh] = useState("");
+  const [sort, setSort] = useState("new");
   const now = useNow(30000) ?? 0;
 
   const load = useCallback(async () => {
@@ -26,8 +29,19 @@ export default function AdminCars() {
   useEffect(() => { load(); }, [load]);
 
   const list = useMemo(
-    () => (cars || []).filter((c) => (st === "all" || c.status === st) && `${c.year} ${c.make} ${c.model} ${c.trim} ${c.lot}`.toLowerCase().includes(q.toLowerCase())),
-    [cars, q, st]
+    () => {
+      const t = now || Date.now();
+      const r = (cars || []).filter((c) => (st === "all" || c.status === st) && (!mk || c.make === mk) && (!ph || carPhase(c, t) === ph) && `${c.year} ${c.make} ${c.model} ${c.trim} ${c.lot} ${c.vin}`.toLowerCase().includes(q.toLowerCase()));
+      const close = (c: Car) => Date.parse(c.order_close_at || c.auction_end_at || "") || Infinity;
+      const cmp: Record<string, (a: Car, b: Car) => number> = {
+        new: (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
+        close: (a, b) => close(a) - close(b),
+        leads: (a, b) => b.leads_count - a.leads_count,
+        views: (a, b) => b.views - a.views
+      };
+      return r.sort(cmp[sort]);
+    },
+    [cars, q, st, mk, ph, sort, now]
   );
   const stats = useMemo(() => {
     const c = cars || [];
@@ -80,6 +94,22 @@ export default function AdminCars() {
         <select className="input" value={st} onChange={(e) => setSt(e.target.value)}>
           <option value="all">Všetky stavy</option>
           {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+        <select className="input" value={mk} onChange={(e) => setMk(e.target.value)}>
+          <option value="">Všetky značky</option>
+          {[...new Set((cars || []).map((c) => c.make))].sort().map((m) => <option key={m} value={m}>{m}</option>)}
+        </select>
+        <select className="input" value={ph} onChange={(e) => setPh(e.target.value)}>
+          <option value="">Všetky fázy</option>
+          <option value="open">Objednávky otvorené</option>
+          <option value="closed">Objednávky uzavreté</option>
+          <option value="ended">Aukcia skončila</option>
+        </select>
+        <select className="input" value={sort} onChange={(e) => setSort(e.target.value)}>
+          <option value="new">Najnovšie pridané</option>
+          <option value="close">Uzávierka najskôr</option>
+          <option value="leads">Najviac záujemcov</option>
+          <option value="views">Najviac zobrazení</option>
         </select>
       </div>
       {cars === null ? <p className="note">Načítavam…</p> : list.length === 0 ? (

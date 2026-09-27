@@ -1,20 +1,15 @@
 import Link from "next/link";
-import { CREDIT_TIERS, FAQ, STEPS } from "@/lib/content";
+import { DEFAULT_CONTENT, FAQ, type SiteContent } from "@/lib/content";
 import { SITE } from "@/lib/site";
 import { ICar, IExt, IGift, IList, IShield, IWrench } from "./Icons";
 
-export function Feats() {
-  const items = [
-    { i: <IList />, t: "Cena do eura vopred", d: "Aukcia, doprava, clo, DPH aj homologizácia." },
-    { i: <IShield />, t: "Neprekročíme limit", d: "Prihadzujeme len do sumy, ktorú nastavíte." },
-    { i: <ICar />, t: "Na kľúč s EČV", d: "Preclenie, STK aj prihlásenie vybavíme." },
-    { i: <IGift />, t: "Kredit do RACEM", d: "Až 700 € na aero, disky a podvozok." }
-  ];
+export function Feats({ items = DEFAULT_CONTENT.feats }: { items?: SiteContent["feats"] }) {
+  const icons = [<IList key="a" />, <IShield key="b" />, <ICar key="c" />, <IGift key="d" />];
   return (
     <div className="feats">
-      {items.map((x) => (
-        <div className="feat" key={x.t}>
-          <div className="ic">{x.i}</div>
+      {items.slice(0, 4).map((x, i) => (
+        <div className="feat" key={x.t + i}>
+          <div className="ic">{icons[i % 4]}</div>
           <div><h3>{x.t}</h3><p>{x.d}</p></div>
         </div>
       ))}
@@ -22,10 +17,10 @@ export function Feats() {
   );
 }
 
-export function Steps() {
+export function Steps({ items = DEFAULT_CONTENT.steps }: { items?: SiteContent["steps"] }) {
   return (
     <ol className="steps">
-      {STEPS.map((s) => (
+      {items.map((s) => (
         <li className="step" key={s.t}>
           <h3>{s.t}</h3>
           <p>{s.d}</p>
@@ -36,7 +31,9 @@ export function Steps() {
   );
 }
 
-export function Bonus() {
+export function Bonus({ b = DEFAULT_CONTENT.bonus }: { b?: SiteContent["bonus"] }) {
+  const words = b.title.split(" ");
+  const cut = Math.max(1, words.length - 3);
   return (
     <section className="bonus" id="bonus" aria-labelledby="bonus-h">
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -44,18 +41,14 @@ export function Bonus() {
       <div className="wrap">
         <div>
           <span className="eyebrow">Bonus k autu · Performance is our DNA</span>
-          <h2 className="title" id="bonus-h">Dovezieme Vám auto.<br />K nemu dostanete <em>kredit na tuning.</em></h2>
-          <p className="sub">Ku každému autu dovezenému cez REM Performance dostanete kredit do e-shopu RACEM.sk na certifikované aero, widebody kity, disky, podvozok a ďalšie.</p>
-          <ul className="checks">
-            <li>Kredit dostanete ako unikátny kód pri odovzdaní auta</li>
-            <li>Platí na celý sortiment RACEM</li>
-            <li>Platnosť 12 mesiacov od odovzdania</li>
-          </ul>
+          <h2 className="title" id="bonus-h">{words.slice(0, cut).join(" ")} <em>{words.slice(cut).join(" ")}</em></h2>
+          <p className="sub">{b.text}</p>
+          <ul className="checks">{b.points.map((p) => <li key={p}>{p}</li>)}</ul>
           <a href={SITE.racemUrl} target="_blank" rel="noopener" className="rc-btn rc-btn--ghost">Pozrieť RACEM.sk <IExt /></a>
         </div>
         <div className="tiers">
-          {CREDIT_TIERS.map((t, i) => (
-            <div className={`tier${i === CREDIT_TIERS.length - 1 ? " top" : ""}`} key={t.label}><span>{t.label}</span><b>{t.v} €</b></div>
+          {b.tiers.map((t, i) => (
+            <div className={`tier${i === b.tiers.length - 1 ? " top" : ""}`} key={t.label + i}><span>{t.label}</span><b>{t.v} €</b></div>
           ))}
         </div>
       </div>
@@ -63,30 +56,25 @@ export function Bonus() {
   );
 }
 
-export function Why() {
+export function Why({ items = DEFAULT_CONTENT.why, risk = DEFAULT_CONTENT.risk }: { items?: SiteContent["why"]; risk?: string }) {
+  const icons = [<IList key="a" />, <IShield key="b" />, <IWrench key="c" />];
   return (
     <>
       <div className="why">
-        <div className="panel">
-          <div className="ic"><IList /></div>
-          <h3>Cena rozpísaná do eura</h3>
-          <p>Pri každom aute vidíte všetky položky: aukciu, poplatky, dopravu, clo, DPH, homologizáciu aj našu odmenu. Náš poplatok je fixný, nie percentá z ceny auta.</p>
-        </div>
-        <div className="panel">
-          <div className="ic"><IShield /></div>
-          <h3>Zmluva a doklady</h3>
-          <p>Na základe zmluvy o sprostredkovaní Vás zastupujeme na aukcii. Nad Váš limit neprihodíme a každú platbu máte zdokladovanú faktúrou.</p>
-        </div>
-        <div className="panel">
-          <div className="ic"><IWrench /></div>
-          <h3>Tuning v jednej ruke</h3>
-          <p>Za nami stojí RACEM, slovenský e-shop s certifikovanými performance dielmi. Auto Vám pomôžeme dotiahnuť od opravy až po finálny vzhľad.</p>
-        </div>
+        {items.map((w, i) => (
+          <div className="panel" key={w.t + i}>
+            <div className="ic">{icons[i % 3]}</div>
+            <h3>{w.t}</h3>
+            <p>{w.d}</p>
+          </div>
+        ))}
       </div>
-      <div className="risk">
-        <b>Úprimne o riziku</b>
-        <p>Väčšina áut na Coparte a IAAI sú poškodené autá (salvage). Kupujú sa tak, ako stoja a ležia, podľa fotiek a popisu aukcie, bez testovacej jazdy. Skryté poškodenia sa môžu ukázať až pri oprave. Preto ku každému autu uvádzame vlastný odhad opravy a odporúčame rezervu 10 až 15 %.</p>
-      </div>
+      {risk && (
+        <div className="risk">
+          <b>Úprimne o riziku</b>
+          <p>{risk}</p>
+        </div>
+      )}
     </>
   );
 }

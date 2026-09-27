@@ -62,7 +62,9 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
     { href: "/admin", label: "Autá" },
     { href: "/admin/auta/nove", label: "+ Pridať auto" },
     { href: "/admin/dopyty", label: "Dopyty", badge: newLeads },
+    { href: "/admin/obsah", label: "Obsah webu" },
     { href: "/admin/nastavenia", label: "Kalkulačka" },
+    { href: "/admin/upozornenia", label: "Upozornenia" },
     { href: "/admin/ucet", label: "Účet" }
   ];
   const on = (h: string) => (h === "/admin" ? path === "/admin" || (path.startsWith("/admin/auta/") && !path.endsWith("/nove")) : path.startsWith(h));
