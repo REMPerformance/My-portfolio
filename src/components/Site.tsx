@@ -7,7 +7,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <a className="skip" href="#obsah">Preskočiť na obsah</a>
-      <Header topbar={c.topbar} />
+      <Header />
       <main id="obsah">{children}</main>
       <Footer phone={c.contact.phone} />
     </>

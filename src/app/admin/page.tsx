@@ -3,7 +3,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { browserClient } from "@/lib/supabase";
 import type { Car } from "@/lib/types";
-import { carPhase, fmtDateTime, num } from "@/lib/format";
+import { carPhase, fmtDateTime, money, num } from "@/lib/format";
+import { COUNTRIES, countryDef, placeName } from "@/lib/origins";
 import { useAdmin } from "@/components/admin/AdminApp";
 import { fmtLeft, useNow } from "@/components/Countdown";
 
@@ -19,6 +20,7 @@ export default function AdminCars() {
   const [mk, setMk] = useState("");
   const [ph, setPh] = useState("");
   const [sale, setSale] = useState("");
+  const [ctry, setCtry] = useState("");
   const [sort, setSort] = useState("new");
   const now = useNow(30000) ?? 0;
 
@@ -32,7 +34,7 @@ export default function AdminCars() {
   const list = useMemo(
     () => {
       const t = now || Date.now();
-      const r = (cars || []).filter((c) => (st === "all" || c.status === st) && (!mk || c.make === mk) && (!ph || carPhase(c, t) === ph) && (!sale || (c.sale_type || "auction") === sale) && `${c.year} ${c.make} ${c.model} ${c.trim} ${c.lot} ${c.vin}`.toLowerCase().includes(q.toLowerCase()));
+      const r = (cars || []).filter(Boolean).filter((c) => (st === "all" || c.status === st) && (!mk || c.make === mk) && (!ph || carPhase(c, t) === ph) && (!sale || (c.sale_type || "auction") === sale) && (!ctry || (c.country || "US") === ctry) && `${c.year} ${c.make} ${c.model} ${c.trim} ${c.lot} ${c.vin}`.toLowerCase().includes(q.toLowerCase()));
       const close = (c: Car) => Date.parse(c.order_close_at || c.auction_end_at || "") || Infinity;
       const cmp: Record<string, (a: Car, b: Car) => number> = {
         new: (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
@@ -42,7 +44,7 @@ export default function AdminCars() {
       };
       return r.sort(cmp[sort]);
     },
-    [cars, q, st, mk, ph, sale, sort, now]
+    [cars, q, st, mk, ph, sale, ctry, sort, now]
   );
   const stats = useMemo(() => {
     const c = cars || [];
@@ -100,6 +102,10 @@ export default function AdminCars() {
           <option value="">Všetky značky</option>
           {[...new Set((cars || []).map((c) => c.make))].sort().map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
+        <select className="input" value={ctry} onChange={(e) => setCtry(e.target.value)}>
+          <option value="">Všetky krajiny</option>
+          {COUNTRIES.map((x) => <option key={x.code} value={x.code}>{x.flag} {x.name}</option>)}
+        </select>
         <select className="input" value={sale} onChange={(e) => setSale(e.target.value)}>
           <option value="">Aukcie aj pevné ceny</option>
           <option value="auction">Len aukcie</option>
@@ -133,11 +139,11 @@ export default function AdminCars() {
                     <td>{c.images?.[0] ? <img className="thumb" src={c.images[0]} alt="" /> : <div className="thumb" />}</td>
                     <td className="name">
                       <Link href={`/admin/auta/${c.id}`}>{c.year} {c.make} {c.model} {c.is_demo && <span className="pill" style={{ color: "var(--warn)" }}>ukážka</span>} {c.sale_type === "fixed" && <span className="pill" style={{ color: "#fff" }}>pevná cena</span>}</Link>
-                      <small>{[c.trim, c.auction && `${c.auction} ${c.lot ?? ""}`, c.location].filter(Boolean).join(" · ")}</small>
+                      <small>{countryDef(c.country).flag} {[c.trim, placeName(c.country, c.state) || c.location, c.auction && `${c.auction} ${c.lot ?? ""}`.trim()].filter(Boolean).join(" · ")}</small>
                     </td>
                     <td><span className={`pill ${c.status}`}>{STATUS_LABEL[c.status]}</span><br /><span className={`pill ${ph}`} style={{ marginTop: 4 }}>{c.sale_type === "fixed" ? (ph === "ended" ? "Ponuka skončila" : "V ponuke") : PHASE_LABEL[ph]}</span></td>
                     <td>{fmtDateTime(closeAt)}<br /><small className="num" style={{ color: "var(--rc-red-hi)" }}>{now && closeAt ? fmtLeft(Date.parse(closeAt) - now) ?? "" : ""}</small></td>
-                    <td>{c.sale_type === "fixed" ? <span className="num">{c.price_usd ? `$${num(c.price_usd)}` : "—"}</span> : fmtDateTime(c.auction_end_at)}</td>
+                    <td>{c.sale_type === "fixed" ? <span className="num">{c.price_usd ? money(c.price_usd, c.currency) : "—"}</span> : fmtDateTime(c.auction_end_at)}</td>
                     <td className="num" style={{ fontSize: 20 }}>{num(c.views)}</td>
                     <td>
                       <Link href={`/admin/dopyty?auto=${c.id}`} className="num" style={{ fontSize: 20, color: c.leads_count ? "var(--rc-red-hi)" : undefined }}>{c.leads_count}</Link>

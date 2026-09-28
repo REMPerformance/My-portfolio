@@ -2,32 +2,40 @@
 import Link from "next/link";
 import type { Car } from "@/lib/types";
 import type { CalcResult } from "@/lib/calc";
-import { carPhase, eur, km, usd, fmtDateTime } from "@/lib/format";
 import { isFixed } from "@/lib/calc";
+import { carPhase, eur, km } from "@/lib/format";
+import { countryDef, placeName } from "@/lib/origins";
 import { CarImage } from "./CarImage";
-import { fmtLeft, useNow } from "./Countdown";
+import { useNow } from "./Countdown";
 
 export type CardCar = Car & { est: CalcResult };
 
-function Tag({ children, cls = "" }: { children: React.ReactNode; cls?: string }) {
-  return <span className={`tag ${cls}`}><span>{children}</span></span>;
+/** „2 dni“, „5 h 12 min“, „12 min“ – krátky odpočet pre kartu. */
+export function shortLeft(ms: number) {
+  if (ms <= 0) return null;
+  const d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5), m = Math.floor((ms % 36e5) / 6e4);
+  if (d >= 2) return `${d} dni`;
+  if (d === 1) return `1 deň ${h} h`;
+  if (h) return `${h} h ${m} min`;
+  return `${m} min`;
 }
 
 export function CarCard({ car, priority = false, serverNow }: { car: CardCar; priority?: boolean; serverNow: number }) {
-  const now = useNow();
-  const phase = carPhase(car, now ?? serverNow);
-  const closeAt = car.order_close_at || car.auction_end_at;
-  const left = now && closeAt ? fmtLeft(Date.parse(closeAt) - now) : null;
-  const soon = now && closeAt ? Date.parse(closeAt) - now < 864e5 : false;
-  const saving = car.sk_price_eur ? car.sk_price_eur - car.est.total : 0;
-  const clean = (car.title_type || "").toLowerCase() === "clean";
-
+  const now = useNow(30000);
+  const t = now ?? serverNow;
+  const phase = carPhase(car, t);
   const fixed = isFixed(car);
-  let label = fixed ? (closeAt ? "Ponuka platí" : "Stav") : "Objednávky do";
-  let value: string = fixed && !closeAt ? "Dostupné" : left ?? fmtDateTime(closeAt);
-  let cls = soon ? "soon" : fixed && !closeAt ? "avail" : "";
-  if (phase === "closed") { label = "Objednávky"; value = "Uzavreté"; cls = "closed"; }
-  if (phase === "ended") { label = fixed ? "Ponuka" : "Aukcia"; value = car.status === "sold" ? "Predané" : fixed ? "Skončila" : "Skončená"; cls = "ended"; }
+  const closeAt = car.order_close_at || car.auction_end_at;
+  const left = closeAt ? shortLeft(Date.parse(closeAt) - t) : null;
+  const soon = closeAt ? Date.parse(closeAt) - t < 864e5 : false;
+  const cd = countryDef(car.country);
+  const where = [placeName(car.country, car.state) || car.location, cd.code !== "US" ? cd.name : null].filter(Boolean).join(", ");
+
+  let when: { l: string; v: string; cls: string };
+  if (phase === "ended") when = { l: fixed ? "Ponuka" : "Aukcia", v: car.status === "sold" ? "Predané" : "Skončila", cls: "" };
+  else if (phase === "closed") when = { l: "Objednávky", v: "Uzavreté", cls: "" };
+  else if (fixed && !closeAt) when = { l: "Pevná cena", v: "Dostupné", cls: "ok" };
+  else when = { l: fixed ? "Platí ešte" : "Objednať do", v: left ?? "…", cls: soon ? "soon" : "" };
 
   return (
     <article className={`car${phase === "ended" ? " is-ended" : ""}`}>
@@ -35,35 +43,23 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
         <div className="car__img">
           <CarImage car={car} eager={priority} />
           <div className="car__tags">
-            {car.is_demo && <Tag cls="tag--warn">Ukážka</Tag>}
-            {fixed && <Tag cls="tag--fixed">Pevná cena</Tag>}
-            {car.auction && <Tag cls="tag--dark">{car.auction}</Tag>}
-            {car.title_type && <Tag cls={clean ? "tag--ok" : "tag--sal"}>{car.title_type}</Tag>}
+            {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
+            <span className="tag tag--dark">{cd.flag} {fixed ? "Pevná cena" : car.auction || "Aukcia"}</span>
           </div>
-          <div className={`timer ${cls}`}><span>{label}</span><span className="t">{value}</span></div>
         </div>
         <div className="car__body">
           <h3 className="car__title">
             {car.year} {car.make} {car.model}
-            <small>{[car.trim, car.location].filter(Boolean).join(" · ")}</small>
+            <small>{[car.trim, where].filter(Boolean).join(" · ")}</small>
           </h3>
-          <ul className="specs">
-            <li>{km(car.odometer_mi)}</li>
-            {car.engine && <li>{car.engine}</li>}
-            {car.drive && <li>{car.drive}</li>}
-          </ul>
-          {car.primary_damage && <div className="damage"><b>Poškodenie:</b> {car.primary_damage}</div>}
-          <div className="prices">
-            {fixed ? (
-              <div><small>Cena auta</small><b>{usd(car.price_usd || 0)}</b></div>
-            ) : (
-              <div><small>Aktuálna ponuka</small><b>{usd(car.current_bid_usd || 0)}</b></div>
-            )}
-            <div className="hi"><small>{fixed ? "Spolu s dovozom" : "Odhad na SK značkách"}</small><b>{eur(car.est.total)}</b></div>
+          <div className="car__meta">
+            <span>{km(car.odometer_mi)}</span>
+            {car.fuel && <span>{car.fuel}</span>}
+            {car.primary_damage && <span>{car.primary_damage}</span>}
           </div>
-          <div className="car__foot">
-            <span>{saving > 0 ? <><span className="save">≈ {eur(saving)}</span> pod cenou na SK</> : car.leads_count > 0 ? `${car.leads_count} záujemcov` : " "}</span>
-            <span className="go">Detail →</span>
+          <div className="car__price">
+            <div><small>Spolu na SK značkách</small><b>{eur(car.est.total)}</b></div>
+            <div className={`car__when ${when.cls}`}>{when.l}<b>{when.v}</b></div>
           </div>
         </div>
       </Link>

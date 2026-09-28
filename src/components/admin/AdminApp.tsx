@@ -51,23 +51,25 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
     return (
       <div className="login">
         <div className="panel">
-          <h1 style={{ fontFamily: "var(--cond)", textTransform: "uppercase" }}>Bez prístupu</h1>
+          <h1 style={{ fontSize: 24 }}>Bez prístupu</h1>
           <p className="sub">Účet {session.user.email} nemá administrátorské práva.</p>
           <button className="rc-btn rc-btn--ghost" style={{ marginTop: 16 }} onClick={() => sb.auth.signOut()}>Odhlásiť</button>
         </div>
       </div>
     );
 
+  const I = (d: string) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg>;
   const nav = [
-    { href: "/admin", label: "Autá" },
-    { href: "/admin/auta/nove", label: "+ Pridať auto" },
-    { href: "/admin/dopyty", label: "Dopyty", badge: newLeads },
-    { href: "/admin/obsah", label: "Obsah webu" },
-    { href: "/admin/nastavenia", label: "Kalkulačka" },
-    { href: "/admin/upozornenia", label: "Upozornenia" },
-    { href: "/admin/ucet", label: "Účet" }
-  ];
-  const on = (h: string) => (h === "/admin" ? path === "/admin" || (path.startsWith("/admin/auta/") && !path.endsWith("/nove")) : path.startsWith(h));
+    { sec: "Ponuka" },
+    { href: "/admin", label: "Autá", icon: I("M5 17h14M6 17l1.5-5h9L18 17M7 17v2M17 17v2M8 12l1-3h6l1 3") },
+    { href: "/admin/dopyty", label: "Dopyty", badge: newLeads, icon: I("M4 5h16v11H8l-4 4z") },
+    { sec: "Nastavenia" },
+    { href: "/admin/nastavenia", label: "Kalkulácia a doprava", icon: I("M5 3h14v18H5zM8 7h8M8 11h2M12 11h2M8 15h2M12 15h2") },
+    { href: "/admin/obsah", label: "Texty webu", icon: I("M4 6h16M4 12h10M4 18h13") },
+    { href: "/admin/upozornenia", label: "E-maily", icon: I("M4 6h16v12H4zM4 7l8 6 8-6") },
+    { href: "/admin/ucet", label: "Účet", icon: I("M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0") }
+  ] as ({ sec: string } | { href: string; label: string; icon: React.ReactNode; badge?: number })[];
+  const on = (h: string) => (h === "/admin" ? path === "/admin" || path.startsWith("/admin/auta/") : path.startsWith(h));
 
   return (
     <AdminCtx.Provider value={{ session, toast, revalidate, newLeads, refreshCounts }}>
@@ -76,13 +78,16 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
           <Link href="/admin" className="brand">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={SITE.logo} alt="RACEM" style={{ height: 22 }} />
-            <span className="lbl"><b style={{ fontSize: 14 }}>Admin</b><small>REM Performance</small></span>
+            <span className="lbl"><b style={{ fontSize: 14 }}>REM Performance</b><small>Administrácia</small></span>
           </Link>
-          {nav.map((n) => (
-            <Link key={n.href} href={n.href} className={on(n.href) ? "on" : ""}>
-              {n.label}{n.badge ? <span className="badge">{n.badge}</span> : null}
-            </Link>
-          ))}
+          <Link href="/admin/auta/nove" className="cta">+ Pridať auto</Link>
+          {nav.map((n) =>
+            "sec" in n ? <div className="sec" key={n.sec}>{n.sec}</div> : (
+              <Link key={n.href} href={n.href} className={on(n.href) ? "on" : ""}>
+                {n.icon}{n.label}{n.badge ? <span className="badge">{n.badge}</span> : null}
+              </Link>
+            )
+          )}
           <div className="sp" />
           <a href="/" target="_blank" rel="noopener">Zobraziť web ↗</a>
           <button onClick={() => sb.auth.signOut()}>Odhlásiť</button>
@@ -111,7 +116,7 @@ function Login() {
       <form className="panel" onSubmit={submit}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={SITE.logo} alt="RACEM" style={{ height: 28, marginBottom: 18 }} />
-        <h1 style={{ fontFamily: "var(--cond)", fontSize: 34, textTransform: "uppercase", lineHeight: 1, marginBottom: 20 }}>Prihlásenie do adminu</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.2, marginBottom: 20 }}>Prihlásenie do administrácie</h1>
         <div className="field"><label htmlFor="em">E-mail</label><input className="input" id="em" name="email" type="email" autoComplete="username" required defaultValue={SITE.email} /></div>
         <div className="field"><label htmlFor="pw">Heslo</label><input className="input" id="pw" name="password" type="password" autoComplete="current-password" required /></div>
         <button className="rc-btn rc-btn--primary rc-btn--block" disabled={busy}>{busy ? "Prihlasujem…" : "Prihlásiť"}</button>

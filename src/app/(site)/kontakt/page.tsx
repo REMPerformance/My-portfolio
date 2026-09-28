@@ -22,7 +22,7 @@ export default async function Contact() {
   return (
     <>
       <JsonLd data={breadcrumbLd(crumbs)} />
-      <PageHead crumbs={crumbs} title={<>Kontakt a <em>dopyt</em></>} sub="Hľadáte konkrétne auto? Napíšte nám značku, model a rozpočet alebo pošlite odkaz na aukciu. Do 24 hodín sa Vám ozveme s odhadom ceny." />
+      <PageHead crumbs={crumbs} title={<>Kontakt a dopyt</>} sub="Hľadáte konkrétne auto? Napíšte nám značku, model a rozpočet alebo pošlite odkaz na auto. Do 24 hodín sa Vám ozveme s celkovou cenou." />
       <section style={{ paddingTop: 40 }}>
         <div className="wrap contact">
           <div>

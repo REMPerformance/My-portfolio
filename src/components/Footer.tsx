@@ -10,7 +10,7 @@ export function Footer({ phone }: { phone?: string }) {
         <div className="foot__top">
           <div>
             <Brand />
-            <p>Sprostredkovanie dovozu áut z amerických aukcií Copart a IAAI na Slovensko na kľúč. Divízia e-shopu RACEM.sk – Performance is our DNA.</p>
+            <p>Sprostredkovanie dovozu áut z USA, SAE, Kanady, Kórey a Japonska na Slovensko na kľúč. K autu kredit na tuning v RACEM.sk.</p>
           </div>
           <nav aria-label="Ponuka">
             <h2>Ponuka</h2>
@@ -43,7 +43,7 @@ export function Footer({ phone }: { phone?: string }) {
         </div>
         <div className="foot__legal">
           <span>© {new Date().getFullYear()} REM Performance · RACEM. Všetky práva vyhradené.</span>
-          <span style={{ maxWidth: 720 }}>Nie sme prevádzkovateľom aukcií Copart ani IAAI a nie sme s nimi obchodne prepojení. Uvedené ceny sú orientačné odhady a nie sú návrhom na uzavretie zmluvy.</span>
+          <span style={{ maxWidth: 720 }}>Nie sme prevádzkovateľom aukcií ani predávajúcim vozidiel. Uvedené ceny sú orientačné odhady a nie sú návrhom na uzavretie zmluvy.</span>
         </div>
       </div>
     </footer>

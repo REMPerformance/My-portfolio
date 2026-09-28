@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCalcConfig, getCarBySlug, getCardCars, getPublicCars } from "@/lib/data";
 import { carEstimate, isFixed } from "@/lib/calc";
-import { RUN_LABEL, TYPE_LABEL, carFullName, carName, carPhase, eur, km, num, usd } from "@/lib/format";
+import { RUN_LABEL, TYPE_LABEL, carFullName, carName, carPhase, eur, km, money, num } from "@/lib/format";
+import { countryDef, placeName } from "@/lib/origins";
 import { SITE } from "@/lib/site";
 import { Gallery } from "@/components/Gallery";
 import { DamageMap } from "@/components/DamageMap";
@@ -13,7 +14,6 @@ import { ViewPing } from "@/components/ViewPing";
 import { Crumbs, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { CarCard } from "@/components/CarCard";
-import { IUsers } from "@/components/Icons";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -31,10 +31,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!car) return { title: "Auto sa nenašlo", robots: { index: false } };
   const est = carEstimate(cfg, car);
   const fixed = isFixed(car);
-  const title = car.seo_title || `${carFullName(car)} z USA – ${eur(est.total)} na SK značkách`;
+  const cd = countryDef(car.country);
+  const where = [placeName(car.country, car.state) || car.location, cd.name].filter(Boolean).join(", ");
+  const title = car.seo_title || `${carFullName(car)} ${cd.from} – ${eur(est.total)} na SK značkách`;
   const description =
     car.seo_description ||
-    `${carFullName(car)} ${fixed ? `za pevnú cenu ${usd(car.price_usd || 0)}` : `z aukcie ${car.auction ?? "Copart"}`} (${car.location ?? "USA"}), ${km(car.odometer_mi)}${car.primary_damage ? `, poškodenie: ${car.primary_damage.toLowerCase()}` : ""}. ${fixed ? "Cena s dovozom" : "Odhad celkovej ceny"} na Slovensku ${eur(est.total)} vrátane cla, DPH a dopravy${car.sk_price_eur ? `, na SK trhu od ${eur(car.sk_price_eur)}` : ""}.`;
+    `${carFullName(car)} ${fixed ? `za pevnú cenu ${money(car.price_usd || 0, car.currency)}` : `z aukcie ${car.auction ?? "Copart"}`} (${where}), ${km(car.odometer_mi)}${car.primary_damage ? `, poškodenie: ${car.primary_damage.toLowerCase()}` : ""}. ${fixed ? "Cena s dovozom" : "Odhad celkovej ceny"} na Slovensku ${eur(est.total)} vrátane dopravy, cla a DPH${car.sk_price_eur ? `, na SK trhu od ${eur(car.sk_price_eur)}` : ""}.`;
   const img = car.images?.[0] || SITE.ogImage;
   return {
     title: { absolute: title.length > 58 ? title : `${title} | REM` },
@@ -53,6 +55,8 @@ export default async function CarPage({ params }: Props) {
   const est = carEstimate(cfg, car);
   const phase = carPhase(car, serverNow);
   const fixed = isFixed(car);
+  const cd = countryDef(car.country);
+  const where = [placeName(car.country, car.state) || car.location, cd.name].filter(Boolean).join(", ");
   const saving = car.sk_price_eur ? car.sk_price_eur - est.total : 0;
   const crumbs = [
     { name: "Domov", path: "/" },
@@ -61,7 +65,18 @@ export default async function CarPage({ params }: Props) {
   ];
   const similar = all.filter((c) => c.id !== car.id && carPhase(c, serverNow) !== "ended").sort((a, b) => (a.type === car.type ? -1 : 1) - (b.type === car.type ? -1 : 1)).slice(0, 3);
   const suggestedBudget = Math.ceil((est.total * 1.1) / 500) * 500;
+  const transport = est.feeEur + est.inlandEur + est.oceanEur;
+  const taxes = est.duty + est.vat;
+  const skServices = est.euPortEur + est.truckEur + est.homologEur + est.serviceFeeEur + est.repairEur + est.extraCosts.reduce((a, x) => a + Number(x.eur), 0);
 
+  const facts: [string, React.ReactNode][] = [
+    ["Rok výroby", car.year ?? "—"],
+    ["Najazdené", km(car.odometer_mi)],
+    ["Motor", car.engine || "—"],
+    ["Pohon", car.drive || "—"],
+    ["Stav", car.run_status ? RUN_LABEL[car.run_status] : "—"],
+    ["Titul", car.title_type || "—"]
+  ];
   const specs: [string, React.ReactNode][] = [
     ["Rok výroby", car.year ?? "—"],
     ["Najazdené", car.odometer_mi ? `${km(car.odometer_mi)} (${num(car.odometer_mi)} mi)` : "—"],
@@ -71,14 +86,10 @@ export default async function CarPage({ params }: Props) {
     ["Palivo", car.fuel || "—"],
     ["Farba", car.color || "—"],
     ["Typ", TYPE_LABEL[car.type]],
-    ["Stav", car.run_status ? RUN_LABEL[car.run_status] : "—"],
     ["Kľúče", car.keys == null ? "—" : car.keys ? "Áno" : "Nie"],
-    ["Titul", car.title_type || "—"],
     ["VIN", car.vin || "Na vyžiadanie"],
-    fixed
-      ? ["Predaj", ["Pevná cena", car.auction].filter(Boolean).join(" · ")]
-      : ["Aukcia", [car.auction, car.lot && `lot ${car.lot}`].filter(Boolean).join(" · ") || "—"],
-    ["Lokalita", car.location || "—"],
+    ["Pôvod", `${cd.flag} ${where}`],
+    fixed ? ["Predaj", ["Pevná cena", car.auction].filter(Boolean).join(" · ")] : ["Aukcia", [car.auction, car.lot && `lot ${car.lot}`].filter(Boolean).join(" · ") || "—"],
     ...((car.extra?.specs || []).filter((x) => x.label && x.value).map((x) => [x.label, x.value] as [string, React.ReactNode]))
   ];
   const equipment = (car.extra?.equipment || []).filter(Boolean);
@@ -115,7 +126,9 @@ export default async function CarPage({ params }: Props) {
       itemCondition: "https://schema.org/DamagedCondition",
       seller: { "@id": `${SITE.url}/#org` },
       areaServed: "SK",
-      description: fixed ? `Pevná cena auta ${usd(car.price_usd || 0)} + dovoz. Celková cena na slovenských značkách vrátane cla, DPH, dopravy, homologizácie a poplatku za sprostredkovanie.` : "Odhad celkovej ceny na slovenských značkách vrátane cla, DPH, dopravy, homologizácie a poplatku za sprostredkovanie."
+      description: fixed
+        ? `Pevná cena auta ${money(car.price_usd || 0, car.currency)} + dovoz. Celková cena na slovenských značkách vrátane dopravy, cla, DPH, homologizácie a poplatku za sprostredkovanie.`
+        : "Odhad celkovej ceny na slovenských značkách vrátane dopravy, cla, DPH, homologizácie a poplatku za sprostredkovanie."
     }
   };
 
@@ -124,24 +137,87 @@ export default async function CarPage({ params }: Props) {
       <JsonLd data={carLd} />
       <JsonLd data={breadcrumbLd(crumbs)} />
       <ViewPing slug={car.slug} />
-      <section style={{ paddingTop: 28 }}>
+      <section style={{ paddingTop: 24 }}>
         <div className="wrap">
           <Crumbs items={crumbs} />
-          <h1 className="ctitle">{car.year} {car.make} {car.model} <span style={{ color: "var(--rc-red-hi)" }}>{car.trim}</span></h1>
-          <p className="csub">{[TYPE_LABEL[car.type], km(car.odometer_mi), car.location, fixed ? "Pevná cena" : car.auction].filter(Boolean).join(" · ")}</p>
-          <div className="detail" style={{ marginTop: 22 }}>
+          <div className="dhead">
+            <div>
+              <h1 className="ctitle">{car.year} {car.make} {car.model} {car.trim && <span>{car.trim}</span>}</h1>
+              <p className="csub">
+                <span>{cd.flag} {where}</span>
+                <span>{km(car.odometer_mi)}</span>
+                {car.fuel && <span>{car.fuel}</span>}
+                <span>{fixed ? "Pevná cena" : `Aukcia ${car.auction ?? ""}`.trim()}</span>
+              </p>
+            </div>
+          </div>
+          <div className="detail">
             <div className="detail__gal">
               <Gallery car={car}>
                 <div className="car__tags">
-                  {car.is_demo && <span className="tag tag--warn"><span>Ukážka</span></span>}
-                  {fixed && <span className="tag tag--fixed"><span>Pevná cena</span></span>}
-                  {car.auction && <span className="tag tag--dark"><span>{car.auction}</span></span>}
-                  {car.title_type && <span className={`tag ${(car.title_type || "").toLowerCase() === "clean" ? "tag--ok" : "tag--sal"}`}><span>{car.title_type}</span></span>}
+                  {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
+                  {car.title_type && <span className={`tag ${(car.title_type || "").toLowerCase() === "clean" ? "tag--ok" : "tag--sal"}`}>{car.title_type}</span>}
                 </div>
               </Gallery>
             </div>
+
+            <aside className="detail__side" aria-label="Cena a objednávka">
+              <div className="panel pricebox">
+                <div className="lbl">{fixed ? "Celková cena na slovenských značkách" : "Odhad celkovej ceny na slovenských značkách"}</div>
+                <div className="big">{eur(est.total)}</div>
+                <div className="rows">
+                  <div><span>{fixed ? "Cena auta" : car.current_bid_usd && car.est_bid_usd && car.est_bid_usd !== car.current_bid_usd ? "Odhad vydraženia" : "Cena na aukcii"}</span><b>{money(est.price, est.currency)}{est.currency !== "EUR" ? ` · ${eur(est.carEur)}` : ""}</b></div>
+                  {!fixed && car.current_bid_usd ? <div><span>Aktuálna ponuka na aukcii</span><b>{money(car.current_bid_usd, car.currency)}</b></div> : null}
+                  <div><span>Poplatky a doprava do EÚ</span><b>{eur(transport)}</b></div>
+                  <div><span>Clo a DPH</span><b>{eur(taxes)}</b></div>
+                  <div><span>Na Slovensku (homologizácia, služba{est.repairEur ? ", oprava" : ""})</span><b>{eur(skServices)}</b></div>
+                  {car.sk_price_eur && saving > 0 ? <div className="pos"><span>Oproti podobnému autu na SK</span><b>− {eur(saving)}</b></div> : null}
+                  <div className="pos"><span>Kredit na tuning v RACEM</span><b>+ {eur(est.credit)}</b></div>
+                </div>
+                <div style={{ display: "grid", gap: 10 }}>
+                  <CarDeadlines car={car} serverNow={serverNow} />
+                </div>
+                <p className="note">Záloha od {eur(est.deposit)} · {fixed ? "vrátime ju, ak predajca auto medzitým predá" : "vrátime ju, ak aukciu prehráme"}.</p>
+              </div>
+            </aside>
+
             <div className="detail__rest">
-              <div className="block" style={{ marginTop: 0 }}>
+              <div className="block">
+                <div className="facts">
+                  {facts.map(([k, v]) => <div key={k}><small>{k}</small><b>{v}</b></div>)}
+                </div>
+              </div>
+
+              <div className="block">
+                <h2>Rozpis ceny</h2>
+                <details className="fold">
+                  <summary>Zobraziť všetky položky</summary>
+                  <div><Breakdown r={est} skPrice={car.sk_price_eur} /></div>
+                </details>
+                {car.sk_price_source && <p className="note">Cena na SK trhu: {car.sk_price_source}</p>}
+              </div>
+
+              <div className="block">
+                <h2>Poškodenie</h2>
+                {(car.primary_damage || car.secondary_damage) && (
+                  <p className="prose" style={{ marginBottom: 14 }}>
+                    Hlavné: <b style={{ color: "#fff" }}>{car.primary_damage || "—"}</b>
+                    {car.secondary_damage && <> · Vedľajšie: <b style={{ color: "#fff" }}>{car.secondary_damage}</b></>}
+                  </p>
+                )}
+                <div className="panel"><DamageMap zones={car.damage_zones || []} /></div>
+                <p className="note">Nákres vychádza z fotiek a popisu predajcu. Skryté poškodenia nie je možné vopred vylúčiť.</p>
+              </div>
+
+              {(car.description || car.note) && (
+                <div className="block">
+                  <h2>Popis</h2>
+                  {car.description && <div className="prose">{car.description.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}</div>}
+                  {car.note && <div className="mnote" style={{ marginTop: 14 }}>{car.note}</div>}
+                </div>
+              )}
+
+              <div className="block">
                 <h2>Parametre</h2>
                 <dl className="spec-table">
                   {specs.map(([k, v]) => (<div key={k}><dt>{k}</dt><dd>{v}</dd></div>))}
@@ -157,73 +233,11 @@ export default async function CarPage({ params }: Props) {
 
               {car.extra?.history && (
                 <div className="block">
-                  <h2>História a doplňujúce info</h2>
+                  <h2>História</h2>
                   <div className="prose">{car.extra.history.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}</div>
                 </div>
               )}
-
-              <div className="block">
-                <h2>Rozsah poškodenia</h2>
-                {(car.primary_damage || car.secondary_damage) && (
-                  <p className="prose" style={{ marginBottom: 16 }}>
-                    Hlavné poškodenie: <b style={{ color: "#fff" }}>{car.primary_damage || "—"}</b>
-                    {car.secondary_damage && <> · Vedľajšie: <b style={{ color: "#fff" }}>{car.secondary_damage}</b></>}
-                  </p>
-                )}
-                <div className="panel"><DamageMap zones={car.damage_zones || []} /></div>
-                <p className="note">Nákres vychádza z fotiek a popisu aukcie. Skryté poškodenia nie je možné vopred vylúčiť.</p>
-              </div>
-
-              {(car.description || car.note) && (
-                <div className="block">
-                  <h2>Popis a náš komentár</h2>
-                  {car.description && <div className="prose">{car.description.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}</div>}
-                  {car.note && <div className="mnote" style={{ marginTop: 14 }}>{car.note}</div>}
-                </div>
-              )}
-
-              <div className="block">
-                <h2>Rozpis ceny na slovenských značkách</h2>
-                <div className="panel"><Breakdown r={est} skPrice={car.sk_price_eur} /></div>
-                {car.sk_price_source && <p className="note">Cena na SK trhu: {car.sk_price_source}</p>}
-              </div>
             </div>
-
-            <aside className="detail__side" aria-label="Cena a objednávka">
-              <div className="panel">
-                <span className="eyebrow">Cena a termíny</span>
-                <div className="prices" style={{ marginTop: 14 }}>
-                  {fixed ? (
-                    <>
-                      <div><small>Cena auta</small><b>{usd(car.price_usd || 0)}</b></div>
-                      <div><small>Dovoz, clo, DPH, SK</small><b>{eur(est.total - est.carEur)}</b></div>
-                    </>
-                  ) : (
-                    <>
-                      <div><small>Aktuálna ponuka</small><b>{usd(car.current_bid_usd || 0)}</b></div>
-                      <div><small>Odhad vydraženia</small><b>{usd(car.est_bid_usd || car.current_bid_usd || 0)}</b></div>
-                    </>
-                  )}
-                </div>
-                <div className="bd-total" style={{ marginTop: 12 }}>
-                  <div><small>{fixed ? "Spolu na SK značkách" : "Odhad na SK značkách"}</small><b>{eur(est.total)}</b></div>
-                  <div className="cr"><small>Kredit RACEM</small><b>+{eur(est.credit)}</b></div>
-                </div>
-                {car.sk_price_eur ? (
-                  <div className="bd-cmp">
-                    <div><small>Na SK trhu</small><b>{eur(car.sk_price_eur)}</b></div>
-                    <div className={saving >= 0 ? "pos" : "neg"}><small>{saving >= 0 ? "Ušetríte ≈" : "Drahšie o"}</small><b>{eur(Math.abs(saving))}</b></div>
-                  </div>
-                ) : null}
-                <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
-                  <CarDeadlines car={car} serverNow={serverNow} />
-                </div>
-                <p className="note" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-                  {car.leads_count > 0 && <span className="interest"><IUsers /> {car.leads_count} {car.leads_count === 1 ? "záujemca" : car.leads_count < 5 ? "záujemcovia" : "záujemcov"}</span>}
-                  <span>Záloha od {eur(est.deposit)} · {fixed ? "vrátime ju, ak predajca auto medzitým predá" : "vrátime ju, ak aukciu prehráme"}</span>
-                </p>
-              </div>
-            </aside>
           </div>
         </div>
       </section>
@@ -232,23 +246,14 @@ export default async function CarPage({ params }: Props) {
         <div className="wrap contact">
           <div>
             <span className="eyebrow">Objednávka</span>
-            <h2 className="title">Chcete <em>toto auto?</em></h2>
-            <p className="sub">Pošlite nezáväzný dopyt. Do 24 hodín Vám pošleme presnú kalkuláciu, zmluvu o sprostredkovaní a pokyny k zálohe. {fixed ? "Dostupnosť a cenu auta overíme u predajcu." : "Ceny potvrdíme pred dražbou."}</p>
+            <h2 className="title">Chcete toto auto?</h2>
+            <p className="sub">Pošlite nezáväzný dopyt. Do 24 hodín Vám pošleme presnú kalkuláciu, zmluvu a pokyny k zálohe. {fixed ? "Dostupnosť a cenu overíme u predajcu." : "Ceny potvrdíme pred dražbou."}</p>
             <ul className="checks">
-              {fixed ? (
-                <>
-                  <li>Pevná cena auta – žiadna dražba</li>
-                  <li>Záloha sa vracia, ak predajca auto medzitým predá</li>
-                </>
-              ) : (
-                <>
-                  <li>Neprihodíme nad Váš limit</li>
-                  <li>Záloha sa vracia, ak aukciu prehráme</li>
-                </>
-              )}
+              {fixed ? <li>Pevná cena auta – žiadna dražba</li> : <li>Neprihodíme nad Váš limit</li>}
+              <li>{fixed ? "Záloha sa vracia, ak predajca auto medzitým predá" : "Záloha sa vracia, ak aukciu prehráme"}</li>
               <li>Kredit {eur(est.credit)} do RACEM pri odovzdaní</li>
             </ul>
-            <p className="note">Pred objednávkou si prečítajte <Link className="link" href="/vop">obchodné podmienky</Link> a <Link className="link" href="/ako-to-funguje">ako prebieha dovoz</Link>.</p>
+            <p className="note">Pred objednávkou si prečítajte <Link className="link" href="/vop">obchodné podmienky</Link>.</p>
           </div>
           <CarOrder car={car} serverNow={serverNow} suggestedBudget={suggestedBudget} />
         </div>
@@ -257,7 +262,7 @@ export default async function CarPage({ params }: Props) {
       {similar.length > 0 && (
         <section aria-labelledby="sim-h">
           <div className="wrap">
-            <div className="sec-head"><div><span className="eyebrow">Ďalšie autá</span><h2 className="title" id="sim-h">Mohlo by Vás <em>zaujímať</em></h2></div></div>
+            <div className="sec-head"><div><h2 className="title" id="sim-h">Ďalšie autá v ponuke</h2></div><Link href="/ponuka" className="rc-btn rc-btn--ghost">Celá ponuka</Link></div>
             <div className="grid">{similar.map((c) => <CarCard key={c.id} car={c} serverNow={serverNow} />)}</div>
           </div>
         </section>

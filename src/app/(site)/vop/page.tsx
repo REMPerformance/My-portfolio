@@ -29,7 +29,7 @@ export default async function Vop() {
   return (
     <>
       <JsonLd data={breadcrumbLd(crumbs)} />
-      <PageHead crumbs={crumbs} title={<>Obchodné <em>podmienky</em></>} sub={`Všeobecné obchodné podmienky služby sprostredkovania kúpy a dovozu vozidiel. Platné od ${EFFECTIVE}.`} />
+      <PageHead crumbs={crumbs} title={<>Obchodné podmienky</>} sub={`Všeobecné obchodné podmienky služby sprostredkovania kúpy a dovozu vozidiel. Platné od ${EFFECTIVE}.`} />
       <section style={{ paddingTop: 40 }}>
         <div className="wrap legal">
           <nav className="toc" aria-label="Obsah">

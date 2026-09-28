@@ -2,9 +2,9 @@ export const SITE = {
   url: (process.env.NEXT_PUBLIC_SITE_URL || "https://remperformance.sk").replace(/\/$/, ""),
   name: "REM Performance",
   fullName: "REM Performance by RACEM",
-  tagline: "Dovoz áut z USA aukcií na kľúč",
+  tagline: "Dovoz áut zo zahraničia na kľúč",
   description:
-    "Dovoz áut z amerických aukcií Copart a IAAI na Slovensko na kľúč. Vopred vidíte odhad celkovej ceny vrátane cla a DPH. Vydražíme, dovezieme, preclíme, homologizujeme a prihlásime. K autu kredit na tuning v RACEM.",
+    "Dovoz áut z USA, Dubaja (SAE), Kanady, Kórey a Japonska na Slovensko na kľúč – z aukcií Copart a IAAI aj za pevnú cenu. Vopred vidíte celkovú cenu vrátane dopravy, cla a DPH. Kúpime, dovezieme, preclíme, homologizujeme a prihlásime.",
   email: "info@remperformance.sk",
   logo: "https://racem.sk/cdn/shop/files/RACEM-logo.png?width=600",
   heroImage: "https://racem.sk/cdn/shop/files/190320100347lc2327ae8-hd.jpg?width=2000",
@@ -25,8 +25,8 @@ export const SITE = {
 
 export const NAV = [
   { href: "/ponuka", label: "Ponuka áut" },
-  { href: "/kalkulacka-dovozu", label: "Kalkulačka" },
   { href: "/ako-to-funguje", label: "Ako to funguje" },
+  { href: "/kalkulacka-dovozu", label: "Kalkulačka" },
   { href: "/caste-otazky", label: "Otázky" },
   { href: "/kontakt", label: "Kontakt" }
 ];

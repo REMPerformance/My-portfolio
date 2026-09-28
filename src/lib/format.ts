@@ -2,6 +2,14 @@ import type { Car } from "./types";
 
 export const eur = (n: number) =>
   new Intl.NumberFormat("sk-SK", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Math.round(n));
+const SYM: Record<string, string> = { USD: "$", CAD: "C$", AED: "AED ", KRW: "₩", JPY: "¥", CNY: "CN¥", EUR: "€" };
+/** Suma v ľubovoľnej mene: $12,000 · AED 45 000 · 1 250 € */
+export function money(n: number, cur?: string | null) {
+  const c = cur || "USD";
+  if (c === "EUR") return eur(n);
+  const v = new Intl.NumberFormat(c === "USD" || c === "CAD" ? "en-US" : "sk-SK", { maximumFractionDigits: 0 }).format(Math.round(n));
+  return (SYM[c] ?? c + " ") + v;
+}
 export const usd = (n: number) => "$" + new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Math.round(n));
 export const num = (n: number) => new Intl.NumberFormat("sk-SK").format(Math.round(n));
 export const km = (mi: number | null | undefined) => (mi ? num(mi * 1.609344) + " km" : "—");

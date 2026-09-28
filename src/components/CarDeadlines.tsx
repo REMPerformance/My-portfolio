@@ -17,16 +17,16 @@ export function CarDeadlines({ car, serverNow }: { car: Car; serverNow: number }
     return (
       <>
         <div className="deadline">
-          <div className="main">
+          <div className={`main${until ? "" : " avail"}`}>
             <div><small>Ponuka platí do</small><span className="d">{until ? fmtDateTime(until) : "do predaja"}</span></div>
             <b>{phase === "ended" ? (car.status === "sold" ? "Predané" : "Skončila") : until ? left(until) ?? "…" : "Dostupné"}</b>
           </div>
         </div>
         {phase === "ended" && <div className="state ended">{car.status === "sold" ? "Toto auto je už predané." : "Ponuka na toto auto skončila."} Radi Vám nájdeme podobné.</div>}
         {phase === "open" ? (
-          <a href="#objednat" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 18 }}>Chcem toto auto</a>
+          <a href="#objednat" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Chcem toto auto</a>
         ) : (
-          <Link href="/kontakt" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 18 }}>Nájdite mi podobné auto</Link>
+          <Link href="/kontakt" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Nájdite mi podobné auto</Link>
         )}
       </>
     );
@@ -46,9 +46,9 @@ export function CarDeadlines({ car, serverNow }: { car: Car; serverNow: number }
       {phase === "closed" && <div className="state closed">Objednávky na toto auto sú uzavreté. Aukcia ešte prebieha.</div>}
       {phase === "ended" && <div className="state ended">Aukcia skončila. Radi Vám nájdeme podobné auto.</div>}
       {phase === "open" ? (
-        <a href="#objednat" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 18 }}>Mám záujem o toto auto</a>
+        <a href="#objednat" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Mám záujem o toto auto</a>
       ) : (
-        <Link href="/kontakt" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 18 }}>Nájdite mi podobné auto</Link>
+        <Link href="/kontakt" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Nájdite mi podobné auto</Link>
       )}
     </>
   );

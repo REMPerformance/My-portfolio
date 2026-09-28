@@ -16,7 +16,7 @@ export default function Gdpr() {
   return (
     <>
       <JsonLd data={breadcrumbLd(crumbs)} />
-      <PageHead crumbs={crumbs} title={<>Ochrana <em>osobných údajov</em></>} sub="Informácie o spracúvaní osobných údajov podľa nariadenia (EÚ) 2016/679 (GDPR) a zákona č. 18/2018 Z. z." />
+      <PageHead crumbs={crumbs} title={<>Ochrana osobných údajov</>} sub="Informácie o spracúvaní osobných údajov podľa nariadenia (EÚ) 2016/679 (GDPR) a zákona č. 18/2018 Z. z." />
       <section style={{ paddingTop: 40 }}>
         <div className="wrap legal">
           <h2>1. Prevádzkovateľ</h2>

@@ -1,9 +1,9 @@
 export const STEPS = [
-  { t: "Vyberte si auto", d: "Z našej ponuky alebo nám pošlite odkaz na akékoľvek auto z Copartu či IAAI. Do 24 hodín Vám pošleme odhad celkovej ceny.", tag: "Deň 0" },
-  { t: "Zmluva a záloha", d: "Podpíšete zmluvu o sprostredkovaní, zložíte zálohu a určíte maximálnu sumu, do ktorej za Vás prihadzujeme.", tag: "Pred uzávierkou" },
-  { t: "Dražba", d: "Prihadzujeme za Vás, nikdy nie nad Váš limit. Ak aukciu prehráme, zálohu vrátime alebo ju presunieme na iné auto.", tag: "Deň aukcie" },
-  { t: "Doprava a clo", d: "Odvoz z aukcie do prístavu, kontajner do Bremerhavenu, preclenie v EÚ a kamión na Slovensko.", tag: "4 – 8 týždňov" },
-  { t: "Na kľúč s EČV", d: "Oprava podľa dohody, homologizácia, STK, emisná kontrola a evidenčné čísla. Auto odovzdáme aj s kreditom do RACEM.", tag: "Odovzdanie" }
+  { t: "Vyberte si auto", d: "Z našej ponuky, alebo nám pošlite odkaz na auto z USA, Dubaja, Kanady či Kórey. Do 24 hodín Vám pošleme celkovú cenu.", tag: "Deň 0" },
+  { t: "Zmluva a záloha", d: "Podpíšete zmluvu o sprostredkovaní a zložíte zálohu. Pri aukcii určíte maximálnu sumu.", tag: "Pred kúpou" },
+  { t: "Kúpa auta", d: "Auto vydražíme najviac do Vášho limitu, alebo ho kúpime za dohodnutú pevnú cenu. Ak to nevyjde, zálohu vrátime.", tag: "Deň kúpy" },
+  { t: "Doprava a clo", d: "Odvoz do prístavu, námorná preprava do EÚ, preclenie a kamión na Slovensko.", tag: "4 – 8 týždňov" },
+  { t: "Na kľúč s EČV", d: "Oprava podľa dohody, homologizácia, STK a evidenčné čísla. Auto odovzdáme aj s kreditom do RACEM.", tag: "Odovzdanie" }
 ];
 
 export const FAQ: { q: string; a: string }[] = [
@@ -14,6 +14,10 @@ export const FAQ: { q: string; a: string }[] = [
   {
     q: "Aký je rozdiel medzi autom v aukcii a autom za pevnú cenu?",
     a: "Auto v aukcii sa draží – cena sa ukáže až na konci aukcie a my prihadzujeme najviac do Vášho limitu. Auto za pevnú cenu predáva dealer alebo aukcia v režime Buy Now za presnú sumu, takže viete vopred, koľko stojí samotné auto. K cene auta pripočítame dopravu, clo, DPH, homologizáciu a náš poplatok – celkovú sumu vidíte pri každom aute."
+  },
+  {
+    q: "Z ktorých krajín dovážate autá?",
+    a: "Najčastejšie z USA (všetky štáty, aukcie Copart a IAAI aj dealeri), zo Spojených arabských emirátov (Dubaj, Abú Zabí, Šardža), z Kanady, Južnej Kórey, Japonska a Číny. Cenu dopravy počítame podľa konkrétneho štátu či emirátu a najbližšieho prístavu."
   },
   {
     q: "Dokedy môžem auto objednať?",
@@ -76,14 +80,14 @@ export interface SiteContent {
 export const DEFAULT_CONTENT: SiteContent = {
   topbar: "Odhad ceny vrátane cla a DPH · K autu až 700 € na tuning",
   hero: {
-    title1: "Dovoz auta z USA.",
-    title2: "Na kľúč",
-    title3: "na Slovensko.",
-    lead: "Vyberte si auto z amerických aukcií Copart a IAAI. Vydražíme ho za Vás, dovezieme, preclíme, homologizujeme a prihlásime. Celkovú cenu vidíte vopred, vrátane cla a DPH.",
+    title1: "Auto z USA, Dubaja či Kanady",
+    title2: "na kľúč",
+    title3: "až k Vám domov.",
+    lead: "Vyberte si auto z našej ponuky alebo nám povedzte, čo hľadáte. Kúpime ho, dovezieme, preclíme, homologizujeme a prihlásime. Celkovú cenu vrátane dopravy, cla a DPH vidíte vopred.",
     pills: [
-      { b: "6–10", t: "týždňov do SR" },
-      { b: "10 %", t: "clo + 23 % DPH v cene" },
-      { b: "700 €", t: "na tuning" }
+      { b: "6–10 týždňov", t: "doručenie na Slovensko" },
+      { b: "Fixný poplatok", t: "žiadne percentá z ceny" },
+      { b: "Až 700 €", t: "kredit na tuning v RACEM" }
     ]
   },
   quick: { title: "Ford Mustang GT 2020", bidUsd: 11500, repairEur: 2800, skPrice: 36900 },

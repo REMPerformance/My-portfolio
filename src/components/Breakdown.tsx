@@ -1,5 +1,5 @@
 import type { CalcResult } from "@/lib/calc";
-import { eur, usd } from "@/lib/format";
+import { eur, money } from "@/lib/format";
 
 export function Breakdown({ r, skPrice, compact = false }: { r: CalcResult; skPrice?: number | null; compact?: boolean }) {
   const diff = skPrice ? skPrice - r.total : null;
@@ -9,10 +9,10 @@ export function Breakdown({ r, skPrice, compact = false }: { r: CalcResult; skPr
   return (
     <div>
       <div className="bd-group">
-        <h4>V USA</h4>
-        {row(r.fixed ? "Cena auta u predajcu" : "Cena na aukcii", r.carEur, usd(r.bidUsd))}
+        <h4>Auto a doprava do EÚ</h4>
+        {row(r.fixed ? "Cena auta" : "Cena na aukcii", r.carEur, r.currency !== "EUR" ? money(r.price, r.currency) : undefined)}
         {r.fixed ? (r.feeEur > 0 && row("Poplatky predajcu", r.feeEur)) : row("Aukčné poplatky + broker", r.feeEur, "odhad")}
-        {row("Odvoz do prístavu", r.inlandEur)}
+        {row("Odvoz do prístavu", r.inlandEur, [r.placeName, r.portName].filter(Boolean).join(" → "))}
         {row("Námorná preprava + poistenie", r.oceanEur)}
       </div>
       <div className="bd-group">
@@ -30,7 +30,7 @@ export function Breakdown({ r, skPrice, compact = false }: { r: CalcResult; skPr
         {r.extraCosts?.map((x) => <div className="bd" key={x.label}><span>{x.label}</span><span>{eur(x.eur)}</span></div>)}
       </div>
       <div className="bd-total">
-        <div><small>{r.fixed ? "Cena spolu s dovozom na SK značkách" : "Odhad celkovej ceny na SK značkách"}</small><b>{eur(r.total)}</b></div>
+        <div><small>{r.fixed ? "Spolu na slovenských značkách" : "Odhad spolu na slovenských značkách"}</small><b>{eur(r.total)}</b></div>
         <div className="cr"><small>Kredit RACEM</small><b>+{eur(r.credit)}</b></div>
       </div>
       {skPrice ? (
@@ -40,9 +40,7 @@ export function Breakdown({ r, skPrice, compact = false }: { r: CalcResult; skPr
         </div>
       ) : null}
       {!compact && (
-        <p className="note">
-          Odhad. Colná hodnota = auto + poplatky + doprava do EÚ. DPH sa počíta z colnej hodnoty, cla a dopravy v EÚ. Nezahŕňa skryté poškodenia – odporúčame rezervu 10 – 15 %.
-        </p>
+        <p className="note">Odhad. Colná hodnota = auto + poplatky + doprava do EÚ. DPH sa počíta z colnej hodnoty, cla a dopravy v EÚ. Nezahŕňa skryté poškodenia – odporúčame rezervu 10 – 15 %.</p>
       )}
     </div>
   );

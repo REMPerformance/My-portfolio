@@ -32,19 +32,15 @@ export function Steps({ items = DEFAULT_CONTENT.steps }: { items?: SiteContent["
 }
 
 export function Bonus({ b = DEFAULT_CONTENT.bonus }: { b?: SiteContent["bonus"] }) {
-  const words = b.title.split(" ");
-  const cut = Math.max(1, words.length - 3);
   return (
-    <section className="bonus" id="bonus" aria-labelledby="bonus-h">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="bonus__logo" src={SITE.logo} alt="" aria-hidden="true" loading="lazy" />
-      <div className="wrap">
+    <section className="alt" id="bonus" aria-labelledby="bonus-h">
+      <div className="wrap split">
         <div>
-          <span className="eyebrow">Bonus k autu · Performance is our DNA</span>
-          <h2 className="title" id="bonus-h">{words.slice(0, cut).join(" ")} <em>{words.slice(cut).join(" ")}</em></h2>
+          <span className="eyebrow">Bonus k autu</span>
+          <h2 className="title" id="bonus-h">{b.title}</h2>
           <p className="sub">{b.text}</p>
           <ul className="checks">{b.points.map((p) => <li key={p}>{p}</li>)}</ul>
-          <a href={SITE.racemUrl} target="_blank" rel="noopener" className="rc-btn rc-btn--ghost">Pozrieť RACEM.sk <IExt /></a>
+          <a href={SITE.racemUrl} target="_blank" rel="noopener" className="rc-btn rc-btn--ghost">RACEM.sk <IExt /></a>
         </div>
         <div className="tiers">
           {b.tiers.map((t, i) => (

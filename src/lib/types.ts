@@ -49,7 +49,14 @@ export interface Car {
   secondary_damage: string | null;
   damage_zones: DamageZone[];
   location: string | null;
+  /** zastarané – nahradené country/state */
   region: Region;
+  /** krajina pôvodu (US, AE, CA, KR, JP, CN) */
+  country: string;
+  /** štát / emirát / provincia (kód z origins.ts) */
+  state: string | null;
+  /** mena, v ktorej sú ceny auta (current_bid_usd, est_bid_usd, price_usd, seller_fee_usd) */
+  currency: string;
   auction: string | null;
   lot: string | null;
   auction_url: string | null;
@@ -81,6 +88,12 @@ export interface Car {
 
 export interface CalcConfig {
   usdToEur: number;
+  /** kurzy: koľko EUR za 1 jednotku meny */
+  fx: Record<string, number>;
+  /** prepísaná námorná doprava podľa prístavu (USD) */
+  ports: Record<string, number>;
+  /** prepísaný odvoz do prístavu podľa miesta „US-TX“ (USD) */
+  inland: Record<string, number>;
   auctionFeeTiers: [number, number][];
   auctionFeeOverPct: number;
   fixedAuctionExtras: number;

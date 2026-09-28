@@ -1,7 +1,11 @@
-import type { CalcConfig, CarType, Region, Car, CalcOverride } from "./types";
+import type { CalcConfig, CarType, Car, CalcOverride } from "./types";
+import { DEFAULT_FX, countryDef, guessPlace, placeDef, placeKey, portDef, type Currency } from "./origins";
 
 export const DEFAULT_CALC: CalcConfig = {
   usdToEur: 0.86,
+  fx: DEFAULT_FX,
+  ports: {},
+  inland: {},
   auctionFeeTiers: [[1000, 300], [2000, 450], [4000, 650], [6000, 800], [8000, 900], [10000, 1000], [15000, 1150], [20000, 1300]],
   auctionFeeOverPct: 0.07,
   fixedAuctionExtras: 250,
@@ -19,11 +23,18 @@ export const DEFAULT_CALC: CalcConfig = {
 };
 
 export interface CalcResult {
+  /** cena auta v mene krajiny pôvodu */
+  price: number;
+  currency: Currency;
+  /** spätná kompatibilita – cena auta (v mene krajiny) */
   bidUsd: number;
   carEur: number;
   feeEur: number;
   inlandEur: number;
   oceanEur: number;
+  portName: string;
+  placeName: string | null;
+  countryName: string;
   cif: number;
   dutyRate: number;
   duty: number;
@@ -40,39 +51,76 @@ export interface CalcResult {
   fixed: boolean;
 }
 
-export function auctionFee(cfg: CalcConfig, bid: number) {
-  const tier = cfg.auctionFeeTiers.find(([max]) => bid <= max);
-  return (tier ? tier[1] : bid * cfg.auctionFeeOverPct) + cfg.fixedAuctionExtras;
+export function auctionFee(cfg: CalcConfig, bidUsd: number) {
+  const tier = cfg.auctionFeeTiers.find(([max]) => bidUsd <= max);
+  return (tier ? tier[1] : bidUsd * cfg.auctionFeeOverPct) + cfg.fixedAuctionExtras;
 }
 
-export function calc(
-  cfg: CalcConfig,
-  { bidUsd, type = "car", region = "central", repairEur = 0, rate, extraCosts = [], feeUsd }: { bidUsd: number; type?: CarType; region?: Region; repairEur?: number; rate?: number; extraCosts?: { label: string; eur: number }[]; /** pevné poplatky predajcu namiesto aukčných (auto za pevnú cenu) */ feeUsd?: number | null }
-): CalcResult {
-  const r = rate || cfg.usdToEur;
-  const carEur = bidUsd * r;
-  const fixed = feeUsd !== undefined && feeUsd !== null;
-  const feeEur = (fixed ? Number(feeUsd) || 0 : auctionFee(cfg, bidUsd)) * r;
-  const inlandEur = (cfg.inlandUsd[region] ?? cfg.inlandUsd.central) * r;
-  const oceanEur = (cfg.oceanUsd[region] ?? cfg.oceanUsd.central) * r;
+export const fxRate = (cfg: CalcConfig, cur?: string | null) => {
+  const c = (cur || "USD") as Currency;
+  if (c === "USD") return cfg.usdToEur || cfg.fx?.USD || DEFAULT_FX.USD;
+  return cfg.fx?.[c] ?? DEFAULT_FX[c] ?? 1;
+};
+
+/** Náklady na dopravu z konkrétneho miesta (USD): odvoz do prístavu + more. */
+export function originCosts(cfg: CalcConfig, country?: string | null, place?: string | null) {
+  const cd = countryDef(country);
+  const pl = placeDef(cd.code, place) || cd.places[0];
+  const port = portDef(cd.code, pl.port);
+  const inlandUsd = cfg.inland?.[placeKey(cd.code, pl.code)] ?? pl.inlandUsd;
+  const oceanUsd = cfg.ports?.[port.id] ?? port.oceanUsd;
+  return { inlandUsd, oceanUsd, port, place: pl, country: cd };
+}
+
+export interface CalcInput {
+  price: number;
+  currency?: string | null;
+  country?: string | null;
+  place?: string | null;
+  type?: CarType;
+  repairEur?: number;
+  extraCosts?: { label: string; eur: number }[];
+  /** pevné poplatky predajcu v mene krajiny (auto za pevnú cenu); undefined = aukčné poplatky */
+  sellerFee?: number | null;
+  inlandUsd?: number | null;
+  oceanUsd?: number | null;
+  /** starý parameter – cena v USD */
+  bidUsd?: number;
+  rate?: number;
+}
+
+export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
+  const currency = ((i.currency || countryDef(i.country).currency) as Currency);
+  const price = i.price ?? i.bidUsd ?? 0;
+  const usd = i.rate || fxRate(cfg, "USD");
+  const r = currency === "USD" && i.rate ? i.rate : fxRate(cfg, currency);
+  const carEur = price * r;
+  const fixed = i.sellerFee !== undefined && i.sellerFee !== null;
+  const feeEur = fixed ? (Number(i.sellerFee) || 0) * r : auctionFee(cfg, carEur / usd) * usd;
+  const oc = originCosts(cfg, i.country, i.place);
+  const inlandEur = (i.inlandUsd ?? oc.inlandUsd) * usd;
+  const oceanEur = (i.oceanUsd ?? oc.oceanUsd) * usd;
   const cif = carEur + feeEur + inlandEur + oceanEur;
-  const dutyRate = cfg.dutyRate[type] ?? 0.1;
+  const dutyRate = cfg.dutyRate[i.type || "car"] ?? 0.1;
   const duty = cif * dutyRate;
   const vat = (cif + duty + cfg.euPortEur + cfg.truckEur) * cfg.vatRate;
-  const extras = extraCosts.filter((x) => x && x.label && Number(x.eur));
+  const extras = (i.extraCosts || []).filter((x) => x && x.label && Number(x.eur));
   const extraSum = extras.reduce((a, x) => a + Number(x.eur), 0);
+  const repairEur = i.repairEur || 0;
   const total = cif + duty + cfg.euPortEur + cfg.truckEur + vat + cfg.homologEur + cfg.serviceFeeEur + repairEur + extraSum;
   const credit = (cfg.racemCredit.find(([max]) => total <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
   const deposit = Math.max(cfg.depositMinEur, Math.round((total * cfg.depositPct) / 50) * 50);
   return {
-    bidUsd, carEur, feeEur, inlandEur, oceanEur, cif, dutyRate, duty, vat,
+    price, currency, bidUsd: price, carEur, feeEur, inlandEur, oceanEur,
+    portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name,
+    cif, dutyRate, duty, vat,
     euPortEur: cfg.euPortEur, truckEur: cfg.truckEur, homologEur: cfg.homologEur, serviceFeeEur: cfg.serviceFeeEur,
     repairEur, extraCosts: extras, total, credit, deposit, fixed
   };
 }
 
 /** Globálne nastavenia + výnimky pre konkrétne auto (prázdne polia = globálna hodnota). */
-export function applyOverride(cfg: CalcConfig, o: CalcOverride | null | undefined, type: CarType, region: Region): CalcConfig {
+export function applyOverride(cfg: CalcConfig, o: CalcOverride | null | undefined, type: CarType): CalcConfig {
   if (!o) return cfg;
   const n = (v: unknown) => typeof v === "number" && isFinite(v);
   return {
@@ -82,28 +130,38 @@ export function applyOverride(cfg: CalcConfig, o: CalcOverride | null | undefine
     euPortEur: n(o.euPortEur) ? o.euPortEur! : cfg.euPortEur,
     truckEur: n(o.truckEur) ? o.truckEur! : cfg.truckEur,
     homologEur: n(o.homologEur) ? o.homologEur! : cfg.homologEur,
-    dutyRate: n(o.dutyRate) ? { ...cfg.dutyRate, [type]: o.dutyRate! } : cfg.dutyRate,
-    inlandUsd: n(o.inlandUsd) ? { ...cfg.inlandUsd, [region]: o.inlandUsd! } : cfg.inlandUsd,
-    oceanUsd: n(o.oceanUsd) ? { ...cfg.oceanUsd, [region]: o.oceanUsd! } : cfg.oceanUsd
+    dutyRate: n(o.dutyRate) ? { ...cfg.dutyRate, [type]: o.dutyRate! } : cfg.dutyRate
   };
 }
 
 export const isFixed = (c: { sale_type?: string | null }) => c.sale_type === "fixed";
 
-export function carEstimate(cfg: CalcConfig, car: Pick<Car, "est_bid_usd" | "current_bid_usd" | "type" | "region" | "repair_eur"> & { calc_override?: CalcOverride | null; sale_type?: string | null; price_usd?: number | null; seller_fee_usd?: number | null }) {
-  const c = applyOverride(cfg, car.calc_override, car.type, car.region);
-  const fixed = isFixed(car);
+type EstCar = Pick<Car, "est_bid_usd" | "current_bid_usd" | "type" | "repair_eur"> &
+  Partial<Pick<Car, "country" | "state" | "currency" | "sale_type" | "price_usd" | "seller_fee_usd" | "location">> & { calc_override?: CalcOverride | null };
+
+/** Cena, z ktorej sa počíta (v mene auta). */
+export const carPrice = (car: EstCar) => (isFixed(car) ? car.price_usd || 0 : car.est_bid_usd || car.current_bid_usd || 0);
+
+export function carEstimate(cfg: CalcConfig, car: EstCar) {
+  const c = applyOverride(cfg, car.calc_override, car.type);
+  const o = car.calc_override || {};
+  const n = (v: unknown) => (typeof v === "number" && isFinite(v) ? v : null);
   return calc(c, {
-    extraCosts: car.calc_override?.extraCosts || [],
-    bidUsd: fixed ? car.price_usd || 0 : car.est_bid_usd || car.current_bid_usd || 0,
-    feeUsd: fixed ? car.seller_fee_usd || 0 : undefined,
+    price: carPrice(car),
+    currency: car.currency || countryDef(car.country).currency,
+    country: car.country || "US",
+    place: car.state || guessPlace(car.country || "US", car.location || ""),
     type: car.type,
-    region: car.region,
-    repairEur: car.repair_eur || 0
+    repairEur: car.repair_eur || 0,
+    extraCosts: o.extraCosts || [],
+    sellerFee: isFixed(car) ? car.seller_fee_usd || 0 : undefined,
+    inlandUsd: n(o.inlandUsd),
+    oceanUsd: n(o.oceanUsd)
   });
 }
 
 export function mergeCalc(v: unknown): CalcConfig {
   if (!v || typeof v !== "object") return DEFAULT_CALC;
-  return { ...DEFAULT_CALC, ...(v as Partial<CalcConfig>) };
+  const o = v as Partial<CalcConfig>;
+  return { ...DEFAULT_CALC, ...o, fx: { ...DEFAULT_FX, ...(o.fx || {}), USD: o.usdToEur ?? o.fx?.USD ?? DEFAULT_FX.USD }, ports: o.ports || {}, inland: o.inland || {} };
 }
