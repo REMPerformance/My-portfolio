@@ -27,7 +27,7 @@ function blank(): Form {
     year: new Date().getFullYear() - 3, make: "", model: "", trim: "", vin: "", odometer_mi: null, engine: "", transmission: "", drive: "", fuel: "Benzín", color: "",
     keys: true, run_status: "run_drive", title_type: "Salvage", primary_damage: "", secondary_damage: "", damage_zones: [],
     location: "", region: "central", auction: "Copart", lot: "", auction_url: "", images: [],
-    sale_type: "auction", price_usd: null, seller_fee_usd: null, country: "US", state: null, currency: "USD",
+    sale_type: "auction", price_usd: null, seller_fee_usd: null, country: "US", state: null, currency: "USD", published_at: null,
     current_bid_usd: null, est_bid_usd: null, repair_eur: null, sk_price_eur: null, sk_price_source: "",
     order_close_at: null, auction_end_at: null, description: "", note: "", seo_title: "", seo_description: "", extra: {}, calc_override: {}
   };

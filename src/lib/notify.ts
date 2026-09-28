@@ -23,5 +23,5 @@ export function mergeNotify(v: unknown): NotifySettings {
 }
 
 export function fillTemplate(t: string, vars: Record<string, string>) {
-  return t.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? "");
+  return t.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? "").replace(/ +([,.!])/g, "$1");
 }

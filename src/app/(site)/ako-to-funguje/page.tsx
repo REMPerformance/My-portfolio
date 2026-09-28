@@ -32,7 +32,7 @@ export default async function HowPage() {
       <section className="alt">
         <div className="wrap legal">
           <h2>1. Výber auta a odhad ceny</h2>
-          <p>Auto si vyberiete z našej <Link href="/ponuka">aktuálnej ponuky</Link> alebo nám pošlete odkaz na ľubovoľné auto – z aukcií Copart a IAAI v USA, od dealera v Dubaji, Kanade či Kórei. Ku každému autu pripravíme celkovú cenu na slovenských značkách: cenu auta, poplatky, dopravu do prístavu, námornú prepravu, clo, DPH, prístavné poplatky, kamión na Slovensko, homologizáciu, náš fixný poplatok a odhad opravy. Výpočet si môžete overiť aj v našej <Link href="/kalkulacka-dovozu">kalkulačke dovozu</Link>.</p>
+          <p>Auto si vyberiete z našej <Link href="/ponuka">aktuálnej ponuky</Link> alebo nám pošlete odkaz na ľubovoľné auto – z aukcií Copart a IAAI v USA, od dealera v Dubaji, Kanade či Kórei. Ku každému autu pripravíme celkovú cenu na slovenských značkách: cenu auta, poplatky, dopravu do prístavu, námornú prepravu, clo, DPH, prístavné poplatky, kamión na Slovensko, homologizáciu a odhad opravy. Výpočet si môžete overiť aj v našej <Link href="/kalkulacka-dovozu">kalkulačke dovozu</Link>.</p>
           <p>Autá z aukcie majú uvedený <b>termín uzávierky objednávok</b>, spravidla 24 hodín pred koncom aukcie. Autá za pevnú cenu majú uvedené, dokedy ponuka platí.</p>
 
           <h2>2. Zmluva o sprostredkovaní a záloha</h2>

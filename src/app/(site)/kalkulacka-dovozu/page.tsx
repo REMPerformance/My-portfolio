@@ -34,7 +34,7 @@ export default async function CalcPage() {
       <JsonLd data={{ "@context": "https://schema.org", "@type": "WebApplication", name: "Kalkulačka dovozu auta", url: `${SITE.url}/kalkulacka-dovozu`, applicationCategory: "FinanceApplication", operatingSystem: "Web", offers: { "@type": "Offer", price: 0, priceCurrency: "EUR" } }} />
       <PageHead crumbs={crumbs} title={<>Kalkulačka dovozu auta</>} sub="Vyberte krajinu a štát, zadajte cenu auta a uvidíte všetky náklady: poplatky, dopravu, clo, DPH, homologizáciu aj náš poplatok." />
       <section style={{ paddingTop: 40 }}>
-        <div className="wrap"><Calculator cfg={cfg} /></div>
+        <div className="wrap"><Calculator cfg={cfg} hideFee /></div>
       </section>
       <section className="alt">
         <div className="wrap legal">
@@ -46,8 +46,7 @@ export default async function CalcPage() {
             <li><b>Doprava do prístavu a námorná preprava</b> – podľa štátu či emirátu a najbližšieho prístavu, kontajner do Bremerhavenu vrátane poistenia.</li>
             <li><b>Clo</b> – {Math.round(cfg.dutyRate.car * 100)} % pri osobných autách z colnej hodnoty (auto + poplatky + doprava do EÚ).</li>
             <li><b>DPH {Math.round(cfg.vatRate * 100)} %</b> – z colnej hodnoty, cla a dopravy v rámci EÚ.</li>
-            <li><b>Prístav, kamión a homologizácia</b> – vykládka, colný deklarant, doprava na Slovensko, úpravy, STK a EČV.</li>
-            <li><b>Náš poplatok</b> – fixných {eur(cfg.serviceFeeEur)} za kompletné sprostredkovanie.</li>
+            <li><b>Prístav, kamión a vybavenie na Slovensku</b> – vykládka, colný deklarant, doprava na Slovensko, úpravy, homologizácia, STK a EČV.</li>
           </ol>
           <p>Pripravené výpočty ku konkrétnym autám nájdete v <Link href="/ponuka">ponuke áut</Link>. Ak máte vlastný tip na auto, <Link href="/kontakt">pošlite nám odkaz</Link>.</p>
         </div>

@@ -67,7 +67,7 @@ export default async function Vop() {
 
           <h2 id="cena">5. Cena a platobné podmienky</h2>
           <ol>
-            <li>Odmena poskytovateľa je <b>fixný poplatok</b> uvedený v zmluve (štandardne {eur(cfg.serviceFeeEur)} vrátane DPH). Poplatok nie je závislý od ceny vozidla.</li>
+            <li>Odmena poskytovateľa je <b>fixný poplatok</b> uvedený v zmluve. Poplatok nie je závislý od ceny vozidla.</li>
             <li>Klient pred aukciou zloží <b>zálohu</b> vo výške {Math.round(cfg.depositPct * 100)} % z limitu, minimálne {eur(cfg.depositMinEur)}.</li>
             <li>Ak je aukcia úspešná, klient uhradí cenu vozidla a aukčné poplatky do <b>2 pracovných dní</b> od výzvy, keďže aukcie vyžadujú platbu v krátkych lehotách. Záloha sa započíta.</li>
             <li>Ostatné náklady (doprava, clo, DPH, prístavné poplatky, homologizácia, oprava) klient uhrádza podľa priebežných faktúr v zmysle zmluvy. Clo a DPH sú určené colným úradom a môžu sa líšiť od odhadu.</li>

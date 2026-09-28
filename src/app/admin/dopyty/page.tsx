@@ -38,7 +38,7 @@ function Leads() {
     refreshCounts();
   }
   async function remove(l: Lead) {
-    if (!confirm(`Zmazať dopyt od ${l.name}?`)) return;
+    if (!confirm(`Zmazať dopyt od ${l.name || l.email}?`)) return;
     const { error } = await sb.from("leads").delete().eq("id", l.id);
     if (error) return toast(error.message, true);
     setLeads((ls) => (ls || []).filter((x) => x.id !== l.id));
@@ -46,7 +46,7 @@ function Leads() {
   }
   function exportCsv() {
     const rows = [["Dátum", "Auto", "Meno", "E-mail", "Telefón", "Rozpočet", "Stav", "Odkaz", "Správa", "Poznámka"]];
-    list.forEach((l) => rows.push([fmtDateTime(l.created_at), l.car_label || "", l.name, l.email, l.phone, String(l.max_budget_eur ?? ""), STATUS[l.status], l.link || "", l.message || "", l.admin_note || ""]));
+    list.forEach((l) => rows.push([fmtDateTime(l.created_at), l.car_label || "", l.name || "", l.email, l.phone, String(l.max_budget_eur ?? ""), STATUS[l.status], l.link || "", l.message || "", l.admin_note || ""]));
     const csv = "﻿" + rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
@@ -80,7 +80,7 @@ function Leads() {
             <div key={l.id} className={`lead-card${l.status === "new" ? " is-new" : ""}`}>
               <div className="top">
                 <div className="who">
-                  <b>{l.name}</b>
+                  <b>{l.name || l.phone}</b>
                   <small>{fmtDateTime(l.created_at)} · {l.car_id ? <Link className="link" href={`/admin/auta/${l.car_id}`}>{carName(l.car_id) || l.car_label}</Link> : l.car_label || "Všeobecný dopyt"}</small>
                 </div>
                 <div className="row-actions">

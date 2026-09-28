@@ -45,6 +45,7 @@ const orgLd = {
       logo: SITE.logo,
       image: SITE.ogImage,
       email: SITE.email,
+      telephone: SITE.phone,
       description: SITE.description,
       vatID: SITE.company.icDph,
       taxID: SITE.company.ico,

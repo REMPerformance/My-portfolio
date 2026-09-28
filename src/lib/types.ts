@@ -80,6 +80,8 @@ export interface Car {
   seo_description: string | null;
   extra: CarExtra;
   calc_override: CalcOverride;
+  /** kedy bolo auto prvýkrát zverejnené (nastaví databáza) */
+  published_at: string | null;
   views: number;
   leads_count: number;
   created_at: string;
@@ -120,7 +122,7 @@ export interface Lead {
   id: string;
   car_id: string | null;
   car_label: string | null;
-  name: string;
+  name: string | null;
   email: string;
   phone: string;
   max_budget_eur: number | null;

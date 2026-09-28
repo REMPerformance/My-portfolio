@@ -9,8 +9,8 @@ import { IDoc, IGlobe, IMail, IPhone } from "@/components/Icons";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Kontakt – dopyt na auto z USA",
-  description: "Napíšte nám, aké auto z USA hľadáte, alebo pošlite odkaz na auto z Copartu či IAAI. Do 24 hodín Vám pošleme odhad celkovej ceny.",
+  title: "Kontakt – dopyt na dovoz auta",
+  description: "Napíšte nám, aké auto hľadáte – telefón, e-mail alebo WhatsApp +421 949 253 872. Do 24 hodín Vám pošleme celkovú cenu.",
   alternates: { canonical: "/kontakt" },
   openGraph: { url: "/kontakt" }
 };
@@ -28,7 +28,8 @@ export default async function Contact() {
           <div>
             <div className="contact-list" style={{ marginTop: 0 }}>
               <a href={`mailto:${SITE.email}`}><IMail /><span><small>E-mail</small><b>{SITE.email}</b></span></a>
-              {ct.contact.phone && <a href={`tel:${ct.contact.phone.replace(/\s/g, "")}`}><IPhone /><span><small>Telefón{ct.contact.hours ? ` · ${ct.contact.hours}` : ""}</small><b>{ct.contact.phone}</b></span></a>}
+              <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener"><IPhone /><span><small>WhatsApp</small><b>{SITE.phone}</b></span></a>
+              <a href={`tel:${(ct.contact.phone || SITE.phone).replace(/\s/g, "")}`}><IPhone /><span><small>Telefón{ct.contact.hours ? ` · ${ct.contact.hours}` : ""}</small><b>{ct.contact.phone || SITE.phone}</b></span></a>
               <a href={SITE.racemUrl} target="_blank" rel="noopener"><IGlobe /><span><small>Tuning a diely</small><b>racem.sk</b></span></a>
               <div><IDoc /><span><small>Prevádzkovateľ</small><b style={{ fontSize: 16 }}>{c.name}</b><span style={{ fontSize: 14, color: "var(--rc-text-mid)" }}>{c.street}, {c.zip} {c.city}<br />IČO {c.ico} · IČ DPH {c.icDph}</span></span></div>
             </div>

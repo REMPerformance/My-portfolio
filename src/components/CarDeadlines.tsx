@@ -57,6 +57,7 @@ export function CarDeadlines({ car, serverNow }: { car: Car; serverNow: number }
 export function CarOrder({ car, serverNow, suggestedBudget }: { car: Car; serverNow: number; suggestedBudget: number }) {
   const now = useNow();
   const phase = carPhase(car, now ?? serverNow);
-  const label = [car.year, car.make, car.model, car.trim].filter(Boolean).join(" ") + (isFixed(car) ? ` (pevná cena${car.auction ? `, ${car.auction}` : ""})` : car.lot ? ` (${car.auction} lot ${car.lot})` : "");
-  return <LeadForm car={{ id: car.id, label }} closed={phase !== "open"} suggestedBudget={suggestedBudget} heading="Objednať toto auto" />;
+  const label = [car.year, car.make, car.model, car.trim].filter(Boolean).join(" ");
+  const adminLabel = label + (isFixed(car) ? ` (pevná cena${car.auction ? `, ${car.auction}` : ""})` : car.lot ? ` (${car.auction} lot ${car.lot})` : "");
+  return <LeadForm car={{ id: car.id, label: adminLabel, url: `https://remperformance.sk/auta/${car.slug}` }} closed={phase !== "open"} suggestedBudget={suggestedBudget} />;
 }

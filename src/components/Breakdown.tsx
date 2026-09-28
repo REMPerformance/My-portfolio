@@ -1,7 +1,7 @@
 import type { CalcResult } from "@/lib/calc";
 import { eur, money } from "@/lib/format";
 
-export function Breakdown({ r, skPrice, compact = false }: { r: CalcResult; skPrice?: number | null; compact?: boolean }) {
+export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r: CalcResult; skPrice?: number | null; compact?: boolean; hideFee?: boolean }) {
   const diff = skPrice ? skPrice - r.total : null;
   const row = (k: React.ReactNode, v: number, note?: string) => (
     <div className="bd"><span>{k}{note && <em>{note}</em>}</span><span>{eur(v)}</span></div>
@@ -24,8 +24,12 @@ export function Breakdown({ r, skPrice, compact = false }: { r: CalcResult; skPr
         <h4>EÚ a Slovensko</h4>
         {row("Prístav, vykládka, colný deklarant", r.euPortEur)}
         {row("Kamión do SR", r.truckEur)}
-        {row("Homologizácia, STK, EČV", r.homologEur)}
-        {row("Náš poplatok za sprostredkovanie", r.serviceFeeEur, "fixný")}
+        {hideFee ? row("Homologizácia, STK, EČV a vybavenie", r.homologEur + r.serviceFeeEur) : (
+          <>
+            {row("Homologizácia, STK, EČV", r.homologEur)}
+            {row("Náš poplatok za sprostredkovanie", r.serviceFeeEur, "fixný")}
+          </>
+        )}
         {r.repairEur > 0 && row("Odhad opravy", r.repairEur)}
         {r.extraCosts?.map((x) => <div className="bd" key={x.label}><span>{x.label}</span><span>{eur(x.eur)}</span></div>)}
       </div>

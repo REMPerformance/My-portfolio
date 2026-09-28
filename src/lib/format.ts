@@ -43,6 +43,8 @@ export function slugify(s: string) {
 const dtf = new Intl.DateTimeFormat("sk-SK", {
   day: "numeric", month: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Bratislava"
 });
+const df = new Intl.DateTimeFormat("sk-SK", { day: "numeric", month: "numeric", year: "numeric", timeZone: "Europe/Bratislava" });
+export const fmtDate = (iso: string | null | undefined) => (iso ? df.format(new Date(iso)) : "—");
 export const fmtDateTime = (iso: string | null | undefined) => (iso ? dtf.format(new Date(iso)) : "—");
 
 export type Phase = "open" | "closed" | "ended";

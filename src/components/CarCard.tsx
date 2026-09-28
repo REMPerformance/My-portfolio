@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Car } from "@/lib/types";
 import type { CalcResult } from "@/lib/calc";
 import { isFixed } from "@/lib/calc";
-import { carPhase, eur, km } from "@/lib/format";
+import { carPhase, eur, fmtDate, km } from "@/lib/format";
 import { countryDef, placeName } from "@/lib/origins";
 import { CarImage } from "./CarImage";
 import { useNow } from "./Countdown";
@@ -57,6 +57,7 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
             {car.fuel && <span>{car.fuel}</span>}
             {car.primary_damage && <span>{car.primary_damage}</span>}
           </div>
+          {car.published_at && <div className="pubdate">Zverejnené {fmtDate(car.published_at)}</div>}
           <div className="car__price">
             <div><small>Spolu na SK značkách</small><b>{eur(car.est.total)}</b></div>
             <div className={`car__when ${when.cls}`}>{when.l}<b>{when.v}</b></div>

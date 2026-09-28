@@ -99,7 +99,7 @@ export default async function Home() {
           <div className="cta-band">
             <div>
               <h2>Hľadáte konkrétne auto?</h2>
-              <p>Napíšte nám značku, model a rozpočet. Do 24 hodín Vám pošleme celkovú cenu. Náš poplatok je fixný – {eur(cfg.serviceFeeEur)}.</p>
+              <p>Napíšte nám značku, model a rozpočet. Do 24 hodín Vám pošleme celkovú cenu. Alebo nám napíšte na WhatsApp {SITE.phone}.</p>
             </div>
             <Link href="/kontakt" className="rc-btn rc-btn--light">Poslať nezáväzný dopyt <IArrow /></Link>
           </div>

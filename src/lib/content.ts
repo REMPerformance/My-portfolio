@@ -9,7 +9,7 @@ export const STEPS = [
 export const FAQ: { q: string; a: string }[] = [
   {
     q: "Je odhadovaná cena záväzná?",
-    a: "Nie. Výsledná cena závisí od toho, za koľko sa auto vydraží, od kurzu dolára a od skutočných nákladov na opravu. Záväzný je náš fixný poplatok za sprostredkovanie a maximálna suma, ktorú nám nastavíte. Nad ňu neprihodíme."
+    a: "Nie. Výsledná cena závisí od toho, za koľko sa auto vydraží, od kurzu dolára a od skutočných nákladov na opravu. Pri aukcii je záväzná maximálna suma, ktorú nám nastavíte – nad ňu neprihodíme."
   },
   {
     q: "Aký je rozdiel medzi autom v aukcii a autom za pevnú cenu?",
@@ -86,7 +86,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     lead: "Vyberte si auto z našej ponuky alebo nám povedzte, čo hľadáte. Kúpime ho, dovezieme, preclíme, homologizujeme a prihlásime. Celkovú cenu vrátane dopravy, cla a DPH vidíte vopred.",
     pills: [
       { b: "6–10 týždňov", t: "doručenie na Slovensko" },
-      { b: "Fixný poplatok", t: "žiadne percentá z ceny" },
+      { b: "6 krajín", t: "USA, SAE, Kanada, Ázia" },
       { b: "Až 700 €", t: "kredit na tuning v RACEM" }
     ]
   },
@@ -99,7 +99,7 @@ export const DEFAULT_CONTENT: SiteContent = {
   ],
   steps: STEPS,
   why: [
-    { t: "Cena rozpísaná do eura", d: "Pri každom aute vidíte všetky položky: aukciu, poplatky, dopravu, clo, DPH, homologizáciu aj našu odmenu. Náš poplatok je fixný, nie percentá z ceny auta." },
+    { t: "Cena rozpísaná do eura", d: "Pri každom aute vidíte jednu konečnú cenu na slovenských značkách – vrátane dopravy, cla, DPH a homologizácie. Žiadne skryté položky na konci." },
     { t: "Zmluva a doklady", d: "Na základe zmluvy o sprostredkovaní Vás zastupujeme na aukcii. Nad Váš limit neprihodíme a každú platbu máte zdokladovanú faktúrou." },
     { t: "Tuning v jednej ruke", d: "Za nami stojí RACEM, slovenský e-shop s certifikovanými performance dielmi. Auto Vám pomôžeme dotiahnuť od opravy až po finálny vzhľad." }
   ],
@@ -111,7 +111,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     tiers: CREDIT_TIERS
   },
   faq: FAQ,
-  contact: { human: "Ozve sa Vám reálny človek, nie automat.", phone: "", hours: "" }
+  contact: { human: "Ozve sa Vám reálny človek, nie automat.", phone: "+421 949 253 872", hours: "" }
 };
 
 export function mergeContent(v: unknown): SiteContent {
