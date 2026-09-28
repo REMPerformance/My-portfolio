@@ -5,7 +5,7 @@ const AED_PER_USD = 3.6725; // dirham je pevne naviazaný na dolár
 
 export async function fetchLiveFx(): Promise<LiveFx | null> {
   try {
-    const r = await fetch("https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD,CAD,JPY,KRW,CNY", { next: { revalidate: 6 * 3600 } });
+    const r = await fetch("https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD,CAD,JPY,KRW,CNY", { next: { revalidate: 6 * 3600 }, signal: AbortSignal.timeout(4000) });
     if (!r.ok) return null;
     const j = (await r.json()) as { date: string; rates: Record<string, number> };
     const rates: Record<string, number> = { EUR: 1 };

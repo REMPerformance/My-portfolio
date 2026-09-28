@@ -14,17 +14,11 @@ import { DamageMap } from "@/components/DamageMap";
 import { CalcOverridePanel, ExtrasPanel } from "@/components/admin/CarExtras";
 import { Breakdown } from "@/components/Breakdown";
 import { MoneyPair } from "@/components/admin/MoneyPair";
+import { DateTimePicker } from "@/components/admin/DateTimePicker";
 import { useCalcCfg } from "@/components/admin/useCalcCfg";
 
 type Form = Omit<Car, "created_at" | "updated_at" | "views" | "leads_count">;
 
-const toLocal = (iso: string | null) => {
-  if (!iso) return "";
-  const d = new Date(iso);
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-};
-const fromLocal = (v: string) => (v ? new Date(v).toISOString() : null);
 const AUCTIONS = ["Copart", "IAAI", "Manheim", "Emirates Auction", "Iná"];
 
 function blank(): Form {
@@ -82,7 +76,16 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
       if (!o) return o;
       const n = { ...o, ...p };
       if (!slugTouched && ["year", "make", "model", "trim"].some((k) => k in p)) n.slug = slugify([n.year, n.make, n.model, n.trim].filter(Boolean).join(" "));
-      if ("auction_end_at" in p && p.auction_end_at && !o.order_close_at && o.sale_type !== "fixed") n.order_close_at = new Date(Date.parse(p.auction_end_at) - 24 * 3600e3).toISOString();
+      if ("auction_end_at" in p && p.auction_end_at && o.sale_type !== "fixed") {
+        const end = Date.parse(p.auction_end_at);
+        const oldEnd = o.auction_end_at ? Date.parse(o.auction_end_at) : null;
+        const close = o.order_close_at ? Date.parse(o.order_close_at) : null;
+        // uzávierka chýba, je po novom konci, alebo bola naviazaná na starý koniec (24 h) → posuň ju
+        if (close === null || close >= end || (oldEnd !== null && Math.abs(oldEnd - close - 24 * 3600e3) < 60e3)) {
+          const c24 = end - 24 * 3600e3;
+          n.order_close_at = new Date(c24 > Date.now() + 3600e3 ? c24 : end - 2 * 3600e3).toISOString();
+        }
+      }
       return n;
     });
   };
@@ -322,7 +325,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                       <MoneyPair label="Poplatky predajcu" value={f.seller_fee_usd} currency={cur} rate={rate} onChange={(v) => set("seller_fee_usd", v)} hint="Doc fee, Buy Now fee…" />
                     </div>
                     <div className="three">
-                      <div className="field"><label>Ponuka platí do</label><input className="input" type="datetime-local" value={toLocal(f.order_close_at)} onChange={(e) => set("order_close_at", fromLocal(e.target.value))} /><span className="hint">Prázdne = do predaja</span></div>
+                      <DateTimePicker label="Ponuka platí do" value={f.order_close_at} onChange={(v) => set("order_close_at", v)} hint="Prázdne = do predaja" quick={[3, 7, 14, 30]} defaultHour={23} />
                     </div>
                   </>
                 ) : (
@@ -332,8 +335,8 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                       <MoneyPair label="Váš odhad vydraženia" required value={f.est_bid_usd} currency={cur} rate={rate} onChange={(v) => set("est_bid_usd", v)} hint="Z tohto sa počíta cena na webe" />
                     </div>
                     <div className="three">
-                      <div className="field"><label>Koniec aukcie *</label><input className="input" type="datetime-local" value={toLocal(f.auction_end_at)} onChange={(e) => set("auction_end_at", fromLocal(e.target.value))} /></div>
-                      <div className="field"><label>Uzávierka objednávok</label><input className="input" type="datetime-local" value={toLocal(f.order_close_at)} onChange={(e) => set("order_close_at", fromLocal(e.target.value))} /><span className="hint">Predvolene 24 h pred koncom</span></div>
+                      <DateTimePicker label="Koniec aukcie" required value={f.auction_end_at} onChange={(v) => set("auction_end_at", v)} hint="Slovenský čas" />
+                      <DateTimePicker label="Uzávierka objednávok" value={f.order_close_at} onChange={(v) => set("order_close_at", v)} hint="Predvolene 24 h pred koncom (pri skorej aukcii 2 h)" />
                     </div>
                   </>
                 )}

@@ -546,3 +546,25 @@ details.fold>div{padding:0 14px 12px}
 .iw .input{padding-right:52px}
 .iw input[type=number]::-webkit-inner-spin-button,.iw input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .iw input[type=number]{-moz-appearance:textfield}
+/* kalendár (admin) */
+.dtp{position:relative}
+.dtp__btn{display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer}
+.dtp__btn svg{width:17px;height:17px;stroke:var(--rc-text-mid);fill:none;stroke-width:1.8;flex:none}
+.dtp__btn.empty span{color:var(--rc-text-dim)}
+.dtp__pop{position:absolute;z-index:50;top:calc(100% + 4px);left:0;width:320px;padding:14px;border-radius:var(--rc-radius-lg);background:var(--rc-surface-2);border:1px solid var(--rc-line-strong);box-shadow:0 18px 48px rgba(0,0,0,.55)}
+.dtp__quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.dtp__quick .chip{padding:4px 10px;font-size:12px}
+.dtp__head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.dtp__head b{font-size:14px;font-weight:600;text-transform:capitalize}
+.dtp__head button{width:32px;height:32px;border-radius:6px;border:1px solid var(--rc-line-strong);background:none;cursor:pointer;font-size:18px;line-height:1;color:var(--rc-text)}
+.dtp__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dtp__grid .dow{font-size:11px;color:var(--rc-text-dim);text-align:center;padding:4px 0}
+.dtp__grid button{height:34px;border-radius:6px;border:0;background:none;cursor:pointer;font-size:14px;color:var(--rc-text)}
+.dtp__grid button:hover{background:rgba(255,255,255,.07)}
+.dtp__grid button.today{box-shadow:inset 0 0 0 1px var(--rc-line-strong)}
+.dtp__grid button.past{color:var(--rc-text-dim)}
+.dtp__grid button.on{background:var(--rc-red);color:#fff}
+.dtp__time{display:flex;align-items:center;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--rc-line)}
+.dtp__time span{font-size:13px;color:var(--rc-text-mid);margin-right:auto}
+.dtp__time .input{width:72px;padding:6px 26px 6px 10px;font-size:14px;background-position:right 8px center}
+.dtp__foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px}

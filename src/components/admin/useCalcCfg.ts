@@ -13,5 +13,5 @@ export function useCalcCfg() {
     browserClient().from("settings").select("value").eq("key", "calc").maybeSingle().then(({ data }) => setRaw(mergeCalc(data?.value)));
     fetch("/api/fx").then((r) => (r.ok ? r.json() : null)).then((j) => setLive(j && j.rates ? j : null)).catch(() => setLive(null));
   }, []);
-  return { cfg: raw && live !== undefined ? withLiveFx(raw, live) : null, raw, setRaw, live };
+  return { cfg: raw ? withLiveFx(raw, live ?? null) : null, raw, setRaw, live };
 }
