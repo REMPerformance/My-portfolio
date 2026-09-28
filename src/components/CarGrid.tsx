@@ -40,13 +40,13 @@ export function CarGrid({ cars, serverNow, showFilters = true, showEnded = true,
           live.map((c, i) => <CarCard key={c.id} car={c} priority={i < 3} serverNow={serverNow} />)
         ) : (
           <div className="empty">
-            V tejto kategórii práve nemáme žiadne auto v aukcii. <Link href="/kontakt">Napíšte nám, aké auto hľadáte</Link> a nájdeme ho za Vás.
+            V tejto kategórii práve nemáme žiadne auto v ponuke. <Link href="/kontakt">Napíšte nám, aké auto hľadáte</Link> a nájdeme ho za Vás.
           </div>
         )}
       </div>
       {showEnded && ended.length > 0 && (
         <>
-          <h2 className="ended-head">Skončené aukcie</h2>
+          <h2 className="ended-head">Skončené ponuky</h2>
           <div className="grid">{ended.map((c) => <CarCard key={c.id} car={c} serverNow={serverNow} />)}</div>
         </>
       )}

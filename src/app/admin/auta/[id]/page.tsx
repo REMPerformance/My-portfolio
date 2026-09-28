@@ -28,6 +28,7 @@ function blank(): Form {
     year: new Date().getFullYear() - 3, make: "", model: "", trim: "", vin: "", odometer_mi: null, engine: "", transmission: "", drive: "", fuel: "Benzín", color: "",
     keys: true, run_status: "run_drive", title_type: "Salvage", primary_damage: "", secondary_damage: "", damage_zones: [],
     location: "", region: "central", auction: "Copart", lot: "", auction_url: "", images: [],
+    sale_type: "auction", price_usd: null, seller_fee_usd: null,
     current_bid_usd: null, est_bid_usd: null, repair_eur: null, sk_price_eur: null, sk_price_source: "",
     order_close_at: null, auction_end_at: null, description: "", note: "", seo_title: "", seo_description: "", extra: {}, calc_override: {}
   };
@@ -71,11 +72,20 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
       const n = { ...p, [k]: v };
       if (!slugTouched && ["year", "make", "model", "trim"].includes(k as string)) n.slug = slugify([n.year, n.make, n.model, n.trim].filter(Boolean).join(" "));
       if (k === "location" && typeof v === "string") n.region = regionFromLocation(v);
-      if (k === "auction_end_at" && v && !p.order_close_at) n.order_close_at = new Date(Date.parse(v as string) - 24 * 3600e3).toISOString();
+      if (k === "auction_end_at" && v && !p.order_close_at && p.sale_type !== "fixed") n.order_close_at = new Date(Date.parse(v as string) - 24 * 3600e3).toISOString();
       return n;
     });
   };
   const numv = (v: string) => (v === "" ? null : Number(v));
+  const fixed = f?.sale_type === "fixed";
+  const switchSale = (t: Form["sale_type"]) => {
+    if (!f || f.sale_type === t) return;
+    set("sale_type", t);
+    if (t === "fixed") {
+      if (["Copart", "IAAI", "Manheim", "Iná"].includes(f.auction || "")) set("auction", "Dealer");
+      set("auction_end_at", null);
+    } else if (!["Copart", "IAAI", "Manheim", "Iná"].includes(f.auction || "")) set("auction", "Copart");
+  };
 
   const est = useMemo(() => (f && cfg ? carEstimate(cfg, f) : null), [f, cfg]);
 
@@ -85,8 +95,11 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
     const slug = slugify(f.slug || [f.year, f.make, f.model, f.trim].filter(Boolean).join(" "));
     if (!slug) return toast("Chýba URL adresa (slug).", true);
     const payload = { ...f, slug, status: status ?? f.status };
-    if (payload.status === "published" && !payload.auction_end_at) return toast("Pred zverejnením vyplňte koniec aukcie.", true);
-    if (payload.order_close_at && payload.auction_end_at && Date.parse(payload.order_close_at) > Date.parse(payload.auction_end_at))
+    if (payload.sale_type === "fixed") {
+      payload.auction_end_at = null;
+      if (payload.status === "published" && !payload.price_usd) return toast("Pred zverejnením vyplňte cenu auta.", true);
+    } else if (payload.status === "published" && !payload.auction_end_at) return toast("Pred zverejnením vyplňte koniec aukcie.", true);
+    if (payload.sale_type !== "fixed" && payload.order_close_at && payload.auction_end_at && Date.parse(payload.order_close_at) > Date.parse(payload.auction_end_at))
       return toast("Uzávierka objednávok musí byť pred koncom aukcie.", true);
     setSaving(true);
     const { error } = await sb.from("cars").upsert(payload, { onConflict: "id" });
@@ -101,7 +114,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   if (!f || !cfg) return <p className="note">Načítavam…</p>;
   const titleLen = (f.seo_title || "").length, descLen = (f.seo_description || "").length;
   const autoTitle = `${[f.year, f.make, f.model, f.trim].filter(Boolean).join(" ")} z USA – ${est ? eur(est.total) : ""} na SK značkách`;
-  const autoDesc = `${[f.year, f.make, f.model, f.trim].filter(Boolean).join(" ")} z aukcie ${f.auction || "Copart"} (${f.location || "USA"}). Odhad celkovej ceny na Slovensku ${est ? eur(est.total) : ""} vrátane cla, DPH a dopravy.`;
+  const autoDesc = `${[f.year, f.make, f.model, f.trim].filter(Boolean).join(" ")} ${fixed ? "za pevnú cenu" : `z aukcie ${f.auction || "Copart"}`} (${f.location || "USA"}). ${fixed ? "Cena s dovozom" : "Odhad celkovej ceny"} na Slovensku ${est ? eur(est.total) : ""} vrátane cla, DPH a dopravy.`;
 
   return (
     <>
@@ -152,28 +165,64 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
           </div>
 
           <div className="panel">
-            <h2>Aukcia a termíny</h2>
-            <div className="three">
-              <div className="field"><label>Aukcia</label>
-                <select className="input" value={f.auction ?? ""} onChange={(e) => set("auction", e.target.value)}><option>Copart</option><option>IAAI</option><option>Manheim</option><option>Iná</option></select>
-              </div>
-              <div className="field"><label>Číslo lotu</label><input className="input" value={f.lot ?? ""} onChange={(e) => set("lot", e.target.value)} /></div>
-              <div className="field"><label>Lokalita</label><input className="input" value={f.location ?? ""} onChange={(e) => set("location", e.target.value)} placeholder="Dallas, TX" /></div>
+            <h2>{fixed ? "Predaj a cena" : "Aukcia a termíny"}</h2>
+            <div className="seg" role="radiogroup" aria-label="Typ predaja">
+              <button type="button" role="radio" aria-checked={!fixed} className={!fixed ? "on" : ""} onClick={() => switchSale("auction")}>
+                <b>Aukcia</b><small>Dražba na Copart / IAAI, odhad vydraženia</small>
+              </button>
+              <button type="button" role="radio" aria-checked={fixed} className={fixed ? "on" : ""} onClick={() => switchSale("fixed")}>
+                <b>Pevná cena</b><small>Auto za presnú sumu + dovoz (dealer, Buy Now…)</small>
+              </button>
             </div>
-            <div className="field"><label>Odkaz na aukciu</label><input className="input" type="url" value={f.auction_url ?? ""} onChange={(e) => set("auction_url", e.target.value)} placeholder="https://www.copart.com/lot/…" /></div>
-            <div className="three">
-              <div className="field"><label>Koniec aukcie *</label><input className="input" type="datetime-local" value={toLocal(f.auction_end_at)} onChange={(e) => set("auction_end_at", fromLocal(e.target.value))} /></div>
-              <div className="field"><label>Uzávierka objednávok</label><input className="input" type="datetime-local" value={toLocal(f.order_close_at)} onChange={(e) => set("order_close_at", fromLocal(e.target.value))} /><span className="hint">Predvolene 24 h pred koncom aukcie.</span></div>
-              <div className="field"><label>Región (doprava)</label>
-                <select className="input" value={f.region} onChange={(e) => set("region", e.target.value as Form["region"])}><option value="east">Východ</option><option value="central">Stred / Texas</option><option value="west">Západ</option></select>
-                <span className="hint">Nastaví sa podľa štátu v lokalite.</span>
-              </div>
-            </div>
-            <div className="three">
-              <div className="field"><label>Aktuálna ponuka</label><div className="iw"><input className="input" type="number" value={f.current_bid_usd ?? ""} onChange={(e) => set("current_bid_usd", numv(e.target.value))} /><span className="u">USD</span></div></div>
-              <div className="field"><label>Váš odhad vydraženia</label><div className="iw"><input className="input" type="number" value={f.est_bid_usd ?? ""} onChange={(e) => set("est_bid_usd", numv(e.target.value))} /><span className="u">USD</span></div><span className="hint">Z tohto sa počíta odhad ceny.</span></div>
-              <div className="field"><label>Odhad opravy</label><div className="iw"><input className="input" type="number" value={f.repair_eur ?? ""} onChange={(e) => set("repair_eur", numv(e.target.value))} /><span className="u">EUR</span></div></div>
-            </div>
+            {fixed ? (
+              <>
+                <div className="three">
+                  <div className="field"><label>Predajca</label>
+                    <input className="input" list="sellers" value={f.auction ?? ""} onChange={(e) => set("auction", e.target.value)} placeholder="Dealer" />
+                    <datalist id="sellers"><option value="Dealer" /><option value="Copart Buy It Now" /><option value="IAAI Buy Now" /><option value="Súkromný predajca" /></datalist>
+                  </div>
+                  <div className="field"><label>Číslo inzerátu / lotu</label><input className="input" value={f.lot ?? ""} onChange={(e) => set("lot", e.target.value)} /></div>
+                  <div className="field"><label>Lokalita</label><input className="input" value={f.location ?? ""} onChange={(e) => set("location", e.target.value)} placeholder="Miami, FL" /></div>
+                </div>
+                <div className="field"><label>Odkaz na inzerát</label><input className="input" type="url" value={f.auction_url ?? ""} onChange={(e) => set("auction_url", e.target.value)} placeholder="https://…" /><span className="hint">Neukazuje sa na webe, len pre Vás.</span></div>
+                <div className="three">
+                  <div className="field"><label>Cena auta *</label><div className="iw"><input className="input" type="number" value={f.price_usd ?? ""} onChange={(e) => set("price_usd", numv(e.target.value))} /><span className="u">USD</span></div><span className="hint">Presná cena u predajcu.</span></div>
+                  <div className="field"><label>Poplatky predajcu</label><div className="iw"><input className="input" type="number" value={f.seller_fee_usd ?? ""} onChange={(e) => set("seller_fee_usd", numv(e.target.value))} /><span className="u">USD</span></div><span className="hint">Doc fee, Buy Now fee… (nepovinné)</span></div>
+                  <div className="field"><label>Odhad opravy</label><div className="iw"><input className="input" type="number" value={f.repair_eur ?? ""} onChange={(e) => set("repair_eur", numv(e.target.value))} /><span className="u">EUR</span></div></div>
+                </div>
+                <div className="two">
+                  <div className="field"><label>Ponuka platí do</label><input className="input" type="datetime-local" value={toLocal(f.order_close_at)} onChange={(e) => set("order_close_at", fromLocal(e.target.value))} /><span className="hint">Prázdne = platí, kým auto neoznačíte ako predané.</span></div>
+                  <div className="field"><label>Región (doprava)</label>
+                    <select className="input" value={f.region} onChange={(e) => set("region", e.target.value as Form["region"])}><option value="east">Východ</option><option value="central">Stred / Texas</option><option value="west">Západ</option></select>
+                    <span className="hint">Nastaví sa podľa štátu v lokalite.</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="three">
+                  <div className="field"><label>Aukcia</label>
+                    <select className="input" value={f.auction ?? ""} onChange={(e) => set("auction", e.target.value)}><option>Copart</option><option>IAAI</option><option>Manheim</option><option>Iná</option></select>
+                  </div>
+                  <div className="field"><label>Číslo lotu</label><input className="input" value={f.lot ?? ""} onChange={(e) => set("lot", e.target.value)} /></div>
+                  <div className="field"><label>Lokalita</label><input className="input" value={f.location ?? ""} onChange={(e) => set("location", e.target.value)} placeholder="Dallas, TX" /></div>
+                </div>
+                <div className="field"><label>Odkaz na aukciu</label><input className="input" type="url" value={f.auction_url ?? ""} onChange={(e) => set("auction_url", e.target.value)} placeholder="https://www.copart.com/lot/…" /></div>
+                <div className="three">
+                  <div className="field"><label>Koniec aukcie *</label><input className="input" type="datetime-local" value={toLocal(f.auction_end_at)} onChange={(e) => set("auction_end_at", fromLocal(e.target.value))} /></div>
+                  <div className="field"><label>Uzávierka objednávok</label><input className="input" type="datetime-local" value={toLocal(f.order_close_at)} onChange={(e) => set("order_close_at", fromLocal(e.target.value))} /><span className="hint">Predvolene 24 h pred koncom aukcie.</span></div>
+                  <div className="field"><label>Región (doprava)</label>
+                    <select className="input" value={f.region} onChange={(e) => set("region", e.target.value as Form["region"])}><option value="east">Východ</option><option value="central">Stred / Texas</option><option value="west">Západ</option></select>
+                    <span className="hint">Nastaví sa podľa štátu v lokalite.</span>
+                  </div>
+                </div>
+                <div className="three">
+                  <div className="field"><label>Aktuálna ponuka</label><div className="iw"><input className="input" type="number" value={f.current_bid_usd ?? ""} onChange={(e) => set("current_bid_usd", numv(e.target.value))} /><span className="u">USD</span></div></div>
+                  <div className="field"><label>Váš odhad vydraženia</label><div className="iw"><input className="input" type="number" value={f.est_bid_usd ?? ""} onChange={(e) => set("est_bid_usd", numv(e.target.value))} /><span className="u">USD</span></div><span className="hint">Z tohto sa počíta odhad ceny.</span></div>
+                  <div className="field"><label>Odhad opravy</label><div className="iw"><input className="input" type="number" value={f.repair_eur ?? ""} onChange={(e) => set("repair_eur", numv(e.target.value))} /><span className="u">EUR</span></div></div>
+                </div>
+              </>
+            )}
             <div className="two">
               <div className="field"><label>Cena takého auta na SK</label><div className="iw"><input className="input" type="number" value={f.sk_price_eur ?? ""} onChange={(e) => set("sk_price_eur", numv(e.target.value))} /><span className="u">EUR</span></div></div>
               <div className="field"><label>Zdroj ceny na SK</label><input className="input" value={f.sk_price_source ?? ""} onChange={(e) => set("sk_price_source", e.target.value)} placeholder="Autobazar.eu, priemer 5 inzerátov" /></div>

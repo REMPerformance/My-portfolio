@@ -1,3 +1,4 @@
+import { carPhase } from "@/lib/format";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getCardCars, getContent } from "@/lib/data";
@@ -22,7 +23,7 @@ export default async function Home() {
   const [{ cfg, cars }, ct] = await Promise.all([getCardCars(), getContent()]);
   const serverNow = Date.now();
   const ex = calc(cfg, { bidUsd: ct.quick.bidUsd, type: "car", region: "central", repairEur: ct.quick.repairEur });
-  const liveCount = cars.filter((c) => c.status === "published" && (!c.auction_end_at || Date.parse(c.auction_end_at) > serverNow)).length;
+  const liveCount = cars.filter((c) => c.status === "published" && carPhase(c, serverNow) !== "ended").length;
 
   return (
     <>
@@ -33,7 +34,7 @@ export default async function Home() {
         <div className="hero__grid" />
         <div className="wrap">
           <div>
-            <span className="live"><i />{liveCount ? `${liveCount} ${liveCount === 1 ? "auto" : liveCount < 5 ? "autá" : "áut"} práve v aukcii` : "Nové autá pridávame každý týždeň"}</span>
+            <span className="live"><i />{liveCount ? `${liveCount} ${liveCount === 1 ? "auto" : liveCount < 5 ? "autá" : "áut"} práve v ponuke` : "Nové autá pridávame každý týždeň"}</span>
             <h1 id="hero-h">{ct.hero.title1}<br /><em>{ct.hero.title2}</em><br />{ct.hero.title3}</h1>
             <p className="lead">{ct.hero.lead}</p>
             <div className="actions">

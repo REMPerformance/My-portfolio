@@ -10,8 +10,8 @@ export function Breakdown({ r, skPrice, compact = false }: { r: CalcResult; skPr
     <div>
       <div className="bd-group">
         <h4>V USA</h4>
-        {row("Cena na aukcii", r.carEur, usd(r.bidUsd))}
-        {row("Aukčné poplatky + broker", r.feeEur, "odhad")}
+        {row(r.fixed ? "Cena auta u predajcu" : "Cena na aukcii", r.carEur, usd(r.bidUsd))}
+        {r.fixed ? (r.feeEur > 0 && row("Poplatky predajcu", r.feeEur)) : row("Aukčné poplatky + broker", r.feeEur, "odhad")}
         {row("Odvoz do prístavu", r.inlandEur)}
         {row("Námorná preprava + poistenie", r.oceanEur)}
       </div>
@@ -30,7 +30,7 @@ export function Breakdown({ r, skPrice, compact = false }: { r: CalcResult; skPr
         {r.extraCosts?.map((x) => <div className="bd" key={x.label}><span>{x.label}</span><span>{eur(x.eur)}</span></div>)}
       </div>
       <div className="bd-total">
-        <div><small>Odhad celkovej ceny na SK značkách</small><b>{eur(r.total)}</b></div>
+        <div><small>{r.fixed ? "Cena spolu s dovozom na SK značkách" : "Odhad celkovej ceny na SK značkách"}</small><b>{eur(r.total)}</b></div>
         <div className="cr"><small>Kredit RACEM</small><b>+{eur(r.credit)}</b></div>
       </div>
       {skPrice ? (

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import type { Car } from "@/lib/types";
 import { carPhase, fmtDateTime } from "@/lib/format";
+import { isFixed } from "@/lib/calc";
 import { fmtLeft, useNow } from "./Countdown";
 import { LeadForm } from "./LeadForm";
 
@@ -11,6 +12,25 @@ export function CarDeadlines({ car, serverNow }: { car: Car; serverNow: number }
   const phase = carPhase(car, t);
   const closeAt = car.order_close_at || car.auction_end_at;
   const left = (iso: string | null) => (iso && now ? fmtLeft(Date.parse(iso) - now) : null);
+  if (isFixed(car)) {
+    const until = car.order_close_at;
+    return (
+      <>
+        <div className="deadline">
+          <div className="main">
+            <div><small>Ponuka platí do</small><span className="d">{until ? fmtDateTime(until) : "do predaja"}</span></div>
+            <b>{phase === "ended" ? (car.status === "sold" ? "Predané" : "Skončila") : until ? left(until) ?? "…" : "Dostupné"}</b>
+          </div>
+        </div>
+        {phase === "ended" && <div className="state ended">{car.status === "sold" ? "Toto auto je už predané." : "Ponuka na toto auto skončila."} Radi Vám nájdeme podobné.</div>}
+        {phase === "open" ? (
+          <a href="#objednat" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 18 }}>Chcem toto auto</a>
+        ) : (
+          <Link href="/kontakt" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 18 }}>Nájdite mi podobné auto</Link>
+        )}
+      </>
+    );
+  }
   return (
     <>
       <div className="deadline">
@@ -37,6 +57,6 @@ export function CarDeadlines({ car, serverNow }: { car: Car; serverNow: number }
 export function CarOrder({ car, serverNow, suggestedBudget }: { car: Car; serverNow: number; suggestedBudget: number }) {
   const now = useNow();
   const phase = carPhase(car, now ?? serverNow);
-  const label = [car.year, car.make, car.model, car.trim].filter(Boolean).join(" ") + (car.lot ? ` (${car.auction} lot ${car.lot})` : "");
+  const label = [car.year, car.make, car.model, car.trim].filter(Boolean).join(" ") + (isFixed(car) ? ` (pevná cena${car.auction ? `, ${car.auction}` : ""})` : car.lot ? ` (${car.auction} lot ${car.lot})` : "");
   return <LeadForm car={{ id: car.id, label }} closed={phase !== "open"} suggestedBudget={suggestedBudget} heading="Objednať toto auto" />;
 }

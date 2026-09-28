@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCalcConfig, getCarBySlug, getCardCars, getPublicCars } from "@/lib/data";
-import { carEstimate } from "@/lib/calc";
+import { carEstimate, isFixed } from "@/lib/calc";
 import { RUN_LABEL, TYPE_LABEL, carFullName, carName, carPhase, eur, km, num, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
 import { Gallery } from "@/components/Gallery";
@@ -30,10 +30,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [car, cfg] = await Promise.all([getCarBySlug(slug), getCalcConfig()]);
   if (!car) return { title: "Auto sa nenašlo", robots: { index: false } };
   const est = carEstimate(cfg, car);
+  const fixed = isFixed(car);
   const title = car.seo_title || `${carFullName(car)} z USA – ${eur(est.total)} na SK značkách`;
   const description =
     car.seo_description ||
-    `${carFullName(car)} z aukcie ${car.auction ?? "Copart"} (${car.location ?? "USA"}), ${km(car.odometer_mi)}${car.primary_damage ? `, poškodenie: ${car.primary_damage.toLowerCase()}` : ""}. Odhad celkovej ceny na Slovensku ${eur(est.total)} vrátane cla, DPH a dopravy${car.sk_price_eur ? `, na SK trhu od ${eur(car.sk_price_eur)}` : ""}.`;
+    `${carFullName(car)} ${fixed ? `za pevnú cenu ${usd(car.price_usd || 0)}` : `z aukcie ${car.auction ?? "Copart"}`} (${car.location ?? "USA"}), ${km(car.odometer_mi)}${car.primary_damage ? `, poškodenie: ${car.primary_damage.toLowerCase()}` : ""}. ${fixed ? "Cena s dovozom" : "Odhad celkovej ceny"} na Slovensku ${eur(est.total)} vrátane cla, DPH a dopravy${car.sk_price_eur ? `, na SK trhu od ${eur(car.sk_price_eur)}` : ""}.`;
   const img = car.images?.[0] || SITE.ogImage;
   return {
     title: { absolute: title.length > 58 ? title : `${title} | REM` },
@@ -51,6 +52,7 @@ export default async function CarPage({ params }: Props) {
   const serverNow = Date.now();
   const est = carEstimate(cfg, car);
   const phase = carPhase(car, serverNow);
+  const fixed = isFixed(car);
   const saving = car.sk_price_eur ? car.sk_price_eur - est.total : 0;
   const crumbs = [
     { name: "Domov", path: "/" },
@@ -73,7 +75,9 @@ export default async function CarPage({ params }: Props) {
     ["Kľúče", car.keys == null ? "—" : car.keys ? "Áno" : "Nie"],
     ["Titul", car.title_type || "—"],
     ["VIN", car.vin || "Na vyžiadanie"],
-    ["Aukcia", [car.auction, car.lot && `lot ${car.lot}`].filter(Boolean).join(" · ") || "—"],
+    fixed
+      ? ["Predaj", ["Pevná cena", car.auction].filter(Boolean).join(" · ")]
+      : ["Aukcia", [car.auction, car.lot && `lot ${car.lot}`].filter(Boolean).join(" · ") || "—"],
     ["Lokalita", car.location || "—"],
     ...((car.extra?.specs || []).filter((x) => x.label && x.value).map((x) => [x.label, x.value] as [string, React.ReactNode]))
   ];
@@ -111,7 +115,7 @@ export default async function CarPage({ params }: Props) {
       itemCondition: "https://schema.org/DamagedCondition",
       seller: { "@id": `${SITE.url}/#org` },
       areaServed: "SK",
-      description: "Odhad celkovej ceny na slovenských značkách vrátane cla, DPH, dopravy, homologizácie a poplatku za sprostredkovanie."
+      description: fixed ? `Pevná cena auta ${usd(car.price_usd || 0)} + dovoz. Celková cena na slovenských značkách vrátane cla, DPH, dopravy, homologizácie a poplatku za sprostredkovanie.` : "Odhad celkovej ceny na slovenských značkách vrátane cla, DPH, dopravy, homologizácie a poplatku za sprostredkovanie."
     }
   };
 
@@ -124,12 +128,13 @@ export default async function CarPage({ params }: Props) {
         <div className="wrap">
           <Crumbs items={crumbs} />
           <h1 className="ctitle">{car.year} {car.make} {car.model} <span style={{ color: "var(--rc-red-hi)" }}>{car.trim}</span></h1>
-          <p className="csub">{[TYPE_LABEL[car.type], km(car.odometer_mi), car.location, car.auction].filter(Boolean).join(" · ")}</p>
+          <p className="csub">{[TYPE_LABEL[car.type], km(car.odometer_mi), car.location, fixed ? "Pevná cena" : car.auction].filter(Boolean).join(" · ")}</p>
           <div className="detail" style={{ marginTop: 22 }}>
             <div className="detail__gal">
               <Gallery car={car}>
                 <div className="car__tags">
                   {car.is_demo && <span className="tag tag--warn"><span>Ukážka</span></span>}
+                  {fixed && <span className="tag tag--fixed"><span>Pevná cena</span></span>}
                   {car.auction && <span className="tag tag--dark"><span>{car.auction}</span></span>}
                   {car.title_type && <span className={`tag ${(car.title_type || "").toLowerCase() === "clean" ? "tag--ok" : "tag--sal"}`}><span>{car.title_type}</span></span>}
                 </div>
@@ -188,11 +193,20 @@ export default async function CarPage({ params }: Props) {
               <div className="panel">
                 <span className="eyebrow">Cena a termíny</span>
                 <div className="prices" style={{ marginTop: 14 }}>
-                  <div><small>Aktuálna ponuka</small><b>{usd(car.current_bid_usd || 0)}</b></div>
-                  <div><small>Odhad vydraženia</small><b>{usd(car.est_bid_usd || car.current_bid_usd || 0)}</b></div>
+                  {fixed ? (
+                    <>
+                      <div><small>Cena auta</small><b>{usd(car.price_usd || 0)}</b></div>
+                      <div><small>Dovoz, clo, DPH, SK</small><b>{eur(est.total - est.carEur)}</b></div>
+                    </>
+                  ) : (
+                    <>
+                      <div><small>Aktuálna ponuka</small><b>{usd(car.current_bid_usd || 0)}</b></div>
+                      <div><small>Odhad vydraženia</small><b>{usd(car.est_bid_usd || car.current_bid_usd || 0)}</b></div>
+                    </>
+                  )}
                 </div>
                 <div className="bd-total" style={{ marginTop: 12 }}>
-                  <div><small>Odhad na SK značkách</small><b>{eur(est.total)}</b></div>
+                  <div><small>{fixed ? "Spolu na SK značkách" : "Odhad na SK značkách"}</small><b>{eur(est.total)}</b></div>
                   <div className="cr"><small>Kredit RACEM</small><b>+{eur(est.credit)}</b></div>
                 </div>
                 {car.sk_price_eur ? (
@@ -206,7 +220,7 @@ export default async function CarPage({ params }: Props) {
                 </div>
                 <p className="note" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                   {car.leads_count > 0 && <span className="interest"><IUsers /> {car.leads_count} {car.leads_count === 1 ? "záujemca" : car.leads_count < 5 ? "záujemcovia" : "záujemcov"}</span>}
-                  <span>Záloha od {eur(est.deposit)} · vrátime ju, ak aukciu prehráme</span>
+                  <span>Záloha od {eur(est.deposit)} · {fixed ? "vrátime ju, ak predajca auto medzitým predá" : "vrátime ju, ak aukciu prehráme"}</span>
                 </p>
               </div>
             </aside>
@@ -219,10 +233,19 @@ export default async function CarPage({ params }: Props) {
           <div>
             <span className="eyebrow">Objednávka</span>
             <h2 className="title">Chcete <em>toto auto?</em></h2>
-            <p className="sub">Pošlite nezáväzný dopyt. Do 24 hodín Vám pošleme presnú kalkuláciu, zmluvu o sprostredkovaní a pokyny k zálohe. Ceny potvrdíme pred dražbou.</p>
+            <p className="sub">Pošlite nezáväzný dopyt. Do 24 hodín Vám pošleme presnú kalkuláciu, zmluvu o sprostredkovaní a pokyny k zálohe. {fixed ? "Dostupnosť a cenu auta overíme u predajcu." : "Ceny potvrdíme pred dražbou."}</p>
             <ul className="checks">
-              <li>Neprihodíme nad Váš limit</li>
-              <li>Záloha sa vracia, ak aukciu prehráme</li>
+              {fixed ? (
+                <>
+                  <li>Pevná cena auta – žiadna dražba</li>
+                  <li>Záloha sa vracia, ak predajca auto medzitým predá</li>
+                </>
+              ) : (
+                <>
+                  <li>Neprihodíme nad Váš limit</li>
+                  <li>Záloha sa vracia, ak aukciu prehráme</li>
+                </>
+              )}
               <li>Kredit {eur(est.credit)} do RACEM pri odovzdaní</li>
             </ul>
             <p className="note">Pred objednávkou si prečítajte <Link className="link" href="/vop">obchodné podmienky</Link> a <Link className="link" href="/ako-to-funguje">ako prebieha dovoz</Link>.</p>

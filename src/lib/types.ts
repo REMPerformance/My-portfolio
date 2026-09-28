@@ -21,6 +21,7 @@ export interface CalcOverride {
   extraCosts?: { label: string; eur: number }[];
 }
 export type CarStatus = "draft" | "published" | "sold" | "archived";
+export type SaleType = "auction" | "fixed";
 export type RunStatus = "run_drive" | "starts" | "no_start" | "unknown";
 
 export interface Car {
@@ -53,6 +54,12 @@ export interface Car {
   lot: string | null;
   auction_url: string | null;
   images: string[];
+  /** auction = dražba na Copart/IAAI; fixed = auto za pevnú cenu (dealer, Buy Now…) */
+  sale_type: SaleType;
+  /** pevná cena auta u predajcu (len pri fixed) */
+  price_usd: number | null;
+  /** poplatky predajcu – doc fee, Buy Now fee… (len pri fixed) */
+  seller_fee_usd: number | null;
   current_bid_usd: number | null;
   est_bid_usd: number | null;
   repair_eur: number | null;

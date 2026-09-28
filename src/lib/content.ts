@@ -12,6 +12,10 @@ export const FAQ: { q: string; a: string }[] = [
     a: "Nie. Výsledná cena závisí od toho, za koľko sa auto vydraží, od kurzu dolára a od skutočných nákladov na opravu. Záväzný je náš fixný poplatok za sprostredkovanie a maximálna suma, ktorú nám nastavíte. Nad ňu neprihodíme."
   },
   {
+    q: "Aký je rozdiel medzi autom v aukcii a autom za pevnú cenu?",
+    a: "Auto v aukcii sa draží – cena sa ukáže až na konci aukcie a my prihadzujeme najviac do Vášho limitu. Auto za pevnú cenu predáva dealer alebo aukcia v režime Buy Now za presnú sumu, takže viete vopred, koľko stojí samotné auto. K cene auta pripočítame dopravu, clo, DPH, homologizáciu a náš poplatok – celkovú sumu vidíte pri každom aute."
+  },
+  {
     q: "Dokedy môžem auto objednať?",
     a: "Pri každom aute je uvedený termín uzávierky objednávok. Zvyčajne je to 24 hodín pred koncom aukcie, aby sme stihli podpísať zmluvu a prijať zálohu. Po uzávierke už objednávky na dané auto neprijímame."
   },

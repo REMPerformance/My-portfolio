@@ -9,9 +9,9 @@ import { useNow } from "./Countdown";
 
 type F = {
   make: string; model: string; type: string; pmin: string; pmax: string; ymin: string; ymax: string; kmax: string;
-  fuel: string; drive: string; run: string; title: string; dmg: string; status: string; sort: string;
+  fuel: string; drive: string; run: string; title: string; dmg: string; sale: string; status: string; sort: string;
 };
-const EMPTY: F = { make: "", model: "", type: "", pmin: "", pmax: "", ymin: "", ymax: "", kmax: "", fuel: "", drive: "", run: "", title: "", dmg: "", status: "live", sort: "ending" };
+const EMPTY: F = { make: "", model: "", type: "", pmin: "", pmax: "", ymin: "", ymax: "", kmax: "", fuel: "", drive: "", run: "", title: "", dmg: "", sale: "", status: "live", sort: "ending" };
 const KEYS = Object.keys(EMPTY) as (keyof F)[];
 
 const SORTS: { v: string; l: string }[] = [
@@ -81,6 +81,7 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
       if (f.status === "live" && ph === "ended") return false;
       if (f.status === "open" && ph !== "open") return false;
       if (f.status === "ended" && ph !== "ended") return false;
+      if (f.sale && (c.sale_type || "auction") !== f.sale) return false;
       if (f.make && c.make !== f.make) return false;
       if (f.model && c.model !== f.model) return false;
       if (f.type && c.type !== f.type) return false;
@@ -136,13 +137,18 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
           <button type="button" className="linkbtn fclose" onClick={() => setOpen(false)}>Zavrieť ✕</button>
         </div>
         <div className="field">
-          <label htmlFor="f-status">Aukcie</label>
+          <label htmlFor="f-status">Stav ponuky</label>
           <select id="f-status" className="input" value={f.status} onChange={(e) => set("status", e.target.value)}>
-            <option value="live">Prebiehajúce</option>
+            <option value="live">Aktuálne</option>
             <option value="open">Len otvorené objednávky</option>
             <option value="ended">Skončené</option>
             <option value="all">Všetky</option>
           </select>
+        </div>
+        <div className="fchips" role="group" aria-label="Typ predaja">
+          {[{ v: "", l: "Všetko" }, { v: "auction", l: "Aukcie" }, { v: "fixed", l: "Pevná cena" }].map((o) => (
+            <button type="button" key={o.v || "all"} className={`chip${f.sale === o.v ? " active" : ""}`} aria-pressed={f.sale === o.v} onClick={() => set("sale", o.v)}>{o.l}</button>
+          ))}
         </div>
         {sel("make", "Značka", opts.makes.map((m) => ({ v: m, l: m })))}
         {sel("model", "Model", opts.models.map((m) => ({ v: m, l: m })))}
@@ -191,7 +197,7 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
           <div className="fchips active-list">
             {KEYS.filter((k) => !["sort", "status"].includes(k) && f[k]).map((k) => (
               <button type="button" key={k} className="chip active" onClick={() => set(k, "")}>
-                {k === "pmin" ? `od ${eur(+f[k])}` : k === "pmax" ? `do ${eur(+f[k])}` : k === "ymin" ? `rok od ${f[k]}` : k === "ymax" ? `rok do ${f[k]}` : k === "kmax" ? `do ${Number(f[k]).toLocaleString("sk-SK")} km` : k === "type" ? TYPE_SHORT[f[k]] : k === "run" ? RUN_LABEL[f[k]] : f[k]} ✕
+                {k === "pmin" ? `od ${eur(+f[k])}` : k === "pmax" ? `do ${eur(+f[k])}` : k === "ymin" ? `rok od ${f[k]}` : k === "ymax" ? `rok do ${f[k]}` : k === "kmax" ? `do ${Number(f[k]).toLocaleString("sk-SK")} km` : k === "type" ? TYPE_SHORT[f[k]] : k === "run" ? RUN_LABEL[f[k]] : k === "sale" ? (f[k] === "fixed" ? "Pevná cena" : "Aukcie") : f[k]} ✕
               </button>
             ))}
           </div>

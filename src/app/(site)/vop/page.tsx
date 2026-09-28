@@ -48,6 +48,7 @@ export default async function Vop() {
             <li><b>Broker</b> – registrovaný partner aukcie, prostredníctvom ktorého poskytovateľ prihadzuje.</li>
             <li><b>Limit</b> – maximálna suma v USD, do ktorej je poskytovateľ oprávnený za klienta prihadzovať.</li>
             <li><b>Uzávierka objednávok</b> – termín uvedený pri vozidle, do ktorého musí byť uzatvorená zmluva a pripísaná záloha.</li>
+            <li><b>Vozidlo za pevnú cenu</b> – vozidlo, ktoré predajca (napr. dealer alebo aukcia v režime „Buy Now“) predáva za vopred určenú cenu bez dražby.</li>
             <li><b>Odhad ceny</b> – orientačný výpočet celkovej ceny vozidla na slovenských evidenčných číslach.</li>
           </ul>
 
@@ -79,6 +80,7 @@ export default async function Vop() {
             <li>Poskytovateľ prihadzuje najviac do výšky limitu. Limit nezahŕňa aukčné poplatky, ktoré sa pripočítavajú k vydraženej cene.</li>
             <li>Poskytovateľ nezaručuje úspech v aukcii. Ak vozidlo nie je vydražené do limitu, poskytovateľ klientovi <b>vráti zálohu do 5 pracovných dní</b> alebo ju na žiadosť klienta použije na iné vozidlo.</li>
             <li>Aukcia môže predaj zrušiť, presunúť alebo stiahnuť vozidlo z ponuky. Poskytovateľ za tieto rozhodnutia nezodpovedá.</li>
+            <li>Pri <b>vozidle za pevnú cenu</b> sa dražba nekoná. Cena vozidla je určená predajcom a uvedená pri vozidle; náklady na dovoz sú aj v tomto prípade odhadom. Predajca môže vozidlo medzičasom predať inému kupujúcemu alebo zmeniť cenu – ak k tomu dôjde pred kúpou, poskytovateľ klientovi <b>vráti zálohu do 5 pracovných dní</b> alebo ju na žiadosť klienta použije na iné vozidlo.</li>
           </ol>
 
           <h2 id="stav">7. Stav vozidla a zodpovednosť</h2>

@@ -37,6 +37,7 @@ export interface CalcResult {
   total: number;
   credit: number;
   deposit: number;
+  fixed: boolean;
 }
 
 export function auctionFee(cfg: CalcConfig, bid: number) {
@@ -46,11 +47,12 @@ export function auctionFee(cfg: CalcConfig, bid: number) {
 
 export function calc(
   cfg: CalcConfig,
-  { bidUsd, type = "car", region = "central", repairEur = 0, rate, extraCosts = [] }: { bidUsd: number; type?: CarType; region?: Region; repairEur?: number; rate?: number; extraCosts?: { label: string; eur: number }[] }
+  { bidUsd, type = "car", region = "central", repairEur = 0, rate, extraCosts = [], feeUsd }: { bidUsd: number; type?: CarType; region?: Region; repairEur?: number; rate?: number; extraCosts?: { label: string; eur: number }[]; /** pevné poplatky predajcu namiesto aukčných (auto za pevnú cenu) */ feeUsd?: number | null }
 ): CalcResult {
   const r = rate || cfg.usdToEur;
   const carEur = bidUsd * r;
-  const feeEur = auctionFee(cfg, bidUsd) * r;
+  const fixed = feeUsd !== undefined && feeUsd !== null;
+  const feeEur = (fixed ? Number(feeUsd) || 0 : auctionFee(cfg, bidUsd)) * r;
   const inlandEur = (cfg.inlandUsd[region] ?? cfg.inlandUsd.central) * r;
   const oceanEur = (cfg.oceanUsd[region] ?? cfg.oceanUsd.central) * r;
   const cif = carEur + feeEur + inlandEur + oceanEur;
@@ -65,7 +67,7 @@ export function calc(
   return {
     bidUsd, carEur, feeEur, inlandEur, oceanEur, cif, dutyRate, duty, vat,
     euPortEur: cfg.euPortEur, truckEur: cfg.truckEur, homologEur: cfg.homologEur, serviceFeeEur: cfg.serviceFeeEur,
-    repairEur, extraCosts: extras, total, credit, deposit
+    repairEur, extraCosts: extras, total, credit, deposit, fixed
   };
 }
 
@@ -86,11 +88,15 @@ export function applyOverride(cfg: CalcConfig, o: CalcOverride | null | undefine
   };
 }
 
-export function carEstimate(cfg: CalcConfig, car: Pick<Car, "est_bid_usd" | "current_bid_usd" | "type" | "region" | "repair_eur"> & { calc_override?: CalcOverride | null }) {
+export const isFixed = (c: { sale_type?: string | null }) => c.sale_type === "fixed";
+
+export function carEstimate(cfg: CalcConfig, car: Pick<Car, "est_bid_usd" | "current_bid_usd" | "type" | "region" | "repair_eur"> & { calc_override?: CalcOverride | null; sale_type?: string | null; price_usd?: number | null; seller_fee_usd?: number | null }) {
   const c = applyOverride(cfg, car.calc_override, car.type, car.region);
+  const fixed = isFixed(car);
   return calc(c, {
     extraCosts: car.calc_override?.extraCosts || [],
-    bidUsd: car.est_bid_usd || car.current_bid_usd || 0,
+    bidUsd: fixed ? car.price_usd || 0 : car.est_bid_usd || car.current_bid_usd || 0,
+    feeUsd: fixed ? car.seller_fee_usd || 0 : undefined,
     type: car.type,
     region: car.region,
     repairEur: car.repair_eur || 0

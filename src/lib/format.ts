@@ -39,8 +39,13 @@ export const fmtDateTime = (iso: string | null | undefined) => (iso ? dtf.format
 
 export type Phase = "open" | "closed" | "ended";
 /** open = objednávky otvorené; closed = objednávky uzavreté, aukcia beží; ended = aukcia skončila / predané */
-export function carPhase(c: Pick<Car, "order_close_at" | "auction_end_at" | "status">, now = Date.now()): Phase {
+export function carPhase(c: Pick<Car, "order_close_at" | "auction_end_at" | "status"> & { sale_type?: string | null }, now = Date.now()): Phase {
   if (c.status === "sold") return "ended";
+  if (c.sale_type === "fixed") {
+    // pevná cena: platí do „ponuka platí do“ (ak nie je, platí do predaja)
+    const until = c.order_close_at ? Date.parse(c.order_close_at) : Infinity;
+    return now >= until ? "ended" : "open";
+  }
   const end = c.auction_end_at ? Date.parse(c.auction_end_at) : Infinity;
   const close = c.order_close_at ? Date.parse(c.order_close_at) : end;
   if (now >= end) return "ended";
@@ -50,3 +55,5 @@ export function carPhase(c: Pick<Car, "order_close_at" | "auction_end_at" | "sta
 
 export const regionFromLocation = (loc: string): "east" | "central" | "west" =>
   /,\s*(CA|WA|OR|AZ|NV|UT|ID)\b/i.test(loc) ? "west" : /,\s*(NY|NJ|PA|MA|CT|MD|VA|NC|SC|GA|FL|DE|RI|NH|ME|VT)\b/i.test(loc) ? "east" : "central";
+
+export const SALE_LABEL: Record<string, string> = { auction: "Aukcia", fixed: "Pevná cena" };
