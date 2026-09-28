@@ -37,7 +37,7 @@ export default async function Ponuka() {
       />
       <PageHead
         crumbs={crumbs}
-        title={<>Ponuka áut</>}
+        title={<>Autá v ponuke <span style={{ color: "var(--rc-text-dim)", fontSize: ".6em" }}>({live.length})</span></>}
         sub="Ručne vybrané autá z USA, Dubaja, Kanady a Ázie. Cena pri každom aute je celková suma na slovenských značkách – vrátane dopravy, cla, DPH a homologizácie."
       />
       <section style={{ paddingTop: 28 }}>

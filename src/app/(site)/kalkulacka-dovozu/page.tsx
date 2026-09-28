@@ -32,7 +32,7 @@ export default async function CalcPage() {
       <JsonLd data={breadcrumbLd(crumbs)} />
       <JsonLd data={faqLd(faq)} />
       <JsonLd data={{ "@context": "https://schema.org", "@type": "WebApplication", name: "Kalkulačka dovozu auta", url: `${SITE.url}/kalkulacka-dovozu`, applicationCategory: "FinanceApplication", operatingSystem: "Web", offers: { "@type": "Offer", price: 0, priceCurrency: "EUR" } }} />
-      <PageHead crumbs={crumbs} title={<>Kalkulačka dovozu auta</>} sub="Vyberte krajinu a štát, zadajte cenu auta a uvidíte všetky náklady: poplatky, dopravu, clo, DPH, homologizáciu aj náš poplatok." />
+      <PageHead crumbs={crumbs} title={<>Kalkulačka dovozu auta</>} sub="Vyberte krajinu a štát, zadajte cenu auta a uvidíte všetky náklady: poplatky, dopravu, clo, DPH a homologizáciu." />
       <section style={{ paddingTop: 40 }}>
         <div className="wrap"><Calculator cfg={cfg} hideFee /></div>
       </section>

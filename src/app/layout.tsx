@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   }
 };
 
-export const viewport: Viewport = { themeColor: "#0b0c0e", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#111317", width: "device-width", initialScale: 1 };
 
 const orgLd = {
   "@context": "https://schema.org",
@@ -81,7 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://racem.sk" />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <JsonLd data={orgLd} />
       </head>
       <body>{children}</body>

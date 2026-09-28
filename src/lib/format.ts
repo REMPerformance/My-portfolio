@@ -15,7 +15,7 @@ export const num = (n: number) => new Intl.NumberFormat("sk-SK").format(Math.rou
 export const km = (mi: number | null | undefined) => (mi ? num(mi * 1.609344) + " km" : "—");
 
 export const TYPE_LABEL: Record<string, string> = { car: "Osobné auto", suv: "SUV", truck: "Pickup", moto: "Motocykel" };
-export const TYPE_SHORT: Record<string, string> = { car: "Osobné", suv: "SUV", truck: "Pickup", moto: "Motorka" };
+export const TYPE_SHORT: Record<string, string> = { car: "Osobné", suv: "SUV", truck: "Pickupy", moto: "Motorky" };
 export const RUN_LABEL: Record<string, string> = {
   run_drive: "Štartuje a jazdí",
   starts: "Štartuje",

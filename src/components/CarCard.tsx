@@ -3,10 +3,11 @@ import Link from "next/link";
 import type { Car } from "@/lib/types";
 import type { CalcResult } from "@/lib/calc";
 import { isFixed } from "@/lib/calc";
-import { carPhase, eur, fmtDate, km } from "@/lib/format";
+import { carPhase, eur, num } from "@/lib/format";
 import { countryDef, placeName } from "@/lib/origins";
 import { CarImage } from "./CarImage";
 import { useNow } from "./Countdown";
+import { SpecIcon } from "./Icons";
 
 export type CardCar = Car & { est: CalcResult };
 
@@ -20,6 +21,8 @@ export function shortLeft(ms: number) {
   return `${m} min`;
 }
 
+const shortGear = (t: string | null) => (!t ? "—" : /auto/i.test(t) ? "Automat" : /manu/i.test(t) ? "Manuál" : t.split(" ")[0]);
+
 export function CarCard({ car, priority = false, serverNow }: { car: CardCar; priority?: boolean; serverNow: number }) {
   const now = useNow(30000);
   const t = now ?? serverNow;
@@ -29,13 +32,14 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
   const left = closeAt ? shortLeft(Date.parse(closeAt) - t) : null;
   const soon = closeAt ? Date.parse(closeAt) - t < 864e5 : false;
   const cd = countryDef(car.country);
-  const where = [placeName(car.country, car.state) || car.location, cd.code !== "US" ? cd.name : null].filter(Boolean).join(", ");
+  const where = [placeName(car.country, car.state) || car.location?.split(",")[0], cd.name].filter(Boolean).join(", ");
+  const km = car.odometer_mi ? `${num(car.odometer_mi * 1.609344)} km` : "—";
 
-  let when: { l: string; v: string; cls: string };
-  if (phase === "ended") when = { l: fixed ? "Ponuka" : "Aukcia", v: car.status === "sold" ? "Predané" : "Skončila", cls: "" };
-  else if (phase === "closed") when = { l: "Objednávky", v: "Uzavreté", cls: "" };
-  else if (fixed && !closeAt) when = { l: "Pevná cena", v: "Dostupné", cls: "ok" };
-  else when = { l: fixed ? "Platí ešte" : "Objednať do", v: left ?? "…", cls: soon ? "soon" : "" };
+  let status: React.ReactNode;
+  if (phase === "ended") status = <span className="muted"><SpecIcon k="check" />{car.status === "sold" ? "Predané" : "Ponuka skončila"}</span>;
+  else if (phase === "closed") status = <span className="muted"><SpecIcon k="clock" />Objednávky uzavreté</span>;
+  else if (fixed && !closeAt) status = <span className="ok"><SpecIcon k="check" />Na predaj</span>;
+  else status = <span className={soon ? "soon" : "ok"}><SpecIcon k="clock" />{fixed ? "Platí ešte" : "Objednať do"} {left ?? "…"}</span>;
 
   return (
     <article className={`car${phase === "ended" ? " is-ended" : ""}`}>
@@ -48,19 +52,20 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
           </div>
         </div>
         <div className="car__body">
+          <div className="car__status">
+            {status}
+            <span className="muted"><SpecIcon k="pin" />{where}</span>
+          </div>
           <h3 className="car__title">
             {car.year} {car.make} {car.model}
-            <small>{[car.trim, where].filter(Boolean).join(" · ")}</small>
+            {car.trim && <small>{car.trim}</small>}
           </h3>
-          <div className="car__meta">
-            <span>{km(car.odometer_mi)}</span>
-            {car.fuel && <span>{car.fuel}</span>}
-            {car.primary_damage && <span>{car.primary_damage}</span>}
-          </div>
-          {car.published_at && <div className="pubdate">Zverejnené {fmtDate(car.published_at)}</div>}
-          <div className="car__price">
-            <div><small>Spolu na SK značkách</small><b>{eur(car.est.total)}</b></div>
-            <div className={`car__when ${when.cls}`}>{when.l}<b>{when.v}</b></div>
+          <div className="car__price"><b>{eur(car.est.total)}</b><small>s dovozom na slovenských značkách</small></div>
+          <div className="car__specs">
+            <div><SpecIcon k="year" /><span>{car.year ?? "—"}</span></div>
+            <div><SpecIcon k="km" /><span>{km}</span></div>
+            <div><SpecIcon k="gear" /><span>{shortGear(car.transmission)}</span></div>
+            <div><SpecIcon k="fuel" /><span>{car.fuel || "—"}</span></div>
           </div>
         </div>
       </Link>

@@ -7,6 +7,7 @@ import { carPhase, TYPE_SHORT, eur } from "@/lib/format";
 import { DAMAGE_ZONES, DAMAGE_FLAGS } from "@/lib/damage";
 import { COUNTRIES, countryDef } from "@/lib/origins";
 import { useNow } from "./Countdown";
+import { TypeArt } from "./Icons";
 
 type F = {
   q: string; country: string; make: string; pmax: string; sale: string;
@@ -14,7 +15,7 @@ type F = {
 };
 const EMPTY: F = { q: "", country: "", make: "", pmax: "", sale: "", model: "", type: "", ymin: "", kmax: "", fuel: "", drive: "", dmg: "", status: "live", sort: "ending" };
 const KEYS = Object.keys(EMPTY) as (keyof F)[];
-const MORE: (keyof F)[] = ["model", "type", "ymin", "kmax", "fuel", "drive", "dmg"];
+const MORE: (keyof F)[] = ["model", "ymin", "kmax", "fuel", "drive", "dmg"];
 
 const SORTS: { v: string; l: string }[] = [
   { v: "ending", l: "Najskôr končiace" },
@@ -129,6 +130,13 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
 
   return (
     <div>
+      <div className="types types--sm" role="group" aria-label="Typ vozidla" style={{ marginBottom: 14 }}>
+        {(["", "car", "suv", "truck", "moto"] as const).filter((t) => !t || opts.types.includes(t)).map((t) => (
+          <button type="button" key={t || "all"} className={`type${f.type === t ? " on" : ""}`} aria-pressed={f.type === t} onClick={() => set("type", t)}>
+            <TypeArt t={t || "all"} />{t ? TYPE_SHORT[t] : "Všetko"}
+          </button>
+        ))}
+      </div>
       <div className="fbar" role="search" aria-label="Filtre ponuky">
         <div className="field fb-q">
           <label htmlFor="f-q">Hľadať</label>
@@ -145,7 +153,6 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
       {more && (
         <div className="fmore">
           {sel("model", "Model", opts.models.map((m) => ({ v: m, l: m })))}
-          {sel("type", "Typ vozidla", opts.types.map((t) => ({ v: t, l: TYPE_SHORT[t] || t })))}
           <div className="field">
             <label htmlFor="f-ymin">Rok výroby od</label>
             <input id="f-ymin" className="input" type="number" inputMode="numeric" placeholder="napr. 2018" value={f.ymin} onChange={(e) => set("ymin", e.target.value)} />
