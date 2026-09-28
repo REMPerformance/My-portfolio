@@ -539,3 +539,10 @@ details.fold>div{padding:0 14px 12px}
 .adm__nav .brand .lbl b{font-size:13px!important}
 .adm__nav .brand .lbl small{font-size:11px;display:block!important}
 @media(max-width:640px){.home-cars .car:nth-child(n+4){display:none}}
+.mpair{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+.mpair .eq{color:var(--rc-text-dim);font-weight:600}
+.fxinfo{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--rc-text-mid);margin-top:8px}
+.fxinfo b{color:var(--rc-text);font-weight:600}
+.iw .input{padding-right:52px}
+.iw input[type=number]::-webkit-inner-spin-button,.iw input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.iw input[type=number]{-moz-appearance:textfield}

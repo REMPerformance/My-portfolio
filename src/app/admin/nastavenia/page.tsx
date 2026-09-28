@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { browserClient } from "@/lib/supabase";
 import { calc, mergeCalc } from "@/lib/calc";
+import { withLiveFx, type LiveFx } from "@/lib/fx";
 import { COUNTRIES, CURRENCIES, DEFAULT_FX, countryDef, placeKey } from "@/lib/origins";
 import type { CalcConfig } from "@/lib/types";
 import { useAdmin } from "@/components/admin/AdminApp";
@@ -19,12 +20,14 @@ export default function Settings() {
   const [c, setC] = useState<CalcConfig | null>(null);
   const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState("US");
+  const [live, setLive] = useState<LiveFx | null>(null);
 
   useEffect(() => {
     sb.from("settings").select("value").eq("key", "calc").maybeSingle().then(({ data }) => setC(mergeCalc(data?.value)));
+    fetch("/api/fx").then((r) => (r.ok ? r.json() : null)).then((j) => setLive(j && j.rates ? j : null)).catch(() => {});
   }, [sb]);
 
-  const preview = useMemo(() => (c ? calc(c, { price: 12000, type: "car", country: "US", place: "TX", repairEur: 2500 }) : null), [c]);
+  const preview = useMemo(() => (c ? calc(withLiveFx(c, live), { price: 12000, type: "car", country: "US", place: "TX", repairEur: 2500 }) : null), [c, live]);
   if (!c) return <p className="note">Načítavam…</p>;
 
   const upd = (patch: Partial<CalcConfig>) => setC({ ...c, ...patch });
@@ -50,7 +53,6 @@ export default function Settings() {
           <div className="panel">
             <h2>Poplatky a aukcie</h2>
             <div className="three">
-              <Num label="Kurz USD → EUR" value={c.usdToEur} step={0.01} onChange={(v) => upd({ usdToEur: v })} />
               <Num label="Váš poplatok" value={c.serviceFeeEur} unit="EUR" onChange={(v) => upd({ serviceFeeEur: v })} />
               <Num label="Fixné aukčné extra" value={c.fixedAuctionExtras} unit="USD" onChange={(v) => upd({ fixedAuctionExtras: v })} />
             </div>
@@ -70,12 +72,32 @@ export default function Settings() {
 
           <div className="panel">
             <h2>Kurzy mien</h2>
-            <p className="note" style={{ marginTop: 0 }}>Koľko EUR je 1 jednotka meny. Kurz USD je ten istý ako hore.</p>
-            <div className="three">
-              {CURRENCIES.filter((x) => x.code !== "EUR" && x.code !== "USD").map((x) => (
-                <Num key={x.code} label={`1 ${x.code} (${x.name})`} value={c.fx?.[x.code] ?? DEFAULT_FX[x.code]} step={0.0001} unit="EUR" onChange={(v) => upd({ fx: { ...c.fx, [x.code]: v } })} />
-              ))}
-            </div>
+            <label className="switch"><input type="checkbox" checked={c.fxAuto !== false} onChange={(e) => upd({ fxAuto: e.target.checked })} /> Automatický kurz podľa ECB (aktualizuje sa každý pracovný deň)</label>
+            {c.fxAuto !== false ? (
+              <>
+                {live ? (
+                  <div className="fxinfo">
+                    <span>Kurz ECB k {new Date(live.date).toLocaleDateString("sk-SK")}:</span>
+                    {["USD", "CAD", "AED", "KRW", "JPY", "CNY"].map((k) => <span key={k}>1 {k} = <b>{(live.rates[k] * (1 - (c.fxMarginPct || 0) / 100)).toLocaleString("sk-SK", { maximumSignificantDigits: 4 })} €</b></span>)}
+                  </div>
+                ) : <p className="note">Živý kurz sa nepodarilo načítať – použijú sa ručné hodnoty nižšie.</p>}
+                <div className="three" style={{ marginTop: 14 }}>
+                  <Num label="Rezerva na kurz" value={c.fxMarginPct || 0} step={0.5} unit="%" onChange={(v) => upd({ fxMarginPct: v })} />
+                </div>
+                <p className="note" style={{ marginTop: 0 }}>Rezerva zníži prepočítaný kurz (napr. 2 % na poplatky banky a výkyvy). 0 = presný kurz ECB.</p>
+              </>
+            ) : (
+              <>
+                <p className="note">Koľko EUR je 1 jednotka meny.</p>
+                <div className="three">
+                  <Num label="1 USD (Americký dolár)" value={c.usdToEur} step={0.001} unit="EUR" onChange={(v) => upd({ usdToEur: v })} />
+                  {CURRENCIES.filter((x) => x.code !== "EUR" && x.code !== "USD").map((x) => (
+                    <Num key={x.code} label={`1 ${x.code} (${x.name})`} value={c.fx?.[x.code] ?? DEFAULT_FX[x.code]} step={0.0001} unit="EUR" onChange={(v) => upd({ fx: { ...c.fx, [x.code]: v } })} />
+                  ))}
+                </div>
+                <p className="note">Záložné hodnoty sa použijú aj vtedy, keď by ECB bola nedostupná.</p>
+              </>
+            )}
           </div>
 
           <div className="panel">

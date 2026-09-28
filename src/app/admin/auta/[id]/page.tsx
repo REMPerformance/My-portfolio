@@ -3,8 +3,8 @@ import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { browserClient } from "@/lib/supabase";
-import type { Car, CalcConfig, DamageZone } from "@/lib/types";
-import { carEstimate, fxRate, mergeCalc } from "@/lib/calc";
+import type { Car, DamageZone } from "@/lib/types";
+import { carEstimate, fxRate } from "@/lib/calc";
 import { eur, money, slugify } from "@/lib/format";
 import { COUNTRIES, CURRENCIES, countryDef, guessPlace } from "@/lib/origins";
 import { parseListing, type Parsed } from "@/lib/listingParse";
@@ -13,6 +13,8 @@ import { ImageManager } from "@/components/admin/ImageManager";
 import { DamageMap } from "@/components/DamageMap";
 import { CalcOverridePanel, ExtrasPanel } from "@/components/admin/CarExtras";
 import { Breakdown } from "@/components/Breakdown";
+import { MoneyPair } from "@/components/admin/MoneyPair";
+import { useCalcCfg } from "@/components/admin/useCalcCfg";
 
 type Form = Omit<Car, "created_at" | "updated_at" | "views" | "leads_count">;
 
@@ -46,7 +48,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   const router = useRouter();
   const { toast, revalidate, session } = useAdmin();
   const [f, setF] = useState<Form | null>(isNew ? blank() : null);
-  const [cfg, setCfg] = useState<CalcConfig | null>(null);
+  const { cfg } = useCalcCfg();
   const [slugTouched, setSlugTouched] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -57,7 +59,6 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   const [vinBusy, setVinBusy] = useState(false);
 
   useEffect(() => {
-    sb.from("settings").select("value").eq("key", "calc").maybeSingle().then(({ data }) => setCfg(mergeCalc(data?.value)));
     if (!isNew) {
       sb.from("cars").select("*").eq("id", id).maybeSingle().then(({ data, error }) => {
         if (error || !data) { toast("Auto sa nenašlo", true); router.push("/admin"); return; }
@@ -154,7 +155,6 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   if (!f || !cfg) return <p className="note">Načítavam…</p>;
   const cur = f.currency || cd.currency;
   const rate = fxRate(cfg, cur);
-  const hint = (v: number | null) => (v && cur !== "EUR" ? <span className="hint">≈ {eur(v * rate)}</span> : null);
   const odoShown = f.odometer_mi == null ? "" : unit === "mi" ? f.odometer_mi : Math.round(f.odometer_mi * 1.609344);
   const titleLen = (f.seo_title || "").length, descLen = (f.seo_description || "").length;
   const name = [f.year, f.make, f.model, f.trim].filter(Boolean).join(" ");
@@ -280,6 +280,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                   </div>
                   <div className="field"><label>{cd.placeLabel}</label>
                     <select className="input" value={f.state ?? ""} onChange={(e) => set("state", e.target.value || null)}>
+                      <option value="">— vyberte —</option>
                       {[...cd.places].sort((a, b) => a.name.localeCompare(b.name, "sk")).map((p) => <option key={p.code} value={p.code}>{p.name}{cd.code === "US" ? ` (${p.code})` : ""}</option>)}
                     </select>
                   </div>
@@ -316,20 +317,22 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                 <div className="field"><label>Odkaz na {fixed ? "inzerát" : "aukciu"} (len pre Vás)</label><input className="input" type="url" value={f.auction_url ?? ""} onChange={(e) => set("auction_url", e.target.value)} placeholder="https://…" /></div>
                 {fixed ? (
                   <>
+                    <div className="two">
+                      <MoneyPair label="Buy-out cena auta" required value={f.price_usd} currency={cur} rate={rate} onChange={(v) => set("price_usd", v)} hint="Buy Now / cena u predajcu" />
+                      <MoneyPair label="Poplatky predajcu" value={f.seller_fee_usd} currency={cur} rate={rate} onChange={(v) => set("seller_fee_usd", v)} hint="Doc fee, Buy Now fee…" />
+                    </div>
                     <div className="three">
-                      <div className="field"><label>Cena auta *</label><div className="iw"><input className="input" type="number" value={f.price_usd ?? ""} onChange={(e) => set("price_usd", numv(e.target.value))} /><span className="u">{cur}</span></div>{hint(f.price_usd)}</div>
-                      <div className="field"><label>Poplatky predajcu</label><div className="iw"><input className="input" type="number" value={f.seller_fee_usd ?? ""} onChange={(e) => set("seller_fee_usd", numv(e.target.value))} /><span className="u">{cur}</span></div><span className="hint">Doc fee, Buy Now fee…</span></div>
                       <div className="field"><label>Ponuka platí do</label><input className="input" type="datetime-local" value={toLocal(f.order_close_at)} onChange={(e) => set("order_close_at", fromLocal(e.target.value))} /><span className="hint">Prázdne = do predaja</span></div>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="three">
-                      <div className="field"><label>Aktuálna ponuka</label><div className="iw"><input className="input" type="number" value={f.current_bid_usd ?? ""} onChange={(e) => set("current_bid_usd", numv(e.target.value))} /><span className="u">{cur}</span></div>{hint(f.current_bid_usd)}</div>
-                      <div className="field"><label>Váš odhad vydraženia *</label><div className="iw"><input className="input" type="number" value={f.est_bid_usd ?? ""} onChange={(e) => set("est_bid_usd", numv(e.target.value))} /><span className="u">{cur}</span></div><span className="hint">Z tohto sa počíta cena na webe.</span></div>
-                      <div className="field"><label>Koniec aukcie *</label><input className="input" type="datetime-local" value={toLocal(f.auction_end_at)} onChange={(e) => set("auction_end_at", fromLocal(e.target.value))} /></div>
+                    <div className="two">
+                      <MoneyPair label="Aktuálna ponuka" value={f.current_bid_usd} currency={cur} rate={rate} onChange={(v) => set("current_bid_usd", v)} />
+                      <MoneyPair label="Váš odhad vydraženia" required value={f.est_bid_usd} currency={cur} rate={rate} onChange={(v) => set("est_bid_usd", v)} hint="Z tohto sa počíta cena na webe" />
                     </div>
                     <div className="three">
+                      <div className="field"><label>Koniec aukcie *</label><input className="input" type="datetime-local" value={toLocal(f.auction_end_at)} onChange={(e) => set("auction_end_at", fromLocal(e.target.value))} /></div>
                       <div className="field"><label>Uzávierka objednávok</label><input className="input" type="datetime-local" value={toLocal(f.order_close_at)} onChange={(e) => set("order_close_at", fromLocal(e.target.value))} /><span className="hint">Predvolene 24 h pred koncom</span></div>
                     </div>
                   </>
@@ -429,7 +432,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
           <div className="panel sumcard">
             <div className="note" style={{ margin: 0 }}>{fixed ? "Cena spolu na SK značkách" : "Odhad spolu na SK značkách"}</div>
             <div className="big">{est ? eur(est.total) : "—"}</div>
-            {est && <p className="note" style={{ marginTop: 4 }}>Auto {money(est.price, est.currency)} · {cd.flag} {est.placeName} → {est.portName}</p>}
+            {est && <p className="note" style={{ marginTop: 4 }}>Auto {money(est.price, est.currency)} = {eur(est.carEur)} · {cd.flag} {est.placeName} → {est.portName}{cfg.fxDate ? ` · kurz ECB ${new Date(cfg.fxDate).toLocaleDateString("sk-SK")}` : ""}</p>}
             {est && (
               <details className="fold" style={{ marginTop: 12 }}>
                 <summary>Rozpis</summary>

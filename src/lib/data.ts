@@ -3,10 +3,11 @@ import { cache } from "react";
 import { serverClient } from "./supabase";
 import { mergeCalc } from "./calc";
 import type { Car, CalcConfig } from "./types";
+import { fetchLiveFx, withLiveFx } from "./fx";
 
 export const getCalcConfig = cache(async (): Promise<CalcConfig> => {
-  const { data } = await serverClient().from("settings").select("value").eq("key", "calc").maybeSingle();
-  return mergeCalc(data?.value);
+  const [{ data }, live] = await Promise.all([serverClient().from("settings").select("value").eq("key", "calc").maybeSingle(), fetchLiveFx()]);
+  return withLiveFx(mergeCalc(data?.value), live);
 });
 
 export const getPublicCars = cache(async (): Promise<Car[]> => {

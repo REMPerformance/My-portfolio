@@ -94,6 +94,12 @@ export interface CalcConfig {
   ports: Record<string, number>;
   /** prepísaný odvoz do prístavu podľa miesta „US-TX“ (USD) */
   inland: Record<string, number>;
+  /** automatický kurz podľa ECB (predvolene zapnutý) */
+  fxAuto?: boolean;
+  /** rezerva na kurz v % (banka, výkyvy) – znižuje prepočítaný kurz */
+  fxMarginPct?: number;
+  /** dátum kurzu ECB, ak sa použil automatický */
+  fxDate?: string;
   auctionFeeTiers: [number, number][];
   auctionFeeOverPct: number;
   fixedAuctionExtras: number;

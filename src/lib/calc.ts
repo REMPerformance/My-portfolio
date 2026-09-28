@@ -6,6 +6,8 @@ export const DEFAULT_CALC: CalcConfig = {
   fx: DEFAULT_FX,
   ports: {},
   inland: {},
+  fxAuto: true,
+  fxMarginPct: 0,
   auctionFeeTiers: [[1000, 300], [2000, 450], [4000, 650], [6000, 800], [8000, 900], [10000, 1000], [15000, 1150], [20000, 1300]],
   auctionFeeOverPct: 0.07,
   fixedAuctionExtras: 250,
