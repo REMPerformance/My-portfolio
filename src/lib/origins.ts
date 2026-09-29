@@ -133,3 +133,26 @@ export function placeName(country?: string | null, code?: string | null) {
   if (!code) return null;
   return p ? p.name : null;
 }
+
+/** Anglické názvy miest pre admin (rovnako ako na Coparte / IAAI). Chýbajúce = rovnaké ako slovenské. */
+const PLACE_EN: Record<string, string> = {
+  "US-AK": "Alaska", "US-CA": "California", "US-HI": "Hawaii", "US-NM": "New Mexico", "US-NC": "North Carolina",
+  "US-ND": "North Dakota", "US-PA": "Pennsylvania", "US-SC": "South Carolina", "US-SD": "South Dakota",
+  "US-VA": "Virginia", "US-WV": "West Virginia",
+  "AE-DXB": "Dubai", "AE-AUH": "Abu Dhabi", "AE-SHJ": "Sharjah", "AE-AJM": "Ajman", "AE-UAQ": "Umm Al Quwain",
+  "AE-RAK": "Ras Al Khaimah", "AE-FUJ": "Fujairah",
+  "CA-ON": "Ontario", "CA-NS": "Nova Scotia", "CA-NB": "New Brunswick", "CA-PE": "Prince Edward Island",
+  "CA-NL": "Newfoundland and Labrador", "CA-BC": "British Columbia",
+  "KR-SEL": "Seoul", "KR-ICN": "Incheon", "KR-GG": "Gyeonggi", "KR-PUS": "Busan", "KR-KR-X": "Other region",
+  "JP-TYO": "Tokyo", "JP-YOK": "Yokohama", "JP-OSA": "Osaka", "JP-NGO": "Nagoya", "JP-UKB": "Kobe", "JP-JP-X": "Other region",
+  "CN-SHA": "Shanghai", "CN-SZX": "Shenzhen", "CN-CAN": "Guangzhou", "CN-PEK": "Beijing / Tianjin", "CN-CN-X": "Other region"
+};
+export const placeNameEn = (country: string | null | undefined, code: string) => {
+  const cd = countryDef(country);
+  return PLACE_EN[`${cd.code}-${code}`] ?? cd.places.find((p) => p.code === code)?.name ?? code;
+};
+/** Miesta krajiny zoradené podľa anglického názvu – pre výber v admine. */
+export const placesEn = (country: string | null | undefined) => {
+  const cd = countryDef(country);
+  return cd.places.map((p) => ({ ...p, en: placeNameEn(cd.code, p.code) })).sort((a, b) => a.en.localeCompare(b.en, "en"));
+};

@@ -4,7 +4,7 @@ import { Flag } from "@/components/Flag";
 import { browserClient } from "@/lib/supabase";
 import { calc, mergeCalc } from "@/lib/calc";
 import { withLiveFx, type LiveFx } from "@/lib/fx";
-import { COUNTRIES, CURRENCIES, DEFAULT_FX, countryDef, placeKey } from "@/lib/origins";
+import { COUNTRIES, CURRENCIES, DEFAULT_FX, countryDef, placeKey, placesEn } from "@/lib/origins";
 import type { CalcConfig } from "@/lib/types";
 import { useAdmin } from "@/components/admin/AdminApp";
 import { Breakdown } from "@/components/Breakdown";
@@ -141,10 +141,10 @@ export default function Settings() {
             <table className="otable">
               <thead><tr><th>{countryDef(tab).placeLabel}</th><th>Prístav</th><th>USD</th></tr></thead>
               <tbody>
-                {[...countryDef(tab).places].sort((a, b) => a.name.localeCompare(b.name, "sk")).map((pl) => {
+                {placesEn(tab).map((pl) => {
                   const k = placeKey(tab, pl.code);
                   return (
-                    <tr key={pl.code}><td>{pl.name}</td><td style={{ color: "var(--rc-text-dim)" }}>{countryDef(tab).ports.find((x) => x.id === pl.port)?.name}</td><td style={{ width: 140 }}>
+                    <tr key={pl.code}><td>{pl.en}{tab === "US" ? ` (${pl.code})` : ""}</td><td style={{ color: "var(--rc-text-dim)" }}>{countryDef(tab).ports.find((x) => x.id === pl.port)?.name}</td><td style={{ width: 140 }}>
                       <input className="input" type="number" placeholder={String(pl.inlandUsd)} value={c.inland?.[k] ?? ""} onChange={(e) => { const n = { ...(c.inland || {}) }; if (e.target.value === "") delete n[k]; else n[k] = Number(e.target.value); upd({ inland: n }); }} />
                     </td></tr>
                   );

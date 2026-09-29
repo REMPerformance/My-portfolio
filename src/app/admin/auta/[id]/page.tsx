@@ -6,7 +6,7 @@ import { browserClient } from "@/lib/supabase";
 import type { Car, DamageZone } from "@/lib/types";
 import { carEstimate, fxRate } from "@/lib/calc";
 import { eur, money, slugify } from "@/lib/format";
-import { COUNTRIES, CURRENCIES, countryDef, guessPlace } from "@/lib/origins";
+import { COUNTRIES, CURRENCIES, countryDef, guessPlace, placesEn } from "@/lib/origins";
 import { parseListing, type Parsed } from "@/lib/listingParse";
 import { useAdmin } from "@/components/admin/AdminApp";
 import { ImageManager } from "@/components/admin/ImageManager";
@@ -284,7 +284,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                   <div className="field"><label>{cd.placeLabel}</label>
                     <select className="input" value={f.state ?? ""} onChange={(e) => set("state", e.target.value || null)}>
                       <option value="">— vyberte —</option>
-                      {[...cd.places].sort((a, b) => a.name.localeCompare(b.name, "sk")).map((p) => <option key={p.code} value={p.code}>{p.name}{cd.code === "US" ? ` (${p.code})` : ""}</option>)}
+                      {placesEn(cd.code).map((p) => <option key={p.code} value={p.code}>{p.en}{cd.code === "US" ? ` (${p.code})` : ""}</option>)}
                     </select>
                   </div>
                   <div className="field"><label>Mesto (nepovinné)</label><input className="input" value={f.location ?? ""} onChange={(e) => set("location", e.target.value)} placeholder={cd.code === "US" ? "Dallas, TX" : cd.places[0].name} /></div>
