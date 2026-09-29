@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { Flag } from "@/components/Flag";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { browserClient } from "@/lib/supabase";
 import type { Car } from "@/lib/types";
@@ -104,7 +105,7 @@ export default function AdminCars() {
         </select>
         <select className="input" value={ctry} onChange={(e) => setCtry(e.target.value)}>
           <option value="">Všetky krajiny</option>
-          {COUNTRIES.map((x) => <option key={x.code} value={x.code}>{x.flag} {x.name}</option>)}
+          {COUNTRIES.map((x) => <option key={x.code} value={x.code}>{x.name}</option>)}
         </select>
         <select className="input" value={sale} onChange={(e) => setSale(e.target.value)}>
           <option value="">Aukcie aj pevné ceny</option>
@@ -139,7 +140,7 @@ export default function AdminCars() {
                     <td>{c.images?.[0] ? <img className="thumb" src={c.images[0]} alt="" /> : <div className="thumb" />}</td>
                     <td className="name">
                       <Link href={`/admin/auta/${c.id}`}>{c.year} {c.make} {c.model} {c.is_demo && <span className="pill" style={{ color: "var(--warn)" }}>ukážka</span>} {c.sale_type === "fixed" && <span className="pill" style={{ color: "#fff" }}>pevná cena</span>}</Link>
-                      <small>{countryDef(c.country).flag} {[c.trim, placeName(c.country, c.state) || c.location, c.auction && `${c.auction} ${c.lot ?? ""}`.trim()].filter(Boolean).join(" · ")}</small>
+                      <small><Flag code={c.country} /> {[c.trim, placeName(c.country, c.state) || c.location, c.auction && `${c.auction} ${c.lot ?? ""}`.trim()].filter(Boolean).join(" · ")}</small>
                     </td>
                     <td><span className={`pill ${c.status}`}>{STATUS_LABEL[c.status]}</span><br /><span className={`pill ${ph}`} style={{ marginTop: 4 }}>{c.sale_type === "fixed" ? (ph === "ended" ? "Ponuka skončila" : "V ponuke") : PHASE_LABEL[ph]}</span></td>
                     <td>{fmtDateTime(closeAt)}<br /><small className="num" style={{ color: "var(--rc-red-hi)" }}>{now && closeAt ? fmtLeft(Date.parse(closeAt) - now) ?? "" : ""}</small></td>

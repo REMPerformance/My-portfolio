@@ -66,7 +66,7 @@ export const CREDIT_TIERS = [
 /* ═══════════ Upraviteľný obsah webu (admin → Obsah webu) ═══════════ */
 export interface SiteContent {
   topbar: string;
-  hero: { title1: string; title2: string; title3: string; lead: string; pills: { b: string; t: string }[] };
+  hero: { title1: string; title2: string; title3: string; lead: string; pills: { b: string; t: string }[]; images: string[] };
   quick: { title: string; bidUsd: number; repairEur: number; skPrice: number };
   feats: { t: string; d: string }[];
   steps: { t: string; d: string; tag: string }[];
@@ -88,6 +88,12 @@ export const DEFAULT_CONTENT: SiteContent = {
       { b: "6–10 týždňov", t: "doručenie na Slovensko" },
       { b: "6 krajín", t: "USA, SAE, Kanada, Ázia" },
       { b: "Až 700 €", t: "kredit na tuning v RACEM" }
+    ],
+    images: [
+      "https://racem.sk/cdn/shop/files/190320100347lc2327ae8-hd.jpg?width=2000",
+      "https://racem.sk/cdn/shop/files/bmw-m2-2015-2018-widebody-kit-shirokai-white-rear-side-dusk.webp?width=2000",
+      "https://racem.sk/cdn/shop/files/image_89ab9f11-f8b9-4c36-93c3-e3f84b5624ba.jpg?width=2000",
+      "https://racem.sk/cdn/shop/files/1790018699874.publer.com.jpg?width=2000"
     ]
   },
   quick: { title: "Ford Mustang GT 2020", bidUsd: 11500, repairEur: 2800, skPrice: 36900 },
@@ -120,7 +126,7 @@ export function mergeContent(v: unknown): SiteContent {
   const arr = <T,>(x: T[] | undefined, def: T[]) => (Array.isArray(x) && x.length ? x : def);
   return {
     topbar: o.topbar ?? d.topbar,
-    hero: { ...d.hero, ...(o.hero || {}), pills: arr(o.hero?.pills, d.hero.pills) },
+    hero: { ...d.hero, ...(o.hero || {}), pills: arr(o.hero?.pills, d.hero.pills), images: arr(o.hero?.images?.filter((x) => typeof x === "string" && /^https?:\/\//.test(x.trim())).map((x) => x.trim()), d.hero.images) },
     quick: { ...d.quick, ...(o.quick || {}) },
     feats: arr(o.feats, d.feats),
     steps: arr(o.steps, d.steps),

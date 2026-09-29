@@ -44,7 +44,7 @@ const carDamageGroups = (c: CardCar) => {
 const uniq = (a: (string | null | undefined)[]) => [...new Set(a.filter(Boolean) as string[])].sort((x, y) => x.localeCompare(y, "sk"));
 const LABEL: Partial<Record<keyof F, string>> = { model: "Model", type: "Typ", ymin: "Rok od", kmax: "Km do", fuel: "Palivo", drive: "Pohon", dmg: "Poškodenie" };
 
-export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: number }) {
+export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]; serverNow: number; mode?: "live" | "archive" }) {
   const sp = useSearchParams();
   const router = useRouter();
   const path = usePathname();
@@ -81,8 +81,8 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
     const q = f.q.trim().toLowerCase();
     const r = cars.filter((c) => {
       const ph = carPhase(c, now);
-      if (f.status === "live" && ph === "ended") return false;
-      if (f.status === "ended" && ph !== "ended") return false;
+      if (mode === "live" && ph === "ended") return false;
+      if (mode === "archive" && ph !== "ended") return false;
       if (q && !`${c.year} ${c.make} ${c.model} ${c.trim ?? ""} ${c.vin ?? ""}`.toLowerCase().includes(q)) return false;
       if (f.country && (c.country || "US") !== f.country) return false;
       if (f.sale && (c.sale_type || "auction") !== f.sale) return false;
@@ -110,8 +110,9 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
       km: (a, b) => (a.odometer_mi ?? 1e9) - (b.odometer_mi ?? 1e9),
       year: (a, b) => (b.year ?? 0) - (a.year ?? 0)
     };
+    if (mode === "archive" && (!f.sort || f.sort === "ending")) return r.sort((a, b) => close(b) - close(a));
     return r.sort(cmp[f.sort] || cmp.ending);
-  }, [cars, f, now]);
+  }, [cars, f, now, mode]);
 
   const activeMore = MORE.filter((k) => f[k]);
   const anyActive = KEYS.some((k) => !["sort", "status"].includes(k) && f[k]);
@@ -142,7 +143,7 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
           <label htmlFor="f-q">Hľadať</label>
           <input id="f-q" className="input" type="search" placeholder="Značka, model, VIN…" value={f.q} onChange={(e) => set("q", e.target.value)} />
         </div>
-        {sel("country", "Krajina", (opts.countries.length ? opts.countries : COUNTRIES).map((c) => ({ v: c.code, l: `${c.flag} ${c.name}` })), "Všetky krajiny")}
+        {sel("country", "Krajina", (opts.countries.length ? opts.countries : COUNTRIES).map((c) => ({ v: c.code, l: c.name })), "Všetky krajiny")}
         {sel("make", "Značka", opts.makes.map((m) => ({ v: m, l: m })), "Všetky značky")}
         {sel("pmax", "Cena do", PRICES.map((p) => ({ v: String(p), l: eur(p) })), "Bez limitu")}
         {sel("sale", "Predaj", [{ v: "auction", l: "Aukcia" }, { v: "fixed", l: "Pevná cena" }], "Všetko")}
@@ -178,7 +179,7 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
         <label className="bsort">
           <span className="sr-only">Triedenie</span>
           <select className="input" value={f.sort} onChange={(e) => set("sort", e.target.value)}>
-            {SORTS.map((s) => <option key={s.v} value={s.v}>{s.l}</option>)}
+            {SORTS.map((s) => <option key={s.v} value={s.v}>{mode === "archive" && s.v === "ending" ? "Naposledy skončené" : s.l}</option>)}
           </select>
         </label>
       </div>
@@ -193,7 +194,7 @@ export function CarBrowser({ cars, serverNow }: { cars: CardCar[]; serverNow: nu
         )}
       </div>
       <p className="more">
-        {f.status === "live" ? <button type="button" className="linkbtn" onClick={() => set("status", "all")}>Zobraziť aj skončené ponuky</button> : <button type="button" className="linkbtn" onClick={() => set("status", "live")}>Skryť skončené ponuky</button>}
+        {mode === "live" ? <Link href="/archiv">Pozrieť archív skončených a predaných áut</Link> : <Link href="/ponuka">Späť na aktuálnu ponuku áut</Link>}
       </p>
     </div>
   );

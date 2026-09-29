@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { Flag } from "./Flag";
 import type { Car } from "@/lib/types";
 import type { CalcResult } from "@/lib/calc";
 import { isFixed } from "@/lib/calc";
@@ -48,7 +49,7 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
           <CarImage car={car} eager={priority} />
           <div className="car__tags">
             {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
-            <span className="tag tag--dark">{cd.flag} {fixed ? "Pevná cena" : car.auction || "Aukcia"}</span>
+            <span className="tag tag--dark"><Flag code={car.country} />{fixed ? "Pevná cena" : car.auction || "Aukcia"}</span>
           </div>
         </div>
         <div className="car__body">

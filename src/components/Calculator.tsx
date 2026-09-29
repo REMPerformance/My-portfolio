@@ -40,7 +40,7 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
           <div className="field">
             <label htmlFor="cCountry">Krajina</label>
             <select className="input" id="cCountry" value={country} onChange={(e) => pickCountry(e.target.value)}>
-              {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+              {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
             </select>
           </div>
           <div className="field">

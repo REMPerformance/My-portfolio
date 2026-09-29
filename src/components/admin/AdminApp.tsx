@@ -5,6 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import type { Session } from "@supabase/supabase-js";
 import { browserClient } from "@/lib/supabase";
 import { SITE } from "@/lib/site";
+import { LogoMark, LogoWord } from "../Logo";
 
 type Ctx = { session: Session; toast: (m: string, err?: boolean) => void; revalidate: (slugs?: string[]) => Promise<void>; newLeads: number; refreshCounts: () => void };
 const AdminCtx = createContext<Ctx | null>(null);
@@ -76,9 +77,8 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
       <div className="adm">
         <aside className="adm__nav">
           <Link href="/admin" className="brand">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={SITE.logo} alt="RACEM" style={{ height: 22 }} />
-            <span className="lbl"><b style={{ fontSize: 14 }}>REM Performance</b><small>Administrácia</small></span>
+            <LogoMark className="brand__mark" />
+            <span style={{ display: "grid", gap: 5 }}><LogoWord className="brand__word" /><small style={{ fontSize: 11, color: "var(--rc-text-dim)" }}>Administrácia</small></span>
           </Link>
           <Link href="/admin/auta/nove" className="cta">+ Pridať auto</Link>
           {nav.map((n) =>
@@ -114,8 +114,7 @@ function Login() {
   return (
     <div className="login">
       <form className="panel" onSubmit={submit}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={SITE.logo} alt="RACEM" style={{ height: 28, marginBottom: 18 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}><LogoMark className="brand__mark" /><LogoWord className="brand__word" /></div>
         <h1 style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.2, marginBottom: 20 }}>Prihlásenie do administrácie</h1>
         <div className="field"><label htmlFor="em">E-mail</label><input className="input" id="em" name="email" type="email" autoComplete="username" required defaultValue={SITE.email} /></div>
         <div className="field"><label htmlFor="pw">Heslo</label><input className="input" id="pw" name="password" type="password" autoComplete="current-password" required /></div>

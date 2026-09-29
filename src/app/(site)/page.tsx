@@ -7,6 +7,8 @@ import { COUNTRIES } from "@/lib/origins";
 import { CarGrid } from "@/components/CarGrid";
 import { Steps } from "@/components/Sections";
 import { IArrow, SpecIcon, TypeArt } from "@/components/Icons";
+import { Flag } from "@/components/Flag";
+import { HeroSlides } from "@/components/HeroSlides";
 
 export const revalidate = 60;
 
@@ -23,6 +25,15 @@ const TYPES = [
   { t: "moto" as const, l: "Motorky" }
 ];
 
+const ORIGIN_HINT: Record<string, string> = {
+  US: "Všetkých 50 štátov · Copart, IAAI, predajcovia",
+  AE: "Dubaj, Abú Zabí, Šardžá · luxusné a športové autá",
+  CA: "Ontário, Québec, Alberta, Britská Kolumbia",
+  KR: "Soul, Pusan · Hyundai, Kia, Genesis",
+  JP: "Tokio, Jokohama · JDM klasiky",
+  CN: "Šanghaj, Kanton · elektromobily"
+};
+
 export default async function Home() {
   const [{ cars }, ct] = await Promise.all([getCardCars(), getContent()]);
   const serverNow = Date.now();
@@ -34,11 +45,10 @@ export default async function Home() {
   return (
     <>
       <section className="hero" aria-labelledby="hero-h">
-        <div className="hero__img" style={{ backgroundImage: `url('${SITE.heroImage}')` }} />
+        <HeroSlides images={ct.hero.images} />
         <div className="hero__scrim" />
         <div className="wrap">
           <div className="hero__in">
-            <span className="live"><i />{live.length ? `${cnt(live.length)} práve v ponuke` : "Nové autá pridávame každý týždeň"}</span>
             <h1 id="hero-h">{ct.hero.title1} <em>{ct.hero.title2}</em> {ct.hero.title3}</h1>
             <p className="lead">{ct.hero.lead}</p>
             <div className="actions">
@@ -96,12 +106,21 @@ export default async function Home() {
               <p className="sub">Dopravu počítame podľa konkrétneho štátu či emirátu a najbližšieho prístavu.</p>
             </div>
           </div>
-          <div className="origins types">
-            {COUNTRIES.map((c) => (
-              <Link key={c.code} className="type" href={`/ponuka?country=${c.code}`}>
-                <span className="fl" aria-hidden="true">{c.flag}</span>{c.name}<small>{cnt(nCountry(c.code))}</small>
-              </Link>
-            ))}
+          <div className="origins">
+            {COUNTRIES.map((c) => {
+              const n = nCountry(c.code);
+              return (
+                <Link key={c.code} className="ocard" href={`/ponuka?country=${c.code}`}>
+                  <Flag code={c.code} className="ocard__flag" />
+                  <span className="ocard__txt">
+                    <b>{c.name}</b>
+                    <small>{ORIGIN_HINT[c.code]}</small>
+                  </span>
+                  <span className={`ocard__n${n ? " has" : ""}`}>{n ? cnt(n) : "Na objednávku"}</span>
+                  <span className="ocard__go" aria-hidden="true"><IArrow /></span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

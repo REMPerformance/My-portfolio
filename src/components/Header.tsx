@@ -3,14 +3,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV, SITE } from "@/lib/site";
+import { LogoMark, LogoWord } from "./Logo";
 
 export function Brand() {
   return (
     <Link href="/" className="brand" aria-label="REM Performance – domov">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={SITE.logo} alt="RACEM" width={96} height={22} />
-      <span className="div" />
-      <span className="lbl"><b>REM Performance</b><small>Dovoz áut na kľúč</small></span>
+      <LogoMark className="brand__mark" />
+      <LogoWord className="brand__word" />
     </Link>
   );
 }

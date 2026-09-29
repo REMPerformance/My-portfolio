@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { Flag } from "@/components/Flag";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -80,7 +81,7 @@ export default async function CarPage({ params }: Props) {
     ["color", "Farba", car.color || "—"]
   ];
   const detailRows: [string, React.ReactNode][] = [
-    ["Pôvod", `${cd.flag} ${where}`],
+    ["Pôvod", <span key="o" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><Flag code={car.country} />{where}</span>],
     ["Typ", TYPE_LABEL[car.type]],
     ["Stav", car.run_status ? RUN_LABEL[car.run_status] : "—"],
     ["VIN", car.vin || "Na vyžiadanie"],

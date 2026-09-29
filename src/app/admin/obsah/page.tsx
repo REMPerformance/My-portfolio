@@ -97,8 +97,11 @@ export default function ContentAdmin() {
               {txt("Nadpis – 3. riadok", c.hero.title3, (v) => up({ hero: { ...c.hero, title3: v } }))}
             </div>
             {txt("Úvodný text", c.hero.lead, (v) => up({ hero: { ...c.hero, lead: v } }), true)}
-            <div className="lbl-sm" style={{ margin: "8px 0" }}>Štítky pod tlačidlami</div>
-            <ListEditor items={c.hero.pills} onChange={(v) => up({ hero: { ...c.hero, pills: v } })} fields={[{ k: "b", label: "Zvýraznené" }, { k: "t", label: "Text" }]} blank={{ b: "", t: "" }} addLabel="+ Pridať štítok" />
+            <div className="field">
+              <label>Fotky na pozadí úvodu – striedajú sa každých 6 sekúnd (jedna adresa obrázka na riadok)</label>
+              <textarea className="input" rows={5} value={c.hero.images.join("\n")} onChange={(e) => up({ hero: { ...c.hero, images: e.target.value.split("\n") } })} />
+              <small className="note">Najlepšie široké fotky áut (aspoň 1600 px). Tip: v RACEM Shopify → Súbory skopírujte odkaz na obrázok.</small>
+            </div>
             <div className="lbl-sm" style={{ margin: "20px 0 8px" }}>Príklad výpočtu vpravo</div>
             <div className="two">
               {txt("Názov auta", c.quick.title, (v) => up({ quick: { ...c.quick, title: v } }))}

@@ -8,7 +8,7 @@ export const SITE = {
   email: "info@remperformance.sk",
   phone: "+421 949 253 872",
   whatsapp: "421949253872",
-  logo: "https://racem.sk/cdn/shop/files/RACEM-logo.png?width=600",
+  logo: "/brand/icon-512.png",
   heroImage: "https://racem.sk/cdn/shop/files/190320100347lc2327ae8-hd.jpg?width=2000",
   ogImage: "https://racem.sk/cdn/shop/files/190320100347lc2327ae8-hd.jpg?width=1200",
   racemUrl: "https://racem.sk",
@@ -27,6 +27,7 @@ export const SITE = {
 
 export const NAV = [
   { href: "/ponuka", label: "Ponuka áut" },
+  { href: "/archiv", label: "Archív" },
   { href: "/ako-to-funguje", label: "Ako to funguje" },
   { href: "/kalkulacka-dovozu", label: "Kalkulačka" },
   { href: "/caste-otazky", label: "Otázky" },

@@ -26,9 +26,6 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
   formatDetection: { telephone: false },
-  icons: {
-    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23050505'/%3E%3Cpath d='M14 18h36l-6 12H8z' fill='%23c8102e'/%3E%3Cpath d='M20 36h36l-6 12H14z' fill='%23fff'/%3E%3C/svg%3E"
-  }
 };
 
 export const viewport: Viewport = { themeColor: "#111317", width: "device-width", initialScale: 1 };
@@ -42,7 +39,7 @@ const orgLd = {
       name: SITE.fullName,
       legalName: SITE.company.name,
       url: SITE.url,
-      logo: SITE.logo,
+      logo: `${SITE.url}${SITE.logo}`,
       image: SITE.ogImage,
       email: SITE.email,
       telephone: SITE.phone,

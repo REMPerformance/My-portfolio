@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { Flag } from "@/components/Flag";
 import { browserClient } from "@/lib/supabase";
 import { calc, mergeCalc } from "@/lib/calc";
 import { withLiveFx, type LiveFx } from "@/lib/fx";
@@ -104,7 +105,7 @@ export default function Settings() {
             <h2>Doprava podľa krajiny</h2>
             <p className="note" style={{ marginTop: 0 }}>Prázdne pole = predvolená hodnota (sivá). Ceny v USD.</p>
             <div className="toolbar" style={{ marginTop: 10 }}>
-              {COUNTRIES.map((x) => <button key={x.code} type="button" className={`chip${tab === x.code ? " active" : ""}`} onClick={() => setTab(x.code)}>{x.flag} {x.name}</button>)}
+              {COUNTRIES.map((x) => <button key={x.code} type="button" className={`chip${tab === x.code ? " active" : ""}`} onClick={() => setTab(x.code)}><Flag code={x.code} /> {x.name}</button>)}
             </div>
             <div className="lbl-sm" style={{ margin: "8px 0" }}>Námorná preprava z prístavu do EÚ + poistenie</div>
             <table className="otable"><tbody>

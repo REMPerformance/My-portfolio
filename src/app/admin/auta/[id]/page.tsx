@@ -278,7 +278,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                 <div className="three">
                   <div className="field"><label>Krajina</label>
                     <select className="input" value={f.country} onChange={(e) => setCountry(e.target.value)}>
-                      {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+                      {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
                     </select>
                   </div>
                   <div className="field"><label>{cd.placeLabel}</label>
@@ -435,7 +435,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
           <div className="panel sumcard">
             <div className="note" style={{ margin: 0 }}>{fixed ? "Cena spolu na SK značkách" : "Odhad spolu na SK značkách"}</div>
             <div className="big">{est ? eur(est.total) : "—"}</div>
-            {est && <p className="note" style={{ marginTop: 4 }}>Auto {money(est.price, est.currency)} = {eur(est.carEur)} · {cd.flag} {est.placeName} → {est.portName}{cfg.fxDate ? ` · kurz ECB ${new Date(cfg.fxDate).toLocaleDateString("sk-SK")}` : ""}</p>}
+            {est && <p className="note" style={{ marginTop: 4 }}>Auto {money(est.price, est.currency)} = {eur(est.carEur)} · {est.placeName} → {est.portName}{cfg.fxDate ? ` · kurz ECB ${new Date(cfg.fxDate).toLocaleDateString("sk-SK")}` : ""}</p>}
             {est && (
               <details className="fold" style={{ marginTop: 12 }}>
                 <summary>Rozpis</summary>
