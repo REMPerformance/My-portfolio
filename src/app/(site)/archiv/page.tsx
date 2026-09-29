@@ -34,7 +34,7 @@ export default async function Archiv() {
         <div className="wrap">
           <div className="arch-note">
             <Link href="/ponuka" className="rc-btn rc-btn--dark rc-btn--sm">Aktuálna ponuka <IArrow /></Link>
-            <Link href="/kontakt" className="rc-btn rc-btn--ghost rc-btn--sm">Chcem podobné auto</Link>
+            <Link href="/auto-na-mieru" className="rc-btn rc-btn--ghost rc-btn--sm">Chcem podobné auto</Link>
           </div>
           {ended.length ? (
             <Suspense fallback={null}>

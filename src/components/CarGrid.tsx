@@ -9,8 +9,7 @@ const FILTERS = [
   { f: "all", label: "Všetko" },
   { f: "car", label: "Osobné" },
   { f: "suv", label: "SUV" },
-  { f: "truck", label: "Pickupy" },
-  { f: "moto", label: "Motorky" }
+  { f: "truck", label: "Pickupy" }
 ];
 
 export function CarGrid({ cars, serverNow, showFilters = true, showEnded = true, limit }: { cars: CardCar[]; serverNow: number; showFilters?: boolean; showEnded?: boolean; limit?: number }) {
@@ -40,7 +39,7 @@ export function CarGrid({ cars, serverNow, showFilters = true, showEnded = true,
           live.map((c, i) => <CarCard key={c.id} car={c} priority={i < 3} serverNow={serverNow} />)
         ) : (
           <div className="empty">
-            V tejto kategórii práve nemáme žiadne auto v ponuke. <Link href="/kontakt">Napíšte nám, aké auto hľadáte</Link> a nájdeme ho za Vás.
+            V tejto kategórii práve nemáme žiadne auto v ponuke. <Link href="/auto-na-mieru">Napíšte nám, aké auto hľadáte</Link> a nájdeme ho za Vás.
           </div>
         )}
       </div>

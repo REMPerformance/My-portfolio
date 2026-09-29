@@ -40,15 +40,14 @@ export const SpecIcon = ({ k }: { k: "year" | "km" | "gear" | "fuel" | "drive" |
 };
 
 /* ── siluety typov vozidiel (vlastná čiarová grafika) ── */
-export const TypeArt = ({ t }: { t: "car" | "suv" | "truck" | "moto" | "all" }) => {
-  const w = { fill: "none", stroke: "currentColor", strokeWidth: 3, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  const wheel = (x: number, y = 58, r = 10) => <><circle cx={x} cy={y} r={r} /><circle cx={x} cy={y} r={r * 0.35} /></>;
-  const art: Record<string, React.ReactNode> = {
-    car: <><path d="M8 56V48c0-3 2-5 6-6l14-3 12-11c3-2 6-3 10-3h26c4 0 7 1 10 4l10 10 14 3c3 1 5 3 5 6v8" /><path d="M20 58h8M52 58h44M118 58h6" /><path d="M42 38h62" />{wheel(40)}{wheel(106)}</>,
-    suv: <><path d="M8 56V44c0-3 2-5 5-6l12-3 10-13c2-2 4-3 7-3h52c3 0 5 1 7 3l9 13 10 3c3 1 5 3 5 6v12" /><path d="M20 58h8M52 58h44M118 58h6M38 35h82M78 19v16" />{wheel(40)}{wheel(106)}</>,
-    truck: <><path d="M8 56V42c0-2 1-4 4-4l14-2 10-14c1-2 3-3 6-3h24v17h58v20" /><path d="M20 58h8M52 58h44M118 58h6M66 36h58" />{wheel(40)}{wheel(106)}</>,
-    moto: <><path d="M40 58l16-20h26l12 20M56 38l-6-10h-8M82 38l8-12h10M66 38l6 12" />{wheel(30, 56, 14)}{wheel(112, 56, 14)}</>,
-    all: <><path d="M20 58h8M52 58h44M118 58h6" /><path d="M8 56V48c0-3 2-5 6-6l14-3 12-11c3-2 6-3 10-3h26c4 0 7 1 10 4l10 10 14 3c3 1 5 3 5 6v8" />{wheel(40)}{wheel(106)}<path d="M70 8v6M62 12l4 4M78 12l-4 4" /></>
-  };
-  return <svg viewBox="0 0 144 72" {...w} aria-hidden="true" className="typeart">{art[t]}</svg>;
+/** Siluety typov áut (plné tvary, okná a kolesá cez CSS premenné). */
+const W = ({ x }: { x: number }) => (<g><circle cx={x} cy={60} r={14} className="tw-t" /><circle cx={x} cy={60} r={11.5} className="tw-r" /><circle cx={x} cy={60} r={4} className="tw-h" /></g>);
+const SIL: Record<string, React.ReactNode> = {
+  car: <><path className="tb" d="M8 58c0-7 3-11 11-13l35-7c11-10 25-17 45-17h24c13 0 24 6 34 16l21 5c9 2 14 6 14 13v5H8z" /><path className="tw" d="M64 38c9-8 20-12 32-12h9v12zM111 26h11c10 0 18 4 25 12h-36z" /><path className="ta" d="M8 55h8M176 50h16" /><W x={48} /><W x={160} /></>,
+  suv: <><path className="tb" d="M14 60V41c0-5 3-8 8-9l24-4 14-18c2-2 5-3 8-3h70c5 0 8 2 10 5l13 16 13 3c5 1 8 5 8 9v20z" /><path className="tw" d="M56 29l11-14c1-1 2-2 4-2h25v16zM101 13h29v16h-29zM135 13h4c3 0 5 1 7 3l10 13h-21z" /><path className="ta" d="M178 41h14" /><W x={50} /><W x={156} /></>,
+  truck: <><path className="tb" d="M8 60V43c0-5 3-7 8-8l26-4 16-18c2-2 4-3 7-3h45v28h84v22z" /><path className="tw" d="M54 31l12-14c1-1 3-2 5-2h24v16z" /><path className="tb" d="M110 29h86v4h-86z" /><path className="ta" d="M184 44h12" /><W x={46} /><W x={162} /></>,
+  all: <><g transform="translate(30 -6) scale(.8)" opacity=".35"><path className="tb" d="M8 60V44c0-5 3-8 8-9l28-4 15-17c2-2 5-3 8-3h86c5 0 8 2 11 5l12 15 12 3c5 1 8 5 8 9v17z" /></g><path className="tb" d="M8 58c0-7 3-11 11-13l35-7c11-10 25-17 45-17h24c13 0 24 6 34 16l21 5c9 2 14 6 14 13v5H8z" /><path className="tw" d="M64 38c9-8 20-12 32-12h9v12zM111 26h11c10 0 18 4 25 12h-36z" /><W x={48} /><W x={160} /></>
 };
+export const TypeArt = ({ t }: { t: "car" | "suv" | "truck" | "moto" | "all" }) => (
+  <svg viewBox="0 0 204 76" aria-hidden="true" className="typeart">{SIL[t] ?? SIL.car}</svg>
+);

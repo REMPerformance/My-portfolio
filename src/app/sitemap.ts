@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { getPublicCars } from "@/lib/data";
 import { SITE } from "@/lib/site";
+import { LANDINGS } from "@/lib/landing";
+import { MAKES } from "@/lib/makes";
+import { ARTICLES } from "@/lib/articles";
 
 export const revalidate = 300;
 
@@ -10,6 +13,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: MetadataRoute.Sitemap = [
     { url: `${SITE.url}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
     { url: `${SITE.url}/ponuka`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
+    { url: `${SITE.url}/auto-na-mieru`, changeFrequency: "monthly", priority: 0.9 },
+    ...LANDINGS.map((l) => ({ url: `${SITE.url}/${l.slug}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.9 })),
+    { url: `${SITE.url}/znacky`, lastModified: now, changeFrequency: "daily", priority: 0.7 },
+    ...MAKES.map((m) => ({ url: `${SITE.url}/znacky/${m.slug}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.7 })),
+    { url: `${SITE.url}/poradna`, changeFrequency: "weekly", priority: 0.7 },
+    ...ARTICLES.map((a) => ({ url: `${SITE.url}/poradna/${a.slug}`, lastModified: new Date(a.updated), changeFrequency: "monthly" as const, priority: 0.8 })),
     { url: `${SITE.url}/archiv`, lastModified: now, changeFrequency: "daily", priority: 0.5 },
     { url: `${SITE.url}/kalkulacka-dovozu`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE.url}/ako-to-funguje`, changeFrequency: "monthly", priority: 0.8 },

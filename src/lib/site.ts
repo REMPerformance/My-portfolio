@@ -30,6 +30,6 @@ export const NAV = [
   { href: "/archiv", label: "Archív" },
   { href: "/ako-to-funguje", label: "Ako to funguje" },
   { href: "/kalkulacka-dovozu", label: "Kalkulačka" },
-  { href: "/caste-otazky", label: "Otázky" },
+  { href: "/poradna", label: "Poradňa" },
   { href: "/kontakt", label: "Kontakt" }
 ];

@@ -26,7 +26,7 @@ export function CarDeadlines({ car, serverNow }: { car: Car; serverNow: number }
         {phase === "open" ? (
           <a href="#objednat" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Chcem toto auto</a>
         ) : (
-          <Link href="/kontakt" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Nájdite mi podobné auto</Link>
+          <Link href="/auto-na-mieru" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Nájdite mi podobné auto</Link>
         )}
       </>
     );
@@ -48,7 +48,7 @@ export function CarDeadlines({ car, serverNow }: { car: Car; serverNow: number }
       {phase === "open" ? (
         <a href="#objednat" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Mám záujem o toto auto</a>
       ) : (
-        <Link href="/kontakt" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Nájdite mi podobné auto</Link>
+        <Link href="/auto-na-mieru" className="rc-btn rc-btn--primary rc-btn--block" style={{ padding: 14 }}>Nájdite mi podobné auto</Link>
       )}
     </>
   );

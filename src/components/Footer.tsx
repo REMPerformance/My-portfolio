@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { Brand } from "./Header";
+import { LANDINGS } from "@/lib/landing";
 
 export function Footer({ phone }: { phone?: string }) {
   const c = SITE.company;
@@ -17,9 +18,18 @@ export function Footer({ phone }: { phone?: string }) {
             <ul>
               <li><Link href="/ponuka">Ponuka áut</Link></li>
               <li><Link href="/archiv">Archív áut</Link></li>
+              <li><Link href="/auto-na-mieru">Auto na mieru</Link></li>
               <li><Link href="/kalkulacka-dovozu">Kalkulačka dovozu</Link></li>
               <li><Link href="/ako-to-funguje">Ako to funguje</Link></li>
               <li><Link href="/caste-otazky">Časté otázky</Link></li>
+              <li><Link href="/poradna">Poradňa</Link></li>
+            </ul>
+          </nav>
+          <nav aria-label="Dovoz podľa krajiny">
+            <h2>Dovoz áut</h2>
+            <ul>
+              {LANDINGS.map((l) => <li key={l.slug}><Link href={`/${l.slug}`}>{l.h1[0]}</Link></li>)}
+              <li><Link href="/znacky">Podľa značky</Link></li>
             </ul>
           </nav>
           <nav aria-label="Informácie">

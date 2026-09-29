@@ -45,7 +45,7 @@ export default async function Ponuka() {
           <Suspense fallback={<CarGrid cars={live} serverNow={serverNow} showFilters={false} showEnded={false} />}>
             <CarBrowser cars={live} serverNow={serverNow} />
           </Suspense>
-          <p className="more">Nevidíte svoje auto? <Link href="/kontakt">Napíšte nám, čo hľadáte</Link> a nájdeme ho za Vás.</p>
+          <p className="more">Nevidíte svoje auto? <Link href="/auto-na-mieru">Napíšte nám, čo hľadáte</Link> a nájdeme ho za Vás.</p>
         </div>
       </section>
     </>

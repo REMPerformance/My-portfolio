@@ -167,7 +167,6 @@ export default function Settings() {
             <div className="three">
               <Num label="Clo osobné / SUV" value={pct(c.dutyRate.car)} unit="%" step={0.1} onChange={(v) => upd({ dutyRate: { ...c.dutyRate, car: v / 100, suv: v / 100 } })} />
               <Num label="Clo pickup / úžitkové" value={pct(c.dutyRate.truck)} unit="%" step={0.1} onChange={(v) => upd({ dutyRate: { ...c.dutyRate, truck: v / 100 } })} />
-              <Num label="Clo motocykel" value={pct(c.dutyRate.moto)} unit="%" step={0.1} onChange={(v) => upd({ dutyRate: { ...c.dutyRate, moto: v / 100 } })} />
             </div>
             <div className="three">
               <Num label="DPH" value={pct(c.vatRate)} unit="%" step={0.1} onChange={(v) => upd({ vatRate: v / 100 })} />

@@ -9,6 +9,7 @@ import { Steps } from "@/components/Sections";
 import { IArrow, SpecIcon, TypeArt } from "@/components/Icons";
 import { Flag } from "@/components/Flag";
 import { HeroSlides } from "@/components/HeroSlides";
+import { landingByCountry } from "@/lib/landing";
 
 export const revalidate = 60;
 
@@ -21,8 +22,7 @@ export const metadata: Metadata = {
 const TYPES = [
   { t: "car" as const, l: "Osobné autá" },
   { t: "suv" as const, l: "SUV" },
-  { t: "truck" as const, l: "Pickupy" },
-  { t: "moto" as const, l: "Motorky" }
+  { t: "truck" as const, l: "Pickupy" }
 ];
 
 const ORIGIN_HINT: Record<string, string> = {
@@ -78,7 +78,7 @@ export default async function Home() {
             <div className="cta-tile">
               <b>Hľadáte konkrétne auto?</b>
               <span>Nájdeme ho za Vás a dovezieme až pred dom.</span>
-              <Link href="/kontakt" className="rc-btn rc-btn--primary rc-btn--sm" style={{ alignSelf: "flex-start" }}>Napíšte nám <IArrow /></Link>
+              <Link href="/auto-na-mieru" className="rc-btn rc-btn--primary rc-btn--sm" style={{ alignSelf: "flex-start" }}>Napíšte nám <IArrow /></Link>
             </div>
           </div>
         </div>
@@ -110,7 +110,7 @@ export default async function Home() {
             {COUNTRIES.map((c) => {
               const n = nCountry(c.code);
               return (
-                <Link key={c.code} className="ocard" href={`/ponuka?country=${c.code}`}>
+                <Link key={c.code} className="ocard" href={`/${landingByCountry(c.code)?.slug ?? `ponuka?country=${c.code}`}`}>
                   <Flag code={c.code} className="ocard__flag" />
                   <span className="ocard__txt">
                     <b>{c.name}</b>
@@ -143,7 +143,7 @@ export default async function Home() {
               <p>Napíšte nám značku, model a rozpočet – do 24 hodín Vám pošleme ponuku. Alebo rovno na WhatsApp {SITE.phone}.</p>
             </div>
             <div className="actions" style={{ marginTop: 0 }}>
-              <Link href="/kontakt" className="rc-btn rc-btn--light">Poslať dopyt <IArrow /></Link>
+              <Link href="/auto-na-mieru" className="rc-btn rc-btn--light">Poslať dopyt <IArrow /></Link>
               <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener" className="rc-btn rc-btn--wa">WhatsApp</a>
             </div>
           </div>

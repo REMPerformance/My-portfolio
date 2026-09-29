@@ -65,7 +65,6 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
             <select className="input" id="cType" value={type} onChange={(e) => setType(e.target.value as CarType)}>
               <option value="car">Osobné / SUV (clo {Math.round(cfg.dutyRate.car * 100)} %)</option>
               <option value="truck">Pickup / úžitkové ({Math.round(cfg.dutyRate.truck * 100)} %)</option>
-              <option value="moto">Motocykel (clo {Math.round(cfg.dutyRate.moto * 100)} %)</option>
             </select>
           </div>
           <div className="field">

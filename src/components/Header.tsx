@@ -41,7 +41,7 @@ export function Header() {
             ))}
           </nav>
           <div className="hdr-cta">
-            <Link href="/kontakt" className="rc-arrow">Chcem auto na mieru</Link>
+            <Link href="/auto-na-mieru" className="rc-arrow">Chcem auto na mieru</Link>
           </div>
           <button className="burger" aria-label="Menu" aria-expanded={open} aria-controls="menu" onClick={() => setOpen((o) => !o)}>
             <span /><span /><span />

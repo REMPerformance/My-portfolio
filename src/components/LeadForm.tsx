@@ -65,7 +65,7 @@ export function LeadForm({ car, closed = false, heading }: { car?: { id: string;
       <div className="panel">
         <h2>Ponuka na toto auto skončila</h2>
         <p className="sub">Napíšte nám, aké auto hľadáte, a nájdeme Vám podobné.</p>
-        <div className="actions"><Link href="/kontakt" className="rc-btn rc-btn--primary">Nájdite mi podobné auto</Link><WhatsAppButton /></div>
+        <div className="actions"><Link href="/auto-na-mieru" className="rc-btn rc-btn--primary">Nájdite mi podobné auto</Link><WhatsAppButton /></div>
       </div>
     );
   }

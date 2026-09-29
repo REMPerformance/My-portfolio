@@ -230,7 +230,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                   <div className="field"><label>Verzia</label><input className="input" value={f.trim ?? ""} onChange={(e) => set("trim", e.target.value)} placeholder="GT 5.0 Premium" /></div>
                   <div className="field"><label>Typ (určuje clo)</label>
                     <select className="input" value={f.type} onChange={(e) => set("type", e.target.value as Form["type"])}>
-                      <option value="car">Osobné auto</option><option value="suv">SUV</option><option value="truck">Pickup / úžitkové</option><option value="moto">Motocykel</option>
+                      <option value="car">Osobné auto</option><option value="suv">SUV</option><option value="truck">Pickup / úžitkové</option>
                     </select>
                   </div>
                   <div className="field">

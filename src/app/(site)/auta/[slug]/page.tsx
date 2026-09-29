@@ -16,6 +16,8 @@ import { Crumbs, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { CarCard } from "@/components/CarCard";
 import { SpecIcon } from "@/components/Icons";
+import { MAKES } from "@/lib/makes";
+import { landingByCountry } from "@/lib/landing";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -56,6 +58,8 @@ export default async function CarPage({ params }: Props) {
   const serverNow = Date.now();
   const est = carEstimate(cfg, car);
   const phase = carPhase(car, serverNow);
+  const mk = MAKES.find((m) => m.name.toLowerCase() === car.make.toLowerCase());
+  const lp = landingByCountry(car.country || "US");
   const fixed = isFixed(car);
   const cd = countryDef(car.country);
   const where = [placeName(car.country, car.state) || car.location, cd.name].filter(Boolean).join(", ");
@@ -264,6 +268,17 @@ export default async function CarPage({ params }: Props) {
             </ul>
           </div>
           <CarOrder car={car} serverNow={serverNow} suggestedBudget={suggestedBudget} />
+        </div>
+      </section>
+
+      <section style={{ paddingBottom: similar.length ? 0 : undefined }} aria-label="Súvisiace">
+        <div className="wrap">
+          <div className="lp-tags">
+            {mk && <Link href={`/znacky/${mk.slug}`}>Dovoz {mk.name} – všetky autá</Link>}
+            {lp && <Link href={`/${lp.slug}`}><Flag code={car.country} /> Dovoz auta {cd.from}</Link>}
+            <Link href="/poradna/kolko-stoji-dovoz-auta-z-usa">Koľko stojí dovoz auta</Link>
+            <Link href="/auto-na-mieru">Nájdite mi podobné auto</Link>
+          </div>
         </div>
       </section>
 

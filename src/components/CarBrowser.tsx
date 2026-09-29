@@ -132,7 +132,7 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
   return (
     <div>
       <div className="types types--sm" role="group" aria-label="Typ vozidla" style={{ marginBottom: 14 }}>
-        {(["", "car", "suv", "truck", "moto"] as const).filter((t) => !t || opts.types.includes(t)).map((t) => (
+        {(["", "car", "suv", "truck"] as const).filter((t) => !t || opts.types.includes(t)).map((t) => (
           <button type="button" key={t || "all"} className={`type${f.type === t ? " on" : ""}`} aria-pressed={f.type === t} onClick={() => set("type", t)}>
             <TypeArt t={t || "all"} />{t ? TYPE_SHORT[t] : "Všetko"}
           </button>
@@ -189,7 +189,7 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
           list.map((c, i) => <CarCard key={c.id} car={c} priority={i < 3} serverNow={serverNow} />)
         ) : (
           <div className="empty">
-            Týmto filtrom nezodpovedá žiadne auto. <button type="button" className="linkbtn" onClick={() => setF({ ...EMPTY })}>Zrušiť filtre</button> alebo <Link href="/kontakt">nám napíšte, čo hľadáte</Link>.
+            Týmto filtrom nezodpovedá žiadne auto. <button type="button" className="linkbtn" onClick={() => setF({ ...EMPTY })}>Zrušiť filtre</button> alebo <Link href="/auto-na-mieru">nám napíšte, čo hľadáte</Link>.
           </div>
         )}
       </div>

@@ -33,7 +33,7 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Aké clo a DPH sa platí pri dovoze auta z USA?",
-    a: "Pri osobných autách je clo 10 %, pri pickupoch a úžitkových vozidlách môže byť 22 %, pri motocykloch 6 až 8 %. Clo sa počíta z colnej hodnoty (cena auta + poplatky + doprava do EÚ). Na to sa pripočíta 23 % DPH. Presné colné zatriedenie overí colný deklarant pred dražbou."
+    a: "Pri osobných autách je clo 10 %, pri pickupoch a úžitkových vozidlách môže byť 22 %. Clo sa počíta z colnej hodnoty (cena auta + poplatky + doprava do EÚ). Na to sa pripočíta 23 % DPH. Presné colné zatriedenie overí colný deklarant pred dražbou."
   },
   {
     q: "Dá sa americké auto prihlásiť na Slovensku?",
