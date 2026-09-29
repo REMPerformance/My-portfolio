@@ -781,3 +781,26 @@ details.fold>div{padding:0 14px 12px}
 .art-table th:first-child,.art-table td:first-child{text-align:left}
 .art-table th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--rc-text-dim);background:var(--rc-surface-2,#f1f3f6)}
 .art-table small{color:var(--rc-text-dim)}
+/* poškodenie – verejný detail: väčšie a prehľadnejšie */
+.dv-badge{display:inline-block;padding:3px 9px;border-radius:5px;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c);font-size:12px!important;font-weight:800!important;white-space:nowrap}
+.dmg2:not(.edit) .dv-grid{grid-template-columns:1fr;gap:18px}
+.dmg2:not(.edit) .dv-stage{padding:22px 22px 18px}
+.dmg2:not(.edit) .dv-svg{max-height:420px}
+.dmg2:not(.edit) .dmg-legend{justify-content:center;gap:18px;font-size:14px;margin:14px 0 4px}
+.dmg2:not(.edit) .dmg-legend i{width:12px;height:12px}
+.dmg2:not(.edit) .dv-thumbs{gap:10px;margin-top:16px}
+.dmg2:not(.edit) .dv-thumb{height:96px;padding:8px;border-radius:8px}
+.dmg2:not(.edit) .dv-tabs{gap:8px;margin-bottom:16px}
+.dmg2:not(.edit) .dv-tab{padding:9px 16px;font-size:14.5px;font-weight:700}
+.dmg2:not(.edit) .dmg-list{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.dmg2:not(.edit) .dmg-list li{position:relative;align-items:center;padding:14px 16px 14px 20px;font-size:15.5px;font-weight:700;border-radius:8px}
+.dmg2:not(.edit) .dmg-list li::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 3px 3px 0;background:var(--c)}
+.dmg2:not(.edit) .dmg-list li small{font-weight:500;font-size:13px}
+.dmg2:not(.edit) .flags{gap:8px}
+.dmg2:not(.edit) .flag{font-size:14.5px;font-weight:700;padding:9px 14px}
+.dv-sum{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:16px;font-size:15px}
+.dv-sum b{font-size:16px;font-weight:800}
+.dv-sum__c{display:inline-flex;align-items:center;gap:7px;font-weight:700;color:var(--rc-text-mid)}
+.dv-sum__c i{width:12px;height:12px;border-radius:3px;background:var(--c)}
+@media(max-width:600px){.dmg2:not(.edit) .dv-thumb{height:60px;padding:4px}.dmg2:not(.edit) .dv-thumbs{gap:5px}.dmg2:not(.edit) .dv-stage{padding:14px}}
+.dv-thumb{overflow:hidden;min-width:0}.dv-thumb .dv-svg.small{max-height:100%!important;height:100%;width:auto;max-width:100%}

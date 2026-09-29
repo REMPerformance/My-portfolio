@@ -153,6 +153,15 @@ export function DamageMap({
 
   return (
     <div className={`dmg2${edit ? " edit" : ""}`}>
+      {!edit && zones.length > 0 && (
+        <div className="dv-sum">
+          <b>{zones.length} {zones.length === 1 ? "poškodená časť" : zones.length < 5 ? "poškodené časti" : "poškodených častí"}</b>
+          {(Object.keys(SEVERITY) as Severity[]).map((k) => {
+            const n = zones.filter((z) => z.severity === k).length;
+            return n ? <span key={k} className="dv-sum__c" style={{ "--c": SEVERITY[k].color } as React.CSSProperties}><i />{n}× {SEVERITY[k].label.toLowerCase()}</span> : null;
+          })}
+        </div>
+      )}
       <div className="dv-tabs" role="tablist" aria-label="Pohľad na auto">
         {VIEWS.map((v, i) => (
           <button key={v.id} type="button" role="tab" aria-selected={vi === i} className={`dv-tab${vi === i ? " on" : ""}`} onClick={() => setVi(i)}>
@@ -208,12 +217,12 @@ export function DamageMap({
             body.length ? (
               <ul className="dmg-list">
                 {body.map((z) => (
-                  <li key={z.zone} className={sel === z.zone ? "on" : ""} onClick={edit ? () => setSel(z.zone) : undefined}>
+                  <li key={z.zone} className={sel === z.zone ? "on" : ""} style={{ "--c": SEVERITY[z.severity].color } as React.CSSProperties} onClick={edit ? () => setSel(z.zone) : undefined}>
                     <span>
                       {damageLabel(z.zone)}
                       {z.note ? <small>{z.note}</small> : null}
                     </span>
-                    <b style={{ color: SEVERITY[z.severity].color }}>{SEVERITY[z.severity].label}</b>
+                    <b className="dv-badge" style={{ "--c": SEVERITY[z.severity].color } as React.CSSProperties}>{SEVERITY[z.severity].label}</b>
                   </li>
                 ))}
               </ul>
