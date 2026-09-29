@@ -1,3 +1,6 @@
+/* REM Display – vlastné šikmé písmo odvodené z Michroma (SIL OFL 1.1, licencia v /fonts/REM-Display-OFL.txt) */
+@font-face{font-family:"REM Display";src:url(/fonts/rem-display-latin.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"REM Display";src:url(/fonts/rem-display-latin-ext.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 /* ═══════════ REM PERFORMANCE – svetlý obsah, tmavá hlavička (RACEM červená) ═══════════ */
 :root{
   --rc-red:#c8102e; --rc-red-dark:#a30c25; --rc-red-hi:#c8102e;
@@ -673,3 +676,22 @@ details.fold>div{padding:0 14px 12px}
 
 .adm .adm .dtp__grid button:hover{background:rgba(255,255,255,.07)}
 @media(max-width:640px){.home-cars .car:nth-child(n+4){display:none}}
+
+/* ═══ REM Display – nadpisy, ceny, tlačidlá ═══ */
+:root{--display:"REM Display",var(--body)}
+.hero h1,.phead h1,.title,.cta-band h2,.ctitle,.car__price b,.pricebox .big,.step::before,.rc-btn,.rc-arrow,.eyebrow,.lbl-display{font-family:var(--display);font-weight:400;font-synthesis:none}
+.hero h1{font-size:clamp(28px,4.1vw,50px);letter-spacing:-.01em;line-height:1.15}
+.hero h1 em{color:#ff3b55}
+.phead h1{font-size:clamp(24px,3vw,36px);letter-spacing:-.01em;line-height:1.2}
+.title{font-size:clamp(22px,2.5vw,30px);letter-spacing:-.01em;line-height:1.25}
+.cta-band h2{font-size:clamp(18px,2vw,24px);letter-spacing:0}
+.car__price b{font-size:20px;letter-spacing:-.01em}
+.pricebox .big{font-size:clamp(26px,2.8vw,32px);letter-spacing:-.01em}
+.rc-btn,.rc-arrow{font-size:12px;letter-spacing:.04em}
+.rc-btn--sm{font-size:11px}
+.eyebrow{font-size:11.5px;letter-spacing:.08em}
+.adm .rc-btn,.login .rc-btn{font-family:var(--body);font-size:14px}
+.ctitle{letter-spacing:-.01em;font-size:clamp(24px,3vw,36px)!important;line-height:1.2}
+.ctitle span{color:var(--rc-text-dim)}
+.hero h1,.phead h1,.title,.ctitle,.cta-band h2,.car__price b,.pricebox .big{-webkit-text-stroke:.02em currentColor;paint-order:stroke fill}
+.rc-btn,.rc-arrow,.eyebrow{-webkit-text-stroke:.012em currentColor}
