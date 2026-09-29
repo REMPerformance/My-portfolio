@@ -74,9 +74,19 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
   return (
     <div className="panel">
       <h2>Vlastná kalkulácia pre toto auto</h2>
-      <p className="note" style={{ marginTop: 0 }}>Prázdne pole = použije sa globálne nastavenie z Kalkulačky. Vyplňte len to, čo je pri tomto aute iné.</p>
+      <p className="note" style={{ marginTop: 0 }}>Prázdne pole = použije sa globálne nastavenie z Kalkulačky. Vyplňte len to, čo je pri tomto aute iné. Všetky sumy zadávajte bez DPH.</p>
       <div className="three">
-        {F({ k: "serviceFeeEur", label: "Váš poplatok", unit: "EUR", def: cfg.serviceFeeEur })}
+        <div className="field">
+          <label>Cena na webe</label>
+          <select className="input" value={o.priceMode || ""} onChange={(e) => { const n = { ...o }; if (e.target.value) n.priceMode = e.target.value as "gross" | "net"; else delete n.priceMode; onChange(n); }}>
+            <option value="">Predvolené ({cfg.priceMode === "net" ? "bez DPH" : "s DPH"})</option>
+            <option value="gross">Konečná cena s DPH</option>
+            <option value="net">Konečná cena bez DPH</option>
+          </select>
+        </div>
+        {F({ k: "serviceFeePct", label: "Váš poplatok", unit: "%", def: cfg.serviceFeePct ?? 0, scale: 100 })}
+      </div>
+      <div className="three">
         {F({ k: "dutyRate", label: "Clo", unit: "%", def: cfg.dutyRate[type], scale: 100 })}
         {F({ k: "euPortEur", label: "Prístav + deklarant", unit: "EUR", def: cfg.euPortEur })}
       </div>

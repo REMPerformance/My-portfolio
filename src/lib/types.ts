@@ -9,9 +9,14 @@ export interface CarExtra {
   history?: string;
 }
 
+export type PriceMode = "gross" | "net";
 export interface CalcOverride {
   usdToEur?: number;
   serviceFeeEur?: number;
+  /** poplatok v % (napr. 0.15) – má prednosť pred pevnou sumou */
+  serviceFeePct?: number;
+  /** hlavná cena na webe: s DPH alebo bez DPH */
+  priceMode?: PriceMode;
   dutyRate?: number;
   inlandUsd?: number;
   oceanUsd?: number;
@@ -113,6 +118,14 @@ export interface CalcConfig {
   truckEur: number;
   homologEur: number;
   serviceFeeEur: number;
+  /** poplatok v % (0.15 = 15 %); null/undefined = použije sa pevná suma serviceFeeEur */
+  serviceFeePct?: number | null;
+  /** minimálny poplatok v EUR pri percentuálnom poplatku */
+  serviceFeeMinEur?: number;
+  /** z čoho sa počíta % poplatok: cena auta (s aukčnými poplatkami) alebo všetky náklady */
+  serviceFeeBase?: "car" | "total";
+  /** predvolená hlavná cena na webe */
+  priceMode?: PriceMode;
   depositPct: number;
   depositMinEur: number;
   racemCredit: [number, number][];

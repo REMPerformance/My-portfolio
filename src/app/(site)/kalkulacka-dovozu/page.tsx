@@ -45,7 +45,7 @@ export default async function CalcPage() {
             <li><b>Poplatky</b> – pri aukcii poplatok kupujúceho na Coparte či IAAI a broker, pri pevnej cene poplatky predajcu.</li>
             <li><b>Doprava do prístavu a námorná preprava</b> – podľa štátu či emirátu a najbližšieho prístavu, kontajner do Bremerhavenu vrátane poistenia.</li>
             <li><b>Clo</b> – {Math.round(cfg.dutyRate.car * 100)} % pri osobných autách z colnej hodnoty (auto + poplatky + doprava do EÚ).</li>
-            <li><b>DPH {Math.round(cfg.vatRate * 100)} %</b> – z colnej hodnoty, cla a dopravy v rámci EÚ.</li>
+            <li><b>DPH {Math.round(cfg.vatRate * 100)} %</b> – pri dovoze z colnej hodnoty, cla a dopravy v EÚ, na slovenské služby (homologizácia, úpravy) klasicky. Firmy s odpočtom DPH vidia pri každom aute aj cenu bez DPH.</li>
             <li><b>Prístav, kamión a vybavenie na Slovensku</b> – vykládka, colný deklarant, doprava na Slovensko, úpravy, homologizácia, STK a EČV.</li>
           </ol>
           <p>Pripravené výpočty ku konkrétnym autám nájdete v <Link href="/ponuka">ponuke áut</Link>. Ak máte vlastný tip na auto, <Link href="/kontakt">pošlite nám odkaz</Link>.</p>

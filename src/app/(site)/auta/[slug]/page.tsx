@@ -35,10 +35,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const fixed = isFixed(car);
   const cd = countryDef(car.country);
   const where = [placeName(car.country, car.state) || car.location, cd.name].filter(Boolean).join(", ");
-  const title = car.seo_title || `${carFullName(car)} ${cd.from} – ${eur(est.total)} na SK značkách`;
+  const title = car.seo_title || `${carFullName(car)} ${cd.from} – ${eur(est.total)}${est.priceMode === "net" ? " bez DPH" : ""} na SK značkách`;
   const description =
     car.seo_description ||
-    `${carFullName(car)} ${cd.from} (${where}), ${km(car.odometer_mi)}${car.primary_damage ? `, poškodenie: ${car.primary_damage.toLowerCase()}` : ""}. Cena na slovenských značkách ${eur(est.total)} vrátane dopravy, cla, DPH a homologizácie${car.sk_price_eur ? `, na SK trhu od ${eur(car.sk_price_eur)}` : ""}.`;
+    `${carFullName(car)} ${cd.from} (${where}), ${km(car.odometer_mi)}${car.primary_damage ? `, poškodenie: ${car.primary_damage.toLowerCase()}` : ""}. Cena na slovenských značkách ${eur(est.gross)} s DPH (${eur(est.net)} bez DPH) vrátane dopravy, cla a homologizácie${car.sk_price_eur ? `, na SK trhu od ${eur(car.sk_price_eur)}` : ""}.`;
   const img = car.images?.[0] || SITE.ogImage;
   return {
     title: { absolute: title.length > 58 ? title : `${title} | REM` },
@@ -59,14 +59,14 @@ export default async function CarPage({ params }: Props) {
   const fixed = isFixed(car);
   const cd = countryDef(car.country);
   const where = [placeName(car.country, car.state) || car.location, cd.name].filter(Boolean).join(", ");
-  const saving = car.sk_price_eur ? car.sk_price_eur - est.total : 0;
+  const saving = car.sk_price_eur ? car.sk_price_eur - est.gross : 0;
   const crumbs = [
     { name: "Domov", path: "/" },
     { name: "Ponuka áut", path: "/ponuka" },
     { name: carName(car), path: `/auta/${car.slug}` }
   ];
   const similar = all.filter((c) => c.id !== car.id && carPhase(c, serverNow) !== "ended").sort((a, b) => (a.type === car.type ? -1 : 1) - (b.type === car.type ? -1 : 1)).slice(0, 3);
-  const suggestedBudget = Math.ceil((est.total * 1.1) / 500) * 500;
+  const suggestedBudget = Math.ceil((est.gross * 1.1) / 500) * 500;
 
   const kmTxt = car.odometer_mi ? `${num(car.odometer_mi * 1.609344)} km` : "—";
   const facts: [Parameters<typeof SpecIcon>[0]["k"], string, React.ReactNode][] = [
@@ -116,7 +116,8 @@ export default async function CarPage({ params }: Props) {
       "@type": "Offer",
       url: `${SITE.url}/auta/${car.slug}`,
       priceCurrency: "EUR",
-      price: Math.round(est.total),
+      price: Math.round(est.gross),
+      priceSpecification: { "@type": "UnitPriceSpecification", price: Math.round(est.gross), priceCurrency: "EUR", valueAddedTaxIncluded: true },
       priceValidUntil: (car.order_close_at || car.auction_end_at || "").slice(0, 10) || undefined,
       availability,
       itemCondition: "https://schema.org/DamagedCondition",
@@ -171,7 +172,7 @@ export default async function CarPage({ params }: Props) {
                   <ul className="ticks">
                     <li>Kúpa auta {fixed ? "u predajcu" : "na aukcii"} a poplatky</li>
                     <li>Doprava do prístavu a námorná preprava</li>
-                    <li>Clo {Math.round(est.dutyRate * 100)} %, DPH 23 % a preclenie</li>
+                    <li>Clo {Math.round(est.dutyRate * 100)} %{est.priceMode === "net" ? "" : ", DPH 23 %"} a preclenie</li>
                     <li>Kamión na Slovensko</li>
                     <li>Homologizácia, STK, EK a EČV</li>
                     {est.repairEur > 0 && <li>Odhad opravy</li>}
@@ -220,8 +221,9 @@ export default async function CarPage({ params }: Props) {
 
             <aside className="detail__side" aria-label="Cena a objednávka">
               <div className="panel pricebox">
-                <div className="lbl">Cena</div>
+                <div className="lbl">Cena {est.priceMode === "net" ? "bez DPH" : "s DPH"}</div>
                 <div className="big">{eur(est.total)}</div>
+                <div className="vatalt">{est.priceMode === "net" ? <>s DPH <b>{eur(est.gross)}</b></> : <>bez DPH <b>{eur(est.net)}</b></>}</div>
                 <p className="note" style={{ marginTop: 2 }}>s dovozom na slovenských značkách{!fixed ? " · odhad podľa výsledku aukcie" : ""}</p>
                 {car.sk_price_eur ? (
                   <div className="skcmp">

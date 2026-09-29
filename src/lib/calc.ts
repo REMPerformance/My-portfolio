@@ -1,4 +1,4 @@
-import type { CalcConfig, CarType, Car, CalcOverride } from "./types";
+import type { CalcConfig, CarType, Car, CalcOverride, PriceMode } from "./types";
 import { DEFAULT_FX, countryDef, guessPlace, placeDef, placeKey, portDef, type Currency } from "./origins";
 
 export const DEFAULT_CALC: CalcConfig = {
@@ -19,6 +19,10 @@ export const DEFAULT_CALC: CalcConfig = {
   truckEur: 650,
   homologEur: 900,
   serviceFeeEur: 990,
+  serviceFeePct: 0.15,
+  serviceFeeMinEur: 0,
+  serviceFeeBase: "car",
+  priceMode: "gross",
   depositPct: 0.1,
   depositMinEur: 500,
   racemCredit: [[15000, 200], [30000, 400], [999999999, 700]]
@@ -47,6 +51,16 @@ export interface CalcResult {
   serviceFeeEur: number;
   repairEur: number;
   extraCosts: { label: string; eur: number }[];
+  /** percento poplatku (ak sa počíta percentom) */
+  feePct: number | null;
+  /** dovozné DPH (z colnej hodnoty, cla a dopravy v EÚ) */
+  importVat: number;
+  /** cena bez DPH / s DPH / DPH spolu */
+  net: number;
+  gross: number;
+  vatTotal: number;
+  priceMode: PriceMode;
+  /** hlavná cena (podľa priceMode) */
   total: number;
   credit: number;
   deposit: number;
@@ -109,15 +123,24 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const extras = (i.extraCosts || []).filter((x) => x && x.label && Number(x.eur));
   const extraSum = extras.reduce((a, x) => a + Number(x.eur), 0);
   const repairEur = i.repairEur || 0;
-  const total = cif + duty + cfg.euPortEur + cfg.truckEur + vat + cfg.homologEur + cfg.serviceFeeEur + repairEur + extraSum;
-  const credit = (cfg.racemCredit.find(([max]) => total <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
-  const deposit = Math.max(cfg.depositMinEur, Math.round((total * cfg.depositPct) / 50) * 50);
+  // všetky položky sú bez DPH; DPH 23 % = dovozné DPH (clo, doprava) + DPH z tuzemských služieb
+  const costNet = cif + duty + cfg.euPortEur + cfg.truckEur + cfg.homologEur + repairEur + extraSum;
+  const pct = typeof cfg.serviceFeePct === "number" && isFinite(cfg.serviceFeePct) ? cfg.serviceFeePct : null;
+  const feeBase = cfg.serviceFeeBase === "total" ? costNet : carEur + feeEur;
+  const serviceFeeEur = pct !== null ? Math.max(cfg.serviceFeeMinEur || 0, feeBase * pct) : cfg.serviceFeeEur;
+  const net = costNet + serviceFeeEur;
+  const vatTotal = net * cfg.vatRate;
+  const gross = net + vatTotal;
+  const priceMode: PriceMode = cfg.priceMode === "net" ? "net" : "gross";
+  const total = priceMode === "net" ? net : gross;
+  const credit = (cfg.racemCredit.find(([max]) => gross <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
+  const deposit = Math.max(cfg.depositMinEur, Math.round((gross * cfg.depositPct) / 50) * 50);
   return {
     price, currency, bidUsd: price, carEur, feeEur, inlandEur, oceanEur,
     portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name,
-    cif, dutyRate, duty, vat,
-    euPortEur: cfg.euPortEur, truckEur: cfg.truckEur, homologEur: cfg.homologEur, serviceFeeEur: cfg.serviceFeeEur,
-    repairEur, extraCosts: extras, total, credit, deposit, fixed
+    cif, dutyRate, duty, vat: vatTotal, importVat: vat,
+    euPortEur: cfg.euPortEur, truckEur: cfg.truckEur, homologEur: cfg.homologEur, serviceFeeEur, feePct: pct,
+    repairEur, extraCosts: extras, net, gross, vatTotal, priceMode, total, credit, deposit, fixed
   };
 }
 
@@ -129,6 +152,9 @@ export function applyOverride(cfg: CalcConfig, o: CalcOverride | null | undefine
     ...cfg,
     usdToEur: n(o.usdToEur) ? o.usdToEur! : cfg.usdToEur,
     serviceFeeEur: n(o.serviceFeeEur) ? o.serviceFeeEur! : cfg.serviceFeeEur,
+    // pevná suma pri aute vypne percento; percento pri aute má prednosť
+    serviceFeePct: n(o.serviceFeePct) ? o.serviceFeePct! : n(o.serviceFeeEur) ? null : cfg.serviceFeePct,
+    priceMode: o.priceMode === "net" || o.priceMode === "gross" ? o.priceMode : cfg.priceMode,
     euPortEur: n(o.euPortEur) ? o.euPortEur! : cfg.euPortEur,
     truckEur: n(o.truckEur) ? o.truckEur! : cfg.truckEur,
     homologEur: n(o.homologEur) ? o.homologEur! : cfg.homologEur,

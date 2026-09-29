@@ -2,7 +2,7 @@ import type { CalcResult } from "@/lib/calc";
 import { eur, money } from "@/lib/format";
 
 export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r: CalcResult; skPrice?: number | null; compact?: boolean; hideFee?: boolean }) {
-  const diff = skPrice ? skPrice - r.total : null;
+  const diff = skPrice ? skPrice - r.gross : null;
   const row = (k: React.ReactNode, v: number, note?: string) => (
     <div className="bd"><span>{k}{note && <em>{note}</em>}</span><span>{eur(v)}</span></div>
   );
@@ -16,25 +16,32 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         {row("Námorná preprava + poistenie", r.oceanEur)}
       </div>
       <div className="bd-group">
-        <h4>Clo a dane</h4>
+        <h4>Clo</h4>
         {row(`Clo ${Math.round(r.dutyRate * 100)} %`, r.duty, "z colnej hodnoty")}
-        {row("DPH 23 %", r.vat)}
       </div>
       <div className="bd-group">
         <h4>EÚ a Slovensko</h4>
         {row("Prístav, vykládka, colný deklarant", r.euPortEur)}
         {row("Kamión do SR", r.truckEur)}
-        {hideFee ? row("Homologizácia, STK, EČV a vybavenie", r.homologEur + r.serviceFeeEur) : (
+        {hideFee ? row("Vybavenie dovozu, homologizácia, STK a EČV", r.homologEur + r.serviceFeeEur) : (
           <>
             {row("Homologizácia, STK, EČV", r.homologEur)}
-            {row("Náš poplatok za sprostredkovanie", r.serviceFeeEur, "fixný")}
+            {row("Náš poplatok za sprostredkovanie", r.serviceFeeEur, r.feePct !== null ? `${+(r.feePct * 100).toFixed(1)} %` : "fixný")}
           </>
         )}
         {r.repairEur > 0 && row("Odhad opravy", r.repairEur)}
         {r.extraCosts?.map((x) => <div className="bd" key={x.label}><span>{x.label}</span><span>{eur(x.eur)}</span></div>)}
       </div>
+      <div className="bd-group">
+        {row("Spolu bez DPH", r.net)}
+        {row("DPH 23 %", r.vatTotal, !hideFee ? `z toho dovozné DPH ${eur(r.importVat)}` : undefined)}
+      </div>
       <div className="bd-total">
-        <div><small>{r.fixed ? "Spolu na slovenských značkách" : "Odhad spolu na slovenských značkách"}</small><b>{eur(r.total)}</b></div>
+        <div>
+          <small>{r.fixed ? "Spolu na slovenských značkách" : "Odhad spolu na slovenských značkách"} · {r.priceMode === "net" ? "bez DPH" : "s DPH"}</small>
+          <b>{eur(r.total)}</b>
+          <small>{r.priceMode === "net" ? `s DPH ${eur(r.gross)}` : `bez DPH ${eur(r.net)}`}</small>
+        </div>
         <div className="cr"><small>Kredit RACEM</small><b>+{eur(r.credit)}</b></div>
       </div>
       {skPrice ? (
@@ -44,7 +51,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         </div>
       ) : null}
       {!compact && (
-        <p className="note">Odhad. Colná hodnota = auto + poplatky + doprava do EÚ. DPH sa počíta z colnej hodnoty, cla a dopravy v EÚ. Nezahŕňa skryté poškodenia – odporúčame rezervu 10 – 15 %.</p>
+        <p className="note">Odhad. Colná hodnota = auto + poplatky + doprava do EÚ. Ceny položiek sú bez DPH; DPH 23 % sa pripočíta k celej sume (pri dovoze sa platí na colnici). Nezahŕňa skryté poškodenia – odporúčame rezervu 10 – 15 %.</p>
       )}
     </div>
   );

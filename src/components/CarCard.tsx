@@ -61,7 +61,10 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
             {car.year} {car.make} {car.model}
             {car.trim && <small>{car.trim}</small>}
           </h3>
-          <div className="car__price"><b>{eur(car.est.total)}</b><small>s dovozom na slovenských značkách</small></div>
+          <div className="car__price">
+            <b>{eur(car.est.total)} <i>{car.est.priceMode === "net" ? "bez DPH" : "s DPH"}</i></b>
+            <small>{car.est.priceMode === "net" ? `s DPH ${eur(car.est.gross)}` : `bez DPH ${eur(car.est.net)}`} · s dovozom na slovenských značkách</small>
+          </div>
           <div className="car__specs">
             <div><SpecIcon k="year" /><span>{car.year ?? "—"}</span></div>
             <div><SpecIcon k="km" /><span>{km}</span></div>

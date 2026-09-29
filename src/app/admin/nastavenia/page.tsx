@@ -52,9 +52,31 @@ export default function Settings() {
       <div className="edit-grid">
         <div>
           <div className="panel">
-            <h2>Poplatky a aukcie</h2>
+            <h2>Váš poplatok a cena na webe</h2>
             <div className="three">
-              <Num label="Váš poplatok" value={c.serviceFeeEur} unit="EUR" onChange={(v) => upd({ serviceFeeEur: v })} />
+              <Num label="Váš poplatok" value={pct(c.serviceFeePct ?? 0)} unit="%" step={0.5} onChange={(v) => upd({ serviceFeePct: v / 100 })} />
+              <div className="field"><label>Percento sa počíta z</label>
+                <select className="input" value={c.serviceFeeBase || "car"} onChange={(e) => upd({ serviceFeeBase: e.target.value as "car" | "total" })}>
+                  <option value="car">ceny auta (vrátane aukčných poplatkov)</option>
+                  <option value="total">všetkých nákladov (auto, doprava, clo, homologizácia)</option>
+                </select>
+              </div>
+              <Num label="Minimálny poplatok" value={c.serviceFeeMinEur || 0} unit="EUR" onChange={(v) => upd({ serviceFeeMinEur: v })} />
+            </div>
+            <div className="three">
+              <div className="field"><label>Hlavná cena na webe (predvolene)</label>
+                <select className="input" value={c.priceMode || "gross"} onChange={(e) => upd({ priceMode: e.target.value as "gross" | "net" })}>
+                  <option value="gross">s DPH (bez DPH menším písmom)</option>
+                  <option value="net">bez DPH (s DPH menším písmom)</option>
+                </select>
+              </div>
+            </div>
+            <p className="note" style={{ marginTop: 0 }}>Poplatok zákazník na webe nikdy nevidí – je započítaný v cene. Všetky sumy v kalkulácii zadávajte bez DPH, DPH 23 % sa pripočíta k celku. Pri každom aute to viete zmeniť vo „Vlastnej kalkulácii“.</p>
+          </div>
+
+          <div className="panel">
+            <h2>Aukčné poplatky</h2>
+            <div className="three">
               <Num label="Fixné aukčné extra" value={c.fixedAuctionExtras} unit="USD" onChange={(v) => upd({ fixedAuctionExtras: v })} />
             </div>
             <div className="lbl-sm" style={{ margin: "6px 0 10px" }}>Aukčný poplatok podľa ceny (do sumy → poplatok v USD)</div>
@@ -134,9 +156,9 @@ export default function Settings() {
           <div className="panel">
             <h2>Európa a Slovensko</h2>
             <div className="three">
-              <Num label="Prístav + deklarant" value={c.euPortEur} unit="EUR" onChange={(v) => upd({ euPortEur: v })} />
-              <Num label="Kamión do SR" value={c.truckEur} unit="EUR" onChange={(v) => upd({ truckEur: v })} />
-              <Num label="Homologizácia, STK, EČV" value={c.homologEur} unit="EUR" onChange={(v) => upd({ homologEur: v })} />
+              <Num label="Prístav + deklarant (bez DPH)" value={c.euPortEur} unit="EUR" onChange={(v) => upd({ euPortEur: v })} />
+              <Num label="Kamión do SR (bez DPH)" value={c.truckEur} unit="EUR" onChange={(v) => upd({ truckEur: v })} />
+              <Num label="Homologizácia, STK, EČV (bez DPH)" value={c.homologEur} unit="EUR" onChange={(v) => upd({ homologEur: v })} />
             </div>
           </div>
 

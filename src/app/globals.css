@@ -696,3 +696,7 @@ details.fold>div{padding:0 14px 12px}
 .ctitle{letter-spacing:-.01em;font-size:clamp(24px,3vw,36px)!important;line-height:1.2}
 .ctitle span{color:var(--rc-text-dim)}
 .hdr .rc-arrow{padding:10px 20px;font-size:11px;letter-spacing:.03em}
+.car__price b i{font-family:var(--body);font-style:normal;font-size:12px;font-weight:700;color:var(--rc-text-dim);letter-spacing:0;vertical-align:2px}
+.vatalt{font-size:14px;color:var(--rc-text-mid);margin-top:2px}.vatalt b{color:var(--rc-text);font-weight:700}
+.bd-total small+b+small{display:block;margin-top:2px}
+.adm__nav .brand__word,.login .brand__word{width:150px}
