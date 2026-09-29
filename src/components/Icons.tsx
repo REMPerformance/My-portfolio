@@ -40,14 +40,13 @@ export const SpecIcon = ({ k }: { k: "year" | "km" | "gear" | "fuel" | "drive" |
 };
 
 /* ── siluety typov vozidiel (vlastná čiarová grafika) ── */
-/** Siluety typov áut (plné tvary, okná a kolesá cez CSS premenné). */
-const W = ({ x }: { x: number }) => (<g><circle cx={x} cy={60} r={14} className="tw-t" /><circle cx={x} cy={60} r={11.5} className="tw-r" /><circle cx={x} cy={60} r={4} className="tw-h" /></g>);
-const SIL: Record<string, React.ReactNode> = {
-  car: <><path className="tb" d="M8 58c0-7 3-11 11-13l35-7c11-10 25-17 45-17h24c13 0 24 6 34 16l21 5c9 2 14 6 14 13v5H8z" /><path className="tw" d="M64 38c9-8 20-12 32-12h9v12zM111 26h11c10 0 18 4 25 12h-36z" /><path className="ta" d="M8 55h8M176 50h16" /><W x={48} /><W x={160} /></>,
-  suv: <><path className="tb" d="M14 60V41c0-5 3-8 8-9l24-4 14-18c2-2 5-3 8-3h70c5 0 8 2 10 5l13 16 13 3c5 1 8 5 8 9v20z" /><path className="tw" d="M56 29l11-14c1-1 2-2 4-2h25v16zM101 13h29v16h-29zM135 13h4c3 0 5 1 7 3l10 13h-21z" /><path className="ta" d="M178 41h14" /><W x={50} /><W x={156} /></>,
-  truck: <><path className="tb" d="M8 60V43c0-5 3-7 8-8l26-4 16-18c2-2 4-3 7-3h45v28h84v22z" /><path className="tw" d="M54 31l12-14c1-1 3-2 5-2h24v16z" /><path className="tb" d="M110 29h86v4h-86z" /><path className="ta" d="M184 44h12" /><W x={46} /><W x={162} /></>,
-  all: <><g transform="translate(30 -6) scale(.8)" opacity=".35"><path className="tb" d="M8 60V44c0-5 3-8 8-9l28-4 15-17c2-2 5-3 8-3h86c5 0 8 2 11 5l12 15 12 3c5 1 8 5 8 9v17z" /></g><path className="tb" d="M8 58c0-7 3-11 11-13l35-7c11-10 25-17 45-17h24c13 0 24 6 34 16l21 5c9 2 14 6 14 13v5H8z" /><path className="tw" d="M64 38c9-8 20-12 32-12h9v12zM111 26h11c10 0 18 4 25 12h-36z" /><W x={48} /><W x={160} /></>
+/** Ikony typov áut – Material Design Icons (Apache 2.0, pictogrammers.com). */
+const TYPE_PATH: Record<string, string> = {
+  car: "M16,6L19,10H21C22.11,10 23,10.89 23,12V15H21A3,3 0 0,1 18,18A3,3 0 0,1 15,15H9A3,3 0 0,1 6,18A3,3 0 0,1 3,15H1V12C1,10.89 1.89,10 3,10L6,6H16M10.5,7.5H6.75L4.86,10H10.5V7.5M12,7.5V10H17.14L15.25,7.5H12M6,13.5A1.5,1.5 0 0,0 4.5,15A1.5,1.5 0 0,0 6,16.5A1.5,1.5 0 0,0 7.5,15A1.5,1.5 0 0,0 6,13.5M18,13.5A1.5,1.5 0 0,0 16.5,15A1.5,1.5 0 0,0 18,16.5A1.5,1.5 0 0,0 19.5,15A1.5,1.5 0 0,0 18,13.5Z",
+  suv: "M3,6H16L19,10H21C22.11,10 23,10.89 23,12V15H21A3,3 0 0,1 18,18A3,3 0 0,1 15,15H9A3,3 0 0,1 6,18A3,3 0 0,1 3,15H1V8C1,6.89 1.89,6 3,6M2.5,7.5V10H10.5V7.5H2.5M12,7.5V10H17.14L15.25,7.5H12M6,13.5A1.5,1.5 0 0,0 4.5,15A1.5,1.5 0 0,0 6,16.5A1.5,1.5 0 0,0 7.5,15A1.5,1.5 0 0,0 6,13.5M18,13.5A1.5,1.5 0 0,0 16.5,15A1.5,1.5 0 0,0 18,16.5A1.5,1.5 0 0,0 19.5,15A1.5,1.5 0 0,0 18,13.5Z",
+  truck: "M16,6H10.5V10H1V15H3A3,3 0 0,0 6,18A3,3 0 0,0 9,15H15A3,3 0 0,0 18,18A3,3 0 0,0 21,15H23V12C23,10.89 22.11,10 21,10H19L16,6M12,7.5H15.5L17.46,10H12V7.5M6,13.5A1.5,1.5 0 0,1 7.5,15A1.5,1.5 0 0,1 6,16.5A1.5,1.5 0 0,1 4.5,15A1.5,1.5 0 0,1 6,13.5M18,13.5A1.5,1.5 0 0,1 19.5,15A1.5,1.5 0 0,1 18,16.5A1.5,1.5 0 0,1 16.5,15A1.5,1.5 0 0,1 18,13.5Z",
+  all: "M8,11L9.5,6.5H18.5L20,11M18.5,16A1.5,1.5 0 0,1 17,14.5A1.5,1.5 0 0,1 18.5,13A1.5,1.5 0 0,1 20,14.5A1.5,1.5 0 0,1 18.5,16M9.5,16A1.5,1.5 0 0,1 8,14.5A1.5,1.5 0 0,1 9.5,13A1.5,1.5 0 0,1 11,14.5A1.5,1.5 0 0,1 9.5,16M19.92,6C19.71,5.4 19.14,5 18.5,5H9.5C8.86,5 8.29,5.4 8.08,6L6,12V20A1,1 0 0,0 7,21H8A1,1 0 0,0 9,20V19H19V20A1,1 0 0,0 20,21H21A1,1 0 0,0 22,20V12L19.92,6M14.92,3C14.71,2.4 14.14,2 13.5,2H4.5C3.86,2 3.29,2.4 3.08,3L1,9V17A1,1 0 0,0 2,18H3A1,1 0 0,0 4,17V12.91C3.22,12.63 2.82,11.77 3.1,11C3.32,10.4 3.87,10 4.5,10H4.57L5.27,8H3L4.5,3.5H15.09L14.92,3Z"
 };
 export const TypeArt = ({ t }: { t: "car" | "suv" | "truck" | "moto" | "all" }) => (
-  <svg viewBox="0 0 204 76" aria-hidden="true" className="typeart">{SIL[t] ?? SIL.car}</svg>
+  <svg viewBox="0 0 24 24" aria-hidden="true" className="typeart"><path d={TYPE_PATH[t] ?? TYPE_PATH.car} fill="currentColor" /></svg>
 );
