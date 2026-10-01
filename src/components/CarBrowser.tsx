@@ -54,6 +54,7 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
     return o;
   });
   const [more, setMore] = useState(() => MORE.some((k) => sp.get(k)));
+  const [mOpen, setMOpen] = useState(false);
   const now = useNow(30000) ?? serverNow;
 
   useEffect(() => {
@@ -81,7 +82,6 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
     const q = f.q.trim().toLowerCase();
     const r = cars.filter((c) => {
       const ph = carPhase(c, now);
-      if (mode === "live" && ph === "ended") return false;
       if (mode === "archive" && ph !== "ended") return false;
       if (q && !`${c.year} ${c.make} ${c.model} ${c.trim ?? ""} ${c.vin ?? ""}`.toLowerCase().includes(q)) return false;
       if (f.country && (c.country || "US") !== f.country) return false;
@@ -114,6 +114,8 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
     return r.sort(cmp[f.sort] || cmp.ending);
   }, [cars, f, now, mode]);
 
+  const liveList = mode === "live" ? list.filter((c) => carPhase(c, now) !== "ended") : list;
+  const endedList = mode === "live" ? list.filter((c) => carPhase(c, now) === "ended") : [];
   const activeMore = MORE.filter((k) => f[k]);
   const anyActive = KEYS.some((k) => !["sort", "status"].includes(k) && f[k]);
 
@@ -138,7 +140,11 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
           </button>
         ))}
       </div>
-      <div className="fbar" role="search" aria-label="Filtre ponuky">
+      <button type="button" className="fbar-toggle" aria-expanded={mOpen} onClick={() => setMOpen((o) => !o)}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M6 12h12M10 19h4" /></svg>
+        {mOpen ? "Skryť filtre" : `Filtrovať${anyActive ? " (aktívne)" : ""}`}
+      </button>
+      <div className={`fbar${mOpen ? " open" : ""}`} role="search" aria-label="Filtre ponuky">
         <div className="field fb-q">
           <label htmlFor="f-q">Hľadať</label>
           <input id="f-q" className="input" type="search" placeholder="Značka, model, VIN…" value={f.q} onChange={(e) => set("q", e.target.value)} />
@@ -168,7 +174,7 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
       )}
 
       <div className="btoolbar">
-        <span className="bcount"><b>{list.length}</b> {list.length === 1 ? "auto" : list.length > 1 && list.length < 5 ? "autá" : "áut"}</span>
+        <span className="bcount"><b>{liveList.length}</b> {liveList.length === 1 ? "auto" : liveList.length > 1 && liveList.length < 5 ? "autá" : "áut"}{mode === "live" ? " v ponuke" : ""}</span>
         {f.country && <span className="bcount">· {countryDef(f.country).name}</span>}
         {activeMore.length > 0 && (
           <div className="fchips">
@@ -185,14 +191,20 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
       </div>
 
       <div className="grid">
-        {list.length ? (
-          list.map((c, i) => <CarCard key={c.id} car={c} priority={i < 3} serverNow={serverNow} />)
+        {liveList.length ? (
+          liveList.map((c, i) => <CarCard key={c.id} car={c} priority={i < 3} serverNow={serverNow} />)
         ) : (
           <div className="empty">
             Týmto filtrom nezodpovedá žiadne auto. <button type="button" className="linkbtn" onClick={() => setF({ ...EMPTY })}>Zrušiť filtre</button> alebo <Link href="/auto-na-mieru">nám napíšte, čo hľadáte</Link>.
           </div>
         )}
       </div>
+      {endedList.length > 0 && (
+        <>
+          <h2 className="ended-head">Predaj skončil <span>({endedList.length})</span></h2>
+          <div className="grid">{endedList.map((c) => <CarCard key={c.id} car={c} serverNow={serverNow} />)}</div>
+        </>
+      )}
       <p className="more">
         {mode === "live" ? <Link href="/archiv">Pozrieť archív skončených a predaných áut</Link> : <Link href="/ponuka">Späť na aktuálnu ponuku áut</Link>}
       </p>

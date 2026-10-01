@@ -43,7 +43,7 @@ export default async function Ponuka() {
       <section style={{ paddingTop: 28 }}>
         <div className="wrap">
           <Suspense fallback={<CarGrid cars={live} serverNow={serverNow} showFilters={false} showEnded={false} />}>
-            <CarBrowser cars={live} serverNow={serverNow} />
+            <CarBrowser cars={cars} serverNow={serverNow} />
           </Suspense>
           <p className="more">Nevidíte svoje auto? <Link href="/auto-na-mieru">Napíšte nám, čo hľadáte</Link> a nájdeme ho za Vás.</p>
         </div>

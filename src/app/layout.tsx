@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     url: SITE.url,
     title: "Dovoz áut zo zahraničia na kľúč | REM Performance",
     description: SITE.description,
-    images: [{ url: SITE.ogImage, width: 1200, height: 800, alt: "Auto z USA – REM Performance" }]
+    images: [{ url: SITE.ogImage, width: 1200, height: 630, alt: "Dovoz áut na kľúč – REM Performance" }]
   },
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
@@ -64,7 +64,12 @@ const orgLd = {
       url: SITE.url,
       name: SITE.fullName,
       inLanguage: "sk-SK",
-      publisher: { "@id": `${SITE.url}/#org` }
+      publisher: { "@id": `${SITE.url}/#org` },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: `${SITE.url}/ponuka?q={search_term_string}` },
+        "query-input": "required name=search_term_string"
+      }
     }
   ]
 };

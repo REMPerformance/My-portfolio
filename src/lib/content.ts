@@ -90,10 +90,10 @@ export const DEFAULT_CONTENT: SiteContent = {
       { b: "Až 700 €", t: "kredit na tuning v RACEM" }
     ],
     images: [
-      "https://racem.sk/cdn/shop/files/190320100347lc2327ae8-hd.jpg?width=2000",
-      "https://racem.sk/cdn/shop/files/bmw-m2-2015-2018-widebody-kit-shirokai-white-rear-side-dusk.webp?width=2000",
-      "https://racem.sk/cdn/shop/files/image_89ab9f11-f8b9-4c36-93c3-e3f84b5624ba.jpg?width=2000",
-      "https://racem.sk/cdn/shop/files/1790018699874.publer.com.jpg?width=2000"
+      "https://racem.sk/cdn/shop/files/190320100347lc2327ae8-hd.jpg?width=1400",
+      "https://racem.sk/cdn/shop/files/bmw-m2-2015-2018-widebody-kit-shirokai-white-rear-side-dusk.webp?width=1400",
+      "https://racem.sk/cdn/shop/files/image_89ab9f11-f8b9-4c36-93c3-e3f84b5624ba.jpg?width=1400",
+      "https://racem.sk/cdn/shop/files/1790018699874.publer.com.jpg?width=1400"
     ]
   },
   quick: { title: "Ford Mustang GT 2020", bidUsd: 11500, repairEur: 2800, skPrice: 36900 },

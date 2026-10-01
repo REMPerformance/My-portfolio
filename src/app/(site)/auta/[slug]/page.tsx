@@ -145,7 +145,7 @@ export default async function CarPage({ params }: Props) {
           <div className="dhead">
             <h1 className="ctitle">{car.year} {car.make} {car.model} {car.trim && <span>{car.trim}</span>}</h1>
             <div className="dbadges">
-              {phaseOpen ? <span className="ok"><SpecIcon k="check" />{fixed ? "Na predaj" : "Objednávky otvorené"}</span> : <span><SpecIcon k="clock" />{car.status === "sold" ? "Predané" : "Ponuka skončila"}</span>}
+              {phaseOpen ? <span className="ok"><SpecIcon k="check" />{fixed ? "Na predaj" : "Objednávky otvorené"}</span> : <span className="ended"><SpecIcon k="clock" />{car.status === "sold" ? "Predané" : "Predaj skončil"}</span>}
               <span><SpecIcon k="pin" />{where}</span>
               <span><SpecIcon k="ship" />Dovoz na kľúč s EČV</span>
               {car.published_at && <span><SpecIcon k="year" />Zverejnené {fmtDate(car.published_at)}</span>}
@@ -226,7 +226,8 @@ export default async function CarPage({ params }: Props) {
             <aside className="detail__side" aria-label="Cena a objednávka">
               <div className="panel pricebox">
                 <div className="lbl">Cena {est.priceMode === "net" ? "bez DPH" : "s DPH"}</div>
-                <div className="big">{eur(est.total)}</div>
+                {phase === "ended" && <div className="pb-ended">{car.status === "sold" ? "Predané" : "Predaj skončil"}</div>}
+                <div className="big">{phase === "ended" ? <s>{eur(est.total)}</s> : eur(est.total)}</div>
                 <div className="vatalt">{est.priceMode === "net" ? <>s DPH <b>{eur(est.gross)}</b></> : <>bez DPH <b>{eur(est.net)}</b></>}</div>
                 <p className="note" style={{ marginTop: 2 }}>s dovozom na slovenských značkách{!fixed ? " · odhad podľa výsledku aukcie" : ""}</p>
                 {car.sk_price_eur ? (
@@ -254,6 +255,17 @@ export default async function CarPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      <div className="mbar" aria-label="Cena a kontakt">
+        <div className="mbar__price">
+          <small>{phase === "ended" ? (car.status === "sold" ? "Predané" : "Predaj skončil") : `Cena ${est.priceMode === "net" ? "bez DPH" : "s DPH"}`}</small>
+          <b>{phase === "ended" ? <s>{eur(est.total)}</s> : eur(est.total)}</b>
+        </div>
+        <a className="mbar__wa" href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(`Dobrý deň, mám záujem o ${carFullName(car)} – ${SITE.url}/auta/${car.slug}`)}`} target="_blank" rel="noopener" aria-label="WhatsApp">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2-.3-.2-.5-.3z" /></svg>
+        </a>
+        <a className="rc-btn rc-btn--primary mbar__cta" href={phase === "ended" ? "/auto-na-mieru" : "#objednat"}>{phase === "ended" ? "Podobné auto" : "Mám záujem"}</a>
+      </div>
 
       <section className="alt" id="objednat" aria-label="Objednávka">
         <div className="wrap contact">

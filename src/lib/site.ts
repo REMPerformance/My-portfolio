@@ -9,8 +9,8 @@ export const SITE = {
   phone: "+421 949 253 872",
   whatsapp: "421949253872",
   logo: "/brand/icon-512.png",
-  heroImage: "https://racem.sk/cdn/shop/files/190320100347lc2327ae8-hd.jpg?width=2000",
-  ogImage: "https://racem.sk/cdn/shop/files/190320100347lc2327ae8-hd.jpg?width=1200",
+  heroImage: "https://racem.sk/cdn/shop/files/190320100347lc2327ae8-hd.jpg?width=1400",
+  ogImage: "https://remperformance.sk/og.jpg",
   racemUrl: "https://racem.sk",
   company: {
     name: "Lukáš Tonkovič - REM Performance",

@@ -64,6 +64,7 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
     { sec: "Ponuka" },
     { href: "/admin", label: "Autá", icon: I("M5 17h14M6 17l1.5-5h9L18 17M7 17v2M17 17v2M8 12l1-3h6l1 3") },
     { href: "/admin/dopyty", label: "Dopyty", badge: newLeads, icon: I("M4 5h16v11H8l-4 4z") },
+    { href: "/admin/navstevnost", label: "Návštevnosť", icon: I("M4 20V10M10 20V4M16 20v-7M22 20H2") },
     { sec: "Nastavenia" },
     { href: "/admin/nastavenia", label: "Kalkulácia a doprava", icon: I("M5 3h14v18H5zM8 7h8M8 11h2M12 11h2M8 15h2M12 15h2") },
     { href: "/admin/obsah", label: "Texty webu", icon: I("M4 6h16M4 12h10M4 18h13") },

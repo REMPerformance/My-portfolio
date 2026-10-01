@@ -17,7 +17,7 @@ export function Gallery({ car, children }: { car: Car; children?: React.ReactNod
     return () => window.removeEventListener("keydown", k);
   }, [go]);
   return (
-    <div>
+    <div className="gallery">
       <div className="gallery__main">
         <CarImage car={car} index={i} eager={i === 0} />
         {children}

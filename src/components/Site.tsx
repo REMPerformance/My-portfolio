@@ -2,12 +2,14 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { getContent } from "@/lib/data";
 import { SITE } from "@/lib/site";
+import { Tracker } from "./Tracker";
 
 export async function SiteShell({ children }: { children: React.ReactNode }) {
   const c = await getContent();
   return (
     <>
       <a className="skip" href="#obsah">Preskočiť na obsah</a>
+      <Tracker />
       <Header />
       <main id="obsah">{children}</main>
       <Footer phone={c.contact.phone || SITE.phone} />
