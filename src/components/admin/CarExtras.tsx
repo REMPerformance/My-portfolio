@@ -86,6 +86,10 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
         </div>
         {F({ k: "serviceFeePct", label: "Váš poplatok", unit: "%", def: cfg.serviceFeePct ?? 0, scale: 100 })}
       </div>
+      <label className="switch" style={{ margin: "0 0 16px" }}>
+        <input type="checkbox" checked={!!o.carNoVat} onChange={(e) => { const n = { ...o }; if (e.target.checked) n.carNoVat = true; else delete n.carNoVat; onChange(n); }} />
+        Cena auta je konečná, DPH sa k nej nepripočíta (predajca DPH neuvádza, na aukcii „VAT eligible: No“)
+      </label>
       <div className="three">
         {F({ k: "dutyRate", label: "Clo", unit: "%", def: cfg.dutyRate[type], scale: 100 })}
         {F({ k: "euPortEur", label: "Prístav + deklarant", unit: "EUR", def: cfg.euPortEur })}

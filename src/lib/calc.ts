@@ -67,6 +67,8 @@ export interface CalcResult {
   fixed: boolean;
   /** auto kúpené v EÚ: bez cla, colnice a námornej prepravy */
   local: boolean;
+  /** DPH sa nepočíta z ceny auta */
+  carNoVat: boolean;
 }
 
 export function auctionFee(cfg: CalcConfig, bidUsd: number) {
@@ -102,6 +104,8 @@ export interface CalcInput {
   sellerFee?: number | null;
   inlandUsd?: number | null;
   oceanUsd?: number | null;
+  /** cena auta je konečná, DPH sa k nej nepripočíta */
+  carNoVat?: boolean;
   /** starý parameter – cena v USD */
   bidUsd?: number;
   rate?: number;
@@ -135,7 +139,8 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const feeBase = cfg.serviceFeeBase === "total" ? costNet : carEur + feeEur;
   const serviceFeeEur = pct !== null ? Math.max(cfg.serviceFeeMinEur || 0, feeBase * pct) : cfg.serviceFeeEur;
   const net = costNet + serviceFeeEur;
-  const vatTotal = net * cfg.vatRate;
+  const carNoVat = !!i.carNoVat;
+  const vatTotal = (net - (carNoVat ? carEur : 0)) * cfg.vatRate;
   const gross = net + vatTotal;
   const priceMode: PriceMode = cfg.priceMode === "net" ? "net" : "gross";
   const total = priceMode === "net" ? net : gross;
@@ -146,7 +151,7 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
     portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name,
     cif, dutyRate, duty, vat: vatTotal, importVat: vat,
     euPortEur, truckEur, homologEur: cfg.homologEur, serviceFeeEur, feePct: pct,
-    repairEur, extraCosts: extras, net, gross, vatTotal, priceMode, total, credit, deposit, fixed, local
+    repairEur, extraCosts: extras, net, gross, vatTotal, priceMode, total, credit, deposit, fixed, local, carNoVat
   };
 }
 
@@ -190,7 +195,8 @@ export function carEstimate(cfg: CalcConfig, car: EstCar) {
     extraCosts: o.extraCosts || [],
     sellerFee: isFixed(car) ? car.seller_fee_usd || 0 : undefined,
     inlandUsd: n(o.inlandUsd),
-    oceanUsd: n(o.oceanUsd)
+    oceanUsd: n(o.oceanUsd),
+    carNoVat: !!o.carNoVat
   });
 }
 

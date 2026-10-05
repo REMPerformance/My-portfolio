@@ -40,7 +40,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       </div>
       <div className="bd-group">
         {row("Spolu bez DPH", r.net)}
-        {row("DPH 23 %", r.vatTotal, !hideFee && !r.local ? `z toho dovozné DPH ${eur(r.importVat)}` : undefined)}
+        {row("DPH 23 %", r.vatTotal, r.carNoVat ? "len zo služieb, cena auta je konečná" : !hideFee && !r.local ? `z toho dovozné DPH ${eur(r.importVat)}` : undefined)}
       </div>
       <div className="bd-total">
         <div>

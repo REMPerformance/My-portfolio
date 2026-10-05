@@ -52,6 +52,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   const [stats, setStats] = useState<{ views: number; leads: number } | null>(null);
   const [step, setStep] = useState(0);
   const [unit, setUnit] = useState<"mi" | "km">("mi");
+  const [todo, setTodo] = useState<string[]>([]);
   const [paste, setPaste] = useState("");
   const [vinBusy, setVinBusy] = useState(false);
   const [imp, setImp] = useState<{ done: number; total: number } | null>(null);
@@ -145,7 +146,10 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
     history.replaceState(null, "", window.location.pathname);
     const r = fromImport(data);
     apply(r.parsed, r.source);
-    patch({ auction_url: r.url, ...(r.saleEnd ? { auction_end_at: r.saleEnd } : {}) });
+    // poradie je dôležité: krajina a mena z inzerátu majú prednosť pred odhadom z rozpoznaného textu
+    patch({ ...r.patch, auction_url: r.url, ...(r.saleEnd ? { auction_end_at: r.saleEnd } : {}) });
+    if (r.patch.country && r.patch.country !== "US") setUnit("km");
+    setTodo(r.missing);
     if (!r.images.length) return;
     setImp({ done: 0, total: r.images.length });
     const hint = slugify([r.parsed.year, r.parsed.make, r.parsed.model].filter(Boolean).join(" "));
@@ -230,6 +234,13 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
           {step === 0 && (
             <>
               {imp && <div className="sec-warn" role="status">Sťahujem fotky z inzerátu: {imp.done} z {imp.total}. Medzitým môžete kontrolovať údaje, stránku nezatvárajte.</div>}
+              {todo.length > 0 && (
+                <div className="sec-warn" role="status">
+                  <b>Import hotový. Ešte treba doplniť ručne:</b>
+                  <ul style={{ margin: "6px 0 0 18px" }}>{todo.map((x) => <li key={x}>{x}</li>)}</ul>
+                  <button type="button" className="tlink" style={{ marginTop: 6 }} onClick={() => setTodo([])}>Skryť</button>
+                </div>
+              )}
               {isNew && (
                 <div className="panel">
                   <h2>Import z inzerátu jedným klikom</h2>
@@ -305,7 +316,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                 <div className="three">
                   <div className="field"><label>Titul / doklady</label>
                     <select className="input" value={f.title_type ?? ""} onChange={(e) => set("title_type", e.target.value)}>
-                      <option>Clean</option><option>Salvage</option><option>Rebuilt</option><option>Certificate of Destruction</option><option>Parts only</option>
+                      <option>Clean</option><option>Salvage</option><option>Rebuilt</option><option>Certificate of Destruction</option><option>Parts only</option><option>EÚ doklady (COC, ZB1, ZB2)</option><option>EÚ doklady</option>{f.title_type && !["Clean", "Salvage", "Rebuilt", "Certificate of Destruction", "Parts only", "EÚ doklady (COC, ZB1, ZB2)", "EÚ doklady"].includes(f.title_type) ? <option>{f.title_type}</option> : null}
                     </select>
                   </div>
                   <div className="field" style={{ justifyContent: "flex-end" }}><label className="switch" style={{ minHeight: 42 }}><input type="checkbox" checked={!!f.keys} onChange={(e) => set("keys", e.target.checked)} /> Kľúče k dispozícii</label></div>

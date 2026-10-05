@@ -24,6 +24,8 @@ export interface CalcOverride {
   truckEur?: number;
   homologEur?: number;
   extraCosts?: { label: string; eur: number }[];
+  /** cena auta je konečná (predajca neuvádza DPH, osobitná úprava) – DPH sa k nej nepripočíta */
+  carNoVat?: boolean;
 }
 export type CarStatus = "draft" | "published" | "sold" | "archived";
 export type SaleType = "auction" | "fixed";

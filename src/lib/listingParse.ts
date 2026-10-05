@@ -16,6 +16,7 @@ export function titleCase(s: string) {
     .split(/(\s+|-|\/)/)
     .map((w) => (UPPER.has(w.toUpperCase()) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1)))
     .join("")
+    .replace(/\b(Ii|Iii|Iv|Vi|Vii|Viii|Ix|Xi|Xii)\b/g, (m) => m.toUpperCase())
     .replace(/Mercedes Benz/i, "Mercedes-Benz");
 }
 

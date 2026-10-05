@@ -156,7 +156,7 @@ export default async function CarPage({ params }: Props) {
               <Gallery car={car}>
                 <div className="car__tags">
                   {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
-                  {car.title_type && <span className={`tag ${(car.title_type || "").toLowerCase() === "clean" ? "tag--ok" : "tag--sal"}`}>{car.title_type}</span>}
+                  {car.title_type && <span className={`tag ${/^(clean$|eú doklady)/i.test(car.title_type || "") ? "tag--ok" : "tag--sal"}`}>{car.title_type}</span>}
                 </div>
               </Gallery>
 
