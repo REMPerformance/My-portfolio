@@ -10,6 +10,7 @@ import { COUNTRIES, CURRENCIES, countryDef, guessPlace } from "@/lib/origins";
 import { PlacePicker } from "@/components/admin/PlacePicker";
 import { parseListing, type Parsed } from "@/lib/listingParse";
 import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
+import { carSeoDescription, carSeoTitle, isDamaged } from "@/lib/carSeo";
 import { importImages } from "@/lib/imageImport";
 import { useAdmin } from "@/components/admin/AdminApp";
 import { ImageManager } from "@/components/admin/ImageManager";
@@ -195,14 +196,14 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   const odoShown = f.odometer_mi == null ? "" : unit === "mi" ? f.odometer_mi : Math.round(f.odometer_mi * 1.609344);
   const titleLen = (f.seo_title || "").length, descLen = (f.seo_description || "").length;
   const name = [f.year, f.make, f.model, f.trim].filter(Boolean).join(" ");
-  const autoTitle = `${name} ${cd.from} – ${est ? eur(est.total) : ""} na SK značkách`;
-  const autoDesc = `${name} ${fixed ? "za pevnú cenu" : `z aukcie ${f.auction || "Copart"}`} (${f.location || cd.name}). ${fixed ? "Cena s dovozom" : "Odhad celkovej ceny"} na Slovensku ${est ? eur(est.total) : ""} vrátane dopravy, cla a DPH.`;
+  const autoTitle = carSeoTitle(f, est);
+  const autoDesc = carSeoDescription(f, est);
   const checks = [
     { ok: !!(f.make && f.model && f.year), l: "Značka, model, rok" },
     { ok: fixed ? !!f.price_usd : !!(f.est_bid_usd || f.current_bid_usd), l: fixed ? "Cena auta" : "Odhad vydraženia" },
     { ok: fixed || !!f.auction_end_at, l: fixed ? "Pevná cena (bez termínu)" : "Koniec aukcie" },
     { ok: f.images.length >= 3, l: `Fotky (${f.images.length})` },
-    { ok: f.damage_zones.length > 0 || /bez poškod/i.test(f.primary_damage || ""), l: "Poškodenie vyznačené" },
+    { ok: f.damage_zones.length > 0 || !!(f.primary_damage || "").trim(), l: "Stav alebo poškodenie vyplnené" },
     { ok: (f.description || "").length > 60, l: "Popis auta" }
   ];
   const doneStep = [checks[0].ok, checks[1].ok && checks[2].ok, checks[3].ok, checks[4].ok, checks[5].ok];
@@ -386,6 +387,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                       <MoneyPair label="Váš odhad vydraženia" required value={f.est_bid_usd} currency={cur} rate={rate} onChange={(v) => set("est_bid_usd", v)} hint="Z tohto sa počíta cena na webe" />
                     </div>
                     <div className="three">
+                      <MoneyPair label="Aukčné poplatky" value={f.seller_fee_usd} currency={cur} rate={rate} onChange={(v) => set("seller_fee_usd", v)} hint={cd.local ? "V EÚ zadajte ručne, prázdne = 0" : "Prázdne = automatický odhad podľa tabuľky v Nastaveniach"} />
                       <DateTimePicker label="Koniec aukcie" required value={f.auction_end_at} onChange={(v) => set("auction_end_at", v)} hint="Slovenský čas" />
                       <DateTimePicker label="Uzávierka objednávok" value={f.order_close_at} onChange={(v) => set("order_close_at", v)} hint="Predvolene 24 h pred koncom (pri skorej aukcii 2 h)" />
                     </div>
@@ -421,10 +423,17 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
           {step === 3 && (
             <div className="panel">
               <h2>Poškodenie</h2>
+              <div className="lp-tags" style={{ marginBottom: 14 }}>
+                <button type="button" className={`rc-btn ${!isDamaged(f) && /bez poškodenia/i.test(f.primary_damage || "") ? "rc-btn--primary" : "rc-btn--ghost"}`} onClick={() => patch({ primary_damage: "Bez poškodenia", secondary_damage: "", damage_zones: [], ...(f.title_type === "Salvage" ? { title_type: cd.local ? "EÚ doklady" : "Clean" } : {}) })}>Bez poškodenia</button>
+                {["Odreniny", "Drobné škrabance / preliačiny", "Kamienky na laku", "Bežné opotrebenie"].map((d) => (
+                  <button key={d} type="button" className={`rc-btn ${f.primary_damage === d ? "rc-btn--primary" : "rc-btn--ghost"}`} onClick={() => patch({ primary_damage: d })}>{d}</button>
+                ))}
+              </div>
+              <p className="help" style={{ marginTop: 0 }}>{isDamaged(f) ? "Auto sa na webe zobrazí ako poškodené, s nákresom a popisom škody." : "Auto sa na webe zobrazí so zeleným označením Nehavarované."}</p>
               <div className="two">
                 <div className="field"><label>Hlavné poškodenie</label><input className="input" list="dmgs" value={f.primary_damage ?? ""} onChange={(e) => set("primary_damage", e.target.value)} placeholder="Predok" /></div>
                 <div className="field"><label>Vedľajšie poškodenie</label><input className="input" list="dmgs" value={f.secondary_damage ?? ""} onChange={(e) => set("secondary_damage", e.target.value)} placeholder="Ľavý bok" /></div>
-                <datalist id="dmgs">{["Bez poškodenia", "Predok", "Zadok", "Ľavý bok", "Pravý bok", "Strecha", "Krupobitie", "Záplava", "Mechanické", "Drobné škrabance / preliačiny", "Celé auto"].map((d) => <option key={d} value={d} />)}</datalist>
+                <datalist id="dmgs">{["Bez poškodenia", "Odreniny", "Drobné škrabance / preliačiny", "Kamienky na laku", "Bežné opotrebenie", "Predok", "Zadok", "Ľavý bok", "Pravý bok", "Strecha", "Podvozok", "Krupobitie", "Záplava", "Požiar", "Mechanické", "Elektrika", "Interiér", "Prasknuté sklo", "Vandalizmus", "Prevrátenie", "Celé auto"].map((d) => <option key={d} value={d} />)}</datalist>
               </div>
               <p className="help">Kliknite na časť auta na nákrese a vyberte, ako veľmi je poškodená. Môžete prepínať pohľady.</p>
               <DamageMap zones={f.damage_zones} onChange={(z: DamageZone[]) => set("damage_zones", z)} />

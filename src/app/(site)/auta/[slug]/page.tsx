@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCalcConfig, getCarBySlug, getCardCars, getPublicCars } from "@/lib/data";
-import { carEstimate, isFixed } from "@/lib/calc";
+import { carEstimate, includedItems, isFixed } from "@/lib/calc";
 import { RUN_LABEL, TYPE_LABEL, carFullName, carName, carPhase, eur, fmtDate, km, money, num } from "@/lib/format";
 import { countryDef, placeName } from "@/lib/origins";
 import { SITE } from "@/lib/site";
@@ -17,6 +17,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { CarCard } from "@/components/CarCard";
 import { SpecIcon } from "@/components/Icons";
 import { MAKES } from "@/lib/makes";
+import { modelForCar } from "@/lib/models";
+import { carKeywords, carSeoDescription, carSeoTitle, isDamaged, isSpotless } from "@/lib/carSeo";
 import { landingByCountry } from "@/lib/landing";
 
 export const revalidate = 60;
@@ -37,14 +39,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const fixed = isFixed(car);
   const cd = countryDef(car.country);
   const where = [placeName(car.country, car.state) || car.location, cd.name].filter(Boolean).join(", ");
-  const title = car.seo_title || `${carFullName(car)} ${cd.from} – ${eur(est.total)}${est.priceMode === "net" ? " bez DPH" : ""} na SK značkách`;
-  const description =
-    car.seo_description ||
-    `${carFullName(car)} ${cd.from} (${where}), ${km(car.odometer_mi)}${car.primary_damage ? `, poškodenie: ${car.primary_damage.toLowerCase()}` : ""}. Cena na slovenských značkách ${eur(est.gross)} s DPH (${eur(est.net)} bez DPH) vrátane dopravy, cla a homologizácie${car.sk_price_eur ? `, na SK trhu od ${eur(car.sk_price_eur)}` : ""}.`;
+  const title = car.seo_title || carSeoTitle(car, est);
+  const description = car.seo_description || carSeoDescription(car, est);
   const img = car.images?.[0] || SITE.ogImage;
   return {
     title: { absolute: title.length > 58 ? title : `${title} | REM` },
     description: description.slice(0, 300),
+    keywords: carKeywords(car),
     alternates: { canonical: `/auta/${car.slug}` },
     openGraph: { type: "website", url: `/auta/${car.slug}`, title, description, images: [{ url: img, alt: carFullName(car) }] },
     twitter: { card: "summary_large_image", title, description, images: [img] }
@@ -60,6 +61,9 @@ export default async function CarPage({ params }: Props) {
   const phase = carPhase(car, serverNow);
   const mk = MAKES.find((m) => m.name.toLowerCase() === car.make.toLowerCase());
   const lp = landingByCountry(car.country || "US");
+  const mdl = modelForCar(car.make, car.model, car.trim);
+  const damaged = isDamaged(car), spotless = isSpotless(car);
+  const condition = damaged ? "https://schema.org/DamagedCondition" : "https://schema.org/UsedCondition";
   const fixed = isFixed(car);
   const cd = countryDef(car.country);
   const where = [placeName(car.country, car.state) || car.location, cd.name].filter(Boolean).join(", ");
@@ -115,7 +119,8 @@ export default async function CarPage({ params }: Props) {
     driveWheelConfiguration: car.drive || undefined,
     fuelType: car.fuel || undefined,
     color: car.color || undefined,
-    itemCondition: "https://schema.org/DamagedCondition",
+    bodyType: (car.extra?.specs || []).find((x) => x.label === "Karoséria")?.value || undefined,
+    itemCondition: condition,
     offers: {
       "@type": "Offer",
       url: `${SITE.url}/auta/${car.slug}`,
@@ -124,12 +129,12 @@ export default async function CarPage({ params }: Props) {
       priceSpecification: { "@type": "UnitPriceSpecification", price: Math.round(est.gross), priceCurrency: "EUR", valueAddedTaxIncluded: true },
       priceValidUntil: (car.order_close_at || car.auction_end_at || "").slice(0, 10) || undefined,
       availability,
-      itemCondition: "https://schema.org/DamagedCondition",
+      itemCondition: condition,
       seller: { "@id": `${SITE.url}/#org` },
       areaServed: "SK",
       description: fixed
-        ? "Cena auta na slovenských značkách vrátane dopravy, cla, DPH a homologizácie."
-        : "Odhad ceny auta na slovenských značkách vrátane dopravy, cla, DPH a homologizácie."
+        ? `Cena auta na slovenských značkách ${est.local ? "vrátane prepravy a prihlásenia" : "vrátane dopravy, cla, DPH a homologizácie"}.`
+        : `Odhad ceny auta na slovenských značkách ${est.local ? "vrátane prepravy a prihlásenia" : "vrátane dopravy, cla, DPH a homologizácie"}.`
     }
   };
 
@@ -147,6 +152,7 @@ export default async function CarPage({ params }: Props) {
             <div className="dbadges">
               {phaseOpen ? <span className="ok"><SpecIcon k="check" />{fixed ? "Na predaj" : "Objednávky otvorené"}</span> : <span className="ended"><SpecIcon k="clock" />{car.status === "sold" ? "Predané" : "Predaj skončil"}</span>}
               <span><SpecIcon k="pin" />{where}</span>
+              {!damaged && <span className="ok"><SpecIcon k="check" />Nehavarované</span>}
               <span><SpecIcon k="ship" />Dovoz na kľúč s EČV</span>
               {car.published_at && <span><SpecIcon k="year" />Zverejnené {fmtDate(car.published_at)}</span>}
             </div>
@@ -156,6 +162,7 @@ export default async function CarPage({ params }: Props) {
               <Gallery car={car}>
                 <div className="car__tags">
                   {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
+                  {!damaged && <span className="tag tag--good">Nehavarované</span>}
                   {car.title_type && <span className={`tag ${/^(clean$|eú doklady)/i.test(car.title_type || "") ? "tag--ok" : "tag--sal"}`}>{car.title_type}</span>}
                 </div>
               </Gallery>
@@ -173,24 +180,7 @@ export default async function CarPage({ params }: Props) {
                 </div>
                 <div className="panel">
                   <h3>V cene je zahrnuté</h3>
-                  <ul className="ticks">
-                    <li>Kúpa auta {fixed ? "u predajcu" : "na aukcii"} a poplatky</li>
-                    {est.local ? (
-                      <>
-                        <li>Preprava na Slovensko po ceste</li>
-                        {est.priceMode === "net" ? null : <li>DPH 23 %</li>}
-                      </>
-                    ) : (
-                      <>
-                        <li>Doprava do prístavu a námorná preprava</li>
-                        <li>Clo {Math.round(est.dutyRate * 100)} %{est.priceMode === "net" ? "" : ", DPH 23 %"} a preclenie</li>
-                        <li>Kamión na Slovensko</li>
-                      </>
-                    )}
-                    <li>Homologizácia, STK, EK a EČV</li>
-                    {est.repairEur > 0 && <li>Odhad opravy</li>}
-                    <li>Kredit {eur(est.credit)} na tuning v RACEM</li>
-                  </ul>
+                  <ul className="ticks">{includedItems(est).map((x) => <li key={x}>{x}</li>)}</ul>
                 </div>
               </div>
 
@@ -213,15 +203,24 @@ export default async function CarPage({ params }: Props) {
               )}
 
               <div className="block">
-                <h2>Poškodenie</h2>
-                {(car.primary_damage || car.secondary_damage) && (
+                <h2>{damaged ? "Poškodenie" : "Stav auta"}</h2>
+                {!damaged && (
+                  <div className="nodmg">
+                    <SpecIcon k="check" />
+                    <div>
+                      <b>{spotless ? "Bez poškodenia" : "Nehavarované auto"}</b>
+                      <span>{spotless ? "Podľa inzerátu a fotiek auto nie je havarované a nemá viditeľné poškodenie." : `Auto nie je havarované. Inzerát uvádza len kozmetické chyby: ${[car.primary_damage, car.secondary_damage].filter(Boolean).join(", ").toLowerCase()}.`}</span>
+                    </div>
+                  </div>
+                )}
+                {damaged && (car.primary_damage || car.secondary_damage) && (
                   <p className="prose" style={{ marginBottom: 14 }}>
-                    Hlavné: <b style={{ color: "var(--rc-text)" }}>{car.primary_damage || "—"}</b>
+                    Hlavné: <b style={{ color: "var(--rc-text)" }}>{car.primary_damage || "neuvedené"}</b>
                     {car.secondary_damage && <> · Vedľajšie: <b style={{ color: "var(--rc-text)" }}>{car.secondary_damage}</b></>}
                   </p>
                 )}
-                <div className="panel"><DamageMap zones={car.damage_zones || []} /></div>
-                <p className="note">Nákres vychádza z fotiek a popisu predajcu. Skryté poškodenia nie je možné vopred vylúčiť.</p>
+                {(damaged || (car.damage_zones || []).length > 0) && <div className="panel"><DamageMap zones={car.damage_zones || []} /></div>}
+                <p className="note">{damaged ? "Nákres vychádza z fotiek a popisu predajcu. Skryté poškodenia nie je možné vopred vylúčiť." : "Stav vychádza z fotiek a popisu predajcu. Pred kúpou preverujeme históriu auta podľa VIN."}</p>
               </div>
 
               {car.extra?.history && (
@@ -285,7 +284,7 @@ export default async function CarPage({ params }: Props) {
             <ul className="checks">
               {fixed ? <li>Pevná cena auta – žiadna dražba</li> : <li>Neprihodíme nad Váš limit</li>}
               <li>{fixed ? "Záloha sa vracia, ak predajca auto medzitým predá" : "Záloha sa vracia, ak aukciu prehráme"}</li>
-              <li>Kredit {eur(est.credit)} do RACEM pri odovzdaní</li>
+              {est.credit > 0 && <li>Kredit {eur(est.credit)} do RACEM pri odovzdaní</li>}
             </ul>
           </div>
           <CarOrder car={car} serverNow={serverNow} suggestedBudget={suggestedBudget} />
@@ -295,7 +294,8 @@ export default async function CarPage({ params }: Props) {
       <section style={{ paddingBottom: similar.length ? 0 : undefined }} aria-label="Súvisiace">
         <div className="wrap">
           <div className="lp-tags">
-            {mk && <Link href={`/znacky/${mk.slug}`}>Dovoz {mk.name} – všetky autá</Link>}
+            {mk && mdl && <Link href={`/znacky/${mk.slug}/${mdl.slug}`}>Dovoz {mk.name} {mdl.name}</Link>}
+            {mk && <Link href={`/znacky/${mk.slug}`}>Dovoz {mk.name}, všetky autá</Link>}
             {lp && <Link href={`/${lp.slug}`}><Flag code={car.country} /> Dovoz auta {cd.from}</Link>}
             <Link href="/poradna/kolko-stoji-dovoz-auta-z-usa">Koľko stojí dovoz auta</Link>
             <Link href="/auto-na-mieru">Nájdite mi podobné auto</Link>

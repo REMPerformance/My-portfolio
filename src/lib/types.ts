@@ -26,6 +26,8 @@ export interface CalcOverride {
   extraCosts?: { label: string; eur: number }[];
   /** cena auta je konečná (predajca neuvádza DPH, osobitná úprava) – DPH sa k nej nepripočíta */
   carNoVat?: boolean;
+  /** kredit RACEM pre toto auto v EUR (0 = bez kreditu); prázdne = podľa tabuľky v Nastaveniach */
+  creditEur?: number;
 }
 export type CarStatus = "draft" | "published" | "sold" | "archived";
 export type SaleType = "auction" | "fixed";
@@ -119,6 +121,8 @@ export interface CalcConfig {
   euPortEur: number;
   truckEur: number;
   homologEur: number;
+  /** prihlásenie auta z EÚ: kontrola originality, doklady, značky (bez homologizácie) */
+  euRegEur?: number;
   serviceFeeEur: number;
   /** poplatok v % (0.15 = 15 %); null/undefined = použije sa pevná suma serviceFeeEur */
   serviceFeePct?: number | null;

@@ -9,6 +9,7 @@ import { countryDef, placeName } from "@/lib/origins";
 import { CarImage } from "./CarImage";
 import { useNow } from "./Countdown";
 import { SpecIcon } from "./Icons";
+import { isDamaged } from "@/lib/carSeo";
 
 export type CardCar = Car & { est: CalcResult };
 
@@ -51,6 +52,7 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
           {phase === "ended" && <span className="car__ended">{endedLabel}</span>}
           <div className="car__tags">
             {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
+            {!isDamaged(car) && <span className="tag tag--good">Nehavarované</span>}
             <span className="tag tag--dark"><Flag code={car.country} />{fixed ? "Pevná cena" : car.auction || "Aukcia"}</span>
           </div>
         </div>

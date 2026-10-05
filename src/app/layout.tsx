@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: SITE.description,
   applicationName: SITE.name,
   authors: [{ name: SITE.company.name }],
-  keywords: ["dovoz auta z USA", "dovoz áut z Ameriky", "Copart Slovensko", "IAAI", "auto z aukcie", "auto z USA cena", "clo na auto z USA", "dovoz auta na kľúč", "dovoz auta z Dubaja", "auto zo SAE", "dovoz auta z Kanady", "dovoz auta z Kórey", "dovoz auta z Japonska"],
+  keywords: ["dovoz auta z USA", "dovoz áut z Ameriky", "Copart Slovensko", "IAAI", "auto z aukcie", "auto z USA cena", "clo na auto z USA", "dovoz auta na kľúč", "dovoz auta z Dubaja", "auto zo SAE", "dovoz auta z Kanady", "dovoz auta z Kórey", "dovoz auta z Japonska", "dovoz auta z Nemecka", "dovoz auta z EÚ", "nehavarované auto z USA", "auto na mieru zo zahraničia", "kalkulačka dovozu auta"],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
@@ -56,6 +56,11 @@ const orgLd = {
       areaServed: [{ "@type": "Country", name: "Slovensko" }, { "@type": "Country", name: "Česko" }],
       priceRange: "€€",
       sameAs: [SITE.racemUrl],
+      knowsAbout: ["dovoz áut z USA", "aukcie Copart a IAAI", "dovoz áut z Dubaja", "dovoz áut z Nemecka a EÚ", "dovoz áut z Kanady, Kórey a Japonska", "clo a DPH pri dovoze auta", "homologizácia a prihlásenie auta na Slovensku", "kontrola histórie auta podľa VIN"],
+      makesOffer: [
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Dovoz auta zo zahraničia na kľúč", url: `${SITE.url}/ako-to-funguje` } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Vyhľadanie auta na mieru", url: `${SITE.url}/auto-na-mieru` } }
+      ],
       parentOrganization: { "@type": "Organization", name: "RACEM", url: SITE.racemUrl }
     },
     {

@@ -11,7 +11,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       <div className="bd-group">
         <h4>{r.local ? "Auto a preprava" : "Auto a doprava do EÚ"}</h4>
         {row(r.fixed ? "Cena auta" : "Cena na aukcii", r.carEur, r.currency !== "EUR" ? money(r.price, r.currency) : undefined)}
-        {r.fixed ? (r.feeEur > 0 && row("Poplatky predajcu", r.feeEur)) : row("Aukčné poplatky + broker", r.feeEur, "odhad")}
+        {r.fixed ? (r.feeEur > 0 && row("Poplatky predajcu", r.feeEur)) : (r.feeManual || !r.local) && row("Aukčné poplatky", r.feeEur, r.feeManual ? undefined : "odhad")}
         {r.local ? row("Preprava na Slovensko", r.inlandEur, r.placeName ? `${r.placeName}, po ceste` : "po ceste") : (
           <>
             {row("Odvoz do prístavu", r.inlandEur, [r.placeName, r.portName].filter(Boolean).join(" → "))}
@@ -29,9 +29,9 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         <h4>{r.local ? "Slovensko" : "EÚ a Slovensko"}</h4>
         {!r.local && row("Prístav, vykládka, colný deklarant", r.euPortEur)}
         {!r.local && row("Kamión do SR", r.truckEur)}
-        {hideFee ? row("Vybavenie dovozu, homologizácia, STK a EČV", r.homologEur + r.serviceFeeEur) : (
+        {hideFee ? row(r.local ? "Vybavenie dovozu a prihlásenie na Slovensku" : "Vybavenie dovozu, homologizácia, STK a EČV", r.homologEur + r.serviceFeeEur) : (
           <>
-            {row("Homologizácia, STK, EČV", r.homologEur)}
+            {row(r.local ? "Prihlásenie na Slovensku" : "Homologizácia, STK, EČV", r.homologEur, r.local ? "kontrola originality, doklady, EČV" : undefined)}
             {row("Náš poplatok za sprostredkovanie", r.serviceFeeEur, r.feePct !== null ? `${+(r.feePct * 100).toFixed(1)} %` : "fixný")}
           </>
         )}
@@ -40,7 +40,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       </div>
       <div className="bd-group">
         {row("Spolu bez DPH", r.net)}
-        {row("DPH 23 %", r.vatTotal, r.carNoVat ? "len zo služieb, cena auta je konečná" : !hideFee && !r.local ? `z toho dovozné DPH ${eur(r.importVat)}` : undefined)}
+        {row("DPH 23 %", r.vatTotal, r.carNoVat ? "len z prepravy a služieb, cena auta je konečná" : !hideFee && !r.local ? `z toho dovozné DPH ${eur(r.importVat)}` : undefined)}
       </div>
       <div className="bd-total">
         <div>
@@ -48,7 +48,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
           <b>{eur(r.total)}</b>
           <small>{r.priceMode === "net" ? `s DPH ${eur(r.gross)}` : `bez DPH ${eur(r.net)}`}</small>
         </div>
-        <div className="cr"><small>Kredit RACEM</small><b>+{eur(r.credit)}</b></div>
+        {r.credit > 0 && <div className="cr"><small>Kredit RACEM</small><b>+{eur(r.credit)}</b></div>}
       </div>
       {skPrice ? (
         <div className="bd-cmp">
@@ -57,7 +57,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         </div>
       ) : null}
       {!compact && (
-        <p className="note">{r.local ? "Odhad. Auto z Európskej únie sa neclí a neprechádza colnicou. Ceny položiek sú bez DPH; DPH 23 % sa pripočíta k celej sume. Nezahŕňa skryté poškodenia, odporúčame rezervu 10 až 15 %." : "Odhad. Colná hodnota = auto + poplatky + doprava do EÚ. Ceny položiek sú bez DPH; DPH 23 % sa pripočíta k celej sume (pri dovoze sa platí na colnici). Nezahŕňa skryté poškodenia – odporúčame rezervu 10 – 15 %."}</p>
+        <p className="note">{r.local ? (r.carNoVat ? "Odhad. Auto z Európskej únie sa neclí, neprechádza colnicou a nehomologizuje sa. Pri jazdenom aute je cena konečná a DPH sa k nej nepripočíta, platí sa len z prepravy a našich služieb. Pri novom aute alebo aute s odpočtom DPH sa DPH platí na Slovensku." : "Odhad. Auto z Európskej únie sa neclí, neprechádza colnicou a nehomologizuje sa. Cena auta je bez DPH, DPH 23 % sa platí na Slovensku.") : "Odhad. Colná hodnota = auto + poplatky + doprava do EÚ. Ceny položiek sú bez DPH; DPH 23 % sa pripočíta k celej sume (pri dovoze sa platí na colnici). Nezahŕňa skryté poškodenia – odporúčame rezervu 10 – 15 %."}</p>
       )}
     </div>
   );

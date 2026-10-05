@@ -242,6 +242,7 @@ export function fromImport(p: ImportPayload): Imported {
   const undamaged = !dmgRaw || /^(none|no damage|normal wear( (and|&) tear)?|n\/a|unknown|\s)+$/i.test(dmgRaw);
   const wearOnly = undamaged || /^(minor dents?\/?scratch(es)?|normal wear|none|\s|\/)+$/i.test(dmgRaw);
   if (undamaged) { out.primary_damage = dmgRaw ? "Bez poškodenia" : undefined; delete out.secondary_damage; }
+  if (!dmgRaw) missing.push("stav auta (inzerát poškodenie neuvádza, ak je auto nehavarované, kliknite v kroku Poškodenie na Bez poškodenia)");
   const zones = new Map<string, DamageZone>();
   if (!undamaged) {
     zonesFrom(prim || s(ld?.knownVehicleDamages), "medium", "podľa inzerátu", zones);
@@ -277,7 +278,8 @@ export function fromImport(p: ImportPayload): Imported {
   if (vatEl) {
     const yes = /^\s*yes/i.test(vatEl);
     specs.push({ label: "Odpočet DPH", value: yes ? "Áno" : "Nie" });
-    if (!yes) override.carNoVat = true;
+    // pri aute z EÚ je konečná cena predvolená, „Yes“ znamená cenu bez DPH
+    if (!yes) override.carNoVat = true; else if (org?.country === "EU") override.carNoVat = false;
   }
   const erv = line(own, "Estimated retail value");
   if (erv) specs.push({ label: "Odhad trhovej hodnoty (aukcia)", value: erv });
@@ -317,7 +319,7 @@ export function fromImport(p: ImportPayload): Imported {
   if (out.title_type) parts.push(`Doklady: ${out.title_type}.`);
   const tuv = noteTxt.match(/T[ÜU]V\s+(?:gültig\s+)?bis\s+(\d{1,2}[/.]\d{4})/i);
   if (tuv) parts.push(`Nemecká technická kontrola (TÜV) platí do ${tuv[1]}.`);
-  parts.push(org?.country === "EU" ? "Auto je v Európskej únii, takže sa pri dovoze neplatí clo." : "Cena zahŕňa kúpu, dopravu, clo, DPH, homologizáciu a prihlásenie na Slovensku.");
+  parts.push(org?.country === "EU" ? "Auto je v Európskej únii, takže sa neplatí clo ani dovozná DPH a nie je potrebná homologizácia." : "Cena zahŕňa kúpu, dopravu, clo, DPH, homologizáciu a prihlásenie na Slovensku.");
   patch.description = parts.join(" ");
 
   /* čo treba doplniť ručne */

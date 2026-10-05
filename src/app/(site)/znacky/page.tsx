@@ -11,8 +11,8 @@ import { Flag } from "@/components/Flag";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Dovoz áut podľa značky – BMW, Mercedes, Porsche, Ford, Tesla…",
-  description: "Dovoz áut podľa značky z USA, Dubaja, Kanady, Kórey a Japonska: BMW, Mercedes-Benz, Audi, Porsche, Ford Mustang, Dodge, RAM, Tesla, Toyota, Lexus a ďalšie. Celková cena na slovenských značkách vopred.",
+  title: "Dovoz áut podľa značky a modelu: BMW, Mercedes, Porsche, Ford, Tesla",
+  description: "Dovoz áut podľa značky a modelu z USA, Dubaja, Kanady, Kórey, Japonska, Nemecka a EÚ: BMW, Mercedes-Benz, Audi, Porsche, Ford Mustang, Dodge, RAM, Tesla, Toyota, Lexus a ďalšie. Celková cena na slovenských značkách vopred.",
   alternates: { canonical: "/znacky" },
   openGraph: { url: "/znacky" }
 };

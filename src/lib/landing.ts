@@ -44,6 +44,33 @@ export const LANDINGS: Landing[] = [
     ]
   },
   {
+    slug: "dovoz-auta-z-nemecka",
+    country: "EU",
+    title: "Dovoz auta z Nemecka a EÚ na kľúč, bez cla a homologizácie",
+    description: "Dovoz auta z Nemecka, Rakúska a ďalších krajín EÚ na Slovensko na kľúč. Havarované aj nehavarované autá z aukcií a od predajcov, kontrola histórie, preprava po ceste a prihlásenie. Bez cla.",
+    h1: ["Dovoz auta z Nemecka a EÚ", "na kľúč"],
+    lead: "Nemecko má najväčší trh s jazdenými autami v Európe. Nájdeme Vám auto u predajcu alebo na aukcii v Nemecku, Rakúsku či inej krajine Európskej únie, preveríme jeho históriu, privezieme ho po ceste a prihlásime na Slovensku.",
+    example: { label: "jazdené auto za 12 000 EUR z Nemecka", price: 12000, place: "DE", auction: false },
+    why: [
+      { t: "Bez cla a bez colnice", d: "Auto z Európskej únie sa neclí a neprechádza colným konaním. Neplatí sa ani dovozná DPH." },
+      { t: "Bez homologizácie", d: "Autá predávané v EÚ majú európske typové schválenie, takže odpadajú úpravy svetiel a jednotlivé schvaľovanie. Rieši sa len kontrola originality a prihlásenie." },
+      { t: "Najväčší výber v Európe", d: "Od bežných rodinných áut cez firemné flotily so servisnou knižkou až po športové modely. Havarované aj nehavarované." },
+      { t: "Preprava po ceste", d: "Auto ide na Slovensko odťahovým vozidlom alebo kamiónom, bez námornej prepravy a bez prístavných poplatkov." }
+    ],
+    watch: [
+      "Pri jazdenom aute je cena zvyčajne konečná. Pri novom aute (do 6 mesiacov alebo do 6 000 km) a pri cene bez DPH sa DPH platí na Slovensku.",
+      "Pred kúpou preverujeme históriu auta podľa VIN, nájazd a to, či nebolo vážne havarované.",
+      "Na aukciách v EÚ (napríklad Copart Nemecko) sú poškodené aj pojazdné autá. Pri každom uvádzame, čo inzerát o stave hovorí.",
+      "Pri prihlásení sa platí registračný poplatok podľa výkonu a veku auta."
+    ],
+    faq: [
+      { q: "Platí sa pri dovoze auta z Nemecka clo alebo DPH?", a: "Clo sa neplatí nikdy, pretože ide o pohyb tovaru v rámci Európskej únie. Pri jazdenom aute sa neplatí ani slovenská DPH z ceny auta. DPH sa na Slovensku platí pri novom aute, teda do 6 mesiacov od prvej registrácie alebo s nájazdom do 6 000 km, a pri aute kúpenom za cenu bez DPH." },
+      { q: "Treba auto z EÚ homologizovať?", a: "Nie. Auto s európskym typovým schválením sa nehomologizuje. Potrebná je kontrola originality, doklady od auta (napríklad nemecké ZB1 a ZB2 a osvedčenie COC) a prihlásenie na dopravnom inšpektoráte." },
+      { q: "Koľko stojí dovoz auta z Nemecka?", a: "K cene auta sa pripočíta preprava po ceste, prihlásenie na Slovensku a náš poplatok za sprostredkovanie. Pri aukcii aj aukčné poplatky. Presnú sumu pre konkrétne auto Vám spočítame vopred." },
+      { q: "Dovážate z Nemecka aj nehavarované autá?", a: "Áno. Väčšina áut, ktoré z EÚ dovážame od predajcov, je nehavarovaná. Na aukciách sa dajú kúpiť aj poškodené autá za nižšiu cenu, pri nich vždy uvádzame rozsah poškodenia." }
+    ]
+  },
+  {
     slug: "dovoz-auta-z-dubaja",
     country: "AE",
     title: "Dovoz auta z Dubaja (SAE) na kľúč – cena s clom a DPH",

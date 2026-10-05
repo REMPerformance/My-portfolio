@@ -92,7 +92,7 @@ export default async function LandingPage({ params }: Props) {
           <div>
             <span className="eyebrow">Príklad výpočtu</span>
             <h2 className="title">Koľko stojí dovoz auta {cd.from}</h2>
-            <p className="sub">Príklad: {l.example.label} ({money(l.example.price, cd.currency)}). Celková cena na slovenských značkách vychádza približne na <b>{eur(ex.gross)} s DPH</b> ({eur(ex.net)} bez DPH) – vrátane dopravy, cla, DPH, homologizácie a prihlásenia.</p>
+            <p className="sub">Príklad: {l.example.label} ({money(l.example.price, cd.currency)}). Celková cena na slovenských značkách vychádza približne na <b>{eur(ex.gross)} s DPH</b> ({eur(ex.net)} bez DPH), {ex.local ? "vrátane prepravy po ceste a prihlásenia. Clo ani homologizácia sa pri aute z EÚ neplatia." : "vrátane dopravy, cla, DPH, homologizácie a prihlásenia."}</p>
             <p className="sub">Každé auto je iné – dopravu počítame podľa konkrétneho miesta a prístavu. Presnú cenu si spočítate v <Link href="/kalkulacka-dovozu">kalkulačke dovozu</Link>.</p>
             <h3 style={{ marginTop: 24, fontSize: 17, fontWeight: 800 }}>Na čo si dať pozor</h3>
             <ul className="ticks" style={{ marginTop: 10 }}>{l.watch.map((w) => <li key={w}>{w}</li>)}</ul>

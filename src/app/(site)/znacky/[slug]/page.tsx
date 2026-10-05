@@ -7,7 +7,8 @@ import { countryDef } from "@/lib/origins";
 import { MAKES, makeBySlug } from "@/lib/makes";
 import { landingByCountry } from "@/lib/landing";
 import { SITE } from "@/lib/site";
-import { PageHead, breadcrumbLd } from "@/components/Sections";
+import { Faq, PageHead, breadcrumbLd, faqLd } from "@/components/Sections";
+import { modelsOf } from "@/lib/models";
 import { JsonLd } from "@/components/JsonLd";
 import { CarCard } from "@/components/CarCard";
 import { Flag } from "@/components/Flag";
@@ -28,8 +29,8 @@ const isJdm = (s: string) => s === "jdm-japonsko";
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const m = makeBySlug((await params).slug);
   if (!m) return {};
-  const title = isJdm(m.slug) ? "Dovoz JDM áut z Japonska na kľúč" : `Dovoz ${m.name} z USA a zahraničia na kľúč`;
-  const description = `${title}: ${m.models.slice(0, 5).join(", ")} a ďalšie modely z ${fromTxt(m.from)}. Celková cena na slovenských značkách vrátane dopravy, cla, DPH a homologizácie. Nájdeme a dovezieme.`;
+  const title = isJdm(m.slug) ? "Dovoz JDM áut z Japonska na kľúč" : m.from[0] === "EU" ? `Dovoz ${m.name} z Nemecka a EÚ na kľúč` : `Dovoz ${m.name} z USA a zahraničia na kľúč`;
+  const description = `${title}: ${m.models.slice(0, 5).join(", ")} a ďalšie modely (${fromTxt(m.from)}), havarované aj nehavarované. Celková cena na slovenských značkách vrátane dopravy, cla, DPH a homologizácie. Nájdeme a dovezieme.`;
   return {
     title: { absolute: `${title} | REM Performance` },
     description,
@@ -49,10 +50,19 @@ export default async function MakePage({ params }: Props) {
   const ended = mine.filter((c) => carPhase(c, now) === "ended").slice(0, 3);
   const h = jdm ? "JDM autá z Japonska" : m.name;
   const crumbs = [{ name: "Domov", path: "/" }, { name: "Značky", path: "/znacky" }, { name: h, path: `/znacky/${m.slug}` }];
+  const pages = modelsOf(m.slug);
+  const what = jdm ? "JDM auta z Japonska" : `auta ${m.name}`;
+  const onlyEu = m.from.length === 1 && m.from[0] === "EU";
+  const faq = [
+    { q: `Odkiaľ sa oplatí dovoz ${what}?`, a: `${m.note} Najčastejšie dovážame z týchto krajín: ${fromTxt(m.from)}. Pred kúpou Vám porovnáme ponuky a spočítame celkovú cenu.` },
+    { q: `Koľko stojí dovoz ${what}?`, a: onlyEu ? "K cene auta sa pripočíta preprava po ceste na Slovensko, prihlásenie a náš poplatok. Pri aute z Európskej únie sa neplatí clo ani dovozná DPH a nie je potrebná homologizácia." : "K cene auta sa pripočítajú poplatky predajcu alebo aukcie, doprava, clo 10 % (pri pickupoch 22 %), DPH 23 %, homologizácia a prihlásenie. Pri aute z Európskej únie clo, námorná preprava aj homologizácia odpadajú. Presnú sumu si spočítate v kalkulačke dovozu." },
+    { q: "Dovážate len havarované autá?", a: "Nie. Dovážame havarované autá z aukcií aj nehavarované autá od predajcov a z aukcií s čistými dokladmi. Pri poškodených kusoch vždy uvádzame rozsah poškodenia a odhad opravy." }
+  ];
 
   return (
     <>
       <JsonLd data={breadcrumbLd(crumbs)} />
+      <JsonLd data={faqLd(faq)} />
       {live.length > 0 && (
         <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", name: `${h} na dovoz`, itemListElement: live.map((c, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE.url}/auta/${c.slug}` })) }} />
       )}
@@ -91,7 +101,7 @@ export default async function MakePage({ params }: Props) {
         <div className="wrap lp-cols">
           <div>
             <h2 className="title" style={{ fontSize: 24 }}>Najčastejšie dovážané modely</h2>
-            <div className="lp-tags">{m.models.map((x) => <Link key={x} href={`/auto-na-mieru?znacka=${m.slug}`}>{jdm ? x : `${m.name} ${x}`}</Link>)}</div>
+            <div className="lp-tags">{m.models.map((x) => { const md = pages.find((p) => p.name === x); return <Link key={x} href={md ? `/znacky/${m.slug}/${md.slug}` : `/auto-na-mieru?znacka=${m.slug}`}>{jdm ? x : `${m.name} ${x}`}</Link>; })}{pages.filter((p) => !m.models.includes(p.name)).map((p) => <Link key={p.slug} href={`/znacky/${m.slug}/${p.slug}`}>{m.name} {p.name}</Link>)}</div>
           </div>
           <div>
             <h2 className="title" style={{ fontSize: 24 }}>Odkiaľ {jdm ? "ich" : m.name} dovážame</h2>
@@ -99,6 +109,13 @@ export default async function MakePage({ params }: Props) {
               {m.from.map((c) => { const l = landingByCountry(c); return <Link key={c} href={l ? `/${l.slug}` : "/ponuka"}><Flag code={c} /> {countryDef(c).name}</Link>; })}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="wrap">
+          <div className="sec-head"><div><h2 className="title">Časté otázky</h2></div></div>
+          <Faq items={faq} />
         </div>
       </section>
 

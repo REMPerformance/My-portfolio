@@ -89,6 +89,11 @@ section{padding:var(--rc-section-y) 0;position:relative}
 .tag--ok{background:#fff;color:#138a52}
 .tag--fixed{background:#fff;color:#15171b}
 .tag--sal{background:#fff;color:#a8650a}
+.tag--good{background:#138a52;color:#fff}
+.nodmg{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border:1px solid rgba(52,199,123,.45);background:rgba(52,199,123,.1);border-radius:12px;margin-bottom:14px}
+.nodmg .si{color:#34c77b;width:26px;height:26px;flex:none;margin-top:2px}
+.nodmg b{display:block;font-size:17px;color:#34c77b}
+.nodmg span{display:block;margin-top:4px;color:var(--rc-text-mid);font-size:15px}
 .tag--grey{background:var(--rc-surface-3);color:var(--rc-text-mid)}
 
 /* topbar + header */

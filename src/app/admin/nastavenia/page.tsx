@@ -159,6 +159,7 @@ export default function Settings() {
               <Num label="Prístav + deklarant (bez DPH)" value={c.euPortEur} unit="EUR" onChange={(v) => upd({ euPortEur: v })} />
               <Num label="Kamión do SR (bez DPH)" value={c.truckEur} unit="EUR" onChange={(v) => upd({ truckEur: v })} />
               <Num label="Homologizácia, STK, EČV (bez DPH)" value={c.homologEur} unit="EUR" onChange={(v) => upd({ homologEur: v })} />
+              <Num label="Prihlásenie auta z EÚ (bez DPH)" value={c.euRegEur ?? 250} unit="EUR" onChange={(v) => upd({ euRegEur: v })} />
             </div>
           </div>
 

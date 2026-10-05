@@ -87,8 +87,8 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
         {F({ k: "serviceFeePct", label: "Váš poplatok", unit: "%", def: cfg.serviceFeePct ?? 0, scale: 100 })}
       </div>
       <label className="switch" style={{ margin: "0 0 16px" }}>
-        <input type="checkbox" checked={!!o.carNoVat} onChange={(e) => { const n = { ...o }; if (e.target.checked) n.carNoVat = true; else delete n.carNoVat; onChange(n); }} />
-        Cena auta je konečná, DPH sa k nej nepripočíta (predajca DPH neuvádza, na aukcii „VAT eligible: No“)
+        <input type="checkbox" checked={o.carNoVat ?? !!oc.country.local} onChange={(e) => onChange({ ...o, carNoVat: e.target.checked })} />
+        Cena auta je konečná, DPH sa k nej nepripočíta (jazdené auto z EÚ, predajca DPH neuvádza, na aukcii „VAT eligible: No“). Pri aute z EÚ je to zapnuté automaticky, vypnite pri novom aute alebo pri cene bez DPH.
       </label>
       <div className="three">
         {F({ k: "dutyRate", label: "Clo", unit: "%", def: cfg.dutyRate[type], scale: 100 })}
@@ -100,7 +100,8 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
         {F({ k: "truckEur", label: "Kamión do SR", unit: "EUR", def: cfg.truckEur })}
       </div>
       <div className="three">
-        {F({ k: "homologEur", label: "Homologizácia, STK, EČV", unit: "EUR", def: cfg.homologEur })}
+        {F({ k: "creditEur", label: "Kredit RACEM (prázdne = podľa ceny, 0 = bez)", unit: "EUR", def: cfg.racemCredit[0]?.[1] ?? 0 })}
+        {F({ k: "homologEur", label: oc.country.local ? "Prihlásenie na Slovensku" : "Homologizácia, STK, EČV", unit: "EUR", def: oc.country.local ? cfg.euRegEur ?? 250 : cfg.homologEur })}
       </div>
       <div className="lbl-sm" style={{ margin: "6px 0 8px" }}>Ďalšie náklady (napr. diely, lakovanie, doprava k lakovni)</div>
       {extras.map((x, i) => (

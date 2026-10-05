@@ -1,4 +1,5 @@
 import type { Car } from "@/lib/types";
+import { carImageAlt } from "@/lib/carSeo";
 
 export function CarPlaceholder({ car }: { car: Pick<Car, "id" | "make" | "model"> }) {
   const id = "g" + String(car.id).replace(/[^a-z0-9]/gi, "").slice(0, 12);
@@ -29,5 +30,5 @@ export function CarImage({ car, index = 0, eager = false }: { car: Pick<Car, "id
   const src = car.images?.[index];
   if (!src) return <CarPlaceholder car={car} />;
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={`${car.year ?? ""} ${car.make} ${car.model} – foto ${index + 1}`.trim()} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} decoding="async" />;
+  return <img src={src} alt={carImageAlt(car, index)} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} decoding="async" />;
 }

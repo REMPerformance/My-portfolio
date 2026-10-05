@@ -4,6 +4,7 @@ import { SITE } from "@/lib/site";
 import { LANDINGS } from "@/lib/landing";
 import { MAKES } from "@/lib/makes";
 import { ARTICLES } from "@/lib/articles";
+import { MODELS } from "@/lib/models";
 
 export const revalidate = 300;
 
@@ -17,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...LANDINGS.map((l) => ({ url: `${SITE.url}/${l.slug}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.9 })),
     { url: `${SITE.url}/znacky`, lastModified: now, changeFrequency: "daily", priority: 0.7 },
     ...MAKES.map((m) => ({ url: `${SITE.url}/znacky/${m.slug}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.7 })),
+    ...MODELS.map((m) => ({ url: `${SITE.url}/znacky/${m.make}/${m.slug}`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.6 })),
     { url: `${SITE.url}/poradna`, changeFrequency: "weekly", priority: 0.7 },
     ...ARTICLES.map((a) => ({ url: `${SITE.url}/poradna/${a.slug}`, lastModified: new Date(a.updated), changeFrequency: "monthly" as const, priority: 0.8 })),
     { url: `${SITE.url}/archiv`, lastModified: now, changeFrequency: "daily", priority: 0.5 },
