@@ -2,7 +2,7 @@
 import { mapDamage, mapDrive, mapFuel, mapTitle, mapType, parseListing, titleCase, type Parsed } from "./listingParse";
 import type { CalcOverride, Car, CarExtra, DamageZone, RunStatus, Severity } from "./types";
 
-export interface ImportPayload { u: string; t?: string; ld?: Record<string, unknown>[]; x?: string; i?: string[]; c?: string[]; f?: string; g?: string[] }
+export interface ImportPayload { u: string; t?: string; ld?: Record<string, unknown>[]; x?: string; i?: string[]; c?: string[]; f?: string; g?: string[]; n?: number }
 export interface Imported {
   parsed: Parsed;
   /** ďalšie polia auta, ktoré sa dajú odvodiť (krajina, mena, zóny poškodenia, popis…) */
@@ -21,7 +21,7 @@ export interface Imported {
  * sa deje až v administrácii, aby sa dalo zlepšovať bez opätovného pridávania záložky.
  */
 export function bookmarklet(origin: string) {
-  const code = `(function(){var D=document,go=function(){var d=document,q=function(s){return [].slice.call(d.querySelectorAll(s))},ld=[];q('script[type="application/ld+json"]').forEach(function(s){try{var j=JSON.parse(s.textContent);(Array.isArray(j)?j:j['@graph']||[j]).forEach(function(x){if(x&&/Product|Vehicle|Car/.test(String(x['@type'])))ld.push(x)})}catch(e){}});var im=[];ld.forEach(function(x){[].concat(x.image||[]).forEach(function(i){var u=typeof i==='string'?i:i&&(i.url||i.contentUrl);if(u)im.push(u)});delete x.image;delete x.review;delete x.aggregateRating});var c=[];q('img').forEach(function(i){[i.currentSrc,i.src,i.getAttribute('data-src'),i.getAttribute('data-lazy'),i.getAttribute('data-original')].forEach(function(u){if(u&&/^https?:/.test(u))c.push(u+(i.naturalWidth?'#'+i.naturalWidth:''))})});(d.documentElement.innerHTML.match(/https?:[^"'\\\\ )<>]+?\\.(?:jpe?g|webp|png)(?=["'\\\\ )?&<])/gi)||[]).forEach(function(u){c.push(u)});c=c.filter(function(u,i){return c.indexOf(u)===i&&!/logo|icon|sprite|flag|banner|avatar|favicon/i.test(u)}).slice(0,150);var bt=(d.body.innerText||'').replace(/\\n{2,}/g,'\\n'),fi=bt.lastIndexOf('Final Price Estimator'),fe=fi<0?'':bt.slice(fi,fi+2200).split(/\\n(?:Vehicles You Might Like|Similar Vehicles)/)[0];var ga=[],bi=q('img').filter(function(i){return i.naturalWidth>=500}).sort(function(a,b){return b.naturalWidth*b.naturalHeight-a.naturalWidth*a.naturalHeight})[0],ge=bi,gk=0,RX=/https?:[^"'\\\\ )<>]+?\\.(?:jpe?g|webp|png)/gi;while(ge&&gk++<10){ge=ge.parentElement;if(!ge||ge===d.body)break;var gu=(ge.innerHTML.match(RX)||[]).filter(function(u,i,a){return a.indexOf(u)===i});if(gu.length>=3){ga=gu.slice(0,120);break}}var m=d.querySelector('main')||d.body,h=d.querySelector('h1'),p={u:location.href,t:d.title,h:h?h.innerText:'',ld:ld.slice(0,2),x:(m.innerText||'').replace(/\\n{2,}/g,'\\n').slice(0,4500),i:im.slice(0,60),c:c,f:fe,g:ga},b=btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\\+/g,'-').replace(/\\//g,'_');var w=window.open('${origin}/admin/auta/nove#import='+b,'_blank');if(!w)location.href='${origin}/admin/auta/nove#import='+b};var b=[].slice.call(D.querySelectorAll('button,span')).filter(function(e){return e.children.length<3&&/^\\s*Final Price Estimator\\s*$/i.test(e.innerText||'')}).pop();if(b&&(D.body.innerText||'').search(/\\nFinal Bid\\n/)<0){try{b.click()}catch(e){}setTimeout(go,1800)}else go()})()`;
+  const code = `(function(){var D=document,go=function(){var d=document,q=function(s){return [].slice.call(d.querySelectorAll(s))},ld=[];q('script[type="application/ld+json"]').forEach(function(s){try{var j=JSON.parse(s.textContent);(Array.isArray(j)?j:j['@graph']||[j]).forEach(function(x){if(x&&/Product|Vehicle|Car/.test(String(x['@type'])))ld.push(x)})}catch(e){}});var im=[];ld.forEach(function(x){[].concat(x.image||[]).forEach(function(i){var u=typeof i==='string'?i:i&&(i.url||i.contentUrl);if(u)im.push(u)});delete x.image;delete x.review;delete x.aggregateRating});var c=[];q('img').forEach(function(i){[i.currentSrc,i.src,i.getAttribute('data-src'),i.getAttribute('data-lazy'),i.getAttribute('data-original')].forEach(function(u){if(u&&/^https?:/.test(u))c.push(u+(i.naturalWidth?'#'+i.naturalWidth:''))})});(d.documentElement.innerHTML.match(/https?:[^"'\\\\ )<>]+?\\.(?:jpe?g|webp|png)(?=["'\\\\ )?&<])/gi)||[]).forEach(function(u){c.push(u)});c=c.filter(function(u,i){return c.indexOf(u)===i&&!/logo|icon|sprite|flag|banner|avatar|favicon/i.test(u)}).slice(0,150);var bt=(d.body.innerText||'').replace(/\\n{2,}/g,'\\n'),fi=bt.lastIndexOf('Final Price Estimator'),fe=fi<0?'':bt.slice(fi,fi+2200).split(/\\n(?:Vehicles You Might Like|Similar Vehicles)/)[0];var ga=[],bi=q('img').filter(function(i){return i.naturalWidth>=500}).sort(function(a,b){return b.naturalWidth*b.naturalHeight-a.naturalWidth*a.naturalHeight})[0],ge=bi,gk=0,RX=/https?:[^"'\\\\ )<>]+?\\.(?:jpe?g|webp|png)/gi;var gn=0;while(ge&&gk++<12){ge=ge.parentElement;if(!ge||ge===d.body||(ge.innerText||'').length>350)break;var gu=(ge.innerHTML.match(RX)||[]).filter(function(u,i,a){return a.indexOf(u)===i});if(gu.length>=ga.length)ga=gu.slice(0,150);var gm=(ge.innerText||'').match(/(\\d+)\\s*\\/\\s*(\\d+)/);if(gm)gn=+gm[2]}var m=d.querySelector('main')||d.body,h=d.querySelector('h1'),p={u:location.href,t:d.title,h:h?h.innerText:'',ld:ld.slice(0,2),x:(m.innerText||'').replace(/\\n{2,}/g,'\\n').slice(0,4500),i:im.slice(0,60),c:c,f:fe,g:ga,n:gn},b=btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\\+/g,'-').replace(/\\//g,'_');var w=window.open('${origin}/admin/auta/nove#import='+b,'_blank');if(!w)location.href='${origin}/admin/auta/nove#import='+b};var b=[].slice.call(D.querySelectorAll('button,span')).filter(function(e){return e.children.length<3&&/^\\s*Final Price Estimator\\s*$/i.test(e.innerText||'')}).pop();if(b&&(D.body.innerText||'').search(/\\nFinal Bid\\n/)<0){try{b.click()}catch(e){}setTimeout(go,1800)}else go()})()`;
   return "javascript:" + encodeURIComponent(code);
 }
 
@@ -70,19 +70,22 @@ export function pickImages(p: ImportPayload): string[] {
   const https = (u: string) => /^https:\/\//.test(u);
   const gal = (p.g || []).map((u) => u.split("#")[0]).filter(https);
   // ak záložka našla galériu auta, berieme len fotky z nej; inak všetko, čo je na stránke
-  const inGallery = gal.length >= 3;
+  const inGallery = gal.length >= 3 || (gal.length >= 1 && (p.n || 0) > 0);
   const fromLd = (p.i || []).filter(https);
   const cand = inGallery ? gal.map((url) => ({ url, w: 0 })) : (p.c || []).map((u) => { const [url, w] = u.split("#"); return { url, w: Number(w) || 0 }; }).filter((x) => https(x.url));
   const all = [...fromLd.map((url) => ({ url, w: 0 })), ...cand];
 
   // IAAI: fotky sú <číslo lotu>-<poradie>T.jpg (miniatúra) a ...L.jpg (veľká). Berieme veľké a len z lotu, ktorý má fotiek najviac.
-  const iaa = all.map((x) => x.url.match(/^(.*\/\d{5,}-)(\d+)[TL](\.jpe?g)$/i)).filter(Boolean) as RegExpMatchArray[];
+  const iaa = all.map((x) => x.url.split("?")[0].match(/^(.*\/\d{5,}-)(\d+)[TL](\.jpe?g)$/i)).filter(Boolean) as RegExpMatchArray[];
   if (iaa.length >= 2) {
     const count = new Map<string, Set<number>>();
     for (const m of iaa) { if (!count.has(m[1])) count.set(m[1], new Set()); count.get(m[1])!.add(Number(m[2])); }
     const [prefix, nums] = [...count.entries()].sort((a, b) => b[1].size - a[1].size)[0];
     const ext = iaa.find((m) => m[1] === prefix)![3];
-    return [...nums].sort((a, b) => a - b).slice(0, 40).map((n) => `${prefix}${n}L${ext}`);
+    // galéria načítava fotky postupne, preto berieme celý rad 1 až N (N = počítadlo v galérii alebo najvyššie videné číslo)
+    // počítadlo zahŕňa aj 360° pohľad, preto ho použijeme len vtedy, keď na stránke nevidno miniatúry
+    const top = nums.size >= 4 ? Math.max(...nums) : Math.max(...nums, p.n && p.n <= 60 ? p.n : 0);
+    return Array.from({ length: Math.min(top, 60) }, (_, k) => `${prefix}${k + 1}L${ext}`);
   }
 
   // Copart: tá istá fotka existuje vo viacerých veľkostiach (_thb, _ful, _hrs), berieme najväčšiu
