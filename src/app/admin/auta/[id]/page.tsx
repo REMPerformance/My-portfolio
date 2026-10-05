@@ -251,6 +251,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                     <li>Otvorte stránku konkrétneho auta, napríklad na autobidmaster.com.</li>
                     <li>Kliknite na záložku Import do REM. Otvorí sa táto stránka s vyplnenými údajmi a fotky sa stiahnu samy.</li>
                   </ol>
+                  <p className="note"><b>Presné poplatky a doprava:</b> na stránke aukcie napíšte do políčka ponuky svoj odhad vydraženia a až potom kliknite na záložku. Import si z kalkulačky na stránke prevezme aukčné poplatky a pri autách z USA aj dopravu.</p>
                   <p className="note">Záložku stačí pridať raz. Údaje sa čítajú zo stránky, ktorú máte otvorenú vo vlastnom prehliadači, preto to funguje aj tam, kde sa treba prihlásiť.</p>
                 </div>
               )}
