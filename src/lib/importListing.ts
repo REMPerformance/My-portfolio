@@ -237,9 +237,27 @@ export function fromImport(p: ImportPayload): Imported {
   if (prim) out.primary_damage = mapDamage(prim);
   if (sec) out.secondary_damage = mapDamage(sec);
   if (!prim && ld && s(ld.knownVehicleDamages)) out.primary_damage = mapDamage(s(ld.knownVehicleDamages));
+  // nie každé auto je havarované: „None“, „Normal Wear“ alebo chýbajúci údaj znamená auto bez škody
+  const dmgRaw = `${prim || s(ld?.knownVehicleDamages)} ${sec || ""}`.trim();
+  const undamaged = !dmgRaw || /^(none|no damage|normal wear( (and|&) tear)?|n\/a|unknown|\s)+$/i.test(dmgRaw);
+  const wearOnly = undamaged || /^(minor dents?\/?scratch(es)?|normal wear|none|\s|\/)+$/i.test(dmgRaw);
+  if (undamaged) { out.primary_damage = dmgRaw ? "Bez poškodenia" : undefined; delete out.secondary_damage; }
   const zones = new Map<string, DamageZone>();
-  zonesFrom(prim || s(ld?.knownVehicleDamages), "medium", "podľa inzerátu", zones);
-  zonesFrom(sec, "light", "podľa inzerátu", zones);
+  if (!undamaged) {
+    zonesFrom(prim || s(ld?.knownVehicleDamages), "medium", "podľa inzerátu", zones);
+    zonesFrom(sec, "light", "podľa inzerátu", zones);
+  }
+  // doklady: ak inzerát typ neuvádza a auto nie je poškodené, nie je dôvod písať Salvage
+  if (!out.title_type) { if (wearOnly) out.title_type = "Clean"; else missing.push("typ dokladov (inzerát ho neuvádza)"); }
+  // inzerát predajcu s pevnou cenou namiesto aukcie
+  const fixedPrice = line(own, "Buy it now", "Buy Now", "Price", "Cena", "Preis");
+  const isAuction = !!(line(own, "Current bid", "Sale date", "Auction date", "Lot number") || out.lot);
+  if (!isAuction) {
+    const n = fixedPrice ? Number(fixedPrice.replace(/[^\d.,]/g, "").replace(/[.,](?=\d{3}\b)/g, "").replace(",", ".")) : 0;
+    patch.sale_type = "fixed"; patch.auction = "Dealer"; patch.auction_end_at = null;
+    if (n > 0) patch.price_usd = Math.round(n); else missing.push("cenu auta");
+    delete out.auction;
+  }
   zonesFrom(noteTxt, "medium", "z poznámky predajcu", zones);
   const airbags = line(own, "Airbags deployed", "Airbags");
   if (airbags) {
@@ -290,8 +308,10 @@ export function fromImport(p: ImportPayload): Imported {
   if (tech) parts.push(`Technika: ${tech}.`);
   if (km) parts.push(`Nájazd ${num(km)} km${org?.country === "EU" ? "" : ` (${num(out.odometer_mi!)} míľ)`}.`);
   const dmg = [out.primary_damage, out.secondary_damage].filter(Boolean).join(", ");
-  if (dmg) parts.push(/bez poškodenia/i.test(dmg) ? "Auto je podľa inzerátu bez poškodenia." : `Poškodenie podľa inzerátu: ${dmg.toLowerCase()}.`);
-  parts.push(run === "run_drive" ? "Auto štartuje a jazdí." : run === "starts" ? "Motor štartuje." : run === "no_start" ? "Auto podľa inzerátu neštartuje." : "Pojazdnosť overíme pred kúpou.");
+  if (undamaged) parts.push(dmgRaw ? "Auto je podľa inzerátu nehavarované." : "Inzerát neuvádza žiadne poškodenie.");
+  else if (wearOnly) parts.push(`Auto je nehavarované, inzerát uvádza len ${dmg.toLowerCase()}.`);
+  else if (dmg) parts.push(`Poškodenie podľa inzerátu: ${dmg.toLowerCase()}.`);
+  parts.push(run === "run_drive" ? "Auto štartuje a jazdí." : run === "starts" ? "Motor štartuje." : run === "no_start" ? "Auto podľa inzerátu neštartuje." : isAuction ? "Pojazdnosť overíme pred kúpou." : "Stav auta overíme pred kúpou.");
   if (out.keys !== undefined) parts.push(out.keys ? "Kľúč je k dispozícii." : "Auto je bez kľúča.");
   if (airbags) parts.push(/^\s*(yes|deployed)/i.test(airbags) ? "Airbagy sú vystrelené." : "Airbagy nie sú vystrelené.");
   if (out.title_type) parts.push(`Doklady: ${out.title_type}.`);
