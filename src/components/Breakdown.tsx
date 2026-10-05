@@ -9,20 +9,26 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
   return (
     <div>
       <div className="bd-group">
-        <h4>Auto a doprava do EÚ</h4>
+        <h4>{r.local ? "Auto a preprava" : "Auto a doprava do EÚ"}</h4>
         {row(r.fixed ? "Cena auta" : "Cena na aukcii", r.carEur, r.currency !== "EUR" ? money(r.price, r.currency) : undefined)}
         {r.fixed ? (r.feeEur > 0 && row("Poplatky predajcu", r.feeEur)) : row("Aukčné poplatky + broker", r.feeEur, "odhad")}
-        {row("Odvoz do prístavu", r.inlandEur, [r.placeName, r.portName].filter(Boolean).join(" → "))}
-        {row("Námorná preprava + poistenie", r.oceanEur)}
+        {r.local ? row("Preprava na Slovensko", r.inlandEur, r.placeName ? `${r.placeName}, po ceste` : "po ceste") : (
+          <>
+            {row("Odvoz do prístavu", r.inlandEur, [r.placeName, r.portName].filter(Boolean).join(" → "))}
+            {row("Námorná preprava + poistenie", r.oceanEur)}
+          </>
+        )}
       </div>
+      {!r.local && (
+        <div className="bd-group">
+          <h4>Clo</h4>
+          {row(`Clo ${Math.round(r.dutyRate * 100)} %`, r.duty, "z colnej hodnoty")}
+        </div>
+      )}
       <div className="bd-group">
-        <h4>Clo</h4>
-        {row(`Clo ${Math.round(r.dutyRate * 100)} %`, r.duty, "z colnej hodnoty")}
-      </div>
-      <div className="bd-group">
-        <h4>EÚ a Slovensko</h4>
-        {row("Prístav, vykládka, colný deklarant", r.euPortEur)}
-        {row("Kamión do SR", r.truckEur)}
+        <h4>{r.local ? "Slovensko" : "EÚ a Slovensko"}</h4>
+        {!r.local && row("Prístav, vykládka, colný deklarant", r.euPortEur)}
+        {!r.local && row("Kamión do SR", r.truckEur)}
         {hideFee ? row("Vybavenie dovozu, homologizácia, STK a EČV", r.homologEur + r.serviceFeeEur) : (
           <>
             {row("Homologizácia, STK, EČV", r.homologEur)}
@@ -34,7 +40,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       </div>
       <div className="bd-group">
         {row("Spolu bez DPH", r.net)}
-        {row("DPH 23 %", r.vatTotal, !hideFee ? `z toho dovozné DPH ${eur(r.importVat)}` : undefined)}
+        {row("DPH 23 %", r.vatTotal, !hideFee && !r.local ? `z toho dovozné DPH ${eur(r.importVat)}` : undefined)}
       </div>
       <div className="bd-total">
         <div>
@@ -51,7 +57,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         </div>
       ) : null}
       {!compact && (
-        <p className="note">Odhad. Colná hodnota = auto + poplatky + doprava do EÚ. Ceny položiek sú bez DPH; DPH 23 % sa pripočíta k celej sume (pri dovoze sa platí na colnici). Nezahŕňa skryté poškodenia – odporúčame rezervu 10 – 15 %.</p>
+        <p className="note">{r.local ? "Odhad. Auto z Európskej únie sa neclí a neprechádza colnicou. Ceny položiek sú bez DPH; DPH 23 % sa pripočíta k celej sume. Nezahŕňa skryté poškodenia, odporúčame rezervu 10 až 15 %." : "Odhad. Colná hodnota = auto + poplatky + doprava do EÚ. Ceny položiek sú bez DPH; DPH 23 % sa pripočíta k celej sume (pri dovoze sa platí na colnici). Nezahŕňa skryté poškodenia – odporúčame rezervu 10 – 15 %."}</p>
       )}
     </div>
   );

@@ -175,9 +175,18 @@ export default async function CarPage({ params }: Props) {
                   <h3>V cene je zahrnuté</h3>
                   <ul className="ticks">
                     <li>Kúpa auta {fixed ? "u predajcu" : "na aukcii"} a poplatky</li>
-                    <li>Doprava do prístavu a námorná preprava</li>
-                    <li>Clo {Math.round(est.dutyRate * 100)} %{est.priceMode === "net" ? "" : ", DPH 23 %"} a preclenie</li>
-                    <li>Kamión na Slovensko</li>
+                    {est.local ? (
+                      <>
+                        <li>Preprava na Slovensko po ceste</li>
+                        {est.priceMode === "net" ? null : <li>DPH 23 %</li>}
+                      </>
+                    ) : (
+                      <>
+                        <li>Doprava do prístavu a námorná preprava</li>
+                        <li>Clo {Math.round(est.dutyRate * 100)} %{est.priceMode === "net" ? "" : ", DPH 23 %"} a preclenie</li>
+                        <li>Kamión na Slovensko</li>
+                      </>
+                    )}
                     <li>Homologizácia, STK, EK a EČV</li>
                     {est.repairEur > 0 && <li>Odhad opravy</li>}
                     <li>Kredit {eur(est.credit)} na tuning v RACEM</li>

@@ -4,7 +4,7 @@
  * Hodnoty sú predvolené – v admine (Kalkulačka) sa dajú prepísať.
  */
 
-export type CountryCode = "US" | "CA" | "AE" | "KR" | "JP" | "CN";
+export type CountryCode = "US" | "CA" | "AE" | "KR" | "JP" | "CN" | "EU";
 export type Currency = "USD" | "CAD" | "AED" | "KRW" | "JPY" | "CNY" | "EUR";
 
 export interface Port { id: string; name: string; oceanUsd: number }
@@ -20,6 +20,8 @@ export interface CountryDef {
   ports: Port[];
   places: Place[];
   note?: string;
+  /** nákup v rámci EÚ: bez cla, colnice a námornej prepravy, auto ide po ceste */
+  local?: boolean;
 }
 
 const P = (code: string, name: string, port: string, inlandUsd: number): Place => ({ code, name, port, inlandUsd });
@@ -95,6 +97,22 @@ export const COUNTRIES: CountryDef[] = [
     ports: [{ id: "cn-sha", name: "Šanghaj / Šen-čen", oceanUsd: 1700 }],
     places: [P("SHA", "Šanghaj", "cn-sha", 200), P("SZX", "Šen-čen", "cn-sha", 250), P("CAN", "Kanton", "cn-sha", 300), P("PEK", "Peking / Tchien-ťin", "cn-sha", 350), P("CN-X", "Iný región", "cn-sha", 500)],
     note: "Na elektromobily z Číny sa v EÚ uplatňuje aj vyrovnávacie clo – overte pred kúpou."
+  },
+  {
+    code: "EU", name: "Európska únia", from: "z EÚ", flag: "🇪🇺", currency: "EUR", placeLabel: "Krajina", local: true,
+    ports: [{ id: "eu-road", name: "po ceste", oceanUsd: 0 }],
+    places: [
+      P("DE", "Nemecko", "eu-road", 750), P("AT", "Rakúsko", "eu-road", 300), P("CZ", "Česko", "eu-road", 300),
+      P("HU", "Maďarsko", "eu-road", 300), P("PL", "Poľsko", "eu-road", 500), P("IT", "Taliansko", "eu-road", 850),
+      P("NL", "Holandsko", "eu-road", 950), P("BE", "Belgicko", "eu-road", 1000), P("FR", "Francúzsko", "eu-road", 1150),
+      P("ES", "Španielsko", "eu-road", 1900), P("PT", "Portugalsko", "eu-road", 2300), P("LU", "Luxembursko", "eu-road", 900),
+      P("DK", "Dánsko", "eu-road", 1000), P("SE", "Švédsko", "eu-road", 1400), P("FI", "Fínsko", "eu-road", 1800),
+      P("EE", "Estónsko", "eu-road", 1500), P("LV", "Lotyšsko", "eu-road", 1350), P("LT", "Litva", "eu-road", 1150),
+      P("SI", "Slovinsko", "eu-road", 450), P("HR", "Chorvátsko", "eu-road", 550), P("RO", "Rumunsko", "eu-road", 800),
+      P("BG", "Bulharsko", "eu-road", 1000), P("GR", "Grécko", "eu-road", 1400), P("IE", "Írsko", "eu-road", 2200),
+      P("MT", "Malta", "eu-road", 2200), P("CY", "Cyprus", "eu-road", 2600), P("SK", "Slovensko", "eu-road", 150)
+    ],
+    note: "Pri autách z EÚ sa neplatí clo ani námorná preprava. Cenu auta zadajte bez DPH. Ak predajca DPH neuvádza (osobitná úprava), nastavte hlavnú cenu pri aute podľa toho."
   }
 ];
 
@@ -145,6 +163,11 @@ const PLACE_EN: Record<string, string> = {
   "CA-NL": "Newfoundland and Labrador", "CA-BC": "British Columbia",
   "KR-SEL": "Seoul", "KR-ICN": "Incheon", "KR-GG": "Gyeonggi", "KR-PUS": "Busan", "KR-KR-X": "Other region",
   "JP-TYO": "Tokyo", "JP-YOK": "Yokohama", "JP-OSA": "Osaka", "JP-NGO": "Nagoya", "JP-UKB": "Kobe", "JP-JP-X": "Other region",
+  "EU-DE": "Germany", "EU-AT": "Austria", "EU-CZ": "Czechia", "EU-HU": "Hungary", "EU-PL": "Poland", "EU-IT": "Italy",
+  "EU-NL": "Netherlands", "EU-BE": "Belgium", "EU-FR": "France", "EU-ES": "Spain", "EU-PT": "Portugal", "EU-LU": "Luxembourg",
+  "EU-DK": "Denmark", "EU-SE": "Sweden", "EU-FI": "Finland", "EU-EE": "Estonia", "EU-LV": "Latvia", "EU-LT": "Lithuania",
+  "EU-SI": "Slovenia", "EU-HR": "Croatia", "EU-RO": "Romania", "EU-BG": "Bulgaria", "EU-GR": "Greece", "EU-IE": "Ireland",
+  "EU-MT": "Malta", "EU-CY": "Cyprus", "EU-SK": "Slovakia",
   "CN-SHA": "Shanghai", "CN-SZX": "Shenzhen", "CN-CAN": "Guangzhou", "CN-PEK": "Beijing / Tianjin", "CN-CN-X": "Other region"
 };
 export const placeNameEn = (country: string | null | undefined, code: string) => {

@@ -65,6 +65,8 @@ export interface CalcResult {
   credit: number;
   deposit: number;
   fixed: boolean;
+  /** auto kúpené v EÚ: bez cla, colnice a námornej prepravy */
+  local: boolean;
 }
 
 export function auctionFee(cfg: CalcConfig, bidUsd: number) {
@@ -115,16 +117,20 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const feeEur = fixed ? (Number(i.sellerFee) || 0) * r : auctionFee(cfg, carEur / usd) * usd;
   const oc = originCosts(cfg, i.country, i.place);
   const inlandEur = (i.inlandUsd ?? oc.inlandUsd) * usd;
-  const oceanEur = (i.oceanUsd ?? oc.oceanUsd) * usd;
+  const local = !!oc.country.local;
+  const oceanEur = local ? 0 : (i.oceanUsd ?? oc.oceanUsd) * usd;
   const cif = carEur + feeEur + inlandEur + oceanEur;
-  const dutyRate = cfg.dutyRate[i.type || "car"] ?? 0.1;
+  // v rámci EÚ sa neplatí clo, nie je colnica ani prístav a auto ide po ceste priamo na Slovensko
+  const dutyRate = local ? 0 : cfg.dutyRate[i.type || "car"] ?? 0.1;
   const duty = cif * dutyRate;
-  const vat = (cif + duty + cfg.euPortEur + cfg.truckEur) * cfg.vatRate;
+  const euPortEur = local ? 0 : cfg.euPortEur;
+  const truckEur = local ? 0 : cfg.truckEur;
+  const vat = local ? 0 : (cif + duty + euPortEur + truckEur) * cfg.vatRate;
   const extras = (i.extraCosts || []).filter((x) => x && x.label && Number(x.eur));
   const extraSum = extras.reduce((a, x) => a + Number(x.eur), 0);
   const repairEur = i.repairEur || 0;
   // všetky položky sú bez DPH; DPH 23 % = dovozné DPH (clo, doprava) + DPH z tuzemských služieb
-  const costNet = cif + duty + cfg.euPortEur + cfg.truckEur + cfg.homologEur + repairEur + extraSum;
+  const costNet = cif + duty + euPortEur + truckEur + cfg.homologEur + repairEur + extraSum;
   const pct = typeof cfg.serviceFeePct === "number" && isFinite(cfg.serviceFeePct) ? cfg.serviceFeePct : null;
   const feeBase = cfg.serviceFeeBase === "total" ? costNet : carEur + feeEur;
   const serviceFeeEur = pct !== null ? Math.max(cfg.serviceFeeMinEur || 0, feeBase * pct) : cfg.serviceFeeEur;
@@ -139,8 +145,8 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
     price, currency, bidUsd: price, carEur, feeEur, inlandEur, oceanEur,
     portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name,
     cif, dutyRate, duty, vat: vatTotal, importVat: vat,
-    euPortEur: cfg.euPortEur, truckEur: cfg.truckEur, homologEur: cfg.homologEur, serviceFeeEur, feePct: pct,
-    repairEur, extraCosts: extras, net, gross, vatTotal, priceMode, total, credit, deposit, fixed
+    euPortEur, truckEur, homologEur: cfg.homologEur, serviceFeeEur, feePct: pct,
+    repairEur, extraCosts: extras, net, gross, vatTotal, priceMode, total, credit, deposit, fixed, local
   };
 }
 

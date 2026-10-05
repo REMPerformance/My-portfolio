@@ -31,7 +31,8 @@ const ORIGIN_HINT: Record<string, string> = {
   CA: "Ontário, Québec, Alberta, Britská Kolumbia",
   KR: "Soul, Pusan · Hyundai, Kia, Genesis",
   JP: "Tokio, Jokohama · JDM klasiky",
-  CN: "Šanghaj, Kanton · elektromobily"
+  CN: "Šanghaj, Kanton · elektromobily",
+  EU: "Nemecko, Rakúsko, Taliansko · bez cla a colnice"
 };
 
 export default async function Home() {

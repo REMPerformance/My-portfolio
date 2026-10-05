@@ -329,7 +329,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                   </div>
                   <div className="field"><label>Mesto (nepovinné)</label><input className="input" value={f.location ?? ""} onChange={(e) => set("location", e.target.value)} placeholder={cd.code === "US" ? "Dallas, TX" : cd.places[0].name} /></div>
                 </div>
-                {est && <p className="help" style={{ margin: 0 }}>Doprava: {est.placeName} → prístav {est.portName} · spolu {eur(est.inlandEur + est.oceanEur)}</p>}
+                {est && <p className="help" style={{ margin: 0 }}>{est.local ? `Preprava: ${est.placeName}, po ceste na Slovensko · ${eur(est.inlandEur)} · bez cla a colnice` : `Doprava: ${est.placeName} → prístav ${est.portName} · spolu ${eur(est.inlandEur + est.oceanEur)}`}</p>}
                 {cd.note && <p className="note">{cd.note}</p>}
               </div>
 

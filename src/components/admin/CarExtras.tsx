@@ -91,7 +91,7 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
         {F({ k: "euPortEur", label: "Prístav + deklarant", unit: "EUR", def: cfg.euPortEur })}
       </div>
       <div className="three">
-        {F({ k: "inlandUsd", label: `Odvoz do prístavu (${oc.port.name})`, unit: "USD", def: oc.inlandUsd })}
+        {F({ k: "inlandUsd", label: oc.country.local ? "Preprava na Slovensko" : `Odvoz do prístavu (${oc.port.name})`, unit: "USD", def: oc.inlandUsd })}
         {F({ k: "oceanUsd", label: "Námorná preprava", unit: "USD", def: oc.oceanUsd })}
         {F({ k: "truckEur", label: "Kamión do SR", unit: "EUR", def: cfg.truckEur })}
       </div>

@@ -6,7 +6,7 @@ import { COUNTRIES, countryDef } from "@/lib/origins";
 import { money } from "@/lib/format";
 import { Breakdown } from "./Breakdown";
 
-const DEFAULT_PRICE: Record<string, number> = { USD: 12000, CAD: 16000, AED: 45000, KRW: 16000000, JPY: 1800000, CNY: 85000 };
+const DEFAULT_PRICE: Record<string, number> = { USD: 12000, CAD: 16000, AED: 45000, KRW: 16000000, JPY: 1800000, CNY: 85000, EUR: 15000 };
 
 export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?: boolean }) {
   const [country, setCountry] = useState("US");

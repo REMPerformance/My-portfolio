@@ -73,6 +73,16 @@ function Body({ code }: { code: string }) {
           <polygon points={star(10, 9, 1, 21)} fill="#ffde00" />
         </>
       );
+    case "EU":
+      return (
+        <>
+          <rect width="30" height="20" fill="#003399" />
+          {Array.from({ length: 12 }, (_, i) => {
+            const a = (i * 30 * Math.PI) / 180;
+            return <polygon key={i} points={star(15 + 6.2 * Math.sin(a), 10 - 6.2 * Math.cos(a), 1.05)} fill="#ffcc00" />;
+          })}
+        </>
+      );
     default:
       return <rect width="30" height="20" fill="#d6d9de" />;
   }
