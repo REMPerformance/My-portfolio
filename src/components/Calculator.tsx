@@ -18,6 +18,7 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
   const [repair, setRepair] = useState(0);
   const [sk, setSk] = useState<number | "">("");
 
+  const [own, setOwn] = useState(false);
   const pickCountry = (c: string) => {
     const d = countryDef(c);
     setCountry(c);
@@ -27,8 +28,8 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
   };
 
   const r = useMemo(
-    () => calc(cfg, { price: Math.max(0, price || 0), currency: cd.currency, country, place, type, repairEur: Math.max(0, repair || 0), sellerFee: mode === "fixed" ? 0 : undefined }),
-    [cfg, price, cd.currency, country, place, type, repair, mode]
+    () => calc(cfg, { price: Math.max(0, price || 0), currency: cd.currency, country, place, type, repairEur: Math.max(0, repair || 0), sellerFee: mode === "fixed" ? 0 : undefined, noHomolog: own }),
+    [cfg, price, cd.currency, country, place, type, repair, mode, own]
   );
   const priceEur = (price || 0) * fxRate(cfg, cd.currency);
 
@@ -72,6 +73,10 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
             <div className="iw"><input className="input" id="cRepair" type="number" min={0} step={100} value={repair} inputMode="numeric" onChange={(e) => setRepair(+e.target.value)} /><span className="u">EUR</span></div>
           </div>
         </div>
+        <label className="switch" style={{ margin: "0 0 16px" }}>
+          <input type="checkbox" checked={own} onChange={(e) => setOwn(e.target.checked)} />
+          {cd.local ? "Prihlásenie na Slovensku si vybavím sám" : "Homologizáciu, STK a EČV si vybavím sám"}
+        </label>
         <div className="field" style={{ marginBottom: 0 }}>
           <label htmlFor="cSk">Cena podobného auta na Slovensku (nepovinné)</label>
           <div className="iw"><input className="input" id="cSk" type="number" min={0} step={500} value={sk} inputMode="numeric" placeholder="na porovnanie" onChange={(e) => setSk(e.target.value === "" ? "" : +e.target.value)} /><span className="u">EUR</span></div>

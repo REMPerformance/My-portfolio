@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { SITE } from "@/lib/site";
+import { useSelfHomolog } from "./PriceSwitch";
 
 export const waLink = (text?: string) => `https://wa.me/${SITE.whatsapp}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
 
@@ -18,7 +19,8 @@ export function WhatsAppButton({ text, block = false, label = "Napísať na What
  * Dopyt. Pri aute stačí telefón a e-mail (rýchly kontakt).
  * Všeobecný dopyt (bez auta) má navyše meno, odkaz a správu – všetko nepovinné.
  */
-export function LeadForm({ car, closed = false, heading }: { car?: { id: string; label: string; url?: string } | null; closed?: boolean; suggestedBudget?: number; heading?: string }) {
+export function LeadForm({ car, closed = false, heading, selfOption }: { car?: { id: string; label: string; url?: string } | null; closed?: boolean; suggestedBudget?: number; heading?: string; selfOption?: string }) {
+  const [own, setOwn] = useSelfHomolog();
   const [state, setState] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [msg, setMsg] = useState("");
   const waText = car ? `Dobrý deň, mám záujem o ${car.label}${car.url ? ` – ${car.url}` : ""}` : "Dobrý deň, mám záujem o dovoz auta.";
@@ -43,7 +45,7 @@ export function LeadForm({ car, closed = false, heading }: { car?: { id: string;
         name: String(f.get("name") || "").trim() || null,
         email, phone,
         link: String(f.get("link") || "").trim() || null,
-        message: String(f.get("message") || "").trim() || null,
+        message: [String(f.get("message") || "").trim(), selfOption && own ? `Zákazník: ${selfOption}. Chce cenu bez tejto služby.` : ""].filter(Boolean).join("\n") || null,
         consent_gdpr: true,
         consent_terms: true,
         page_url: typeof window !== "undefined" ? window.location.href.slice(0, 500) : null
@@ -86,6 +88,7 @@ export function LeadForm({ car, closed = false, heading }: { car?: { id: string;
           <div className="field"><label htmlFor="lf-msg">Aké auto hľadáte? (nepovinné)</label><textarea className="input" id="lf-msg" name="message" rows={3} placeholder="Značka, model, rozpočet…" /></div>
         </>
       )}
+      {selfOption && <label className="check"><input type="checkbox" checked={own} onChange={(e) => setOwn(e.target.checked)} /> <span>{selfOption} (cena sa zníži, môžete si to kedykoľvek rozmyslieť)</span></label>}
       <label className="check"><input type="checkbox" name="gdpr" /> <span>Súhlasím so spracovaním údajov podľa <Link href="/ochrana-osobnych-udajov">zásad ochrany osobných údajov</Link> a <Link href="/vop">obchodných podmienok</Link>. *</span></label>
       <button className="rc-btn rc-btn--primary rc-btn--block" type="submit" disabled={state === "sending"} style={{ padding: 14 }}>
         {state === "sending" ? "Odosielam…" : car ? "Mám záujem" : "Odoslať dopyt"}

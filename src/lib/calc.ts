@@ -72,6 +72,8 @@ export interface CalcResult {
   carNoVat: boolean;
   /** poplatky zadal admin ručne (nie automatický odhad) */
   feeManual: boolean;
+  /** cena je bez homologizácie, zákazník si ju vybaví sám */
+  noHomolog: boolean;
 }
 
 export function auctionFee(cfg: CalcConfig, bidUsd: number) {
@@ -107,6 +109,8 @@ export interface CalcInput {
   sellerFee?: number | null;
   inlandUsd?: number | null;
   oceanUsd?: number | null;
+  /** zákazník si homologizáciu (pri EÚ prihlásenie) vybaví sám */
+  noHomolog?: boolean;
   /** ručne zadaný kredit RACEM v EUR */
   creditEur?: number | null;
   /** pevná cena (nie aukcia); ak chýba, odvodí sa z toho, či sú zadané poplatky */
@@ -144,7 +148,7 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const repairEur = i.repairEur || 0;
   // všetky položky sú bez DPH; DPH 23 % = dovozné DPH (clo, doprava) + DPH z tuzemských služieb
   // auto z EÚ má európske typové schválenie, takže sa nehomologizuje, platí sa len prihlásenie
-  const homologEur = local ? cfg.euRegEur ?? 250 : cfg.homologEur;
+  const homologEur = i.noHomolog ? 0 : local ? cfg.euRegEur ?? 250 : cfg.homologEur;
   const costNet = cif + duty + euPortEur + truckEur + homologEur + repairEur + extraSum;
   const pct = typeof cfg.serviceFeePct === "number" && isFinite(cfg.serviceFeePct) ? cfg.serviceFeePct : null;
   const feeBase = cfg.serviceFeeBase === "total" ? costNet : carEur + feeEur;
@@ -163,7 +167,7 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
     portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name,
     cif, dutyRate, duty, vat: vatTotal, importVat: vat,
     euPortEur, truckEur, homologEur, serviceFeeEur, feePct: pct,
-    repairEur, extraCosts: extras, net, gross, vatTotal, priceMode, total, credit, deposit, fixed, local, carNoVat, feeManual
+    repairEur, extraCosts: extras, net, gross, vatTotal, priceMode, total, credit, deposit, fixed, local, carNoVat, feeManual, noHomolog: !!i.noHomolog
   };
 }
 
@@ -194,7 +198,7 @@ type EstCar = Pick<Car, "est_bid_usd" | "current_bid_usd" | "type" | "repair_eur
 /** Cena, z ktorej sa počíta (v mene auta). */
 export const carPrice = (car: EstCar) => (isFixed(car) ? car.price_usd || 0 : car.est_bid_usd || car.current_bid_usd || 0);
 
-export function carEstimate(cfg: CalcConfig, car: EstCar) {
+export function carEstimate(cfg: CalcConfig, car: EstCar, opt: { noHomolog?: boolean } = {}) {
   const c = applyOverride(cfg, car.calc_override, car.type);
   const o = car.calc_override || {};
   const n = (v: unknown) => (typeof v === "number" && isFinite(v) ? v : null);
@@ -208,6 +212,7 @@ export function carEstimate(cfg: CalcConfig, car: EstCar) {
     extraCosts: o.extraCosts || [],
     sellerFee: isFixed(car) ? car.seller_fee_usd || 0 : car.seller_fee_usd ?? undefined,
     isFixed: isFixed(car),
+    noHomolog: opt.noHomolog,
     creditEur: n(o.creditEur),
     inlandUsd: n(o.inlandUsd),
     oceanUsd: n(o.oceanUsd),
@@ -238,6 +243,7 @@ export function includedItems(r: CalcResult): string[] {
     if (r.truckEur > 0) out.push("Kamión na Slovensko");
   }
   if (r.priceMode !== "net") out.push(r.carNoVat ? "DPH 23 % z prepravy a služieb, cena auta je konečná" : "DPH 23 %");
+  if (r.noHomolog) out.push(r.local ? "Prihlásenie si vybavíte sami" : "Bez homologizácie, vybavíte si ju sami");
   if (r.homologEur > 0) out.push(r.local ? "Prihlásenie na Slovensku: kontrola originality, doklady a EČV" : "Homologizácia, STK, EK a EČV");
   if (r.repairEur > 0) out.push("Odhad opravy");
   for (const x of r.extraCosts) out.push(x.label);

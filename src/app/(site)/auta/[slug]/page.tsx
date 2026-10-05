@@ -9,6 +9,7 @@ import { RUN_LABEL, TYPE_LABEL, carFullName, carName, carPhase, eur, fmtDate, km
 import { countryDef, placeName } from "@/lib/origins";
 import { SITE } from "@/lib/site";
 import { Gallery } from "@/components/Gallery";
+import { PriceSwitch } from "@/components/PriceSwitch";
 import { DamageMap } from "@/components/DamageMap";
 import { CarDeadlines, CarOrder } from "@/components/CarDeadlines";
 import { ViewPing } from "@/components/ViewPing";
@@ -58,6 +59,7 @@ export default async function CarPage({ params }: Props) {
   if (!car) notFound();
   const serverNow = Date.now();
   const est = carEstimate(cfg, car);
+  const estSelf = carEstimate(cfg, car, { noHomolog: true });
   const phase = carPhase(car, serverNow);
   const mk = MAKES.find((m) => m.name.toLowerCase() === car.make.toLowerCase());
   const lp = landingByCountry(car.country || "US");
@@ -234,17 +236,16 @@ export default async function CarPage({ params }: Props) {
 
             <aside className="detail__side" aria-label="Cena a objednávka">
               <div className="panel pricebox">
-                <div className="lbl">Cena {est.priceMode === "net" ? "bez DPH" : "s DPH"}</div>
-                {phase === "ended" && <div className="pb-ended">{car.status === "sold" ? "Predané" : "Predaj skončil"}</div>}
-                <div className="big">{phase === "ended" ? <s>{eur(est.total)}</s> : eur(est.total)}</div>
-                <div className="vatalt">{est.priceMode === "net" ? <>s DPH <b>{eur(est.gross)}</b></> : <>bez DPH <b>{eur(est.net)}</b></>}</div>
-                <p className="note" style={{ marginTop: 2 }}>s dovozom na slovenských značkách{!fixed ? " · odhad podľa výsledku aukcie" : ""}</p>
-                {car.sk_price_eur ? (
-                  <div className="skcmp">
-                    <div><span>Podobné auto na Slovensku</span><b>{eur(car.sk_price_eur)}</b></div>
-                    {saving > 0 && <div className="pos"><span>Ušetríte približne</span><b>{eur(saving)}</b></div>}
-                  </div>
-                ) : null}
+                <PriceSwitch
+                  full={{ total: est.total, gross: est.gross, net: est.net }}
+                  self={est.homologEur > 0 ? { total: estSelf.total, gross: estSelf.gross, net: estSelf.net } : null}
+                  priceMode={est.priceMode}
+                  ended={phase === "ended"}
+                  endedLabel={car.status === "sold" ? "Predané" : "Predaj skončil"}
+                  fixed={fixed}
+                  local={est.local}
+                  skPrice={car.sk_price_eur}
+                />
                 <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
                   <CarDeadlines car={pc} serverNow={serverNow} />
                   <a className="rc-btn rc-btn--outline rc-btn--block" href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(`Dobrý deň, mám otázku k ${carFullName(car)} – ${SITE.url}/auta/${car.slug}`)}`} target="_blank" rel="noopener">Chcem viac info</a>
@@ -288,7 +289,7 @@ export default async function CarPage({ params }: Props) {
               {est.credit > 0 && <li>Kredit {eur(est.credit)} do RACEM pri odovzdaní</li>}
             </ul>
           </div>
-          <CarOrder car={pc} serverNow={serverNow} suggestedBudget={suggestedBudget} />
+          <CarOrder car={pc} serverNow={serverNow} suggestedBudget={suggestedBudget} selfOption={est.homologEur > 0 ? (est.local ? "Prihlásenie na Slovensku si vybavím sám" : "Homologizáciu, STK a EČV si vybavím sám") : undefined} />
         </div>
       </section>
 

@@ -29,9 +29,9 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         <h4>{r.local ? "Slovensko" : "EÚ a Slovensko"}</h4>
         {!r.local && row("Prístav, vykládka, colný deklarant", r.euPortEur)}
         {!r.local && row("Kamión do SR", r.truckEur)}
-        {hideFee ? row(r.local ? "Vybavenie dovozu a prihlásenie na Slovensku" : "Vybavenie dovozu, homologizácia, STK a EČV", r.homologEur + r.serviceFeeEur) : (
+        {hideFee ? row(r.noHomolog ? "Vybavenie dovozu" : r.local ? "Vybavenie dovozu a prihlásenie na Slovensku" : "Vybavenie dovozu, homologizácia, STK a EČV", r.homologEur + r.serviceFeeEur, r.noHomolog ? (r.local ? "prihlásenie si vybavíte sami" : "homologizáciu si vybavíte sami") : undefined) : (
           <>
-            {row(r.local ? "Prihlásenie na Slovensku" : "Homologizácia, STK, EČV", r.homologEur, r.local ? "kontrola originality, doklady, EČV" : undefined)}
+            {r.noHomolog ? <div className="bd"><span>{r.local ? "Prihlásenie na Slovensku" : "Homologizácia, STK, EČV"}</span><span>vybavíte si sami</span></div> : row(r.local ? "Prihlásenie na Slovensku" : "Homologizácia, STK, EČV", r.homologEur, r.local ? "kontrola originality, doklady, EČV" : undefined)}
             {row("Náš poplatok za sprostredkovanie", r.serviceFeeEur, r.feePct !== null ? `${+(r.feePct * 100).toFixed(1)} %` : "fixný")}
           </>
         )}
@@ -44,7 +44,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       </div>
       <div className="bd-total">
         <div>
-          <small>{r.fixed ? "Spolu na slovenských značkách" : "Odhad spolu na slovenských značkách"} · {r.priceMode === "net" ? "bez DPH" : "s DPH"}</small>
+          <small>{r.noHomolog ? (r.fixed ? "Spolu s dovozom na Slovensko" : "Odhad spolu s dovozom na Slovensko") : r.fixed ? "Spolu na slovenských značkách" : "Odhad spolu na slovenských značkách"} · {r.priceMode === "net" ? "bez DPH" : "s DPH"}</small>
           <b>{eur(r.total)}</b>
           <small>{r.priceMode === "net" ? `s DPH ${eur(r.gross)}` : `bez DPH ${eur(r.net)}`}</small>
         </div>
