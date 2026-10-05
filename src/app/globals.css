@@ -1013,3 +1013,8 @@ details.fold>div{padding:0 14px 12px}
 .seclist>div{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 14px;font-size:13.5px;padding:10px 12px;border-radius:8px;background:var(--rc-surface-2)}
 .seclist small{color:var(--rc-text-dim)}
 .otp{font-size:22px;letter-spacing:.3em;text-align:center;font-variant-numeric:tabular-nums}
+
+/* admin: import z inzerátu */
+.steps-sm{margin:0 0 4px 18px;display:grid;gap:10px;font-size:14px;color:var(--rc-text-mid);line-height:1.6}
+.bm{display:inline-block;padding:6px 14px;margin-left:4px;border-radius:6px;background:var(--rc-red);color:#fff;font-weight:800;font-size:13px;cursor:grab;user-select:none;text-decoration:none;white-space:nowrap}
+.bm:active{cursor:grabbing}

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { browserClient } from "@/lib/supabase";
 import type { Car, DamageZone } from "@/lib/types";
@@ -9,6 +9,8 @@ import { eur, money, slugify } from "@/lib/format";
 import { COUNTRIES, CURRENCIES, countryDef, guessPlace } from "@/lib/origins";
 import { PlacePicker } from "@/components/admin/PlacePicker";
 import { parseListing, type Parsed } from "@/lib/listingParse";
+import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
+import { importImages } from "@/lib/imageImport";
 import { useAdmin } from "@/components/admin/AdminApp";
 import { ImageManager } from "@/components/admin/ImageManager";
 import { DamageMap } from "@/components/DamageMap";
@@ -52,6 +54,9 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   const [unit, setUnit] = useState<"mi" | "km">("mi");
   const [paste, setPaste] = useState("");
   const [vinBusy, setVinBusy] = useState(false);
+  const [imp, setImp] = useState<{ done: number; total: number } | null>(null);
+  const importRan = useRef(false);
+  const bmRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     if (!isNew) {
@@ -131,6 +136,30 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
     apply((j as { data: Parsed }).data, "VIN");
   }
 
+  // import z inzerátu cez záložku v prehliadači: údaje prídu v adrese za znakom #
+  useEffect(() => {
+    if (!isNew || importRan.current || !f) return;
+    const data = decodeImport(window.location.hash);
+    if (!data) return;
+    importRan.current = true;
+    history.replaceState(null, "", window.location.pathname);
+    const r = fromImport(data);
+    apply(r.parsed, r.source);
+    patch({ auction_url: r.url, ...(r.saleEnd ? { auction_end_at: r.saleEnd } : {}) });
+    if (!r.images.length) return;
+    setImp({ done: 0, total: r.images.length });
+    const hint = slugify([r.parsed.year, r.parsed.make, r.parsed.model].filter(Boolean).join(" "));
+    importImages(r.images, { carId: f.id, slugHint: hint, token: session.access_token, onProgress: (done, total) => setImp({ done, total }) }).then(({ urls, failed }) => {
+      setImp(null);
+      if (urls.length) { setDirty(true); setF((o) => (o ? { ...o, images: [...o.images, ...urls] } : o)); }
+      toast(failed ? `Stiahnutých ${urls.length} fotiek, ${failed} sa nepodarilo. Doplňte ich ručne v kroku Fotky.` : `Stiahnutých ${urls.length} fotiek z inzerátu.`, failed > 0 && !urls.length);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNew, f === null]);
+
+  // React nedovolí adresu typu javascript: v JSX, preto ju nastavíme priamo
+  useEffect(() => { bmRef.current?.setAttribute("href", bookmarklet(window.location.origin)); });
+
   const est = useMemo(() => (f && cfg ? carEstimate(cfg, f) : null), [f, cfg]);
 
   async function save(status?: Form["status"]) {
@@ -200,6 +229,19 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
         <div>
           {step === 0 && (
             <>
+              {imp && <div className="sec-warn" role="status">Sťahujem fotky z inzerátu: {imp.done} z {imp.total}. Medzitým môžete kontrolovať údaje, stránku nezatvárajte.</div>}
+              {isNew && (
+                <div className="panel">
+                  <h2>Import z inzerátu jedným klikom</h2>
+                  <p className="help">Funguje na AutoBidMaster, Copart, IAAI aj u dealerov. Stiahne údaje o aute aj všetky fotky.</p>
+                  <ol className="steps-sm">
+                    <li>Toto tlačidlo potiahnite myšou na lištu záložiek v prehliadači (lištu zobrazíte cez Ctrl+Shift+B): <a ref={bmRef} className="bm" onClick={(e) => { e.preventDefault(); toast("Tlačidlo neklikajte, potiahnite ho na lištu záložiek.", true); }}>Import do REM</a></li>
+                    <li>Otvorte stránku konkrétneho auta, napríklad na autobidmaster.com.</li>
+                    <li>Kliknite na záložku Import do REM. Otvorí sa táto stránka s vyplnenými údajmi a fotky sa stiahnu samy.</li>
+                  </ol>
+                  <p className="note">Záložku stačí pridať raz. Údaje sa čítajú zo stránky, ktorú máte otvorenú vo vlastnom prehliadači, preto to funguje aj tam, kde sa treba prihlásiť.</p>
+                </div>
+              )}
               <div className="panel">
                 <h2>Rýchle vyplnenie</h2>
                 <p className="help">Zadajte VIN a údaje sa doplnia samy (funguje pre autá vyrobené pre USA). Alebo skopírujte text z inzerátu na Coparte, IAAI či u dealera a vložte ho sem.</p>

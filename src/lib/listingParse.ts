@@ -100,7 +100,7 @@ export function parseListing(text: string): Parsed {
   const TWO = /^(mercedes[- ]benz|land rover|alfa romeo|aston martin|rolls[- ]royce)\b/i;
   const head = t.match(/\b((?:19|20)\d{2})\s+([A-Za-z][^\n]{2,60})/);
   if (head) {
-    const words = head[2].trim().split(/\s+/);
+    const words = head[2].replace(/\s+(for sale|with vin|in [A-Z][a-z]+,\s*[A-Z]{2})\b.*$/i, "").trim().split(/\s+/);
     const two = TWO.test(head[2]);
     const make = two ? words.slice(0, words[0].includes("-") ? 1 : 2).join(" ") : words[0];
     const rest = words.slice(make.split(" ").length);
@@ -121,17 +121,17 @@ export function parseListing(text: string): Parsed {
   out.primary_damage = mapDamage(get("Primary damage", "Primary Damage", "Loss type"));
   out.secondary_damage = mapDamage(get("Secondary damage", "Secondary Damage"));
   out.engine = get("Engine type", "Engine")?.replace(/\s+/g, " ");
-  out.drive = mapDrive(get("Drive", "Drive Line Type", "Drivetrain"));
+  out.drive = mapDrive(get("Drivetrain", "Drive Line Type", "Drive"));
   out.fuel = mapFuel(get("Fuel", "Fuel type"));
   out.transmission = get("Transmission")?.replace(/automatic/i, "Automat").replace(/manual/i, "Manuál");
   out.color = get("Color", "Exterior color")?.replace(/^\w/, (c) => c.toUpperCase());
-  const keys = get("Keys", "Key");
+  const keys = get("Has key", "Keys", "Key");
   if (keys) out.keys = /yes|present|áno/i.test(keys);
   const run = get("Highlights", "Start code", "Run and drive", "Condition") || "";
   if (/run and drive|run & drive/i.test(run + t)) out.run_status = "run_drive";
   else if (/engine start|starts/i.test(run)) out.run_status = "starts";
-  out.title_type = mapTitle(get("Title code", "Title", "Doc type", "Sale document"));
-  const loc = get("Location", "Selling branch", "Yard location", "Branch");
+  out.title_type = mapTitle(get("Auction title code", "Title code", "Title", "Doc type", "Sale document"));
+  const loc = get("Auction location", "Location", "Selling branch", "Yard location", "Branch");
   if (loc) {
     const m1 = loc.match(/^([A-Z]{2})\s*-\s*(.+)$/);
     const m2 = loc.match(/(.+?),\s*([A-Z]{2})\b/);

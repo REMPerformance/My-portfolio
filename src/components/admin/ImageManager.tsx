@@ -2,27 +2,7 @@
 import { useRef, useState } from "react";
 import { browserClient } from "@/lib/supabase";
 
-/** Zmenší fotku v prehliadači (max 2000 px, WebP), aby web bol rýchly. */
-async function compress(file: File, max = 2000, quality = 0.84): Promise<Blob> {
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((res, rej) => {
-      const i = new Image();
-      i.onload = () => res(i);
-      i.onerror = rej;
-      i.src = url;
-    });
-    const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
-    const w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
-    const c = document.createElement("canvas");
-    c.width = w; c.height = h;
-    c.getContext("2d")!.drawImage(img, 0, 0, w, h);
-    const blob = await new Promise<Blob | null>((res) => c.toBlob(res, "image/webp", quality));
-    return blob || file;
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
+import { compressImage as compress } from "@/lib/imageImport";
 
 export function ImageManager({
   carId,
