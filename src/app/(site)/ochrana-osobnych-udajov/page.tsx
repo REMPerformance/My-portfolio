@@ -43,6 +43,7 @@ export default function Gdpr() {
 
           <h2>4. Cookies a podobné technológie</h2>
           <p>Web nepoužíva reklamné ani analytické cookies tretích strán. V prehliadači ukladáme len technické údaje nevyhnutné na fungovanie (napr. či ste si auto už pozreli, aby sme nezapočítali zobrazenie dvakrát). Písma načítavame zo služby Google Fonts, pri čom Google spracúva Vašu IP adresu.</p>
+          <p>Návštevnosť meriame vlastným anonymným počítadlom bez cookies. Ukladáme navštívenú stránku, čas, odkazujúci web, typ zariadenia a prehliadača a približnú polohu (krajina a mesto) odvodenú z IP adresy. Samotnú IP adresu neukladáme a návštevníka nevieme spoznať na ďalší deň.</p>
 
           <h2>5. Vaše práva</h2>
           <p>Máte právo na prístup k údajom, opravu, vymazanie, obmedzenie spracúvania, prenosnosť údajov a právo namietať proti spracúvaniu na základe oprávneného záujmu. Žiadosť pošlite na <a href={`mailto:${SITE.email}`}>{SITE.email}</a>, vybavíme ju do 30 dní.</p>

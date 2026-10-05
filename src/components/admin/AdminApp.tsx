@@ -4,10 +4,10 @@ import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { browserClient } from "@/lib/supabase";
-import { SITE } from "@/lib/site";
 import { LogoMark, LogoWord } from "../Logo";
 
-type Ctx = { session: Session; toast: (m: string, err?: boolean) => void; revalidate: (slugs?: string[]) => Promise<void>; newLeads: number; refreshCounts: () => void };
+type Ctx = { session: Session; toast: (m: string, err?: boolean) => void; revalidate: (slugs?: string[]) => Promise<void>; newLeads: number; refreshCounts: () => void; hasMfa: boolean; refreshMfa: () => void };
+const IDLE_MS = 60 * 60 * 1000; // po hodine bez aktivity sa admin sám odhlási
 const AdminCtx = createContext<Ctx | null>(null);
 export const useAdmin = () => useContext(AdminCtx)!;
 
@@ -15,6 +15,7 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
   const sb = browserClient();
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [aal, setAal] = useState<{ need: boolean; has: boolean } | null>(null);
   const [t, setT] = useState<{ m: string; err?: boolean } | null>(null);
   const [newLeads, setNewLeads] = useState(0);
   const path = usePathname();
@@ -25,9 +26,30 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
     return () => data.subscription.unsubscribe();
   }, [sb]);
 
+  const refreshMfa = useCallback(() => {
+    sb.auth.mfa.getAuthenticatorAssuranceLevel().then(({ data }) =>
+      setAal({ need: data?.nextLevel === "aal2" && data?.currentLevel !== "aal2", has: data?.nextLevel === "aal2" }));
+  }, [sb]);
+
   useEffect(() => {
-    if (!session) { setIsAdmin(null); return; }
+    if (!session) { setIsAdmin(null); setAal(null); return; }
+    refreshMfa();
+  }, [session, refreshMfa]);
+
+  useEffect(() => {
+    if (!session || !aal || aal.need) { setIsAdmin(null); return; }
     sb.rpc("is_admin").then(({ data }) => setIsAdmin(!!data));
+  }, [session, aal, sb]);
+
+  // automatické odhlásenie po dlhej nečinnosti
+  useEffect(() => {
+    if (!session) return;
+    let last = Date.now();
+    const touch = () => { last = Date.now(); };
+    const evs = ["pointerdown", "keydown", "scroll"] as const;
+    evs.forEach((e) => window.addEventListener(e, touch, { passive: true }));
+    const t = setInterval(() => { if (Date.now() - last > IDLE_MS) sb.auth.signOut(); }, 30000);
+    return () => { evs.forEach((e) => window.removeEventListener(e, touch)); clearInterval(t); };
   }, [session, sb]);
 
   const refreshCounts = useCallback(() => {
@@ -47,6 +69,7 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
 
   if (session === undefined) return <div className="login"><p className="note">Načítavam…</p></div>;
   if (!session) return <Login />;
+  if (aal?.need) return <MfaChallenge />;
   if (isAdmin === null) return <div className="login"><p className="note">Overujem prístup…</p></div>;
   if (!isAdmin)
     return (
@@ -74,7 +97,7 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
   const on = (h: string) => (h === "/admin" ? path === "/admin" || path.startsWith("/admin/auta/") : path.startsWith(h));
 
   return (
-    <AdminCtx.Provider value={{ session, toast, revalidate, newLeads, refreshCounts }}>
+    <AdminCtx.Provider value={{ session, toast, revalidate, newLeads, refreshCounts, hasMfa: !!aal?.has, refreshMfa }}>
       <div className="adm">
         <aside className="adm__nav">
           <Link href="/admin" className="brand">
@@ -93,7 +116,12 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
           <a href="/" target="_blank" rel="noopener">Zobraziť web ↗</a>
           <button onClick={() => sb.auth.signOut()}>Odhlásiť</button>
         </aside>
-        <main className="adm__main">{children}</main>
+        <main className="adm__main">
+          {aal && !aal.has && path !== "/admin/ucet" && (
+            <div className="sec-warn">Účet chráni len heslo. Zapnite si dvojstupňové overenie cez aplikáciu v telefóne, aby sa do administrácie nedostal nikto ani s ukradnutým heslom. <Link href="/admin/ucet">Zapnúť v časti Účet</Link></div>
+          )}
+          {children}
+        </main>
       </div>
       {t && <div className={`toast${t.err ? " err" : ""}`} role="status">{t.m}</div>}
     </AdminCtx.Provider>
@@ -110,17 +138,48 @@ function Login() {
     setBusy(true); setErr("");
     const { error } = await sb.auth.signInWithPassword({ email: String(f.get("email")), password: String(f.get("password")) });
     setBusy(false);
-    if (error) setErr("Nesprávny e-mail alebo heslo.");
+    if (error) setErr(/rate|too many/i.test(error.message) ? "Priveľa pokusov. Skúste to znova o pár minút." : "Nesprávny e-mail alebo heslo.");
   }
   return (
     <div className="login">
       <form className="panel" onSubmit={submit}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}><LogoMark className="brand__mark" /><LogoWord className="brand__word" /></div>
         <h1 style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.2, marginBottom: 20 }}>Prihlásenie do administrácie</h1>
-        <div className="field"><label htmlFor="em">E-mail</label><input className="input" id="em" name="email" type="email" autoComplete="username" required defaultValue={SITE.email} /></div>
+        <div className="field"><label htmlFor="em">E-mail</label><input className="input" id="em" name="email" type="email" autoComplete="username" required /></div>
         <div className="field"><label htmlFor="pw">Heslo</label><input className="input" id="pw" name="password" type="password" autoComplete="current-password" required /></div>
         <button className="rc-btn rc-btn--primary rc-btn--block" disabled={busy}>{busy ? "Prihlasujem…" : "Prihlásiť"}</button>
         {err && <div className="fmsg err">{err}</div>}
+      </form>
+    </div>
+  );
+}
+
+function MfaChallenge() {
+  const sb = browserClient();
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const code = String(new FormData(e.currentTarget).get("code")).replace(/\D/g, "");
+    if (code.length !== 6) return setErr("Zadajte 6 číslic z aplikácie.");
+    setBusy(true); setErr("");
+    const { data: f } = await sb.auth.mfa.listFactors();
+    const factor = f?.totp?.find((x) => x.status === "verified");
+    if (!factor) { setBusy(false); return setErr("Overenie nie je nastavené. Odhláste sa a prihláste znova."); }
+    const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: factor.id, code });
+    setBusy(false);
+    if (error) setErr(/rate|too many/i.test(error.message) ? "Priveľa pokusov. Skúste to znova o pár minút." : "Nesprávny kód. Skúste aktuálny kód z aplikácie.");
+  }
+  return (
+    <div className="login">
+      <form className="panel" onSubmit={submit}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}><LogoMark className="brand__mark" /><LogoWord className="brand__word" /></div>
+        <h1 style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.2, marginBottom: 8 }}>Overenie v dvoch krokoch</h1>
+        <p className="note" style={{ margin: "0 0 18px" }}>Zadajte 6 miestny kód z overovacej aplikácie v telefóne.</p>
+        <div className="field"><label htmlFor="otp">Kód</label><input className="input otp" id="otp" name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9 ]*" maxLength={7} autoFocus required /></div>
+        <button className="rc-btn rc-btn--primary rc-btn--block" disabled={busy}>{busy ? "Overujem…" : "Overiť"}</button>
+        {err && <div className="fmsg err">{err}</div>}
+        <button type="button" className="tlink" style={{ marginTop: 16 }} onClick={() => sb.auth.signOut()}>Odhlásiť</button>
       </form>
     </div>
   );
