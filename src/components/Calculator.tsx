@@ -53,7 +53,7 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
         </div>
         <div className="seg" role="radiogroup" aria-label="Spôsob kúpy">
           <button type="button" role="radio" aria-checked={mode === "auction"} className={mode === "auction" ? "on" : ""} onClick={() => setMode("auction")}><b>Aukcia</b><small>Copart, IAAI – s aukčnými poplatkami</small></button>
-          <button type="button" role="radio" aria-checked={mode === "fixed"} className={mode === "fixed" ? "on" : ""} onClick={() => setMode("fixed")}><b>Pevná cena</b><small>Dealer, Buy Now, súkromný predajca</small></button>
+          <button type="button" role="radio" aria-checked={mode === "fixed"} className={mode === "fixed" ? "on" : ""} onClick={() => setMode("fixed")}><b>Od predajcu</b><small>Dealer, Buy Now, súkromný predajca</small></button>
         </div>
         <div className="field">
           <label htmlFor="cPrice">{mode === "auction" ? "Cena na aukcii" : "Cena auta u predajcu"}</label>
@@ -75,7 +75,7 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
         </div>
         <label className="switch" style={{ margin: "0 0 16px" }}>
           <input type="checkbox" checked={own} onChange={(e) => setOwn(e.target.checked)} />
-          {cd.local ? "Prihlásenie na Slovensku si vybavím sám" : "Homologizáciu, STK a EČV si vybavím sám"}
+          {cd.local ? "Bez opravy a prihlásenia, vybavím si ich sám" : "Bez opravy a homologizácie, vybavím si ich sám (homologizujeme len autá opravené u nás)"}
         </label>
         <div className="field" style={{ marginBottom: 0 }}>
           <label htmlFor="cSk">Cena podobného auta na Slovensku (nepovinné)</label>

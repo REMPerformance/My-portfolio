@@ -109,7 +109,7 @@ export interface CalcInput {
   sellerFee?: number | null;
   inlandUsd?: number | null;
   oceanUsd?: number | null;
-  /** zákazník si homologizáciu (pri EÚ prihlásenie) vybaví sám */
+  /** bez opravy a homologizácie (pri EÚ bez prihlásenia): homologizujeme len autá opravené cez nás */
   noHomolog?: boolean;
   /** ručne zadaný kredit RACEM v EUR */
   creditEur?: number | null;
@@ -145,7 +145,7 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const vat = local ? 0 : (cif + duty + euPortEur + truckEur) * cfg.vatRate;
   const extras = (i.extraCosts || []).filter((x) => x && x.label && Number(x.eur));
   const extraSum = extras.reduce((a, x) => a + Number(x.eur), 0);
-  const repairEur = i.repairEur || 0;
+  const repairEur = i.noHomolog ? 0 : i.repairEur || 0;
   // všetky položky sú bez DPH; DPH 23 % = dovozné DPH (clo, doprava) + DPH z tuzemských služieb
   // auto z EÚ má európske typové schválenie, takže sa nehomologizuje, platí sa len prihlásenie
   const homologEur = i.noHomolog ? 0 : local ? cfg.euRegEur ?? 250 : cfg.homologEur;
@@ -243,7 +243,7 @@ export function includedItems(r: CalcResult): string[] {
     if (r.truckEur > 0) out.push("Kamión na Slovensko");
   }
   if (r.priceMode !== "net") out.push(r.carNoVat ? "DPH 23 % z prepravy a služieb, cena auta je konečná" : "DPH 23 %");
-  if (r.noHomolog) out.push(r.local ? "Prihlásenie si vybavíte sami" : "Bez homologizácie, vybavíte si ju sami");
+  if (r.noHomolog) out.push(r.local ? "Bez opravy a prihlásenia, vybavíte si ich sami" : "Bez opravy a homologizácie, vybavíte si ich sami");
   if (r.homologEur > 0) out.push(r.local ? "Prihlásenie na Slovensku: kontrola originality, doklady a EČV" : "Homologizácia, STK, EK a EČV");
   if (r.repairEur > 0) out.push("Odhad opravy");
   for (const x of r.extraCosts) out.push(x.label);

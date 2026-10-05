@@ -94,6 +94,10 @@ section{padding:var(--rc-section-y) 0;position:relative}
 .hsw button b{font-size:14px;font-weight:800;color:var(--rc-text)}
 .hsw button small{font-size:12px;line-height:1.35}
 .hsw button.on{border-color:var(--rc-red);box-shadow:inset 0 0 0 1px var(--rc-red);background:var(--rc-red-soft)}
+.car__flag{position:absolute;top:12px;right:12px;transform:rotate(9deg);padding:4px;background:#fff;border-radius:5px;box-shadow:0 6px 16px rgba(0,0,0,.35);line-height:0;z-index:2}
+.car__flag .flagi{width:38px;height:26px;border-radius:3px;box-shadow:none}
+.car__flag--lg{top:18px;right:18px;padding:5px}
+.car__flag--lg .flagi{width:56px;height:38px}
 .tag--good{background:#138a52;color:#fff}
 .nodmg{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border:1px solid rgba(52,199,123,.45);background:rgba(52,199,123,.1);border-radius:12px;margin-bottom:14px}
 .nodmg .si{color:#34c77b;width:26px;height:26px;flex:none;margin-top:2px}

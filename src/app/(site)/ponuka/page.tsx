@@ -13,7 +13,7 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Ponuka áut z USA, Dubaja a Kanady – aukcie aj pevné ceny",
-  description: "Aktuálna ponuka áut z USA, Dubaja (SAE), Kanady a Ázie – z aukcií Copart a IAAI aj za pevnú cenu. Pri každom aute celková cena na slovenských značkách vrátane dopravy, cla, DPH a homologizácie.",
+  description: "Aktuálna ponuka áut z USA, Dubaja (SAE), Kanady a Ázie – z aukcií aj od predajcov, havarované aj nehavarované. Pri každom aute celková cena na slovenských značkách vrátane dopravy, cla, DPH a homologizácie.",
   alternates: { canonical: "/ponuka" },
   openGraph: { url: "/ponuka", title: "Ponuka áut na dovoz | REM Performance" }
 };

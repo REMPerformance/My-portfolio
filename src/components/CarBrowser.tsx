@@ -152,7 +152,7 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
         {sel("country", "Krajina", (opts.countries.length ? opts.countries : COUNTRIES).map((c) => ({ v: c.code, l: c.name })), "Všetky krajiny")}
         {sel("make", "Značka", opts.makes.map((m) => ({ v: m, l: m })), "Všetky značky")}
         {sel("pmax", "Cena do", PRICES.map((p) => ({ v: String(p), l: eur(p) })), "Bez limitu")}
-        {sel("sale", "Predaj", [{ v: "auction", l: "Aukcia" }, { v: "fixed", l: "Pevná cena" }], "Všetko")}
+        {sel("sale", "Predaj", [{ v: "auction", l: "Aukcia" }, { v: "fixed", l: "Od predajcu" }], "Všetko")}
         <button type="button" className="rc-btn rc-btn--ghost" aria-expanded={more} onClick={() => setMore((m) => !m)}>
           {more ? "Menej filtrov" : `Ďalšie filtre${activeMore.length ? ` (${activeMore.length})` : ""}`}
         </button>

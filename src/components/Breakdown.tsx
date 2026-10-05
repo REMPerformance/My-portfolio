@@ -10,7 +10,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
     <div>
       <div className="bd-group">
         <h4>{r.local ? "Auto a preprava" : "Auto a doprava do EÚ"}</h4>
-        {row(r.fixed ? "Cena auta" : "Cena na aukcii", r.carEur, r.currency !== "EUR" ? money(r.price, r.currency) : undefined)}
+        {row(r.fixed ? "Cena auta" : "Odhad ceny na aukcii", r.carEur, r.currency !== "EUR" ? money(r.price, r.currency) : undefined)}
         {r.fixed ? (r.feeEur > 0 && row("Poplatky predajcu", r.feeEur)) : (r.feeManual || !r.local) && row("Aukčné poplatky", r.feeEur, r.feeManual ? undefined : "odhad")}
         {r.local ? row("Preprava na Slovensko", r.inlandEur, r.placeName ? `${r.placeName}, po ceste` : "po ceste") : (
           <>
@@ -44,7 +44,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       </div>
       <div className="bd-total">
         <div>
-          <small>{r.noHomolog ? (r.fixed ? "Spolu s dovozom na Slovensko" : "Odhad spolu s dovozom na Slovensko") : r.fixed ? "Spolu na slovenských značkách" : "Odhad spolu na slovenských značkách"} · {r.priceMode === "net" ? "bez DPH" : "s DPH"}</small>
+          <small>{r.noHomolog ? "Odhad spolu s dovozom na Slovensko" : "Odhad spolu na slovenských značkách"} · {r.priceMode === "net" ? "bez DPH" : "s DPH"}</small>
           <b>{eur(r.total)}</b>
           <small>{r.priceMode === "net" ? `s DPH ${eur(r.gross)}` : `bez DPH ${eur(r.net)}`}</small>
         </div>

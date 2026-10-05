@@ -35,7 +35,7 @@ export function carSeoDescription(c: SeoCar & Pick<Car, "damage_zones">, est: Pi
   const dmg = isDamaged(c) ? (c.primary_damage && !/bez poškodenia/i.test(c.primary_damage) ? `poškodenie: ${c.primary_damage.toLowerCase()}` : "") : "nehavarované";
   const bits = [c.odometer_mi ? km(c.odometer_mi) : "", c.engine || "", c.fuel ? c.fuel.toLowerCase() : "", dmg].filter(Boolean).join(", ");
   const incl = est?.local ? "vrátane prepravy a prihlásenia, bez cla" : "vrátane dopravy, cla, DPH a homologizácie";
-  const price = est ? ` ${est.fixed ? "Cena" : "Odhad ceny"} na slovenských značkách ${eur(est.gross)} s DPH ${incl}.` : "";
+  const price = est ? ` Odhad ceny na slovenských značkách ${eur(est.gross)} s DPH ${incl}.` : "";
   const sk = c.sk_price_eur ? ` Na slovenskom trhu od ${eur(c.sk_price_eur)}.` : "";
   return cut(`Dovoz ${carFullName(c)} ${cd.from} (${where})${bits ? `: ${bits}` : ""}.${price}${sk}`, 300);
 }

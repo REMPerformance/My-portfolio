@@ -1,7 +1,7 @@
 export const STEPS = [
   { t: "Vyberte si auto", d: "Z našej ponuky, alebo nám pošlite odkaz na auto z USA, Dubaja, Kanady či Kórey. Do 24 hodín Vám pošleme celkovú cenu.", tag: "Deň 0" },
   { t: "Zmluva a záloha", d: "Podpíšete zmluvu o sprostredkovaní a zložíte zálohu. Pri aukcii určíte maximálnu sumu.", tag: "Pred kúpou" },
-  { t: "Kúpa auta", d: "Auto vydražíme najviac do Vášho limitu, alebo ho kúpime za dohodnutú pevnú cenu. Ak to nevyjde, zálohu vrátime.", tag: "Deň kúpy" },
+  { t: "Kúpa auta", d: "Auto vydražíme najviac do Vášho limitu, alebo ho kúpime za dohodnutú cenu. Ak to nevyjde, zálohu vrátime.", tag: "Deň kúpy" },
   { t: "Doprava a clo", d: "Odvoz do prístavu, námorná preprava do EÚ, preclenie a kamión na Slovensko.", tag: "4 – 8 týždňov" },
   { t: "Na kľúč s EČV", d: "Oprava podľa dohody, homologizácia, STK a evidenčné čísla. Auto odovzdáme aj s kreditom do RACEM.", tag: "Odovzdanie" }
 ];
@@ -12,8 +12,8 @@ export const FAQ: { q: string; a: string }[] = [
     a: "Nie. Výsledná cena závisí od toho, za koľko sa auto vydraží, od kurzu dolára a od skutočných nákladov na opravu. Pri aukcii je záväzná maximálna suma, ktorú nám nastavíte – nad ňu neprihodíme."
   },
   {
-    q: "Aký je rozdiel medzi autom v aukcii a autom za pevnú cenu?",
-    a: "Auto v aukcii sa draží – cena sa ukáže až na konci aukcie a my prihadzujeme najviac do Vášho limitu. Auto za pevnú cenu predáva dealer alebo aukcia v režime Buy Now za presnú sumu, takže viete vopred, koľko stojí samotné auto. K cene auta pripočítame dopravu, clo, DPH, homologizáciu a náš poplatok – celkovú sumu vidíte pri každom aute."
+    q: "Aký je rozdiel medzi autom z aukcie a autom od predajcu?",
+    a: "Auto v aukcii sa draží – cena sa ukáže až na konci aukcie a my prihadzujeme najviac do Vášho limitu. Auto od predajcu sa nedraží, predáva ho dealer alebo aukcia v režime Buy Now za vopred určenú sumu. K cene auta pripočítame dopravu, clo, DPH, homologizáciu a náš poplatok – celkovú sumu vidíte pri každom aute."
   },
   {
     q: "Z ktorých krajín dovážate autá?",

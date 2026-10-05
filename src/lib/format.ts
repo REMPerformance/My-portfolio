@@ -66,4 +66,4 @@ export function carPhase(c: Pick<Car, "order_close_at" | "auction_end_at" | "sta
 export const regionFromLocation = (loc: string): "east" | "central" | "west" =>
   /,\s*(CA|WA|OR|AZ|NV|UT|ID)\b/i.test(loc) ? "west" : /,\s*(NY|NJ|PA|MA|CT|MD|VA|NC|SC|GA|FL|DE|RI|NH|ME|VT)\b/i.test(loc) ? "east" : "central";
 
-export const SALE_LABEL: Record<string, string> = { auction: "Aukcia", fixed: "Pevná cena" };
+export const SALE_LABEL: Record<string, string> = { auction: "Aukcia", fixed: "Od predajcu" };

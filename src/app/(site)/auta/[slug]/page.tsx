@@ -135,9 +135,7 @@ export default async function CarPage({ params }: Props) {
       itemCondition: condition,
       seller: { "@id": `${SITE.url}/#org` },
       areaServed: "SK",
-      description: fixed
-        ? `Cena auta na slovenských značkách ${est.local ? "vrátane prepravy a prihlásenia" : "vrátane dopravy, cla, DPH a homologizácie"}.`
-        : `Odhad ceny auta na slovenských značkách ${est.local ? "vrátane prepravy a prihlásenia" : "vrátane dopravy, cla, DPH a homologizácie"}.`
+      description: `Odhad ceny auta na slovenských značkách ${est.local ? "vrátane prepravy a prihlásenia" : "vrátane dopravy, cla, DPH a homologizácie"}.`
     }
   };
 
@@ -163,10 +161,10 @@ export default async function CarPage({ params }: Props) {
           <div className="detail">
             <div className="detail__main">
               <Gallery car={pc}>
+                <span className="car__flag car__flag--lg" title={`Pôvod: ${cd.name}`}><Flag code={car.country} /></span>
                 <div className="car__tags">
                   {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
                   {!damaged && <span className="tag tag--good">Nehavarované</span>}
-                  {car.title_type && <span className={`tag ${/^(clean$|eú doklady)/i.test(car.title_type || "") ? "tag--ok" : "tag--sal"}`}>{car.title_type}</span>}
                 </div>
               </Gallery>
 
@@ -238,12 +236,13 @@ export default async function CarPage({ params }: Props) {
               <div className="panel pricebox">
                 <PriceSwitch
                   full={{ total: est.total, gross: est.gross, net: est.net }}
-                  self={est.homologEur > 0 ? { total: estSelf.total, gross: estSelf.gross, net: estSelf.net } : null}
+                  self={est.homologEur > 0 || est.repairEur > 0 ? { total: estSelf.total, gross: estSelf.gross, net: estSelf.net } : null}
                   priceMode={est.priceMode}
                   ended={phase === "ended"}
                   endedLabel={car.status === "sold" ? "Predané" : "Predaj skončil"}
-                  fixed={fixed}
                   local={est.local}
+                  repair={est.repairEur > 0}
+                  contact={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(`Dobrý deň, chcem presnejší odhad ceny pre ${carFullName(car)}: ${SITE.url}/auta/${car.slug}`)}`}
                   skPrice={car.sk_price_eur}
                 />
                 <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
@@ -284,12 +283,12 @@ export default async function CarPage({ params }: Props) {
             <h2 className="title">Chcete toto auto?</h2>
             <p className="sub">Stačí telefón a e-mail – ozveme sa Vám s presnou kalkuláciou a ďalším postupom.</p>
             <ul className="checks">
-              {fixed ? <li>Pevná cena auta – žiadna dražba</li> : <li>Neprihodíme nad Váš limit</li>}
+              {fixed ? <li>Kúpa priamo od predajcu, bez dražby</li> : <li>Neprihodíme nad Váš limit</li>}
               <li>{fixed ? "Záloha sa vracia, ak predajca auto medzitým predá" : "Záloha sa vracia, ak aukciu prehráme"}</li>
               {est.credit > 0 && <li>Kredit {eur(est.credit)} do RACEM pri odovzdaní</li>}
             </ul>
           </div>
-          <CarOrder car={pc} serverNow={serverNow} suggestedBudget={suggestedBudget} selfOption={est.homologEur > 0 ? (est.local ? "Prihlásenie na Slovensku si vybavím sám" : "Homologizáciu, STK a EČV si vybavím sám") : undefined} />
+          <CarOrder car={pc} serverNow={serverNow} suggestedBudget={suggestedBudget} selfOption={est.homologEur > 0 || est.repairEur > 0 ? (est.repairEur > 0 ? (est.local ? "Chcem auto bez opravy a prihlásenia" : "Chcem auto bez opravy a homologizácie") : est.local ? "Prihlásenie si vybavím sám" : "Homologizáciu si vybavím sám") : undefined} />
         </div>
       </section>
 

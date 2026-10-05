@@ -50,10 +50,10 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
         <div className="car__img">
           <CarImage car={car} eager={priority} />
           {phase === "ended" && <span className="car__ended">{endedLabel}</span>}
+          <span className="car__flag" title={`Pôvod: ${countryDef(car.country).name}`}><Flag code={car.country} /></span>
           <div className="car__tags">
             {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
             {!isDamaged(car) && <span className="tag tag--good">Nehavarované</span>}
-            <span className="tag tag--dark"><Flag code={car.country} />{fixed ? "Pevná cena" : car.auction || "Aukcia"}</span>
           </div>
         </div>
         <div className="car__body">
@@ -67,7 +67,7 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
           </h3>
           <div className="car__price">
             <b>{phase === "ended" ? <s>{eur(car.est.total)}</s> : eur(car.est.total)} <i>{car.est.priceMode === "net" ? "bez DPH" : "s DPH"}</i></b>
-            <small>{car.est.priceMode === "net" ? `s DPH ${eur(car.est.gross)}` : `bez DPH ${eur(car.est.net)}`} · s dovozom na slovenských značkách</small>
+            <small>{car.est.priceMode === "net" ? `s DPH ${eur(car.est.gross)}` : `bez DPH ${eur(car.est.net)}`} · odhad s dovozom na slovenských značkách</small>
           </div>
           <div className="car__specs">
             <div><SpecIcon k="year" /><span>{car.year ?? "—"}</span></div>

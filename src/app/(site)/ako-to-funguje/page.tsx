@@ -33,14 +33,14 @@ export default async function HowPage() {
         <div className="wrap legal">
           <h2>1. Výber auta a odhad ceny</h2>
           <p>Auto si vyberiete z našej <Link href="/ponuka">aktuálnej ponuky</Link> alebo nám pošlete odkaz na ľubovoľné auto – z aukcií Copart a IAAI v USA, od dealera v Dubaji, Kanade či Kórei. Ku každému autu pripravíme celkovú cenu na slovenských značkách: cenu auta, poplatky, dopravu do prístavu, námornú prepravu, clo, DPH, prístavné poplatky, kamión na Slovensko, homologizáciu a odhad opravy. Výpočet si môžete overiť aj v našej <Link href="/kalkulacka-dovozu">kalkulačke dovozu</Link>.</p>
-          <p>Autá z aukcie majú uvedený <b>termín uzávierky objednávok</b>, spravidla 24 hodín pred koncom aukcie. Autá za pevnú cenu majú uvedené, dokedy ponuka platí.</p>
+          <p>Autá z aukcie majú uvedený <b>termín uzávierky objednávok</b>, spravidla 24 hodín pred koncom aukcie. Autá od predajcov majú uvedené, dokedy ponuka platí.</p>
 
           <h2>2. Zmluva o sprostredkovaní a záloha</h2>
           <p>Po odoslaní dopytu Vás kontaktujeme, potvrdíme detaily a pošleme zmluvu o sprostredkovaní. V nej je Váš <b>maximálny limit</b>, do ktorého za Vás prihadzujeme, a výška nášho poplatku. Zložíte zálohu {Math.round(cfg.depositPct * 100)} % z limitu, minimálne {eur(cfg.depositMinEur)}.</p>
 
           <h2>3. Kúpa auta</h2>
           <p><b>Aukcia:</b> v deň aukcie za Vás prihadzujeme cez overeného brokera, nikdy nad limit zo zmluvy. Ak aukciu prehráme, zálohu vrátime do 5 pracovných dní alebo ju presunieme na ďalšie auto.</p>
-          <p><b>Pevná cena:</b> auto kúpime od predajcu za dohodnutú sumu. Ak ho predajca medzitým predá inému, zálohu vrátime.</p>
+          <p><b>Kúpa od predajcu:</b> auto kúpime od predajcu za dohodnutú sumu. Ak ho predajca medzitým predá inému, zálohu vrátime.</p>
           <p>Po kúpe Vám pošleme faktúru za auto a poplatky. Uhrádza sa zvyčajne do 2 pracovných dní.</p>
 
           <h2>4. Doprava a clo</h2>

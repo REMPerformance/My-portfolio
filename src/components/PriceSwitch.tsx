@@ -15,33 +15,37 @@ export function useSelfHomolog(): [boolean, (v: boolean) => void] {
   return [v, (x) => window.dispatchEvent(new CustomEvent(EVT, { detail: x }))];
 }
 
-/** Cena v detaile auta s prepínačom: s homologizáciou od nás, alebo bez nej (zákazník si ju vybaví sám). */
-export function PriceSwitch({ full, self, priceMode, ended, endedLabel, fixed, local, skPrice }: { full: P; self: P | null; priceMode: "net" | "gross"; ended: boolean; endedLabel: string; fixed: boolean; local: boolean; skPrice: number | null }) {
+/** Odhadovaná cena v detaile auta s prepínačom: s opravou a homologizáciou od nás, alebo bez nich (lacnejšie). */
+export function PriceSwitch({ full, self, priceMode, ended, endedLabel, local, repair, contact, skPrice }: { full: P; self: P | null; priceMode: "net" | "gross"; ended: boolean; endedLabel: string; local: boolean; repair: boolean; contact: string; skPrice: number | null }) {
   const [own, setOwn] = useSelfHomolog();
   const p = own && self ? self : full;
-  const saving = skPrice ? skPrice - p.gross : 0;
-  const what = local ? "prihlásenie" : "homologizáciu";
+  const saving = skPrice && !(own && self) ? skPrice - p.gross : 0;
+  const reg = local ? "prihlásenie" : "homologizácia";
+  const withLbl = repair ? (local ? "S opravou a prihlásením" : "S opravou a homologizáciou") : local ? "S prihlásením" : "S homologizáciou";
+  const noLbl = repair ? (local ? "Bez opravy a prihlásenia" : "Bez opravy a homologizácie") : local ? "Bez prihlásenia" : "Bez homologizácie";
   return (
     <>
-      <div className="lbl">Cena {priceMode === "net" ? "bez DPH" : "s DPH"}</div>
+      <div className="lbl">Odhadovaná cena {priceMode === "net" ? "bez DPH" : "s DPH"}</div>
       {ended && <div className="pb-ended">{endedLabel}</div>}
       <div className="big" aria-live="polite">{ended ? <s>{eur(p.total)}</s> : eur(p.total)}</div>
       <div className="vatalt">{priceMode === "net" ? <>s DPH <b>{eur(p.gross)}</b></> : <>bez DPH <b>{eur(p.net)}</b></>}</div>
       <p className="note" style={{ marginTop: 2 }}>
-        {own && self ? (local ? "s dovozom na Slovensko, prihlásenie si vybavíte sami" : "s dovozom a preclením na Slovensko, bez homologizácie, STK a EČV") : "s dovozom na slovenských značkách"}
-        {!fixed ? " · odhad podľa výsledku aukcie" : ""}
+        {own && self ? `s dovozom na Slovensko, ${repair ? "bez opravy a " : ""}bez ${local ? "prihlásenia" : "homologizácie"}` : "s dovozom na slovenských značkách"}. Cena je odhad, <a className="link" href={contact} target="_blank" rel="noopener">pre presnejší odhad nás kontaktujte</a>.
       </p>
       {self && !ended && (
-        <div className="hsw" role="radiogroup" aria-label={local ? "Prihlásenie auta" : "Homologizácia"}>
-          <button type="button" role="radio" aria-checked={!own} className={!own ? "on" : ""} onClick={() => setOwn(false)}>
-            <b>{local ? "S prihlásením" : "S homologizáciou"}</b><small>vybavíme všetko, auto dostanete so značkami</small>
-          </button>
-          <button type="button" role="radio" aria-checked={own} className={own ? "on" : ""} onClick={() => setOwn(true)}>
-            <b>{local ? "Bez prihlásenia" : "Bez homologizácie"}</b><small>{what} si vybavíte sami, ušetríte {eur(full.total - self.total)}</small>
-          </button>
-        </div>
+        <>
+          <div className="hsw" role="radiogroup" aria-label="Rozsah služby">
+            <button type="button" role="radio" aria-checked={!own} className={!own ? "on" : ""} onClick={() => setOwn(false)}>
+              <b>{withLbl}</b><small>{repair ? "auto opravíme, vybavíme všetko a dostanete ho so značkami" : "vybavíme všetko, auto dostanete so značkami"}</small>
+            </button>
+            <button type="button" role="radio" aria-checked={own} className={own ? "on" : ""} onClick={() => setOwn(true)}>
+              <b>{noLbl}</b><small>{repair ? "auto dostanete v stave po dovoze" : `${reg} si vybavíte sami`}, lacnejšie o {eur(full.total - self.total)}</small>
+            </button>
+          </div>
+          {repair && <p className="note" style={{ marginTop: 8 }}>{local ? "Prihlásenie" : "Homologizáciu"} vieme vybaviť len pri aute, ktoré opravíme my.</p>}
+        </>
       )}
-      {skPrice ? (
+      {skPrice && !(own && self) ? (
         <div className="skcmp">
           <div><span>Podobné auto na Slovensku</span><b>{eur(skPrice)}</b></div>
           {saving > 0 && <div className="pos"><span>Ušetríte približne</span><b>{eur(saving)}</b></div>}

@@ -31,7 +31,7 @@ export async function GET() {
     `- Kalkulačka celkovej ceny dovozu: ${u}/kalkulacka-dovozu`,
     "",
     "## Hlavné stránky",
-    `- [Ponuka áut](${u}/ponuka): aktuálne autá z aukcií aj za pevnú cenu s celkovou cenou na slovenských značkách`,
+    `- [Ponuka áut](${u}/ponuka): aktuálne autá z aukcií aj od predajcov s odhadovanou celkovou cenou na slovenských značkách`,
     `- [Auto na mieru](${u}/auto-na-mieru): zákazník napíše značku, model a rozpočet a firma mu nájde a dovezie auto`,
     `- [Kalkulačka dovozu](${u}/kalkulacka-dovozu)`,
     `- [Ako to funguje](${u}/ako-to-funguje)`,
@@ -54,7 +54,7 @@ export async function GET() {
     "",
     `## Aktuálna ponuka (${live.length})`,
     ...(live.length
-      ? live.map((c) => `- [${carFullName(c)}](${u}/auta/${c.slug}): ${countryDef(c.country).from}, ${c.odometer_mi ? km(c.odometer_mi) : "nájazd neuvedený"}, ${isDamaged(c) ? (c.primary_damage ? `poškodenie ${c.primary_damage.toLowerCase()}` : "stav podľa inzerátu") : "nehavarované"}, ${c.sale_type === "fixed" ? "cena" : "odhad ceny"} na slovenských značkách ${eur(c.est.gross)} s DPH`)
+      ? live.map((c) => `- [${carFullName(c)}](${u}/auta/${c.slug}): ${countryDef(c.country).from}, ${c.odometer_mi ? km(c.odometer_mi) : "nájazd neuvedený"}, ${isDamaged(c) ? (c.primary_damage ? `poškodenie ${c.primary_damage.toLowerCase()}` : "stav podľa inzerátu") : "nehavarované"}, odhad ceny na slovenských značkách ${eur(c.est.gross)} s DPH`)
       : ["- Ponuka sa priebežne mení, aktuálny stav je na stránke Ponuka áut."]),
     ""
   ].join("\n");
