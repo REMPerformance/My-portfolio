@@ -10,7 +10,7 @@ import { countryDef, placeName } from "@/lib/origins";
 import { SITE } from "@/lib/site";
 import { Gallery } from "@/components/Gallery";
 import { PriceSwitch } from "@/components/PriceSwitch";
-import { DamageMap } from "@/components/DamageMap";
+import { DamageSheet } from "@/components/DamageSheet";
 import { CarDeadlines, CarOrder } from "@/components/CarDeadlines";
 import { ViewPing } from "@/components/ViewPing";
 import { Crumbs, breadcrumbLd } from "@/components/Sections";
@@ -220,7 +220,7 @@ export default async function CarPage({ params }: Props) {
                     {car.secondary_damage && <> · Vedľajšie: <b style={{ color: "var(--rc-text)" }}>{car.secondary_damage}</b></>}
                   </p>
                 )}
-                {(damaged || (car.damage_zones || []).length > 0) && <div className="panel"><DamageMap zones={car.damage_zones || []} /></div>}
+                {(damaged || (car.damage_zones || []).length > 0) && <DamageSheet zones={car.damage_zones || []} />}
                 <p className="note">{damaged ? "Nákres vychádza z fotiek a popisu predajcu. Skryté poškodenia nie je možné vopred vylúčiť." : "Stav vychádza z fotiek a popisu predajcu. Pred kúpou preverujeme históriu auta podľa VIN."}</p>
               </div>
 
