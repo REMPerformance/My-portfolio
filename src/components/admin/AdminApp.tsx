@@ -41,6 +41,12 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
     sb.rpc("is_admin").then(({ data }) => setIsAdmin(!!data));
   }, [session, aal, sb]);
 
+  // tento prehliadač patrí adminovi: jeho návštevy webu sa nepočítajú ani po odhlásení
+  useEffect(() => {
+    if (!session) return;
+    try { localStorage.setItem("rem-no-track", "1"); } catch { /* ignore */ }
+  }, [session]);
+
   // automatické odhlásenie po dlhej nečinnosti
   useEffect(() => {
     if (!session) return;

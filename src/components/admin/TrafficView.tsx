@@ -291,7 +291,7 @@ export function TrafficView({ s, filter, setFilter }: { s: Stats; filter: Filter
         </div>
       )}
 
-      <p className="note">Počítajú sa len skutoční ľudia. Roboti, vyhľadávače a náhľady odkazov sú odfiltrované ({num(s.bots)} zobrazení v tomto období). Meranie je bez cookies.</p>
+      <p className="note">Počítajú sa len skutoční ľudia. Roboti, vyhľadávače a náhľady odkazov sú odfiltrované ({num(s.bots)} zobrazení v tomto období). Vaše vlastné návštevy sa nepočítajú v žiadnom prehliadači, v ktorom ste sa aspoň raz prihlásili do administrácie. Meranie je bez cookies.</p>
     </>
   );
 }

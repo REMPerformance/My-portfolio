@@ -14,6 +14,8 @@ export function Tracker() {
   const path = usePathname();
   useEffect(() => {
     if (!path || path.startsWith("/admin")) return;
+    // prehliadač, v ktorom sa niekto prihlásil do administrácie, sa do návštevnosti nepočíta
+    try { if (localStorage.getItem("rem-no-track") || localStorage.getItem("rem-admin-auth")) return; } catch { /* ignore */ }
     const q = new URLSearchParams(window.location.search);
     const body = JSON.stringify({
       p: path,
