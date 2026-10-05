@@ -20,7 +20,7 @@ export function PriceSwitch({ full, self, priceMode, ended, endedLabel, local, r
   const [own, setOwn] = useSelfHomolog();
   const p = own && self ? self : full;
   const saving = skPrice && !(own && self) ? skPrice - p.gross : 0;
-  const reg = local ? "prihlásenie" : "homologizácia";
+  const reg = local ? "prihlásenie" : "homologizáciu";
   const withLbl = repair ? (local ? "S opravou a prihlásením" : "S opravou a homologizáciou") : local ? "S prihlásením" : "S homologizáciou";
   const noLbl = repair ? (local ? "Bez opravy a prihlásenia" : "Bez opravy a homologizácie") : local ? "Bez prihlásenia" : "Bez homologizácie";
   return (
