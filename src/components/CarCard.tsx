@@ -11,7 +11,7 @@ import { useNow } from "./Countdown";
 import { SpecIcon } from "./Icons";
 import { isDamaged } from "@/lib/carSeo";
 
-export type CardCar = Car & { est: CalcResult };
+export type CardCar = Car & { est: Pick<CalcResult, "total" | "gross" | "net" | "priceMode"> };
 
 /** „2 dni“, „5 h 12 min“, „12 min“ – krátky odpočet pre kartu. */
 export function shortLeft(ms: number) {

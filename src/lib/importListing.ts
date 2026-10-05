@@ -297,9 +297,7 @@ export function fromImport(p: ImportPayload): Imported {
   // štruktúrované dáta uvádzajú ako cenu aktuálnu ponuku, to nie je cena Kúpiť hneď
   if (out.buy_now && (out.buy_now === bidN || !line(own, "Buy it now", "Buy Now"))) delete out.buy_now;
 
-  /* interná poznámka a návrh popisu */
-  patch.note = [`Import z ${(() => { try { return new URL(p.u).hostname.replace(/^www\./, ""); } catch { return "inzerátu"; } })()} ${new Date().toLocaleDateString("sk-SK")}`, status ? `Stav predaja: ${status}` : "", bid ? `Aktuálna ponuka: ${bid}` : "", noteTxt ? `Poznámka predajcu: ${noteTxt}` : ""].filter(Boolean).join("\n");
-
+  /* návrh popisu (pole „note“ sa zobrazuje na webe, preto doň nič interné nepíšeme) */
   const rawKm = textOdo && /\bkm\b/i.test(textOdo) ? Number((textOdo.match(/[\d.,\s]+/) || [""])[0].replace(/[^\d]/g, "")) : 0;
   const km = rawKm || (out.odometer_mi ? Math.round(out.odometer_mi * 1.609344) : 0);
   const name = [out.year, out.make, out.model, out.trim].filter(Boolean).join(" ");

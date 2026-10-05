@@ -3,7 +3,7 @@ import { Flag } from "@/components/Flag";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCalcConfig, getCarBySlug, getCardCars, getPublicCars } from "@/lib/data";
+import { getCalcConfig, getCarBySlug, getCardCars, getPublicCars, publicCar } from "@/lib/data";
 import { carEstimate, includedItems, isFixed } from "@/lib/calc";
 import { RUN_LABEL, TYPE_LABEL, carFullName, carName, carPhase, eur, fmtDate, km, money, num } from "@/lib/format";
 import { countryDef, placeName } from "@/lib/origins";
@@ -62,6 +62,7 @@ export default async function CarPage({ params }: Props) {
   const mk = MAKES.find((m) => m.name.toLowerCase() === car.make.toLowerCase());
   const lp = landingByCountry(car.country || "US");
   const mdl = modelForCar(car.make, car.model, car.trim);
+  const pc = publicCar(car);
   const damaged = isDamaged(car), spotless = isSpotless(car);
   const condition = damaged ? "https://schema.org/DamagedCondition" : "https://schema.org/UsedCondition";
   const fixed = isFixed(car);
@@ -159,7 +160,7 @@ export default async function CarPage({ params }: Props) {
           </div>
           <div className="detail">
             <div className="detail__main">
-              <Gallery car={car}>
+              <Gallery car={pc}>
                 <div className="car__tags">
                   {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
                   {!damaged && <span className="tag tag--good">Nehavarované</span>}
@@ -245,7 +246,7 @@ export default async function CarPage({ params }: Props) {
                   </div>
                 ) : null}
                 <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
-                  <CarDeadlines car={car} serverNow={serverNow} />
+                  <CarDeadlines car={pc} serverNow={serverNow} />
                   <a className="rc-btn rc-btn--outline rc-btn--block" href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(`Dobrý deň, mám otázku k ${carFullName(car)} – ${SITE.url}/auta/${car.slug}`)}`} target="_blank" rel="noopener">Chcem viac info</a>
                 </div>
                 <div className="pb-contact">
@@ -287,7 +288,7 @@ export default async function CarPage({ params }: Props) {
               {est.credit > 0 && <li>Kredit {eur(est.credit)} do RACEM pri odovzdaní</li>}
             </ul>
           </div>
-          <CarOrder car={car} serverNow={serverNow} suggestedBudget={suggestedBudget} />
+          <CarOrder car={pc} serverNow={serverNow} suggestedBudget={suggestedBudget} />
         </div>
       </section>
 

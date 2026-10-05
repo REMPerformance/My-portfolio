@@ -26,9 +26,15 @@ export const getCarBySlug = cache(async (slug: string): Promise<Car | null> => {
 });
 
 import { carEstimate } from "./calc";
+/** Odstráni interné údaje pred odoslaním auta do prehliadača. */
+export function publicCar<T extends Car>(c: T): T {
+  return { ...c, auction_url: null, calc_override: {}, seller_fee_usd: null };
+}
+
 export async function getCardCars() {
   const [cars, cfg] = await Promise.all([getPublicCars(), getCalcConfig()]);
-  return { cfg, cars: cars.map((c) => ({ ...c, est: carEstimate(cfg, c) })) };
+  // do prehliadača posielame len to, čo zákazník môže vidieť: bez odkazu na aukciu, bez vlastnej kalkulácie a bez rozpisu poplatkov
+  return { cfg, cars: cars.map((c) => { const e = carEstimate(cfg, c); return { ...publicCar(c), est: { total: e.total, gross: e.gross, net: e.net, priceMode: e.priceMode } }; }) };
 }
 
 import { mergeContent, type SiteContent } from "./content";
