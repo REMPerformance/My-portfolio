@@ -222,7 +222,7 @@ export function buildReply(d: ReplyData, now = Date.now()): { subject: string; h
 
   const html = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3"><tr><td align="center" style="padding:20px 10px">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;border-collapse:collapse;background:#ffffff">
-<tr><td style="background:#0c0d10;padding:18px 24px;border-bottom:4px solid ${RED}"><span style="${F}font-size:20px;font-weight:bold;font-style:italic;letter-spacing:1px;color:#ffffff">RE</span><span style="${F}font-size:20px;font-weight:bold;font-style:italic;letter-spacing:1px;color:${RED}">M</span><span style="${F}font-size:20px;font-weight:bold;font-style:italic;letter-spacing:1px;color:#ffffff">PERFORMANCE</span></td></tr>
+<tr><td style="background:#0c0d10;padding:22px 24px;border-bottom:4px solid ${RED}"><a href="${SITE.url}" style="text-decoration:none"><img src="${SITE.url}/brand/rem-performance-white.png" width="340" height="18" alt="REM PERFORMANCE" style="display:block;width:340px;max-width:100%;height:auto;border:0;${F}font-size:20px;font-weight:bold;font-style:italic;letter-spacing:1px;color:#ffffff"></a></td></tr>
 <tr><td style="padding:24px 24px 10px">${para(`${d.greeting.trim()}\n${d.intro.trim()}`)}</td></tr>
 ${list.map((o, i) => offerHtml(o, i + 1, list.length, now)).join("\n")}
 <tr><td style="padding:22px 24px 24px;border-top:1px solid #e4e6ea">
