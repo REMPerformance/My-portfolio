@@ -1052,3 +1052,27 @@ details.fold>div{padding:0 14px 12px}
 .steps-sm{margin:0 0 4px 18px;display:grid;gap:10px;font-size:14px;color:var(--rc-text-mid);line-height:1.6}
 .bm{display:inline-block;padding:6px 14px;margin-left:4px;border-radius:6px;background:var(--rc-red);color:#fff;font-weight:800;font-size:13px;cursor:grab;user-select:none;text-decoration:none;white-space:nowrap}
 .bm:active{cursor:grabbing}
+
+/* admin – odpoveď na dopyt */
+.reply{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;background:#0d0f12}
+.reply__bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px clamp(14px,2vw,24px);border-bottom:1px solid var(--rc-line);background:var(--rc-surface)}
+.reply__bar b{font-size:17px}
+.reply__bar small{display:block;font-size:12px;color:var(--rc-text-dim)}
+.reply__hint{padding:10px clamp(14px,2vw,24px);font-size:14px;background:var(--rc-surface-2);border-bottom:1px solid var(--rc-line);border-left:3px solid var(--ok)}
+.reply__body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,660px)}
+.reply__form{overflow-y:auto;padding:18px clamp(14px,2vw,24px) 60px}
+.reply__form h3{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--rc-text-mid);margin:22px 0 12px;padding-left:10px;border-left:3px solid var(--rc-red)}
+.reply__form textarea.input{resize:vertical;font-family:inherit;line-height:1.5}
+.reply__g{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.reply__pair{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:8px}
+.reply__ask{font-size:14px;color:var(--rc-text-mid);white-space:pre-wrap;background:var(--rc-surface);border:1px solid var(--rc-line);padding:10px 12px;border-radius:6px;margin-bottom:16px}
+.reply__ask small{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--rc-text-dim);margin-bottom:4px}
+.reply__preview{display:flex;flex-direction:column;min-height:0;border-left:1px solid var(--rc-line);background:#eef0f3}
+.reply__subj{padding:10px 16px;font-size:14px;font-weight:600;color:#15171b;background:#fff;border-bottom:1px solid #e4e6ea}
+.reply__subj small{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#7b818b}
+.reply__preview iframe{flex:1;width:100%;border:0;background:#eef0f3}
+@media(max-width:1100px){.reply__body{grid-template-columns:1fr;overflow-y:auto}.reply__form{overflow:visible}.reply__preview{border-left:0;border-top:1px solid var(--rc-line);min-height:900px}}
+@media(max-width:560px){.reply__g{grid-template-columns:1fr}}
+.reply__tabs{margin-top:26px}
+.reply__tabs button{max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.reply__tabs button i{flex:none}

@@ -6,6 +6,7 @@ import { browserClient } from "@/lib/supabase";
 import type { Lead } from "@/lib/types";
 import { eur, fmtDateTime } from "@/lib/format";
 import { useAdmin } from "@/components/admin/AdminApp";
+import { LeadReply } from "@/components/admin/LeadReply";
 
 const STATUS: Record<Lead["status"], string> = { new: "Nový", contacted: "Kontaktovaný", contract: "Zmluva", deposit: "Záloha prijatá", won: "Vydražené", lost: "Neúspešné" };
 
@@ -17,6 +18,7 @@ function Leads() {
   const [cars, setCars] = useState<{ id: string; year: number | null; make: string; model: string; slug: string }[]>([]);
   const [carF, setCarF] = useState(params.get("auto") || "all");
   const [stF, setStF] = useState("all");
+  const [reply, setReply] = useState<Lead | null>(null);
 
   const load = useCallback(async () => {
     const [{ data: l, error }, { data: c }] = await Promise.all([
@@ -87,6 +89,7 @@ function Leads() {
                   <select className="input" style={{ width: "auto", padding: "8px 36px 8px 12px" }} value={l.status} onChange={(e) => update(l, { status: e.target.value as Lead["status"] })}>
                     {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
+                  <button className="rc-btn rc-btn--primary rc-btn--sm" onClick={() => setReply(l)}>Odpovedať</button>
                   <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => remove(l)}>Zmazať</button>
                 </div>
               </div>
@@ -102,6 +105,7 @@ function Leads() {
           ))}
         </div>
       )}
+      {reply && <LeadReply lead={reply} cars={cars} onClose={() => setReply(null)} onOpened={() => { if (reply.status === "new") update(reply, { status: "contacted" }); }} />}
     </>
   );
 }
