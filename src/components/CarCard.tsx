@@ -38,18 +38,21 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
   const km = car.odometer_mi ? `${num(car.odometer_mi * 1.609344)} km` : "—";
 
   let status: React.ReactNode;
-  const endedLabel = car.status === "sold" ? "Predané" : "Predaj skončil";
-  if (phase === "ended") status = <span className="muted"><SpecIcon k="check" />{endedLabel}</span>;
+  const sold = car.status === "sold";
+  if (sold) status = <span className="ok"><SpecIcon k="check" />Predali sme</span>;
+  else if (phase === "ended") status = <span className="muted"><SpecIcon k="check" />Predaj skončil</span>;
   else if (phase === "closed") status = <span className="muted"><SpecIcon k="clock" />Objednávky uzavreté</span>;
   else if (fixed && !closeAt) status = <span className="ok"><SpecIcon k="check" />Na predaj</span>;
   else status = <span className={soon ? "soon" : "ok"}><SpecIcon k="clock" />{fixed ? "Platí ešte" : "Objednať do"} {left ?? "…"}</span>;
 
   return (
-    <article className={`car${phase === "ended" ? " is-ended" : ""}`}>
+    <article className={`car${sold ? " is-sold" : phase === "ended" ? " is-ended" : ""}`}>
       <Link href={`/auta/${car.slug}`} aria-label={`${car.year} ${car.make} ${car.model} ${car.trim ?? ""} – detail`} style={{ display: "contents" }}>
         <div className="car__img">
           <CarImage car={car} eager={priority} />
-          {phase === "ended" && <span className="car__ended">{endedLabel}</span>}
+          {sold ? (
+            <span className="car__sold"><SpecIcon k="check" /><b>Predali sme</b><small>Dovezené pre klienta</small></span>
+          ) : phase === "ended" && <span className="car__ended">Predaj skončil</span>}
           <span className="car__flag" title={`Pôvod: ${countryDef(car.country).name}`}><Flag code={car.country} /></span>
           <div className="car__tags">
             {car.is_demo && <span className="tag tag--warn">Ukážka</span>}
@@ -66,8 +69,8 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
             {car.trim && <small>{car.trim}</small>}
           </h3>
           <div className="car__price">
-            <b>{phase === "ended" ? <s>{eur(car.est.total)}</s> : eur(car.est.total)} <i>{car.est.priceMode === "net" ? "bez DPH" : "s DPH"}</i></b>
-            <small>{car.est.priceMode === "net" ? `s DPH ${eur(car.est.gross)}` : `bez DPH ${eur(car.est.net)}`} · odhad s dovozom na slovenských značkách</small>
+            <b>{phase === "ended" && !sold ? <s>{eur(car.est.total)}</s> : eur(car.est.total)} <i>{car.est.priceMode === "net" ? "bez DPH" : "s DPH"}</i></b>
+            <small>{sold ? "Predané a dovezené na objednávku, podobné auto Vám nájdeme" : `${car.est.priceMode === "net" ? `s DPH ${eur(car.est.gross)}` : `bez DPH ${eur(car.est.net)}`} · odhad s dovozom na slovenských značkách`}</small>
           </div>
           <div className="car__specs">
             <div><SpecIcon k="year" /><span>{car.year ?? "—"}</span></div>

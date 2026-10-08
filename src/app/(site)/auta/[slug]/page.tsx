@@ -151,7 +151,7 @@ export default async function CarPage({ params }: Props) {
           <div className="dhead">
             <h1 className="ctitle">{car.year} {car.make} {car.model} {car.trim && <span>{car.trim}</span>}</h1>
             <div className="dbadges">
-              {phaseOpen ? <span className="ok"><SpecIcon k="check" />{fixed ? "Na predaj" : "Objednávky otvorené"}</span> : <span className="ended"><SpecIcon k="clock" />{car.status === "sold" ? "Predané" : "Predaj skončil"}</span>}
+              {phaseOpen ? <span className="ok"><SpecIcon k="check" />{fixed ? "Na predaj" : "Objednávky otvorené"}</span> : car.status === "sold" ? <span className="sold"><SpecIcon k="check" />Predali sme</span> : <span className="ended"><SpecIcon k="clock" />Predaj skončil</span>}
               <span><SpecIcon k="pin" />{where}</span>
               {!damaged && <span className="ok"><SpecIcon k="check" />Nehavarované</span>}
               <span><SpecIcon k="ship" />Dovoz na kľúč s EČV</span>
@@ -239,7 +239,7 @@ export default async function CarPage({ params }: Props) {
                   self={est.homologEur > 0 || est.repairEur > 0 ? { total: estSelf.total, gross: estSelf.gross, net: estSelf.net } : null}
                   priceMode={est.priceMode}
                   ended={phase === "ended"}
-                  endedLabel={car.status === "sold" ? "Predané" : "Predaj skončil"}
+                  endedLabel={car.status === "sold" ? "Predali sme" : "Predaj skončil"}
                   local={est.local}
                   repair={est.repairEur > 0}
                   contact={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(`Dobrý deň, chcem presnejší odhad ceny pre ${carFullName(car)}: ${SITE.url}/auta/${car.slug}`)}`}
@@ -267,8 +267,8 @@ export default async function CarPage({ params }: Props) {
 
       <div className="mbar" aria-label="Cena a kontakt">
         <div className="mbar__price">
-          <small>{phase === "ended" ? (car.status === "sold" ? "Predané" : "Predaj skončil") : `Cena ${est.priceMode === "net" ? "bez DPH" : "s DPH"}`}</small>
-          <b>{phase === "ended" ? <s>{eur(est.total)}</s> : eur(est.total)}</b>
+          <small>{phase === "ended" ? (car.status === "sold" ? "Predali sme" : "Predaj skončil") : `Cena ${est.priceMode === "net" ? "bez DPH" : "s DPH"}`}</small>
+          <b>{phase === "ended" && car.status !== "sold" ? <s>{eur(est.total)}</s> : eur(est.total)}</b>
         </div>
         <a className="mbar__wa" href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(`Dobrý deň, mám záujem o ${carFullName(car)} – ${SITE.url}/auta/${car.slug}`)}`} target="_blank" rel="noopener" aria-label="WhatsApp">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2-.3-.2-.5-.3z" /></svg>

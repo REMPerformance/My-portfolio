@@ -21,6 +21,7 @@ export default async function Archiv() {
   const { cars } = await getCardCars();
   const serverNow = Date.now();
   const ended = cars.filter((c) => carPhase(c, serverNow) === "ended");
+  const soldN = ended.filter((c) => c.status === "sold").length;
   const crumbs = [{ name: "Domov", path: "/" }, { name: "Ponuka áut", path: "/ponuka" }, { name: "Archív", path: "/archiv" }];
   return (
     <>
@@ -28,7 +29,7 @@ export default async function Archiv() {
       <PageHead
         crumbs={crumbs}
         title={<>Archív áut <span style={{ color: "var(--rc-text-dim)", fontSize: ".6em" }}>({ended.length})</span></>}
-        sub="Autá, ktoré sme mali v ponuke – skončené aukcie, predané autá a ponuky, ktorým vypršala platnosť. Páči sa Vám niektoré? Podobné Vám nájdeme znova."
+        sub={<>{soldN > 0 && <b className="sold-count">{soldN === 1 ? "1 auto sme už predali a doviezli klientovi." : `${soldN} ${soldN < 5 ? "autá" : "áut"} sme už predali a doviezli klientom.`} </b>}Autá, ktoré sme mali v ponuke: predané autá, skončené aukcie a ponuky, ktorým vypršala platnosť. Páči sa Vám niektoré? Podobné Vám nájdeme znova.</>}
       />
       <section style={{ paddingTop: 28 }}>
         <div className="wrap">

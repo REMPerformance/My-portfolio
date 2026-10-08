@@ -4,6 +4,7 @@ import { getCardCars, getContent } from "@/lib/data";
 import { carPhase } from "@/lib/format";
 import { SITE } from "@/lib/site";
 import { COUNTRIES } from "@/lib/origins";
+import { CarCard } from "@/components/CarCard";
 import { CarGrid } from "@/components/CarGrid";
 import { Steps } from "@/components/Sections";
 import { IArrow, SpecIcon, TypeArt } from "@/components/Icons";
@@ -39,6 +40,7 @@ export default async function Home() {
   const [{ cars }, ct] = await Promise.all([getCardCars(), getContent()]);
   const serverNow = Date.now();
   const live = cars.filter((c) => c.status === "published" && carPhase(c, serverNow) !== "ended");
+  const sold = cars.filter((c) => c.status === "sold").sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at)).slice(0, 3);
   const nType = (t: string) => live.filter((c) => c.type === t).length;
   const nCountry = (code: string) => live.filter((c) => (c.country || "US") === code).length;
   const cnt = (n: number) => (n ? `${n} ${n === 1 ? "auto" : n < 5 ? "autá" : "áut"}` : "Na objednávku");
@@ -97,6 +99,22 @@ export default async function Home() {
           <div className="home-cars"><CarGrid cars={cars} serverNow={serverNow} showFilters={false} showEnded={false} limit={6} /></div>
         </div>
       </section>
+
+      {sold.length > 0 && (
+        <section aria-labelledby="predane-h" style={{ paddingTop: 0 }}>
+          <div className="wrap">
+            <div className="sec-head">
+              <div>
+                <span className="eyebrow">Spokojní klienti</span>
+                <h2 className="title" id="predane-h">Naposledy sme predali</h2>
+                <p className="sub">Tieto autá sme kúpili a doviezli na objednávku. Hľadáte podobné? Nájdeme Vám ho.</p>
+              </div>
+              <Link href="/archiv" className="rc-btn rc-btn--ghost">Všetky predané <IArrow /></Link>
+            </div>
+            <div className="grid">{sold.map((c) => <CarCard key={c.id} car={c} serverNow={serverNow} />)}</div>
+          </div>
+        </section>
+      )}
 
       <section className="alt" aria-labelledby="odkial-h">
         <div className="wrap">
