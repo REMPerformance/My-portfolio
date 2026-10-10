@@ -2890,6 +2890,51 @@ h1, h2 { letter-spacing:-.035em !important; }
   .logo-text .l1 { white-space:nowrap; font-size:11.5px !important; letter-spacing:.2em !important; }
   .logo img { width:52px !important; height:25px !important; }
 }
+
+/* ═══════════════════════════════════════════════
+   ŽIADNE SKLO, ŽIADNE PILULKY
+═══════════════════════════════════════════════ */
+*, *::before, *::after { backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+.nav.scrolled { background:#121316 !important; border-bottom:1px solid rgba(255,255,255,.08); }
+.pf-tag, .wf-btn { border-radius:2px !important; }
+.app-card, .apps-custom { border-radius:4px; }
+.app-badge { border-radius:2px; background:#121316; border:1px solid rgba(255,255,255,.18); }
+.app-feats { display:grid; grid-template-columns:1fr 1fr; gap:7px 16px; }
+.app-feats span { border:0; border-radius:0; padding:0 0 0 14px; position:relative; font-size:12px; }
+.app-feats span::before { content:''; position:absolute; left:0; top:.5em; width:5px; height:5px; background:var(--gold); }
+.mock { border-radius:4px 4px 0 0; }
+.mock-row em { border-radius:2px; }
+.mock-item, .mock-row, .mock-tiles div, .mock-bars { border-radius:2px; }
+.app-shot.phone img { border-radius:14px 14px 0 0; }
+
+/* ═══════════════════════════════════════════════
+   PORTFÓLIO — nové karty
+═══════════════════════════════════════════════ */
+.pgrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:56px 28px; max-width:var(--max); margin:56px auto 0; padding:0 44px; }
+.pcard { display:flex; flex-direction:column; gap:12px; color:var(--text); }
+.pbar { display:flex; justify-content:space-between; align-items:center; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+.pbar span:first-child { color:var(--gold); font-weight:600; }
+.pshot { position:relative; aspect-ratio:16/10; overflow:hidden; background:#0c0d10; border:1px solid rgba(255,255,255,.12); border-radius:3px; transition:border-color .35s; margin-bottom:8px; }
+.pshot img { width:100%; height:100%; object-fit:cover; object-position:top center; transition:transform 1.1s var(--ease); }
+.pcard:hover .pshot { border-color:var(--gold); }
+.pcard:hover .pshot img { transform:scale(1.045); }
+.pkind { font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
+.pname { font-size:26px; font-weight:600; letter-spacing:-.03em; line-height:1.1; }
+.pdesc { font-size:13.5px; line-height:1.75; color:var(--muted); }
+.plink { align-self:flex-start; margin-top:6px; font-size:10.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; padding-bottom:5px; border-bottom:1px solid var(--gold); transition:color .3s, padding-right .4s var(--ease); }
+.pcard:hover .plink { color:var(--gold); padding-right:10px; }
+.pshot-custom { width:100%; height:100%; background:var(--gold); color:#121316; display:flex; align-items:flex-end; justify-content:space-between; padding:26px 28px; }
+.pshot-custom span { font-size:clamp(30px,3.2vw,48px); font-weight:600; letter-spacing:-.04em; line-height:.98; }
+.pshot-custom b { font-size:40px; font-weight:400; line-height:1; transition:transform .5s var(--ease); }
+.pcard.custom:hover .pshot-custom b { transform:translateX(8px); }
+.pcard.custom .pshot { border-color:var(--gold); }
+@media (max-width:1100px){ .pgrid { grid-template-columns:1fr 1fr; } }
+@media (max-width:760px){ .pgrid { grid-template-columns:1fr; gap:44px; padding:0 20px; margin-top:36px; } }
+
+/* ═══════════════════════════════════════════════
+   LOADER — animované logo
+═══════════════════════════════════════════════ */
+#ldLogo { width:min(560px,80vw); height:auto; display:block; overflow:visible; }
 </style>
 <link rel="icon" type="image/png" href="om-ikona-tmava.png"/>
 </head>
@@ -2906,15 +2951,15 @@ h1, h2 { letter-spacing:-.035em !important; }
      LOADER  ← z FÓRM
 ══════════════════════════════════════ -->
 <div id="loader">
-  <img class="loader-logo-img" src="om-znak-biely.svg" alt="One Movement Interactive"/>
-  <div class="loader-bar-wrap">
-    <div class="loader-bar" id="loaderBar"></div>
-  </div>
-  <div class="loader-pct" id="loaderPct">0%</div>
+  <svg id="ldLogo" viewBox="0 0 502.2 86" role="img" aria-label="One Movement Interactive">
+    <g transform="scale(1.2286) translate(-4 -36)">
+      <g transform="skewX(-10)"><path id="ldPath" d="M 76 70 a 26 26 0 1 0 -26 26 h 40 v -52 l 26 30 l 26 -30 v 52" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <circle id="ldDot" r="0" fill="#FFC61A"/>
+    </g>
+    <g id="ldWm" style="opacity:0"><path transform="translate(203.37 45)" d="M13.6 0.76Q10.72 0.76 8.52 -0.16000000000000003Q6.32 -1.08 4.800000000000001 -2.66Q3.2800000000000002 -4.24 2.5 -6.24Q1.72 -8.24 1.72 -10.4V-11.24Q1.72 -13.48 2.54 -15.5Q3.36 -17.52 4.9 -19.1Q6.44 -20.68 8.64 -21.58Q10.84 -22.48 13.6 -22.48Q16.36 -22.48 18.560000000000002 -21.58Q20.76 -20.68 22.3 -19.1Q23.84 -17.52 24.64 -15.5Q25.44 -13.48 25.44 -11.24V-10.4Q25.44 -8.24 24.66 -6.24Q23.88 -4.24 22.36 -2.66Q20.84 -1.08 18.64 -0.16000000000000003Q16.44 0.76 13.6 0.76ZM13.6 -4.0Q15.64 -4.0 17.04 -4.9Q18.44 -5.8 19.16 -7.34Q19.88 -8.88 19.88 -10.84Q19.88 -12.84 19.14 -14.379999999999999Q18.400000000000002 -15.92 16.98 -16.82Q15.56 -17.72 13.6 -17.72Q11.64 -17.72 10.22 -16.82Q8.8 -15.92 8.040000000000001 -14.379999999999999Q7.28 -12.84 7.28 -10.84Q7.28 -8.88 8.02 -7.34Q8.76 -5.8 10.16 -4.9Q11.56 -4.0 13.6 -4.0Z M29.12 0.0V-21.72H33.52V-12.4H33.120000000000005Q33.120000000000005 -15.72 34.0 -17.94Q34.88 -20.16 36.620000000000005 -21.28Q38.36 -22.400000000000002 40.96 -22.400000000000002H41.2Q45.08 -22.400000000000002 47.08 -19.900000000000002Q49.08 -17.400000000000002 49.08 -12.44V0.0H43.519999999999996V-12.92Q43.519999999999996 -14.92 42.379999999999995 -16.16Q41.24 -17.400000000000002 39.24 -17.400000000000002Q37.2 -17.400000000000002 35.94 -16.14Q34.68 -14.88 34.68 -12.76V0.0Z M63.56000000000001 0.76Q60.760000000000005 0.76 58.66000000000001 -0.19999999999999996Q56.56000000000001 -1.16 55.18000000000001 -2.7800000000000002Q53.800000000000004 -4.4 53.10000000000001 -6.4Q52.400000000000006 -8.4 52.400000000000006 -10.48V-11.24Q52.400000000000006 -13.4 53.10000000000001 -15.420000000000002Q53.800000000000004 -17.44 55.18000000000001 -19.020000000000003Q56.56000000000001 -20.6 58.60000000000001 -21.54Q60.64000000000001 -22.48 63.32000000000001 -22.48Q66.84 -22.48 69.22 -20.94Q71.60000000000001 -19.400000000000002 72.80000000000001 -16.900000000000002Q74.0 -14.4 74.0 -11.52V-9.52H54.760000000000005V-12.92H70.52000000000001L68.80000000000001 -11.24Q68.80000000000001 -13.32 68.20000000000002 -14.8Q67.60000000000001 -16.28 66.38000000000001 -17.08Q65.16000000000001 -17.88 63.32000000000001 -17.88Q61.480000000000004 -17.88 60.2 -17.04Q58.92000000000001 -16.2 58.260000000000005 -14.620000000000001Q57.60000000000001 -13.040000000000001 57.60000000000001 -10.84Q57.60000000000001 -8.8 58.24000000000001 -7.220000000000001Q58.88000000000001 -5.64 60.20000000000001 -4.74Q61.52000000000001 -3.84 63.56000000000001 -3.84Q65.60000000000001 -3.84 66.88000000000001 -4.66Q68.16000000000001 -5.48 68.52000000000001 -6.68H73.64000000000001Q73.16000000000001 -4.44 71.80000000000001 -2.7600000000000002Q70.44000000000001 -1.08 68.34 -0.16000000000000003Q66.24000000000001 0.76 63.56000000000001 0.76Z  M84.88 0.0V-21.72H89.28V-12.4H88.88Q88.88 -15.68 89.72 -17.9Q90.56 -20.12 92.22 -21.26Q93.88 -22.400000000000002 96.36 -22.400000000000002H96.6Q99.12 -22.400000000000002 100.78 -21.26Q102.44 -20.12 103.25999999999999 -17.9Q104.08 -15.68 104.08 -12.4H102.68Q102.68 -15.68 103.54 -17.9Q104.4 -20.12 106.06 -21.26Q107.72 -22.400000000000002 110.2 -22.400000000000002H110.44Q112.96000000000001 -22.400000000000002 114.64 -21.26Q116.32 -20.12 117.17999999999999 -17.9Q118.03999999999999 -15.68 118.03999999999999 -12.4V0.0H112.48V-12.92Q112.48 -14.96 111.44 -16.18Q110.4 -17.400000000000002 108.48 -17.400000000000002Q106.56 -17.400000000000002 105.4 -16.14Q104.24 -14.88 104.24 -12.76V0.0H98.68V-12.92Q98.68 -14.96 97.64 -16.18Q96.6 -17.400000000000002 94.68 -17.400000000000002Q92.76 -17.400000000000002 91.6 -16.14Q90.44 -14.88 90.44 -12.76V0.0Z M133.23999999999998 0.76Q130.35999999999999 0.76 128.15999999999997 -0.16000000000000003Q125.95999999999998 -1.08 124.43999999999998 -2.66Q122.91999999999999 -4.24 122.13999999999999 -6.24Q121.35999999999999 -8.24 121.35999999999999 -10.4V-11.24Q121.35999999999999 -13.48 122.17999999999998 -15.5Q122.99999999999999 -17.52 124.53999999999999 -19.1Q126.07999999999998 -20.68 128.27999999999997 -21.58Q130.48 -22.48 133.23999999999998 -22.48Q136.0 -22.48 138.2 -21.58Q140.39999999999998 -20.68 141.94 -19.1Q143.48 -17.52 144.27999999999997 -15.5Q145.07999999999998 -13.48 145.07999999999998 -11.24V-10.4Q145.07999999999998 -8.24 144.29999999999998 -6.24Q143.51999999999998 -4.24 142.0 -2.66Q140.48 -1.08 138.27999999999997 -0.16000000000000003Q136.07999999999998 0.76 133.23999999999998 0.76ZM133.23999999999998 -4.0Q135.27999999999997 -4.0 136.67999999999998 -4.9Q138.07999999999998 -5.8 138.79999999999998 -7.34Q139.51999999999998 -8.88 139.51999999999998 -10.84Q139.51999999999998 -12.84 138.77999999999997 -14.379999999999999Q138.04 -15.92 136.62 -16.82Q135.2 -17.72 133.23999999999998 -17.72Q131.27999999999997 -17.72 129.85999999999999 -16.82Q128.44 -15.92 127.67999999999999 -14.379999999999999Q126.91999999999999 -12.84 126.91999999999999 -10.84Q126.91999999999999 -8.88 127.65999999999998 -7.34Q128.39999999999998 -5.8 129.79999999999998 -4.9Q131.2 -4.0 133.23999999999998 -4.0Z M153.12 0.0 146.32 -21.72H152.04L158.56 0.0ZM154.76 0.0V-4.5600000000000005H160.64V0.0ZM156.95999999999998 0.0 162.56 -21.72H167.92L162.04 0.0Z M180.64 0.76Q177.84 0.76 175.74 -0.19999999999999996Q173.64 -1.16 172.26 -2.7800000000000002Q170.88 -4.4 170.18 -6.4Q169.48 -8.4 169.48 -10.48V-11.24Q169.48 -13.4 170.18 -15.420000000000002Q170.88 -17.44 172.26 -19.020000000000003Q173.64 -20.6 175.68 -21.54Q177.72 -22.48 180.39999999999998 -22.48Q183.92 -22.48 186.3 -20.94Q188.68 -19.400000000000002 189.88 -16.900000000000002Q191.07999999999998 -14.4 191.07999999999998 -11.52V-9.52H171.84V-12.92H187.6L185.88 -11.24Q185.88 -13.32 185.28 -14.8Q184.68 -16.28 183.45999999999998 -17.08Q182.23999999999998 -17.88 180.39999999999998 -17.88Q178.56 -17.88 177.28 -17.04Q176.0 -16.2 175.33999999999997 -14.620000000000001Q174.67999999999998 -13.040000000000001 174.67999999999998 -10.84Q174.67999999999998 -8.8 175.32 -7.220000000000001Q175.95999999999998 -5.64 177.27999999999997 -4.74Q178.6 -3.84 180.64 -3.84Q182.67999999999998 -3.84 183.95999999999998 -4.66Q185.23999999999998 -5.48 185.6 -6.68H190.72Q190.23999999999998 -4.44 188.88 -2.7600000000000002Q187.51999999999998 -1.08 185.42 -0.16000000000000003Q183.32 0.76 180.64 0.76Z M194.51999999999998 0.0V-21.72H198.92V-12.4H198.51999999999998Q198.51999999999998 -15.68 199.35999999999999 -17.9Q200.2 -20.12 201.85999999999999 -21.26Q203.51999999999998 -22.400000000000002 206.0 -22.400000000000002H206.23999999999998Q208.76 -22.400000000000002 210.42 -21.26Q212.07999999999998 -20.12 212.89999999999998 -17.9Q213.71999999999997 -15.68 213.71999999999997 -12.4H212.32Q212.32 -15.68 213.18 -17.9Q214.04 -20.12 215.7 -21.26Q217.35999999999999 -22.400000000000002 219.83999999999997 -22.400000000000002H220.07999999999998Q222.6 -22.400000000000002 224.27999999999997 -21.26Q225.95999999999998 -20.12 226.82 -17.9Q227.67999999999998 -15.68 227.67999999999998 -12.4V0.0H222.11999999999998V-12.92Q222.11999999999998 -14.96 221.07999999999998 -16.18Q220.04 -17.400000000000002 218.11999999999998 -17.400000000000002Q216.2 -17.400000000000002 215.04 -16.14Q213.88 -14.88 213.88 -12.76V0.0H208.32V-12.92Q208.32 -14.96 207.27999999999997 -16.18Q206.23999999999998 -17.400000000000002 204.32 -17.400000000000002Q202.39999999999998 -17.400000000000002 201.23999999999998 -16.14Q200.07999999999998 -14.88 200.07999999999998 -12.76V0.0Z M242.15999999999997 0.76Q239.35999999999999 0.76 237.26 -0.19999999999999996Q235.15999999999997 -1.16 233.77999999999997 -2.7800000000000002Q232.39999999999998 -4.4 231.7 -6.4Q230.99999999999997 -8.4 230.99999999999997 -10.48V-11.24Q230.99999999999997 -13.4 231.7 -15.420000000000002Q232.39999999999998 -17.44 233.77999999999997 -19.020000000000003Q235.15999999999997 -20.6 237.2 -21.54Q239.23999999999998 -22.48 241.91999999999996 -22.48Q245.43999999999997 -22.48 247.82 -20.94Q250.2 -19.400000000000002 251.39999999999998 -16.900000000000002Q252.59999999999997 -14.4 252.59999999999997 -11.52V-9.52H233.35999999999999V-12.92H249.11999999999998L247.39999999999998 -11.24Q247.39999999999998 -13.32 246.79999999999998 -14.8Q246.2 -16.28 244.97999999999996 -17.08Q243.75999999999996 -17.88 241.91999999999996 -17.88Q240.07999999999998 -17.88 238.79999999999998 -17.04Q237.51999999999998 -16.2 236.85999999999996 -14.620000000000001Q236.19999999999996 -13.040000000000001 236.19999999999996 -10.84Q236.19999999999996 -8.8 236.83999999999997 -7.220000000000001Q237.47999999999996 -5.64 238.79999999999995 -4.74Q240.11999999999998 -3.84 242.15999999999997 -3.84Q244.19999999999996 -3.84 245.47999999999996 -4.66Q246.75999999999996 -5.48 247.11999999999998 -6.68H252.23999999999998Q251.75999999999996 -4.44 250.39999999999998 -2.7600000000000002Q249.03999999999996 -1.08 246.93999999999997 -0.16000000000000003Q244.83999999999997 0.76 242.15999999999997 0.76Z M256.03999999999996 0.0V-21.72H260.43999999999994V-12.4H260.03999999999996Q260.03999999999996 -15.72 260.91999999999996 -17.94Q261.79999999999995 -20.16 263.53999999999996 -21.28Q265.28 -22.400000000000002 267.88 -22.400000000000002H268.11999999999995Q271.99999999999994 -22.400000000000002 273.99999999999994 -19.900000000000002Q275.99999999999994 -17.400000000000002 275.99999999999994 -12.44V0.0H270.43999999999994V-12.92Q270.43999999999994 -14.92 269.29999999999995 -16.16Q268.15999999999997 -17.400000000000002 266.15999999999997 -17.400000000000002Q264.11999999999995 -17.400000000000002 262.85999999999996 -16.14Q261.59999999999997 -14.88 261.59999999999997 -12.76V0.0Z M290.2 0.28Q287.2 0.28 285.26 -0.5Q283.32 -1.28 282.36 -3.14Q281.4 -5.0 281.4 -8.16L281.43999999999994 -27.84H286.64L286.59999999999997 -7.8Q286.59999999999997 -6.2 287.46 -5.34Q288.32 -4.48 289.91999999999996 -4.48H293.32V0.28ZM277.96 -17.64V-21.72H293.32V-17.64Z" fill="#FFFFFF"/></g>
+    <g id="ldSub" style="opacity:0"><path transform="translate(204.87 71)" d="M1.35 0.0V-9.125H2.575V0.0Z M11.45 0.0V-9.125H13.45L18.0875 -1.1H18.4875L18.2375 -0.875V-9.125H19.4125V0.0H17.3875L12.75 -8.025H12.35L12.6 -8.25V0.0Z M30.0375 0.0V-8.275H31.2625V0.0ZM27.2625 -8.025V-9.125H34.0375V-8.025Z M41.8875 0.0V-9.125H43.1125V0.0ZM42.8625 0.0V-1.1H47.2875V0.0ZM42.8625 -4.0875V-5.1875H46.9V-4.0875ZM42.8625 -8.025V-9.125H47.1625V-8.025Z M55.587500000000006 0.0V-9.175H56.8125V0.0ZM61.225 0.0 58.2 -4.0625H59.6375L62.712500000000006 0.0ZM56.35 -3.3000000000000003V-4.3875H58.800000000000004Q59.375 -4.3875 59.7875 -4.625Q60.2 -4.862500000000001 60.425000000000004 -5.28125Q60.650000000000006 -5.7 60.650000000000006 -6.237500000000001Q60.650000000000006 -6.775 60.425000000000004 -7.1937500000000005Q60.2 -7.612500000000001 59.7875 -7.85625Q59.375 -8.1 58.800000000000004 -8.1H56.35V-9.175H58.575Q59.575 -9.175 60.325 -8.875Q61.075 -8.575000000000001 61.487500000000004 -7.950000000000001Q61.900000000000006 -7.325 61.900000000000006 -6.3375V-6.1375Q61.900000000000006 -5.15 61.48125 -4.525Q61.0625 -3.9000000000000004 60.31875 -3.6000000000000005Q59.575 -3.3000000000000003 58.575 -3.3000000000000003Z M69.5625 0.0 72.85000000000001 -9.125H74.92500000000001L78.3125 0.0H77.05000000000001L73.98750000000001 -8.325000000000001L74.5875 -8.025H73.11250000000001L73.75 -8.325000000000001L70.78750000000001 0.0ZM71.525 -2.725 71.9375 -3.825H75.875L76.28750000000001 -2.725Z M90.15 0.225Q88.9 0.225 88.01875000000001 -0.21250000000000002Q87.13750000000002 -0.65 86.60000000000002 -1.35Q86.06250000000001 -2.0500000000000003 85.81250000000001 -2.8687500000000004Q85.56250000000001 -3.6875 85.56250000000001 -4.45V-4.7250000000000005Q85.56250000000001 -5.550000000000001 85.81875000000002 -6.375Q86.07500000000002 -7.2 86.61250000000001 -7.875Q87.15 -8.55 88.01250000000002 -8.9625Q88.87500000000001 -9.375 90.07500000000002 -9.375Q91.30000000000001 -9.375 92.17500000000001 -8.95Q93.05000000000001 -8.525 93.56250000000001 -7.7625Q94.07500000000002 -7.0 94.18750000000001 -5.9625H92.93750000000001Q92.8375 -6.737500000000001 92.4375 -7.24375Q92.03750000000001 -7.75 91.43125 -8.0Q90.82500000000002 -8.25 90.07500000000002 -8.25Q89.26250000000002 -8.25 88.65 -7.96875Q88.03750000000001 -7.6875 87.63125000000001 -7.18125Q87.22500000000001 -6.675000000000001 87.01875000000001 -6.012500000000001Q86.81250000000001 -5.3500000000000005 86.81250000000001 -4.575Q86.81250000000001 -3.8375000000000004 87.01875000000001 -3.1750000000000003Q87.22500000000001 -2.5125 87.64375000000001 -2.0Q88.06250000000001 -1.4875 88.68750000000001 -1.19375Q89.31250000000001 -0.9 90.15 -0.9Q91.32500000000002 -0.9 92.12500000000001 -1.4875Q92.92500000000001 -2.075 93.10000000000001 -3.1875H94.35000000000001Q94.22500000000001 -2.25 93.71875 -1.475Q93.2125 -0.7000000000000001 92.31875000000001 -0.23750000000000004Q91.42500000000001 0.225 90.15 0.225Z M104.10000000000001 0.0V-8.275H105.32500000000002V0.0ZM101.32500000000002 -8.025V-9.125H108.10000000000001V-8.025Z M115.97500000000001 0.0V-9.125H117.20000000000002V0.0Z M128.1875 0.0 125.02500000000002 -9.125H126.28750000000001L129.125 -0.8L128.525 -1.1H130.025L129.38750000000002 -0.8L132.0 -9.125H133.22500000000002L130.28750000000002 0.0Z M141.125 0.0V-9.125H142.35000000000002V0.0ZM142.10000000000002 0.0V-1.1H146.525V0.0ZM142.10000000000002 -4.0875V-5.1875H146.13750000000002V-4.0875ZM142.10000000000002 -8.025V-9.125H146.4V-8.025Z" fill="#B9BCC1"/></g>
+  </svg>
 </div>
-
-<!-- FLYING LOGO -->
-<div id="logo-fly"><img src="om-znak-biely.svg" alt=""/></div>
 
 <!-- TOAST  ← z FÓRM -->
 <div class="toast" id="toast">
@@ -4017,7 +4062,7 @@ h1, h2 { letter-spacing:-.035em !important; }
       <h2 class="reveal">Weby, čo<br/>predávajú <em>za vás.</em></h2>
     </div>
     <div class="work-head-right reveal">
-      <p>Každý projekt je navrhnutý okolo jedného cieľa — priviesť zákazníka k akcii. Pozrite si ukážky z rôznych odvetví.</p>
+      <p>Každý projekt je navrhnutý okolo jedného cieľa — priviesť zákazníka k akcii. Pozrite si weby, ktoré sme postavili a ktoré dnes bežia naostro.</p>
       <div class="work-count-row">
         <div class="work-count-num"><span class="count" data-target="150">0</span><sup>+</sup></div>
         <div class="work-count-label">Spokojných klientov</div>
@@ -4025,211 +4070,62 @@ h1, h2 { letter-spacing:-.035em !important; }
     </div>
   </div>
 
-  <div class="work-filter-tabs">
-    <button class="wf-btn active" onclick="filterWork(this,'all')">Všetko</button>
-    <button class="wf-btn" onclick="filterWork(this,'eshop')">E-shop</button>
-    <button class="wf-btn" onclick="filterWork(this,'beauty')">Beauty</button>
-    <button class="wf-btn" onclick="filterWork(this,'fitness')">Fitness</button>
-    <button class="wf-btn" onclick="filterWork(this,'gastro')">Gastro</button>
-    <button class="wf-btn" onclick="filterWork(this,'custom')">Na mieru</button>
-  </div>
+    <div class="pgrid">
 
-  <div class="work-canvas">
+    <a class="pcard reveal" href="https://racemusa.com" target="_blank" rel="noopener">
+      <div class="pbar"><span>01</span><span>racemusa.com</span></div>
+      <div class="pshot"><img src="nahlad-racem-usa.jpg" alt="Úvodná stránka e-shopu RACEM USA" loading="lazy"/></div>
+      <div class="pkind">E-shop &nbsp;/&nbsp; Automotive &nbsp;/&nbsp; USA</div>
+      <div class="pname">RACEM USA</div>
+      <p class="pdesc">E-shop s karbónovými aero dielmi a widebody kitmi pre americký trh. Zákazník si vyberie diely podľa auta a sedenie si overí cez VIN.</p>
+      <span class="plink">Otvoriť web &nbsp;→</span>
+    </a>
 
-    <div class="work-row-featured">
+    <a class="pcard reveal rd1" href="https://racem.sk" target="_blank" rel="noopener">
+      <div class="pbar"><span>02</span><span>racem.sk</span></div>
+      <div class="pshot"><img src="nahlad-racem-sk.jpg" alt="Úvodná stránka e-shopu RACEM" loading="lazy"/></div>
+      <div class="pkind">E-shop &nbsp;/&nbsp; Automotive</div>
+      <div class="pname">RACEM</div>
+      <p class="pdesc">E-shop s certifikovanými tuning dielmi pre Slovensko a Česko. Výber dielov podľa značky, modelu a ročníka auta.</p>
+      <span class="plink">Otvoriť web &nbsp;→</span>
+    </a>
 
-      <!-- 01 — Tuning Shop -->
-      <div class="wcard featured reveal"
-           data-cat="eshop"
-           data-title="E-SHOP pre autodiely"
-           data-tag="E-shop / Automotive"
-           data-url="https://racem.sk"
-           data-bg="tuning"
-           data-desc="Plne funkčný e-shop pre tuning diely s certifikáciou. Custom dizajn, katalóg produktov, košík a platobná brána — prémiový vzhľad pre auto nadšencov.">
-        <div class="wcard-bg tuning"></div>
-        <div class="wcard-screenshot" style="background-image:url('Screenshot 2026-05-08 201238.png');"></div>
-        <div class="wcard-vignette"></div>
-        <div class="wcard-ghost-num">01</div>
-        <div class="wcard-chrome">
-          <div class="wbc2-dots"><span></span><span></span><span></span></div>
-          <div class="wbc2-url">racem.sk</div>
-          <div class="wbc2-live"><span></span>Live</div>
-        </div>
-        <div class="wcard-perf2">
-          <div class="wp2-row"><span class="wp2-label">Perf.</span><div class="wp2-bar"><div class="wp2-fill" style="width:98%"></div></div><span class="wp2-val">98</span></div>
-          <div class="wp2-row"><span class="wp2-label">SEO</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%;background:var(--gold)"></div></div><span class="wp2-val" style="color:var(--gold2)">100</span></div>
-          <div class="wp2-row"><span class="wp2-label">Mobile</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%"></div></div><span class="wp2-val">100</span></div>
-        </div>
-        <div class="wcard-info-panel">
-          <div class="wcard-cat-tag">E-shop &nbsp;·&nbsp; Automotive</div>
-          <div class="wcard-title">REM Performance<br/>Tuning obchod</div>
-          <div class="wcard-expand">
-            <div class="wcard-sep"></div>
-            <p class="wcard-desc">Plne funkčný e-shop pre tuning diely s certifikáciou. Katalóg produktov, košík, platobná brána a prémiový vizuál pre auto nadšencov.</p>
-            <div class="wcard-techs">
-              <span class="wcard-tech">E-commerce</span>
-              <span class="wcard-tech">Produktový katalóg</span>
-              <span class="wcard-tech">Platobná brána</span>
-              <span class="wcard-tech">SEO</span>
-            </div>
-            <div class="wcard-cta-row">
-              <a href="https://racem.sk" target="_blank" class="wcard-cta">Otvoriť web <span class="cta-arrow2">→</span></a>
-              <div class="wcard-live-badge"><div class="wcard-live-dot2"></div><span class="wcard-live-text">Živý web</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <a class="pcard reveal rd2" href="https://remperformance.sk" target="_blank" rel="noopener">
+      <div class="pbar"><span>03</span><span>remperformance.sk</span></div>
+      <div class="pshot"><img src="nahlad-remperformance.jpg" alt="Úvodná stránka webu REM Performance" loading="lazy"/></div>
+      <div class="pkind">Web na mieru &nbsp;/&nbsp; Dovoz áut</div>
+      <div class="pname">REM Performance</div>
+      <p class="pdesc">Dovoz áut z USA, Dubaja a Kanady na kľúč. Ponuka áut s vlastnou podstránkou, kalkulačka dovozu a administrácia na mieru.</p>
+      <span class="plink">Otvoriť web &nbsp;→</span>
+    </a>
 
-      <!-- 02 — NatureFlow Head Spa -->
-      <div class="wcard featured reveal rd1"
-           data-cat="beauty"
-           data-title="NatureFlow Head Spa"
-           data-tag="Beauty / Wellness"
-           data-url="https://natureflowheadspa.sk"
-           data-bg="spa"
-           data-desc="Prémiový web pre luxusné head spa. Online rezervácie, galéria procedúr a silná brandová identita v teal-bielej palete.">
-        <div class="wcard-bg spa"></div>
-        <div class="wcard-screenshot" style="background-image:url('Screenshot 2026-05-08 201339.png');"></div>
-        <div class="wcard-vignette"></div>
-        <div class="wcard-ghost-num">02</div>
-        <div class="wcard-chrome">
-          <div class="wbc2-dots"><span></span><span></span><span></span></div>
-          <div class="wbc2-url">natureflowheadspa.sk</div>
-          <div class="wbc2-live"><span></span>Live</div>
-        </div>
-        <div class="wcard-perf2">
-          <div class="wp2-row"><span class="wp2-label">Perf.</span><div class="wp2-bar"><div class="wp2-fill" style="width:96%"></div></div><span class="wp2-val">96</span></div>
-          <div class="wp2-row"><span class="wp2-label">SEO</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%;background:var(--gold)"></div></div><span class="wp2-val" style="color:var(--gold2)">100</span></div>
-          <div class="wp2-row"><span class="wp2-label">Mobile</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%"></div></div><span class="wp2-val">100</span></div>
-        </div>
-        <div class="wcard-info-panel">
-          <div class="wcard-cat-tag">Beauty &nbsp;·&nbsp; Wellness</div>
-          <div class="wcard-title">NatureFlow<br/>Head Spa</div>
-          <div class="wcard-expand">
-            <div class="wcard-sep"></div>
-            <p class="wcard-desc">Luxusný web pre head spa štúdio. Online rezervácie, galéria procedúr a silná brandová identita — web, ktorý predáva zážitok ešte pred prvou návštevou.</p>
-            <div class="wcard-techs">
-              <span class="wcard-tech">Rezervačný systém</span>
-              <span class="wcard-tech">Galéria procedúr</span>
-              <span class="wcard-tech">Brand identita</span>
-              <span class="wcard-tech">SEO</span>
-            </div>
-            <div class="wcard-cta-row">
-              <a href="https://natureflowheadspa.sk" target="_blank" class="wcard-cta">Otvoriť web <span class="cta-arrow2">→</span></a>
-              <div class="wcard-live-badge"><div class="wcard-live-dot2"></div><span class="wcard-live-text">Živý web</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <a class="pcard reveal" href="https://natureflowheadspa.sk" target="_blank" rel="noopener">
+      <div class="pbar"><span>04</span><span>natureflowheadspa.sk</span></div>
+      <div class="pshot"><img src="nahlad-natureflow.jpg" alt="Úvodná stránka webu Nature Flow Head Spa" loading="lazy"/></div>
+      <div class="pkind">Web &nbsp;/&nbsp; Beauty a wellness</div>
+      <div class="pname">Nature Flow Head Spa</div>
+      <p class="pdesc">Web pre head spa v Piešťanoch. Rezervácia termínu, darčekové poukážky a štyri jazykové verzie.</p>
+      <span class="plink">Otvoriť web &nbsp;→</span>
+    </a>
 
-    <div class="work-row-secondary">
+    <a class="pcard reveal rd1" href="https://www.voyago.sk" target="_blank" rel="noopener">
+      <div class="pbar"><span>05</span><span>voyago.sk</span></div>
+      <div class="pshot"><img src="nahlad-voyago.jpg" alt="Úvodná stránka webu Voyago" loading="lazy"/></div>
+      <div class="pkind">Webová služba &nbsp;/&nbsp; Cestovanie</div>
+      <div class="pname">Voyago</div>
+      <p class="pdesc">Cestovné povolenia a e-víza online. Výber destinácie, krátky formulár a sledovanie stavu žiadosti.</p>
+      <span class="plink">Otvoriť web &nbsp;→</span>
+    </a>
 
-      <!-- 03 — Fitness -->
-      <div class="wcard secondary reveal"
-           data-cat="fitness"
-           data-title="Apex Fitness Studio"
-           data-tag="Fitness / Training"
-           data-url="#kontakt"
-           data-bg="fit"
-           data-desc="Prémiový web pre fitness studio. Rozvrh tréningov, cenník, online rezervácie a motivačný vizuál navrhnutý pre konverziu nových členov.">
-        <div class="wcard-bg fit"></div>
-        <div class="wcard-vignette"></div>
-        <div class="wcard-ghost-num">03</div>
-        <div class="wcard-chrome">
-          <div class="wbc2-dots"><span></span><span></span><span></span></div>
-          <div class="wbc2-url">apexfitness.sk</div>
-          <div class="wbc2-live"><span></span>Demo</div>
-        </div>
-        <div class="wcard-perf2">
-          <div class="wp2-row"><span class="wp2-label">Perf.</span><div class="wp2-bar"><div class="wp2-fill" style="width:98%"></div></div><span class="wp2-val">98</span></div>
-          <div class="wp2-row"><span class="wp2-label">SEO</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%;background:var(--gold)"></div></div><span class="wp2-val" style="color:var(--gold2)">100</span></div>
-        </div>
-        <div class="wcard-info-panel">
-          <div class="wcard-cat-tag">Fitness &nbsp;·&nbsp; Training</div>
-          <div class="wcard-title">Apex<br/>Fitness Studio</div>
-          <div class="wcard-expand">
-            <div class="wcard-sep"></div>
-            <p class="wcard-desc secondary">Prémiový web pre fitnessy a personal trénerov. Rozvrh, cenník, rezervácie a vizuál, ktorý motivuje.</p>
-            <div class="wcard-techs"><span class="wcard-tech">Rozvrh tréningov</span><span class="wcard-tech">Online rezervácie</span><span class="wcard-tech">SEO</span></div>
-            <div class="wcard-cta-row">
-              <div class="wcard-cta">Chcem podobný <span class="cta-arrow2">→</span></div>
-              <div class="wcard-live-badge"><span class="wcard-concept-text">Ukážka štýlu</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <a class="pcard custom reveal rd2" href="#kontakt">
+      <div class="pbar"><span>06</span><span>vasafirma.sk</span></div>
+      <div class="pshot"><div class="pshot-custom"><span>Váš<br/>projekt</span><b>→</b></div></div>
+      <div class="pkind">Na mieru</div>
+      <div class="pname">Váš projekt</div>
+      <p class="pdesc">Web, e-shop alebo aplikácia presne podľa vašej firmy. Prvý náhľad dostanete zdarma a bez záväzkov.</p>
+      <span class="plink">Začnime &nbsp;→</span>
+    </a>
 
-      <!-- 04 — Gastro -->
-      <div class="wcard secondary reveal rd1"
-           data-cat="gastro"
-           data-title="Bistro Noir"
-           data-tag="Gastro / Restaurant"
-           data-url="#kontakt"
-           data-bg="resto"
-           data-desc="Prémiová prezentácia pre reštaurácie a bary. Menu, rezervácie stola, atmosféra a galéria — navrhnuté okolo zážitku zákazníka.">
-        <div class="wcard-bg resto"></div>
-        <div class="wcard-vignette"></div>
-        <div class="wcard-ghost-num">04</div>
-        <div class="wcard-chrome">
-          <div class="wbc2-dots"><span></span><span></span><span></span></div>
-          <div class="wbc2-url">bistronoir.sk</div>
-          <div class="wbc2-live"><span></span>Demo</div>
-        </div>
-        <div class="wcard-perf2">
-          <div class="wp2-row"><span class="wp2-label">Perf.</span><div class="wp2-bar"><div class="wp2-fill" style="width:99%"></div></div><span class="wp2-val">99</span></div>
-          <div class="wp2-row"><span class="wp2-label">SEO</span><div class="wp2-bar"><div class="wp2-fill" style="width:100%;background:var(--gold)"></div></div><span class="wp2-val" style="color:var(--gold2)">100</span></div>
-        </div>
-        <div class="wcard-info-panel">
-          <div class="wcard-cat-tag">Gastro &nbsp;·&nbsp; Restaurant</div>
-          <div class="wcard-title">Bistro<br/>Noir</div>
-          <div class="wcard-expand">
-            <div class="wcard-sep"></div>
-            <p class="wcard-desc secondary">Prémiová prezentácia pre reštaurácie. Menu, online rezervácie stola, atmosféra a galéria v jednom.</p>
-            <div class="wcard-techs"><span class="wcard-tech">Rezervácie stola</span><span class="wcard-tech">Digitálne menu</span><span class="wcard-tech">Galéria</span></div>
-            <div class="wcard-cta-row">
-              <div class="wcard-cta">Chcem podobný <span class="cta-arrow2">→</span></div>
-              <div class="wcard-live-badge"><span class="wcard-concept-text">Ukážka štýlu</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 05 — Custom CTA -->
-      <div class="wcard secondary reveal rd2"
-           data-cat="custom"
-           data-title="Váš projekt"
-           data-tag="Na mieru / Custom"
-           data-url="#kontakt"
-           data-bg="custom"
-           data-desc="Každý web tvoríme na mieru — od návrhu po spustenie. Napíšte nám čo robíte a spoločne navrheme niečo, čo vás bude reprezentovať.">
-        <div class="wcard-bg custom"></div>
-        <div class="wcard-vignette" style="background:linear-gradient(to bottom,rgba(4,3,8,.5) 0%,rgba(4,3,8,.65) 50%,rgba(4,3,8,.99) 100%)!important;"></div>
-        <div class="wcard-ghost-num">05</div>
-        <div style="position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:28px;text-align:center;pointer-events:none;">
-          <div style="width:52px;height:52px;border:1px solid rgba(255,198,26,.28);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:rgba(255,198,26,.05);">✦</div>
-          <div style="font-family:'Sora',sans-serif;font-size:clamp(22px,2.6vw,36px);font-weight:300;line-height:1.02;color:#fff;letter-spacing:-.02em;">Váš<br/><em style='font-style:italic;color:var(--gold)'>projekt</em></div>
-          <div style="font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;color:rgba(244,244,242,.28);">Na mieru · Custom</div>
-        </div>
-        <div class="wcard-chrome">
-          <div class="wbc2-dots"><span></span><span></span><span></span></div>
-          <div class="wbc2-url">vasafirma.sk</div>
-          <div class="wbc2-live"><span></span>Váš web</div>
-        </div>
-        <div class="wcard-info-panel">
-          <div class="wcard-cat-tag">Na mieru &nbsp;·&nbsp; Custom</div>
-          <div class="wcard-title" style="font-size:clamp(24px,3vw,46px);">Váš<br/>projekt</div>
-          <div class="wcard-expand">
-            <div class="wcard-sep"></div>
-            <p class="wcard-desc secondary">Napíšte nám čo robíte — spoločne navrheme niečo prémiové, čo vás bude reprezentovať a predávať.</p>
-            <div class="wcard-cta-row">
-              <div class="wcard-cta">Nezáväzná konzultácia <span class="cta-arrow2">→</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
   </div>
 
   <div class="work-section-footer">
@@ -4547,61 +4443,32 @@ document.querySelectorAll('[data-prefill]').forEach(function(a){
      SCRIPTS
 ═══════════════════════════════════════════════ -->
 <script>
-/* ══ LOADER + FLYING LOGO ══════════════════════ */
+/* ══ LOADER — animované logo ═══════════════════ */
 (function(){
-  const bar  = document.getElementById('loaderBar');
-  const pct  = document.getElementById('loaderPct');
-  const ld   = document.getElementById('loader');
-  const fly  = document.getElementById('logo-fly');
-  const navImg = document.querySelector('.logo img');
-
-  let p = 0;
-  setTimeout(() => { bar.style.width = '100%'; }, 80);
-
-  const t = setInterval(() => {
-    p += Math.random() * 14 + 4;
-    if (p >= 100) {
-      p = 100;
-      clearInterval(t);
-
-      // 1) Hide loader
-      setTimeout(() => {
-        ld.classList.add('hide');
-
-        // 2) Show fly logo at center (same spot as loader logo)
-        fly.style.width   = '160px';
-        fly.style.height  = '160px';
-        fly.style.top     = (window.innerHeight / 2 - 80) + 'px';
-        fly.style.left    = (window.innerWidth  / 2 - 80) + 'px';
-        fly.style.opacity = '1';
-        fly.style.transition = 'none';
-
-        // 3) Next frame: start flying to nav position
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          const rect = navImg.getBoundingClientRect();
-          fly.style.transition =
-            'top .9s cubic-bezier(.16,1,.3,1),' +
-            'left .9s cubic-bezier(.16,1,.3,1),' +
-            'width .9s cubic-bezier(.16,1,.3,1),' +
-            'height .9s cubic-bezier(.16,1,.3,1)';
-          fly.style.top    = rect.top  + 'px';
-          fly.style.left   = rect.left + 'px';
-          fly.style.width  = rect.width  + 'px';
-          fly.style.height = rect.height + 'px';
-
-          // 4) When arrived: show real nav logo, fade out fly
-          setTimeout(() => {
-            navImg.classList.add('visible');
-            fly.style.transition = 'opacity .2s ease';
-            fly.style.opacity = '0';
-            setTimeout(() => fly.remove(), 220);
-          }, 920);
-        }));
-
-      }, 250);
-    }
-    pct.textContent = Math.floor(p) + '%';
-  }, 100);
+  const ld=document.getElementById('loader'), navImg=document.querySelector('.logo img');
+  const p=document.getElementById('ldPath'), dot=document.getElementById('ldDot'), wm=document.getElementById('ldWm'), sub=document.getElementById('ldSub');
+  const fly=document.getElementById('logo-fly'); if(fly) fly.remove();
+  const done=()=>{ ld.classList.add('hide'); if(navImg) navImg.classList.add('visible'); };
+  if(!p || !p.getTotalLength){ done(); return; }
+  const L=p.getTotalLength(), T=Math.tan(-10*Math.PI/180);
+  const cl=x=>Math.max(0,Math.min(1,x)), io=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2, out=x=>1-Math.pow(1-x,3);
+  p.style.strokeDasharray=L+' '+(L+20);
+  const set=t=>{
+    const d=io(cl((t-.25)/1.2));
+    p.style.strokeDashoffset=L*(1-d); p.style.visibility=d>.002?'visible':'hidden';
+    const q=p.getPointAtLength(L*d); let x=q.x+T*q.y, y=q.y;
+    const h=out(cl((t-1.45)/.35));
+    x+=(142.5-x)*h; y+=(95-y)*h-Math.sin(Math.PI*h)*9;
+    dot.setAttribute('cx',x); dot.setAttribute('cy',y); dot.setAttribute('r',5.5*out(cl((t-.05)/.25)));
+    const w=out(cl((t-1.55)/.55)); wm.style.opacity=w; wm.setAttribute('transform','translate('+(-14*(1-w))+' 0)');
+    sub.style.opacity=out(cl((t-1.9)/.45));
+  };
+  const END=3.3;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){ set(END); setTimeout(done,500); return; }
+  let t0=null;
+  const tick=ts=>{ if(t0===null) t0=ts; const t=(ts-t0)/1000; set(t); if(t<END) requestAnimationFrame(tick); else done(); };
+  set(0); requestAnimationFrame(tick);
+  setTimeout(done, 6000);
 })();
 
 /* ══ CURSOR ════════════════════════════════════ */
