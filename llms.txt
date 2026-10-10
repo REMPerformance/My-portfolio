@@ -1,6 +1,6 @@
 # One Movement Interactive
 
-> Slovenské štúdio na tvorbu webstránok, e-shopov a aplikácií na mieru pre firmy a živnostníkov. Web: https://onemovement.sk
+> Slovenské štúdio na tvorbu webstránok, e-shopov a aplikácií na mieru pre firmy a živnostníkov. Web: https://onemovement-murex.vercel.app
 
 ## Čo robíme
 - Tvorba webstránok na mieru: jednostránkové weby, prezentačné weby, značkové weby, e-shopy, redizajn existujúcich webov
@@ -35,4 +35,4 @@
 ## Kontakt
 - E-mail: info@remperformance.sk
 - Telefón a WhatsApp: +421 918 277 009
-- Formulár: https://onemovement.sk/#kontakt
+- Formulár: https://onemovement-murex.vercel.app/#kontakt

@@ -17,4 +17,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://onemovement.sk/sitemap.xml
+Sitemap: https://onemovement-murex.vercel.app/sitemap.xml
