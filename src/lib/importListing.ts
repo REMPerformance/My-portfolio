@@ -427,6 +427,12 @@ export function fromImport(p: ImportPayload): Imported {
   const ev = (ld?.subjectOf && typeof ld.subjectOf === "object" ? ld.subjectOf : null) as Record<string, unknown> | null;
   const evStart = ev && s(ev.startDate) ? Date.parse(s(ev.startDate)) : NaN;
   const saleEnd = saleDate(out.sale_date || line(own, "Sale date", "Auction date")) || (!Number.isNaN(evStart) && evStart > Date.now() ? new Date(evStart).toISOString() : null);
+  // záloha, ak stránka dátum predaja neuvádza: zostávajúci čas („3d 0h 41m“) pripočítaný k aktuálnemu času
+  const left = (line(own, "Time left") || "").match(/^(?:(\d+)\s*d)?\s*(?:(\d+)\s*h)?\s*(?:(\d+)\s*m)?/i);
+  const leftMs = left ? ((Number(left[1]) || 0) * 1440 + (Number(left[2]) || 0) * 60 + (Number(left[3]) || 0)) * 60000 : 0;
+  const end = saleEnd || (leftMs > 0 ? new Date(Math.round((Date.now() + leftMs) / 60000) * 60000).toISOString() : null);
+  // pri cene Kúpiť hneď platí ponuka presne do termínu predaja uvedeného na stránke
+  if (buyout) { if (end) patch.order_close_at = end; else missing.push("dátum, dokedy ponuka platí (stránka termín predaja neuvádza)"); }
   const host = (() => { try { return new URL(p.u).hostname.replace(/^www\./, ""); } catch { return ""; } })();
-  return { parsed: out, patch, url: p.u, images, saleEnd: buyout ? null : saleEnd, source: host || "inzerátu", missing };
+  return { parsed: out, patch, url: p.u, images, saleEnd: buyout ? null : end, source: host || "inzerátu", missing };
 }

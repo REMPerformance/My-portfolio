@@ -162,7 +162,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
       condition: p.run_status && p.run_status !== "unknown" ? RUN_LABEL[p.run_status] : "",
       damage: [p.primary_damage, p.secondary_damage].filter(Boolean).join(", "),
       saleType: fixed ? "fixed" : "auction",
-      bid: String((fixed ? est : p.current_bid) || ""), currency, auctionEnd: r.saleEnd, location: p.location || "",
+      bid: String((fixed ? est : p.current_bid) || ""), currency, auctionEnd: r.saleEnd || r.patch.order_close_at || null, location: p.location || "",
       estBid: est ? String(est) : "", calcCar,
       ...(est ? pricesFor(cfg, { calcCar, saleType: fixed ? "fixed" : "auction", currency, location: p.location || "" }, est) : {})
     };
