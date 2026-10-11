@@ -169,37 +169,39 @@ function pairs(block: string): [string, number][] {
   for (let k = 0; k < ls.length - 1; k++) if (/^[^\d$€]/.test(ls[k]) && /^[$€]?\s?[\d.,]+\s*(USD|EUR|CAD)?$/.test(ls[k + 1])) out.push([ls[k], amt(ls[k + 1])]);
   return out;
 }
+/** Zaokrúhli sumu vždy nahor na ďalšiu celú tisícku (18 100 → 19 000, 29 000 → 30 000). */
+export const roundUpK = (n: number) => (Math.floor(n / 1000) + 1) * 1000;
+
 export function parseEstimator(f: string) {
   if (!/Final Bid/i.test(f)) return null;
   const [est, calc = ""] = f.split(/\nCalculate the final price\n/i);
   const a = pairs(est.split(/\nAll bids are/i)[0]);
-  const bid = a.find(([l]) => /^Final Bid$/i.test(l))?.[1] || 0;
+  let bid = a.find(([l]) => /^Final Bid$/i.test(l))?.[1] || 0;
   const total = a.find(([l]) => /^Total$/i.test(l))?.[1] || 0;
-  const feeRows = a.filter(([l]) => !/^(Final Bid|Total)$/i.test(l));
-  let fees = total > bid ? Math.round((total - bid) * 100) / 100 : feeRows.reduce((s, [, v]) => s + v, 0);
-  let outBid = bid, outRows = feeRows;
-  if (!fees && calc) {
-    // záloha: druhá tabuľka na stránke („Calculate the final price“)
-    const c = pairs(calc.split(/\nShipping\n/i)[0]);
-    outBid = c.find(([l]) => /^Final bid/i.test(l))?.[1] || 0;
-    outRows = c.filter(([l]) => !/^(Final bid|Auction fees$)/i.test(l));
-    fees = outRows.reduce((s, [, v]) => s + v, 0);
-  }
+  let rows = a.filter(([l]) => !/^(Final Bid|Total)$/i.test(l));
+  let fees = total > bid ? Math.round((total - bid) * 100) / 100 : rows.reduce((s, [, v]) => s + v, 0);
+  // tabuľka „Calculate the final price“ má prednosť: súčet vpravo hore zahŕňa všetky poplatky (aukcia, sprostredkovateľ, doklady, prevod, státie)
+  const c = calc ? pairs(calc.split(/\nShipping\n/i)[0]) : [];
+  const cBid = c.find(([l]) => /^Final bid/i.test(l))?.[1] || 0;
+  const cSum = c.find(([l]) => /^Auction fees$/i.test(l))?.[1] || 0;
+  const cRows = c.filter(([l]) => !/^(Final bid|Auction fees$)/i.test(l));
+  const cFees = cSum > cBid && cBid > 0 ? Math.round((cSum - cBid) * 100) / 100 : cRows.reduce((s, [, v]) => s + v, 0);
+  if (cFees > 0) { fees = cFees; rows = cRows; if (cBid > 0) bid = cBid; }
   if (!fees) return null;
-  let ship: { inland: number; ocean: number; toSk: boolean; rows: string[] } | null = null;
-  const sb = (calc.match(/\nShipping\n[^\n]+\n([\s\S]*?)(?:\nVehicle protections|\nTotal price|$)/i) || [])[1];
-  if (sb) {
-    const s = pairs(sb);
-    const legs = s.filter(([l]) => /^Shipping to /i.test(l));
-    const extra = s.filter(([l]) => !/^Shipping to /i.test(l)).reduce((x, [, v]) => x + v, 0);
-    if (legs.length) {
-      // prvý úsek je odvoz do amerického prístavu, ďalšie sú preprava do Európy
-      const inland = legs.length > 1 ? legs[0][1] : 0;
-      const ocean = legs.slice(legs.length > 1 ? 1 : 0).reduce((x, [, v]) => x + v, 0) + extra;
-      ship = { inland, ocean, toSk: legs.some(([l]) => /,\s*SK$/i.test(l)), rows: s.map(([l, v]) => `${l} ${v.toLocaleString("sk-SK")}`) };
+  let ship: { total: number; base: number; cover: number; coverRead: boolean; toSk: boolean; rows: string[] } | null = null;
+  const sm = calc.match(/\nShipping\n([^\n]+)\n([\s\S]*?)(?:\nVehicle protections?\n|\nTotal price|$)/i);
+  if (sm) {
+    const s = pairs(sm[2]);
+    const head = /^[$€]?\s?[\d.,]+\s*(USD|EUR|CAD)?$/.test(sm[1].trim()) ? amt(sm[1]) : 0;
+    const base = head || s.reduce((x, [, v]) => x + v, 0);
+    if (base > 0) {
+      // plné poistenie prepravy (Full coverage, Complete): 7 % z ponuky, najmenej 350. Pripočítame ho vždy, aj keď na stránke nie je zaškrtnuté.
+      const read = amt((calc.match(/\nComplete \(7%[^\n]*\n([^\n]+)/i) || [])[1]);
+      const cover = read || Math.max(350, Math.round(bid * 0.07));
+      ship = { total: base + cover, base, cover, coverRead: !!read, toSk: /,\s*SK(\n|$)/i.test(sm[2]), rows: s.map(([l, v]) => `${l} ${v.toLocaleString("sk-SK")}`) };
     }
   }
-  return { bid: outBid, fees, rows: outRows.map(([l, v]) => `${l} ${v.toLocaleString("sk-SK")}`), ship };
+  return { bid, fees, rows: rows.map(([l, v]) => `${l} ${v.toLocaleString("sk-SK")}`), ship };
 }
 
 /* ───────── hlavná funkcia ───────── */
@@ -353,28 +355,36 @@ export function fromImport(p: ImportPayload): Imported {
   if (Object.keys(extra).length) patch.extra = extra;
   if (Object.keys(override).length) patch.calc_override = override;
 
-  /* presné poplatky a doprava z kalkulačky na stránke aukcie (ak ju stránka má) */
-  const fee = parseEstimator(p.f || "");
-  if (fee) {
-    if (fee.bid > 0) patch.est_bid_usd = fee.bid;
-    patch.seller_fee_usd = fee.fees;
-    const cur = org?.currency || "USD";
-    missing.push(`kontrolu poplatkov: z kalkulačky aukcie som prevzal ${fee.fees.toLocaleString("sk-SK")} ${cur} pri ponuke ${fee.bid.toLocaleString("sk-SK")} ${cur} (${fee.rows.join(", ")}). Platia presne pre túto ponuku. Ak čakáte inú cenu, napíšte ju na stránke aukcie do políčka ponuky a importujte znova`);
-    if (fee.ship) {
-      override.inlandUsd = fee.ship.inland;
-      override.oceanUsd = fee.ship.ocean;
-      if (fee.ship.toSk) override.truckEur = 0;
-      missing.push(`kontrolu dopravy: z kalkulačky som prevzal odvoz do prístavu ${fee.ship.inland.toLocaleString("sk-SK")} USD a prepravu ${fee.ship.ocean.toLocaleString("sk-SK")} USD (${fee.ship.rows.join(", ")})${fee.ship.toSk ? ". Doprava je až na Slovensko, preto som kamión do SR nastavil na 0. Položku prístav a colný deklarant si skontrolujte" : ""}`);
-    }
-    if (Object.keys(override).length) patch.calc_override = override;
-  } else if (!/fixed/.test(patch.sale_type || "")) missing.push("aukčné poplatky (stránka kalkulačku neukázala, zadajte ich ručne alebo nechajte automatický odhad)");
-
-  /* ceny */
+  /* ceny: ak má inzerát cenu Kúpiť hneď, berieme ju ako pevnú cenu zaokrúhlenú nahor na celú tisícku */
   const bid = line(own, "Current bid");
   const bidN = bid ? Number(bid.replace(/[^\d.]/g, "")) : 0;
   if (bidN > 0) out.current_bid = bidN; else delete out.current_bid;
   // štruktúrované dáta uvádzajú ako cenu aktuálnu ponuku, to nie je cena Kúpiť hneď
   if (out.buy_now && (out.buy_now === bidN || !line(own, "Buy it now", "Buy Now"))) delete out.buy_now;
+  let buyout = false;
+  if (isAuction && out.buy_now && out.buy_now >= 500) {
+    buyout = true;
+    patch.sale_type = "fixed"; patch.auction = "Dealer"; patch.auction_end_at = null;
+    patch.price_usd = roundUpK(out.buy_now);
+    missing.push(`kontrolu ceny: inzerát má cenu Kúpiť hneď ${num(out.buy_now)} ${org?.currency || "USD"}, preto som nastavil pevnú cenu ${num(patch.price_usd)} ${org?.currency || "USD"} (zaokrúhlené nahor na celú tisícku)`);
+  }
+
+  /* presné poplatky a doprava z kalkulačky na stránke aukcie (ak ju stránka má) */
+  const fee = parseEstimator(p.f || "");
+  if (fee) {
+    if (fee.bid > 0 && !buyout) patch.est_bid_usd = fee.bid;
+    patch.seller_fee_usd = fee.fees;
+    const cur = org?.currency || "USD";
+    missing.push(`kontrolu poplatkov: z kalkulačky aukcie som prevzal poplatky spolu ${fee.fees.toLocaleString("sk-SK")} ${cur} pri ponuke ${fee.bid.toLocaleString("sk-SK")} ${cur} (${fee.rows.join(", ")}). Platia presne pre túto ponuku${buyout && fee.bid !== patch.price_usd ? `. Pevná cena je ${num(patch.price_usd!)} ${cur}, preto na stránke aukcie napíšte do políčka ponuky túto sumu a importujte znova, aby poplatky sedeli` : ". Ak čakáte inú cenu, napíšte ju na stránke aukcie do políčka ponuky a importujte znova"}`);
+    if (fee.ship) {
+      // celá doprava vrátane plného poistenia ide do jednej kolónky
+      override.inlandUsd = 0;
+      override.oceanUsd = fee.ship.total;
+      if (fee.ship.toSk) override.truckEur = 0;
+      missing.push(`kontrolu dopravy: z kalkulačky som prevzal dopravu spolu ${fee.ship.total.toLocaleString("sk-SK")} USD, z toho preprava ${fee.ship.base.toLocaleString("sk-SK")} USD (${fee.ship.rows.join(", ")}) a plné poistenie Full coverage ${fee.ship.cover.toLocaleString("sk-SK")} USD${fee.ship.coverRead ? "" : " (vypočítané ako 7 % z ponuky, najmenej 350 USD)"}${fee.ship.toSk ? ". Doprava je až na Slovensko, preto som kamión do SR nastavil na 0. Položku prístav a colný deklarant si skontrolujte" : ""}`);
+    }
+    if (Object.keys(override).length) patch.calc_override = override;
+  } else if (!/fixed/.test(patch.sale_type || "") || buyout) missing.push("aukčné poplatky (stránka kalkulačku neukázala, zadajte ich ručne alebo nechajte automatický odhad)");
 
   /* návrh popisu (pole „note“ sa zobrazuje na webe, preto doň nič interné nepíšeme) */
   const rawKm = textOdo && /\bkm\b/i.test(textOdo) ? Number((textOdo.match(/[\d.,\s]+/) || [""])[0].replace(/[^\d]/g, "")) : 0;
@@ -403,7 +413,7 @@ export function fromImport(p: ImportPayload): Imported {
   if (!out.vin) missing.push("VIN (na stránke je skrytý, po prihlásení na aukcii sa zobrazí celý)");
   if (!out.engine || /valec$/.test(out.engine)) missing.push("presný motor");
   if (!out.odometer_mi) missing.push("nájazd");
-  missing.push("váš odhad vydraženia a cenu na Slovensku");
+  missing.push(buyout ? "cenu na Slovensku" : "váš odhad vydraženia a cenu na Slovensku");
   if (noteTxt) missing.push("preklad poznámky predajcu do popisu");
 
   const images = pickImages(p);
@@ -413,5 +423,5 @@ export function fromImport(p: ImportPayload): Imported {
   const evStart = ev && s(ev.startDate) ? Date.parse(s(ev.startDate)) : NaN;
   const saleEnd = saleDate(out.sale_date || line(own, "Sale date", "Auction date")) || (!Number.isNaN(evStart) && evStart > Date.now() ? new Date(evStart).toISOString() : null);
   const host = (() => { try { return new URL(p.u).hostname.replace(/^www\./, ""); } catch { return ""; } })();
-  return { parsed: out, patch, url: p.u, images, saleEnd, source: host || "inzerátu", missing };
+  return { parsed: out, patch, url: p.u, images, saleEnd: buyout ? null : saleEnd, source: host || "inzerátu", missing };
 }
