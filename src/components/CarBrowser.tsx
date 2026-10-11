@@ -41,7 +41,7 @@ const carDamageGroups = (c: CardCar) => {
   if (!(c.damage_zones || []).length) g.add("Bez poškodenia");
   return g;
 };
-const uniq = (a: (string | null | undefined)[]) => [...new Set(a.filter(Boolean) as string[])].sort((x, y) => x.localeCompare(y, "sk"));
+const uniq = (a: (string | null | undefined)[]) => [...new Set(a.map((x) => (x || "").trim()).filter(Boolean))].sort((x, y) => x.localeCompare(y, "sk"));
 const LABEL: Partial<Record<keyof F, string>> = { model: "Model", type: "Typ", ymin: "Rok od", kmax: "Km do", fuel: "Palivo", drive: "Pohon", dmg: "Poškodenie" };
 
 export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]; serverNow: number; mode?: "live" | "archive" }) {
@@ -69,7 +69,7 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
   const opts = useMemo(() => ({
     countries: COUNTRIES.filter((c) => cars.some((x) => (x.country || "US") === c.code)),
     makes: uniq(cars.map((c) => c.make)),
-    models: uniq(cars.filter((c) => !f.make || c.make === f.make).map((c) => c.model)),
+    models: uniq(cars.filter((c) => !f.make || c.make.trim() === f.make).map((c) => c.model)),
     fuels: uniq(cars.map((c) => c.fuel)),
     drives: uniq(cars.map((c) => driveKey(c.drive))),
     types: uniq(cars.map((c) => c.type)),
@@ -86,7 +86,7 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
       if (q && !`${c.year} ${c.make} ${c.model} ${c.trim ?? ""} ${c.vin ?? ""}`.toLowerCase().includes(q)) return false;
       if (f.country && (c.country || "US") !== f.country) return false;
       if (f.sale && (c.sale_type || "auction") !== f.sale) return false;
-      if (f.make && c.make !== f.make) return false;
+      if (f.make && c.make.trim() !== f.make) return false;
       if (f.model && c.model !== f.model) return false;
       if (f.type && c.type !== f.type) return false;
       if (pmax !== null && c.est.total > pmax) return false;

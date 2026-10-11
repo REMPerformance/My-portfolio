@@ -198,7 +198,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
     const taken = new Set((same || []).map((x) => x.slug as string));
     let slug = base;
     for (let k = 2; taken.has(slug); k++) slug = `${base}-${k}`;
-    const payload = { ...f, slug, status: status ?? f.status, location: f.location || [f.state && cd.places.find((p) => p.code === f.state)?.name, cd.code !== "US" ? cd.name : null].filter(Boolean).join(", ") };
+    const payload = { ...f, make: f.make.trim(), model: f.model.trim(), trim: f.trim?.trim() || null, slug, status: status ?? f.status, location: f.location || [f.state && cd.places.find((p) => p.code === f.state)?.name, cd.code !== "US" ? cd.name : null].filter(Boolean).join(", ") };
     if (payload.sale_type === "fixed") {
       payload.auction_end_at = null;
       if (payload.status === "published" && !payload.price_usd) { setStep(1); return toast("Pred zverejnením vyplňte cenu auta.", true); }
