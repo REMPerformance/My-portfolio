@@ -1129,3 +1129,12 @@ details.fold>div{padding:0 14px 12px}
 .picks button small{font-size:12px;line-height:1.4;color:var(--rc-text-dim)}
 .order{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:14px;font-size:13px;color:var(--rc-text-mid)}
 .order span{padding:4px 10px;border-radius:999px;background:var(--rc-surface-3);color:var(--rc-text);font-weight:600}
+.offers{border:1px solid var(--rc-line);border-radius:var(--rc-radius-lg);background:var(--rc-surface);margin-bottom:16px;overflow:hidden}
+.offers__head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--rc-line);background:var(--rc-surface-2)}
+.offers__head b{font-size:16px}
+.offers__head small{display:block;font-size:12px;color:var(--rc-text-dim)}
+.offers__st{width:auto;min-width:138px;padding:7px 32px 7px 10px;font-size:13px;font-weight:600}
+.offers__st.st-won{border-color:rgba(52,199,123,.5);color:var(--ok)}
+.offers__st.st-interested,.offers__st.st-bidding{border-color:var(--rc-red-line);color:var(--rc-red-hi)}
+.offers__st.st-lost,.offers__st.st-declined{color:var(--rc-text-dim)}
+.offers__note{min-width:170px;padding:7px 10px;font-size:13px}

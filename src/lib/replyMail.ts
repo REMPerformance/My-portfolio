@@ -36,7 +36,14 @@ export interface Offer {
   regNote: string;
   vat: "gross" | "net";
   note: string;
+  /** interná evidencia: ako ponuka u zákazníka dopadla, v e-maile sa nezobrazuje */
+  status: OfferStatus;
+  /** interná poznámka k ponuke, v e-maile sa nezobrazuje */
+  internalNote: string;
 }
+
+export type OfferStatus = "offered" | "interested" | "bidding" | "won" | "lost" | "declined";
+export const OFFER_STATUS: Record<OfferStatus, string> = { offered: "Ponúknuté", interested: "Má záujem", bidding: "Dražíme", won: "Vydražené", lost: "Nevydražené", declined: "Odmietol" };
 
 /** Jedna časť e-mailu. Časti idú v e-maile za sebou v poradí, v akom si ich poskladáte. */
 export interface Section {
@@ -69,7 +76,9 @@ export const EMPTY_OFFER: Offer = {
   noRegNote: "Bez opravy a homologizácie, vybavíte si ich sami",
   regNote: "Vrátane opravy, homologizácie a prihlásenia v SR",
   vat: "gross",
-  note: ""
+  note: "",
+  status: "offered",
+  internalNote: ""
 };
 
 export const EMPTY_SECTION: Section = { heading: "", kind: "text", body: "" };
