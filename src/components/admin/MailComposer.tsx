@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { browserClient } from "@/lib/supabase";
 import type { Car, Lead, Mail } from "@/lib/types";
-import { carEstimate, isFixed } from "@/lib/calc";
+import { auctionFee, carEstimate, isFixed } from "@/lib/calc";
 import { carFullName, RUN_LABEL } from "@/lib/format";
 import { SITE } from "@/lib/site";
 import { CURRENCIES } from "@/lib/origins";
@@ -151,7 +151,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
     const fixed = r.patch.sale_type === "fixed";
     const currency = r.patch.currency || "USD";
     const est = fixed ? r.patch.price_usd || p.buy_now || 0 : r.patch.est_bid_usd || 0;
-    const calcCar = { type: p.type || "car", country: r.patch.country || "US", state: r.patch.state ?? p.state ?? null, currency, sale_type: fixed ? "fixed" : "auction", seller_fee_usd: r.patch.seller_fee_usd ?? null, location: p.location || "", calc_override: r.patch.calc_override || {}, est_bid_usd: est || null, repair_eur: 0 };
+    const calcCar = { type: p.type || "car", country: r.patch.country || "US", state: r.patch.state ?? p.state ?? null, currency, sale_type: fixed ? "fixed" : "auction", seller_fee_usd: r.feeForPrice ? Math.max(r.patch.seller_fee_usd || 0, Math.round(auctionFee(cfg, r.feeForPrice))) : r.patch.seller_fee_usd ?? null, location: p.location || "", calc_override: r.patch.calc_override || {}, est_bid_usd: est || null, repair_eur: 0 };
     const offer: Offer = {
       ...EMPTY_OFFER,
       title: [p.year, p.make, p.model, p.trim].filter(Boolean).join(" "),

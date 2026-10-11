@@ -4,7 +4,7 @@ import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { browserClient } from "@/lib/supabase";
 import type { Car, DamageZone } from "@/lib/types";
-import { carEstimate, fxRate } from "@/lib/calc";
+import { auctionFee, carEstimate, fxRate } from "@/lib/calc";
 import { eur, money, slugify } from "@/lib/format";
 import { COUNTRIES, CURRENCIES, countryDef, guessPlace } from "@/lib/origins";
 import { PlacePicker } from "@/components/admin/PlacePicker";
@@ -28,7 +28,7 @@ const AUCTIONS = ["Copart", "IAAI", "Manheim", "Emirates Auction", "Iná"];
 
 function blank(): Form {
   return {
-    id: crypto.randomUUID(), slug: "", status: "draft", is_demo: false, featured: false, type: "car",
+    id: crypto.randomUUID(), slug: "", status: "published", is_demo: false, featured: false, type: "car",
     year: new Date().getFullYear() - 3, make: "", model: "", trim: "", vin: "", odometer_mi: null, engine: "", transmission: "", drive: "", fuel: "Benzín", color: "",
     keys: true, run_status: "run_drive", title_type: "Salvage", primary_damage: "", secondary_damage: "", damage_zones: [],
     location: "", region: "central", auction: "Copart", lot: "", auction_url: "", images: [],
@@ -59,6 +59,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   const [vinBusy, setVinBusy] = useState(false);
   const [imp, setImp] = useState<{ done: number; total: number } | null>(null);
   const importRan = useRef(false);
+  const [feeFix, setFeeFix] = useState<number | null>(null);
   const bmRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
@@ -162,6 +163,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
     patch({ ...r.patch, auction_url: r.url, ...(r.saleEnd ? { auction_end_at: r.saleEnd } : {}) });
     if (r.patch.country && r.patch.country !== "US") setUnit("km");
     setTodo(r.missing);
+    if (r.feeForPrice) setFeeFix(r.feeForPrice);
     if (!r.images.length) return;
     setImp({ done: 0, total: r.images.length });
     const hint = slugify([r.parsed.year, r.parsed.make, r.parsed.model].filter(Boolean).join(" "));
@@ -173,6 +175,14 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNew, f === null]);
 
+  // poplatky z kalkulačky boli načítané pri inej sume než je pevná cena: použijeme vyšší z údajov kalkulačka / tabuľka v Nastaveniach
+  useEffect(() => {
+    if (!feeFix || !cfg) return;
+    const est = Math.round(auctionFee(cfg, feeFix));
+    setFeeFix(null);
+    setF((o) => (o && o.sale_type === "fixed" && (o.seller_fee_usd || 0) < est ? { ...o, seller_fee_usd: est } : o));
+  }, [feeFix, cfg]);
+
   // React nedovolí adresu typu javascript: v JSX, preto ju nastavíme priamo
   useEffect(() => { bmRef.current?.setAttribute("href", bookmarklet(window.location.origin)); });
 
@@ -181,8 +191,13 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   async function save(status?: Form["status"]) {
     if (!f) return;
     if (!f.make.trim() || !f.model.trim()) { setStep(0); return toast("Vyplňte značku a model.", true); }
-    const slug = slugify(f.slug || [f.year, f.make, f.model, f.trim].filter(Boolean).join(" "));
-    if (!slug) return toast("Chýba URL adresa (slug).", true);
+    const base = slugify(f.slug || [f.year, f.make, f.model, f.trim].filter(Boolean).join(" "));
+    if (!base) return toast("Chýba URL adresa (slug).", true);
+    // adresa musí byť jedinečná: ak ju už má iné auto, pridáme poradové číslo (…-2, …-3)
+    const { data: same } = await sb.from("cars").select("slug").like("slug", `${base}%`).neq("id", f.id);
+    const taken = new Set((same || []).map((x) => x.slug as string));
+    let slug = base;
+    for (let k = 2; taken.has(slug); k++) slug = `${base}-${k}`;
     const payload = { ...f, slug, status: status ?? f.status, location: f.location || [f.state && cd.places.find((p) => p.code === f.state)?.name, cd.code !== "US" ? cd.name : null].filter(Boolean).join(", ") };
     if (payload.sale_type === "fixed") {
       payload.auction_end_at = null;
@@ -229,7 +244,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
         </div>
         <div className="row-actions">
           {!isNew && (f.status === "published" || f.status === "sold") && <a className="rc-btn rc-btn--ghost" href={`/auta/${f.slug}`} target="_blank" rel="noopener">Zobraziť na webe ↗</a>}
-          <button className="rc-btn rc-btn--ghost" onClick={() => save()} disabled={saving}>{saving ? "Ukladám…" : "Uložiť koncept"}</button>
+          <button className="rc-btn rc-btn--ghost" onClick={() => save(isNew ? "draft" : undefined)} disabled={saving}>{saving ? "Ukladám…" : isNew || f.status === "draft" ? "Uložiť koncept" : "Uložiť"}</button>
         </div>
       </div>
 
@@ -498,7 +513,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
             {step < STEPS.length - 1 ? (
               <button type="button" className="rc-btn rc-btn--primary" onClick={() => { setStep((s) => s + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Ďalej: {STEPS[step + 1]} →</button>
             ) : (
-              <button type="button" className="rc-btn rc-btn--primary" onClick={() => save("published")} disabled={saving}>{f.status === "published" ? "Uložiť zmeny" : "Zverejniť auto"}</button>
+              <button type="button" className="rc-btn rc-btn--primary" onClick={() => save("published")} disabled={saving}>{f.status === "published" && !isNew ? "Uložiť zmeny" : "Zverejniť auto"}</button>
             )}
           </div>
         </div>
@@ -519,8 +534,8 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
           <div className="panel">
             <h3 style={{ fontSize: 15, marginBottom: 10 }}>Pred zverejnením</h3>
             <ul className="checklist">{checks.map((c) => <li key={c.l} className={c.ok ? "ok" : ""}>{c.l}</li>)}</ul>
-            <button className="rc-btn rc-btn--primary rc-btn--block" style={{ marginTop: 16 }} onClick={() => save(f.status === "published" ? undefined : "published")} disabled={saving}>{f.status === "published" ? "Uložiť zmeny" : "Uložiť a zverejniť"}</button>
-            <button className="rc-btn rc-btn--ghost rc-btn--block" style={{ marginTop: 8 }} onClick={() => save()} disabled={saving}>Uložiť bez zmeny stavu</button>
+            <button className="rc-btn rc-btn--primary rc-btn--block" style={{ marginTop: 16 }} onClick={() => save(f.status === "published" ? undefined : "published")} disabled={saving}>{f.status === "published" && !isNew ? "Uložiť zmeny" : "Uložiť a zverejniť"}</button>
+            <button className="rc-btn rc-btn--ghost rc-btn--block" style={{ marginTop: 8 }} onClick={() => save(isNew ? "draft" : undefined)} disabled={saving}>{isNew ? "Uložiť ako koncept" : "Uložiť bez zmeny stavu"}</button>
             {dirty && <p className="note">Máte neuložené zmeny.</p>}
           </div>
         </aside>

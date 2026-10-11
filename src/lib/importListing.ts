@@ -13,6 +13,8 @@ export interface Imported {
   source: string;
   /** čo sa nepodarilo zistiť a treba doplniť ručne */
   missing: string[];
+  /** pevná cena, pre ktorú poplatky z kalkulačky neplatia (boli načítané pri inej sume) a treba ich odhadnúť podľa tabuľky v Nastaveniach */
+  feeForPrice?: number;
 }
 
 /**
@@ -378,7 +380,7 @@ export function fromImport(p: ImportPayload): Imported {
     if (fee.bid > 0 && !buyout) patch.est_bid_usd = fee.bid;
     patch.seller_fee_usd = fee.fees;
     const cur = org?.currency || "USD";
-    missing.push(`kontrolu poplatkov: z kalkulačky aukcie som prevzal poplatky spolu ${fee.fees.toLocaleString("sk-SK")} ${cur} pri ponuke ${fee.bid.toLocaleString("sk-SK")} ${cur} (${fee.rows.join(", ")}). Platia presne pre túto ponuku${buyout && fee.bid !== patch.price_usd ? `. Pevná cena je ${num(patch.price_usd!)} ${cur}, preto na stránke aukcie napíšte do políčka ponuky túto sumu a importujte znova, aby poplatky sedeli` : ". Ak čakáte inú cenu, napíšte ju na stránke aukcie do políčka ponuky a importujte znova"}`);
+    missing.push(`kontrolu poplatkov: z kalkulačky aukcie som prevzal poplatky spolu ${fee.fees.toLocaleString("sk-SK")} ${cur} pri ponuke ${fee.bid.toLocaleString("sk-SK")} ${cur} (${fee.rows.join(", ")}). Platia presne pre túto ponuku${buyout && fee.bid !== patch.price_usd ? `. Pevná cena je ${num(patch.price_usd!)} ${cur}, preto na stránke aukcie napíšte do políčka ponuky túto sumu a importujte znova, aby poplatky sedeli. Dovtedy som použil vyšší z dvoch údajov: poplatky z kalkulačky alebo odhad pre pevnú cenu podľa tabuľky v Nastaveniach` : ". Ak čakáte inú cenu, napíšte ju na stránke aukcie do políčka ponuky a importujte znova"}`);
     if (fee.ship) {
       // celá doprava vrátane plného poistenia ide do jednej kolónky
       override.inlandUsd = 0;
@@ -434,5 +436,5 @@ export function fromImport(p: ImportPayload): Imported {
   // pri cene Kúpiť hneď platí ponuka presne do termínu predaja uvedeného na stránke
   if (buyout) { if (end) patch.order_close_at = end; else missing.push("dátum, dokedy ponuka platí (stránka termín predaja neuvádza)"); }
   const host = (() => { try { return new URL(p.u).hostname.replace(/^www\./, ""); } catch { return ""; } })();
-  return { parsed: out, patch, url: p.u, images, saleEnd: buyout ? null : end, source: host || "inzerátu", missing };
+  return { parsed: out, patch, url: p.u, images, saleEnd: buyout ? null : end, source: host || "inzerátu", missing, ...(buyout && (!fee || fee.bid !== patch.price_usd) ? { feeForPrice: patch.price_usd! } : {}) };
 }
