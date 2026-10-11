@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { browserClient } from "@/lib/supabase";
 import type { Lead, Mail } from "@/lib/types";
 import { fmtDateTime } from "@/lib/format";
-import { TEMPLATES } from "@/lib/replyMail";
+import { PARTS, PRESETS } from "@/lib/replyMail";
 import { useAdmin } from "@/components/admin/AdminApp";
 import { MailComposer } from "@/components/admin/MailComposer";
 import { createMail, mailCars, mailData } from "@/components/admin/mailStore";
@@ -24,6 +24,9 @@ function Mails() {
   const [stF, setStF] = useState<"all" | Mail["status"]>("all");
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+  const [rcpt, setRcpt] = useState({ email: "", name: "" });
 
   const load = useCallback(async () => {
     const [{ data: m, error }, { data: l }, { data: c }] = await Promise.all([
@@ -47,12 +50,15 @@ function Mails() {
     return (mails || []).filter((m) => (stF === "all" || m.status === stF) && (!s || [m.to_email, m.to_name, m.subject, ...mailCars(m).map((c) => c.title)].join(" ").toLowerCase().includes(s)));
   }, [mails, stF, q]);
 
-  async function create(template: string) {
+  // časti idú do e-mailu v poradí, v akom ich zakliknete; tú istú časť možno pridať aj viackrát až v editore
+  const toggle = (id: string) => setPicked((x) => (x.includes(id) ? x.filter((y) => y !== id) : [...x, id]));
+  async function create() {
     if (busy) return;
     setBusy(true);
     try {
-      const m = await createMail(sb, { template });
+      const m = await createMail(sb, { parts: picked, to_email: rcpt.email.trim(), to_name: rcpt.name.trim() });
       setMails((x) => [m, ...(x || [])]);
+      setPicking(false); setPicked([]); setRcpt({ email: "", name: "" });
       open(m.id);
     } catch (e) { toast((e as Error).message, true); }
     setBusy(false);
@@ -75,11 +81,33 @@ function Mails() {
     <>
       <div className="adm__head">
         <h1>E-maily</h1>
+        {!picking && <button className="rc-btn rc-btn--primary" onClick={() => setPicking(true)}>+ Nový e-mail</button>}
       </div>
-      <p className="note" style={{ marginTop: 0 }}>Tu píšete e-maily zákazníkom v jednotnom vzhľade, aj bez dopytu z webu. Rozpísané e-maily sa ukladajú samy a nájdete ich z každého zariadenia.</p>
-      <div className="tpls">
-        {TEMPLATES.map((t) => <button key={t.id} type="button" disabled={busy} onClick={() => create(t.id)}><b>+ {t.label}</b><small>{t.hint}</small></button>)}
-      </div>
+      {picking ? (
+        <div className="newmail">
+          <h2>Nový e-mail</h2>
+          <p className="note" style={{ margin: 0 }}>Zakliknite, čo má e-mail obsahovať. Časti pôjdu v poradí, v akom ich zakliknete. V editore ich potom môžete presúvať, pridávať aj mazať. Hlavičku s logom, podpis a kontakty má e-mail vždy.</p>
+          <div className="row-actions" style={{ marginTop: 12 }}>
+            {PRESETS.map((p) => <button key={p.label} type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => setPicked(p.parts)}>{p.label}</button>)}
+            {picked.length > 0 && <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => setPicked([])}>Zrušiť výber</button>}
+          </div>
+          <div className="picks">
+            {PARTS.map((p) => {
+              const n = picked.indexOf(p.id);
+              return <button key={p.id} type="button" className={n >= 0 ? "on" : ""} onClick={() => toggle(p.id)}><i>{n >= 0 ? n + 1 : ""}</i><span><b>{p.label}</b><small>{p.hint}</small></span></button>;
+            })}
+          </div>
+          {picked.length > 0 && <div className="order">Poradie v e-maile: {picked.map((id, i) => <span key={id}>{i + 1}. {PARTS.find((p) => p.id === id)?.label}</span>)}</div>}
+          <div className="reply__g" style={{ maxWidth: 720 }}>
+            <div className="field"><label>E-mail adresáta (môžete doplniť neskôr)</label><input className="input" type="email" value={rcpt.email} placeholder="zakaznik@email.sk" onChange={(e) => setRcpt((x) => ({ ...x, email: e.target.value }))} /></div>
+            <div className="field"><label>Meno alebo firma</label><input className="input" value={rcpt.name} placeholder="Ján Novák" onChange={(e) => setRcpt((x) => ({ ...x, name: e.target.value }))} /></div>
+          </div>
+          <div className="row-actions">
+            <button type="button" className="rc-btn rc-btn--primary" disabled={busy} onClick={create}>{picked.length ? "Vytvoriť e-mail" : "Vytvoriť prázdny e-mail"}</button>
+            <button type="button" className="rc-btn rc-btn--ghost" onClick={() => setPicking(false)}>Zrušiť</button>
+          </div>
+        </div>
+      ) : <p className="note" style={{ marginTop: 0 }}>Tu píšete e-maily zákazníkom v jednotnom vzhľade, aj bez dopytu z webu. Rozpísané e-maily sa ukladajú samy a nájdete ich z každého zariadenia.</p>}
       <div className="toolbar">
         <select className="input" value={stF} onChange={(e) => setStF(e.target.value as typeof stF)}>
           <option value="all">Všetky</option>
@@ -89,7 +117,7 @@ function Mails() {
         <input className="input" style={{ maxWidth: 320 }} value={q} placeholder="Hľadať meno, e-mail alebo auto" onChange={(e) => setQ(e.target.value)} />
         <span className="note" style={{ margin: 0 }}>{list.length} e-mailov</span>
       </div>
-      {mails === null ? <p className="note">Načítavam…</p> : list.length === 0 ? <div className="empty">Zatiaľ žiadne e-maily. Začnite jednou z predlôh vyššie.</div> : (
+      {mails === null ? <p className="note">Načítavam…</p> : list.length === 0 ? <div className="empty">Zatiaľ žiadne e-maily. Začnite tlačidlom Nový e-mail.</div> : (
         <div className="tbl-wrap">
           <table className="tbl">
             <thead><tr><th>Adresát</th><th>Predmet a autá</th><th>Stav</th><th>Upravené</th><th /></tr></thead>

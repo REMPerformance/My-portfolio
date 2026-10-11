@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Lead, Mail } from "@/lib/types";
 import { eur, fmtDate } from "@/lib/format";
-import { EMPTY_OFFER, EMPTY_REPLY, TEMPLATES, normalizeReply, offerFilled, replySubject, type ReplyData } from "@/lib/replyMail";
+import { EMPTY_REPLY, compose, normalizeReply, offerFilled, offersOf, replySubject, type ReplyData } from "@/lib/replyMail";
 
 const TARGET = "rem-mail-import";
 const TARGET_MS = 60 * 60 * 1000;
@@ -26,11 +26,11 @@ export function takeImportTarget(): string | null {
   return id;
 }
 
-export const mailData = (m: Pick<Mail, "data">): ReplyData => normalizeReply(m.data) || { ...EMPTY_REPLY, offers: [] };
+export const mailData = (m: Pick<Mail, "data">): ReplyData => normalizeReply(m.data) || { ...EMPTY_REPLY };
 
 /** Autá, ktoré e-mail obsahuje: názov, interný odkaz na inzerát a odkaz na web. */
 export function mailCars(m: Pick<Mail, "data">) {
-  return mailData(m).offers.filter(offerFilled).map((o) => ({ title: o.title.trim() || "Auto bez názvu", sourceUrl: /^https?:\/\//i.test(o.sourceUrl.trim()) ? o.sourceUrl.trim() : "", carUrl: /^https?:\/\//i.test(o.carUrl.trim()) ? o.carUrl.trim() : "" }));
+  return offersOf(mailData(m)).filter(offerFilled).map((o) => ({ title: o.title.trim() || "Auto bez názvu", sourceUrl: /^https?:\/\//i.test(o.sourceUrl.trim()) ? o.sourceUrl.trim() : "", carUrl: /^https?:\/\//i.test(o.carUrl.trim()) ? o.carUrl.trim() : "" }));
 }
 
 const quoteOf = (lead: Lead) => ({
@@ -45,12 +45,22 @@ function firstReply(lead: Lead): ReplyData {
     const saved = s ? normalizeReply(JSON.parse(s)) : null;
     if (saved) return saved;
   } catch { /* bez uloženého konceptu */ }
-  return { ...EMPTY_REPLY, offers: [{ ...EMPTY_OFFER, title: (lead.car_label || "").replace(/^na mieru:\s*/i, "") }], ...quoteOf(lead) };
+  const d = compose(["intro", "offer", "cta"], quoteOf(lead));
+  d.sections[1].offer!.title = (lead.car_label || "").replace(/^na mieru:\s*/i, "");
+  d.sections[2].body = "Ak máte o auto záujem, odpovedzte prosím na tento e-mail alebo nám zavolajte. Aukcie majú pevný termín, preto je dobré ozvať sa čo najskôr.";
+  return d;
 }
 
-export async function createMail(sb: SupabaseClient, o: { lead?: Lead | null; template?: string; data?: ReplyData; to_email?: string; to_name?: string; more?: boolean }): Promise<Mail> {
-  const tpl = TEMPLATES.find((t) => t.id === (o.more ? "more" : o.template))?.make();
-  const data: ReplyData = o.data || (o.lead ? (o.more ? { ...tpl!, ...quoteOf(o.lead) } : firstReply(o.lead)) : tpl || TEMPLATES[0].make());
+/** Ďalší e-mail k dopytu: nové autá na porovnanie s predchádzajúcou ponukou. */
+function moreReply(lead: Lead): ReplyData {
+  const d = compose(["text", "offer", "cta"], { ...quoteOf(lead), subject: "Ďalšie autá podľa Vášho dopytu" });
+  d.sections[0].body = "medzičasom sme našli ďalšie autá, ktoré zodpovedajú Vášmu zadaniu. Posielame ich na porovnanie s predchádzajúcou ponukou.";
+  d.sections[2].body = "Ak Vás niektoré z áut zaujalo, dajte nám prosím vedieť a pripravíme presnú kalkuláciu. Aukcie majú pevný termín, preto je dobré ozvať sa čo najskôr.";
+  return d;
+}
+
+export async function createMail(sb: SupabaseClient, o: { lead?: Lead | null; parts?: string[]; data?: ReplyData; to_email?: string; to_name?: string; more?: boolean }): Promise<Mail> {
+  const data: ReplyData = o.data || (o.lead ? (o.more ? moreReply(o.lead) : firstReply(o.lead)) : compose(o.parts || []));
   const { data: row, error } = await sb.from("mails").insert({
     lead_id: o.lead?.id ?? null,
     to_email: o.to_email ?? o.lead?.email ?? "",

@@ -38,22 +38,22 @@ export interface Offer {
   note: string;
 }
 
-/** Voľná časť e-mailu pod ponukami: text, tabuľka údajov, číslovaný zoznam alebo cenová tabuľka. */
+/** Jedna časť e-mailu. Časti idú v e-maile za sebou v poradí, v akom si ich poskladáte. */
 export interface Section {
   heading: string;
-  kind: "text" | "rows" | "list" | "table";
+  kind: "text" | "rows" | "list" | "table" | "offer";
+  /** obsah textových častí: odseky, riadky „Názov: hodnota“, kroky zoznamu alebo riadky tabuľky */
   body: string;
+  /** len pri časti typu offer */
+  offer?: Offer;
 }
 
-/** E-mail zákazníkovi: úvod, ľubovoľný počet ponúk, voľné časti, záver a pôvodný dopyt zákazníka. */
+/** E-mail zákazníkovi: oslovenie, ľubovoľné časti v ľubovoľnom poradí, podpis a pôvodný dopyt zákazníka. */
 export interface ReplyData {
   /** vlastný predmet, prázdny znamená automatický */
   subject: string;
   greeting: string;
-  intro: string;
-  offers: Offer[];
   sections: Section[];
-  outro: string;
   quoteTitle: string;
   quote: string;
 }
@@ -73,75 +73,60 @@ export const EMPTY_OFFER: Offer = {
 };
 
 export const EMPTY_SECTION: Section = { heading: "", kind: "text", body: "" };
+export const offerSection = (o: Partial<Offer> = {}): Section => ({ heading: "", kind: "offer", body: "", offer: { ...EMPTY_OFFER, ...o, photos: [...(o.photos || [])] } });
 
-export const EMPTY_REPLY: ReplyData = {
-  subject: "",
-  greeting: "Dobrý deň,",
-  intro: "ďakujeme za Váš dopyt. Posielame Vám ponuku, ktorá zodpovedá Vášmu zadaniu.",
-  offers: [EMPTY_OFFER],
-  sections: [],
-  outro: "Ak máte o niektoré auto záujem, odpovedzte prosím na tento e-mail alebo nám zavolajte. Aukcie majú pevný termín, preto je dobré ozvať sa čo najskôr.",
-  quoteTitle: "Váš dopyt",
-  quote: ""
-};
+export const EMPTY_REPLY: ReplyData = { subject: "", greeting: "Dobrý deň,", sections: [], quoteTitle: "Váš dopyt", quote: "" };
 
-/** Doplní chýbajúce polia v koncepte uloženom staršou verziou formulára. */
+/** Autá v e-maile v poradí, v akom v ňom idú. */
+export const offersOf = (d: Pick<ReplyData, "sections">): Offer[] => d.sections.filter((x) => x.kind === "offer" && x.offer).map((x) => x.offer!);
+
+/** Doplní chýbajúce polia a prevedie koncepty zo starších verzií (úvod, ponuky a záver ako pevné polia) na časti. */
 export function normalizeReply(v: unknown): ReplyData | null {
   if (!v || typeof v !== "object") return null;
-  const o = v as Partial<ReplyData>;
-  if (!Array.isArray(o.offers)) return null;
-  const kinds = ["text", "rows", "list", "table"];
+  const o = v as Partial<ReplyData> & { intro?: string; outro?: string; offers?: Partial<Offer>[] };
+  if (!Array.isArray(o.sections) && !Array.isArray(o.offers)) return null;
+  const kinds = ["text", "rows", "list", "table", "offer"];
+  const fix = (x: Partial<Offer> | undefined): Offer => ({ ...EMPTY_OFFER, ...x, photos: Array.isArray(x?.photos) ? x.photos.filter((p) => typeof p === "string") : [] });
+  const sections: Section[] = (Array.isArray(o.sections) ? o.sections : []).map((x) => {
+    const kind = (kinds.includes(x?.kind) ? x.kind : "text") as Section["kind"];
+    return kind === "offer" ? { heading: "", kind, body: "", offer: fix(x.offer) } : { heading: x?.heading || "", kind, body: x?.body || "" };
+  });
+  const text = (t?: string): Section[] => (t?.trim() ? [{ heading: "", kind: "text", body: t.trim() }] : []);
   return {
-    ...EMPTY_REPLY, ...o,
-    offers: o.offers.map((x) => ({ ...EMPTY_OFFER, ...x, photos: Array.isArray(x?.photos) ? x.photos.filter((p) => typeof p === "string") : [] })),
-    sections: (Array.isArray(o.sections) ? o.sections : []).map((x) => ({ ...EMPTY_SECTION, ...x, kind: kinds.includes(x?.kind) ? x.kind : "text" }))
+    subject: o.subject || "",
+    greeting: o.greeting ?? EMPTY_REPLY.greeting,
+    sections: [...text(o.intro), ...(Array.isArray(o.offers) ? o.offers.map((x) => offerSection(fix(x))) : []), ...sections, ...text(o.outro)],
+    quoteTitle: o.quoteTitle || EMPTY_REPLY.quoteTitle,
+    quote: o.quote || ""
   };
 }
 
-/** Hotové predlohy e-mailov v jednotnom štýle. */
-export const TEMPLATES: { id: string; label: string; hint: string; make: () => ReplyData }[] = [
-  { id: "offer", label: "Ponuka áut", hint: "Jedno alebo viac áut s fotkami, údajmi a cenou na Slovensku.", make: () => ({ ...EMPTY_REPLY, offers: [{ ...EMPTY_OFFER }] }) },
-  {
-    id: "more", label: "Ďalšie autá k dopytu", hint: "Keď medzičasom nájdete lepšie kusy a chcete ich doposlať.",
-    make: () => ({
-      ...EMPTY_REPLY,
-      subject: "Ďalšie autá podľa Vášho dopytu",
-      intro: "medzičasom sme našli ďalšie autá, ktoré zodpovedajú Vášmu zadaniu. Posielame ich na porovnanie s predchádzajúcou ponukou.",
-      offers: [{ ...EMPTY_OFFER }],
-      outro: "Ak Vás niektoré z áut zaujalo, dajte nám prosím vedieť a pripravíme presnú kalkuláciu. Aukcie majú pevný termín, preto je dobré ozvať sa čo najskôr."
-    })
-  },
-  {
-    id: "terms", label: "Podmienky a ďalší postup", hint: "Záloha, manipulačný poplatok, maximálny príhoz a termíny pred dražbou.",
-    make: () => ({
-      ...EMPTY_REPLY,
-      subject: "Podmienky a ďalší postup",
-      intro: "ďakujeme za Váš záujem. Nižšie posielame najdôležitejšie podmienky, aby sme sa mohli zúčastniť dražby.",
-      offers: [],
-      sections: [
-        { heading: "Podmienky", kind: "rows", body: "Záloha pred dražbou: 2 500 €\nManipulačný poplatok pri neúspešnej dražbe: 30 €\nMaximálna suma príhozu: určíte Vy\nÚhrada po vydražení: do 2 dní\nDoplatok: po vyložení auta u nás v servise" },
-        { heading: "Termíny", kind: "rows", body: "Záloha na účte najneskôr: \nDražba: \nDodanie na Slovensko: orientačne 6 až 8 týždňov od úhrady" },
-        { heading: "Ako to prebieha", kind: "list", body: "Potvrdíte nám maximálnu sumu príhozu a pošlete fakturačné údaje.\nPripravíme zmluvu a uhradíte zálohu.\nZúčastníme sa dražby a o výsledku Vás informujeme ešte v ten deň.\nPo vydražení uhradíte cenu auta a poplatky, zvyšok doplatíte po vyložení auta u nás v servise." }
-      ],
-      outro: "Ak s týmto súhlasíte, napíšte nám prosím maximálnu sumu prihodenia a fakturačné údaje a obratom pripravíme zmluvu."
-    })
-  },
-  {
-    id: "prices", label: "Cenová tabuľka podľa vydraženia", hint: "Koľko bude auto stáť na Slovensku pri rôznych sumách vydraženia.",
-    make: () => ({
-      ...EMPTY_REPLY,
-      subject: "Cena na Slovensku podľa sumy vydraženia",
-      intro: "posielame prehľad, ako sa odhadovaná cena auta na Slovensku mení podľa sumy, za ktorú sa vydraží.",
-      offers: [],
-      sections: [
-        { heading: "Odhadovaná cena podľa vydraženia", kind: "table", body: "Vydražená cena | Bez prihlásenia | S prihlásením\n20 000 USD | 0 € | 0 €\n22 000 USD | 0 € | 0 €\n25 000 USD | 0 € | 0 €" },
-        { heading: "", kind: "text", body: "Ceny sú odhadované, sú uvedené s DPH a závisia od kurzu dolára." }
-      ],
-      outro: "Ak máte akékoľvek otázky, odpovedzte prosím na tento e-mail alebo nám zavolajte."
-    })
-  },
-  { id: "free", label: "Voľný e-mail", hint: "Len oslovenie, text a podpis. Časti si pridáte podľa potreby.", make: () => ({ ...EMPTY_REPLY, intro: "", offers: [], sections: [{ heading: "", kind: "text", body: "" }], outro: "" }) }
+/** Stavebné časti, z ktorých sa e-mail skladá. Každá má hotový vzhľad a predvyplnený text, ktorý sa dá prepísať. */
+export const PARTS: { id: string; label: string; hint: string; make: () => Section }[] = [
+  { id: "text", label: "Voľný text", hint: "Odseky textu, napríklad úvod alebo odpoveď na otázku.", make: () => ({ heading: "", kind: "text", body: "" }) },
+  { id: "intro", label: "Úvod k ponuke", hint: "Poďakovanie za dopyt a uvedenie ponuky.", make: () => ({ heading: "", kind: "text", body: "ďakujeme za Váš dopyt. Posielame Vám ponuku, ktorá zodpovedá Vášmu zadaniu." }) },
+  { id: "offer", label: "Ponuka auta", hint: "Fotky, údaje o aute, stav aukcie a cena na Slovensku.", make: () => offerSection() },
+  { id: "terms", label: "Podmienky", hint: "Záloha, manipulačný poplatok, maximálny príhoz, úhrada a doplatok.", make: () => ({ heading: "Podmienky", kind: "rows", body: "Záloha pred dražbou: 2 500 €\nManipulačný poplatok pri neúspešnej dražbe: 30 €\nMaximálna suma príhozu: určíte Vy\nÚhrada po vydražení: do 2 dní\nDoplatok: po vyložení auta u nás v servise" }) },
+  { id: "dates", label: "Termíny", hint: "Dokedy má byť záloha, kedy je dražba a kedy auto dorazí.", make: () => ({ heading: "Termíny", kind: "rows", body: "Záloha na účte najneskôr: \nDražba: \nDodanie na Slovensko: orientačne 6 až 8 týždňov od úhrady" }) },
+  { id: "steps", label: "Ako to prebieha", hint: "Číslovaný postup od potvrdenia po odovzdanie auta.", make: () => ({ heading: "Ako to prebieha", kind: "list", body: "Potvrdíte nám maximálnu sumu príhozu a pošlete fakturačné údaje.\nPripravíme zmluvu a uhradíte zálohu.\nZúčastníme sa dražby a o výsledku Vás informujeme ešte v ten deň.\nPo vydražení uhradíte cenu auta a poplatky, zvyšok doplatíte po vyložení auta u nás v servise." }) },
+  { id: "prices", label: "Cenová tabuľka", hint: "Cena na Slovensku pri rôznych sumách vydraženia.", make: () => ({ heading: "Odhadovaná cena podľa vydraženia", kind: "table", body: "Vydražená cena | Bez prihlásenia | S prihlásením\n20 000 USD | 0 € | 0 €\n22 000 USD | 0 € | 0 €\n25 000 USD | 0 € | 0 €" }) },
+  { id: "repair", label: "Čo bude treba opraviť", hint: "Predbežný rozsah opravy podľa fotiek z aukcie.", make: () => ({ heading: "Predbežný rozsah opravy", kind: "rows", body: "Karoséria: \nPodvozok a riadenie: \nBezpečnostné prvky: \nOdhad ceny opravy: " }) },
+  { id: "payment", label: "Platobné údaje", hint: "Účet, variabilný symbol a suma na úhradu.", make: () => ({ heading: "Platobné údaje", kind: "rows", body: "Príjemca: Lukáš Tonkovič, REM Performance\nBanka: Slovenská sporiteľňa, a.s.\nIBAN: SK30 0900 0000 0052 4141 6579\nSWIFT: GIBASKBX\nVariabilný symbol: \nSuma: " }) },
+  { id: "rows", label: "Tabuľka údajov", hint: "Vlastná tabuľka v tvare názov a hodnota.", make: () => ({ heading: "", kind: "rows", body: "" }) },
+  { id: "list", label: "Číslovaný zoznam", hint: "Vlastné kroky alebo body.", make: () => ({ heading: "", kind: "list", body: "" }) },
+  { id: "cta", label: "Výzva na záver", hint: "Čo má zákazník spraviť ďalej.", make: () => ({ heading: "", kind: "text", body: "Ak s týmto súhlasíte, napíšte nám prosím maximálnu sumu prihodenia a fakturačné údaje a obratom pripravíme zmluvu." }) }
 ];
+
+/** Rýchle zostavy častí pre najčastejšie e-maily. */
+export const PRESETS: { label: string; parts: string[] }[] = [
+  { label: "Ponuka áut", parts: ["intro", "offer", "cta"] },
+  { label: "Podmienky a postup", parts: ["text", "terms", "dates", "steps", "cta"] },
+  { label: "Ponuka aj podmienky", parts: ["intro", "offer", "terms", "steps", "cta"] }
+];
+
+export function compose(parts: string[], base: Partial<ReplyData> = {}): ReplyData {
+  return { ...EMPTY_REPLY, ...base, sections: parts.map((id) => PARTS.find((x) => x.id === id)?.make()).filter(Boolean) as Section[] };
+}
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
 const toNum = (s: string) => { const n = Number(String(s).replace(/[^\d.,]/g, "").replace(/[.,](?=\d{3}(\D|$))/g, "").replace(",", ".")); return isFinite(n) && n > 0 ? n : null; };
@@ -215,9 +200,9 @@ export const offerFilled = (o: Offer) => !!(o.title.trim() || o.photos.some(safe
 
 export function replySubject(d: ReplyData) {
   if (d.subject?.trim()) return d.subject.trim();
-  const list = d.offers.filter(offerFilled);
+  const list = offersOf(d).filter(offerFilled);
   if (list.length > 1) return "Ponuka áut podľa Vášho dopytu";
-  if (!list.length) return d.sections.find((x) => x.heading.trim())?.heading.trim() || "REM Performance";
+  if (!list.length) return d.sections.find((x) => x.heading.trim() && sectionFilled(x))?.heading.trim() || "REM Performance";
   return `${list[0].title.trim() || "Vaše auto"}: ponuka a cena na Slovensku`;
 }
 
@@ -255,7 +240,7 @@ function gallery(photos: string[], alt: string) {
 const lines = (t: string) => t.split("\n").map((x) => x.trim()).filter(Boolean);
 const pair = (l: string): [string, string] => { const i = l.indexOf(":"); return i < 0 ? [l, ""] : [l.slice(0, i).trim(), l.slice(i + 1).trim()]; };
 const cells = (l: string) => l.split("|").map((x) => x.trim());
-export const sectionFilled = (s: Section) => !!s.body.trim();
+export const sectionFilled = (s: Section) => (s.kind === "offer" ? !!s.offer && offerFilled(s.offer) : !!s.body.trim());
 
 function sectionHtml(s: Section) {
   const ls = lines(s.body);
@@ -268,7 +253,7 @@ function sectionHtml(s: Section) {
     const fill = (r: string[]) => Array.from({ length: n }, (_, i) => r[i] || "");
     body = head ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #e4e6ea"><tr>${fill(head).map((c) => `<td style="${F}padding:10px 14px;font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#ffffff;background:#15171b">${esc(c)}</td>`).join("")}</tr>${rest.map((r, i) => `<tr>${fill(r).map((c, k) => `<td style="${F}padding:10px 14px;font-size:14px;${k ? "font-weight:bold;" : ""}color:#15171b;background:${i % 2 ? "#f5f6f8" : "#ffffff"};border-bottom:1px solid #e4e6ea">${esc(c)}</td>`).join("")}</tr>`).join("")}</table>` : "";
   } else body = para(s.body);
-  return `<tr><td style="padding:0 24px 8px">${s.heading.trim() ? heading(s.heading.trim()) : `<div style="height:12px;line-height:12px;font-size:1px">&nbsp;</div>`}${body}</td></tr>`;
+  return `<tr><td style="padding:0 24px 4px">${s.heading.trim() ? heading(s.heading.trim()) : `<div style="height:8px;line-height:8px;font-size:1px">&nbsp;</div>`}${body}</td></tr>`;
 }
 
 function sectionText(s: Section) {
@@ -277,7 +262,7 @@ function sectionText(s: Section) {
   return [s.heading.trim().toUpperCase(), body].filter(Boolean).join("\n");
 }
 
-function offerHtml(d: Offer, n: number, total: number, now: number) {
+function offerHtml(d: Offer, n: number, total: number, now: number, divider: boolean) {
   const r = rows(d);
   const s = saleRows(d, now);
   const photos = d.photos.map(safeUrl).filter(Boolean);
@@ -291,7 +276,7 @@ function offerHtml(d: Offer, n: number, total: number, now: number) {
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>${priceCell("Bez prihlásenia", d.noRegNote, pNo, vatLabel, false, "0 6px 0 0", "50%")}${priceCell("S prihlásením", d.regNote, pReg, vatLabel, true, "0 0 0 6px", "50%")}</tr></table>`
     : pReg ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>${priceCell("S prihlásením", d.regNote, pReg, vatLabel, true, "0", "100%")}</tr></table>`
       : pNo ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>${priceCell("Bez prihlásenia", d.noRegNote, pNo, vatLabel, false, "0", "100%")}</tr></table>` : "";
-  return `<tr><td style="padding:${n > 1 ? "26px" : "6px"} 24px 0;${n > 1 ? "border-top:8px solid #eef0f3;" : ""}">
+  return `<tr><td style="padding:${divider ? "26px" : "6px"} 24px 0;${divider ? "border-top:8px solid #eef0f3;" : ""}">
 ${total > 1 ? `<div style="${F}font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:${RED};padding-bottom:4px">Ponuka ${n} z ${total}</div>` : ""}
 ${d.title.trim() ? `<div style="${F}font-size:24px;font-weight:bold;line-height:1.25;color:#15171b;padding:0 0 12px">${esc(d.title.trim())}</div>` : ""}
 ${gallery(photos, d.title.trim())}
@@ -327,32 +312,35 @@ function offerText(d: Offer, n: number, total: number, now: number) {
 
 /** E-mail pre zákazníka: tabuľkové rozloženie a inline štýly, aby vydržalo vloženie do Gmailu. */
 export function buildReply(d: ReplyData, now = Date.now()): { subject: string; html: string; text: string } {
-  const filled = d.offers.filter(offerFilled);
   const secs = d.sections.filter(sectionFilled);
-  const list = filled.length || secs.length ? filled : d.offers.slice(0, 1);
-  const hello = [d.greeting.trim(), d.intro.trim()].filter(Boolean).join("\n");
+  const total = secs.filter((x) => x.kind === "offer").length;
   const quoteTitle = d.quoteTitle.trim() || "Váš dopyt";
+  let n = 0;
+  // ponuka má vlastné oddelenie hrubou linkou, medzi ponukou a textom pod ňou ho dopĺňame
+  const parts = secs.map((x, i) => {
+    if (x.kind === "offer") return offerHtml(x.offer!, ++n, total, now, i > 0);
+    const afterOffer = i > 0 && secs[i - 1].kind === "offer";
+    return (afterOffer ? `<tr><td style="border-top:8px solid #eef0f3;height:10px;line-height:10px;font-size:1px">&nbsp;</td></tr>` : "") + sectionHtml(x);
+  });
+  const lastOffer = secs.length > 0 && secs[secs.length - 1].kind === "offer";
 
   const html = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3"><tr><td align="center" style="padding:20px 10px">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;border-collapse:collapse;background:#ffffff">
 <tr><td style="background:#0c0d10;padding:22px 24px;border-bottom:4px solid ${RED}"><a href="${SITE.url}" style="text-decoration:none"><img src="${SITE.url}/brand/rem-performance-white.png" width="340" height="18" alt="REM PERFORMANCE" style="display:block;width:340px;max-width:100%;height:auto;border:0;${F}font-size:20px;font-weight:bold;font-style:italic;letter-spacing:1px;color:#ffffff"></a></td></tr>
-<tr><td style="padding:24px 24px 10px">${para(hello)}</td></tr>
-${list.map((o, i) => offerHtml(o, i + 1, list.length, now)).join("\n")}
-${secs.length && list.length ? `<tr><td style="border-top:8px solid #eef0f3;height:10px;line-height:10px;font-size:1px">&nbsp;</td></tr>` : ""}
-${secs.map(sectionHtml).join("\n")}
-<tr><td style="padding:22px 24px 24px;${list.length && !secs.length ? "border-top:1px solid #e4e6ea" : ""}">
-${para(d.outro)}
-<p style="${F}margin:14px 0 0;font-size:15px;line-height:1.6;color:#22252b">S pozdravom<br><b>Lukáš Tonkovič</b><br>${esc(SITE.name)}</p>
+<tr><td style="padding:24px 24px 0">${para(d.greeting)}</td></tr>
+${parts.join("\n")}
+<tr><td style="padding:14px 24px 24px;${lastOffer ? "border-top:1px solid #e4e6ea" : ""}">
+<p style="${F}margin:8px 0 0;font-size:15px;line-height:1.6;color:#22252b">S pozdravom<br><b>Lukáš Tonkovič</b><br>${esc(SITE.name)}</p>
 </td></tr>
 ${d.quote.trim() ? `<tr><td style="padding:0 24px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tr><td style="${F}padding:14px 16px;background:#f5f6f8;border:1px solid #e4e6ea;border-left:4px solid #cfd3d9"><div style="${F}font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#6b7078;padding-bottom:6px">${esc(quoteTitle)}</div><div style="${F}font-size:13px;line-height:1.6;color:#4a4f58">${esc(d.quote.trim()).replace(/\n/g, "<br>")}</div></td></tr></table></td></tr>` : ""}
 <tr><td style="background:#f5f6f8;border-top:1px solid #e4e6ea;padding:16px 24px;${F}font-size:12px;line-height:1.7;color:#6b7078">Telefón a WhatsApp: <a href="tel:${SITE.phone.replace(/\s/g, "")}" style="color:#15171b;text-decoration:none;font-weight:bold">${esc(SITE.phone)}</a><br>E-mail: <a href="mailto:${SITE.email}" style="color:#15171b;text-decoration:none;font-weight:bold">${SITE.email}</a><br>Web: <a href="${SITE.url}" style="color:#15171b;text-decoration:none;font-weight:bold">${SITE.url.replace("https://", "")}</a></td></tr>
 </table></td></tr></table>`;
 
+  let m = 0;
   const text = [
-    d.greeting.trim(), "", d.intro.trim(), "",
-    list.map((o, i) => offerText(o, i + 1, list.length, now)).join("\n\n----------\n\n"),
-    secs.length ? "\n" + secs.map(sectionText).join("\n\n") : "",
-    "", d.outro.trim(), "",
+    d.greeting.trim(), "",
+    secs.map((x) => (x.kind === "offer" ? offerText(x.offer!, ++m, total, now) : sectionText(x))).join("\n\n"),
+    "",
     "S pozdravom", "Lukáš Tonkovič", SITE.name, SITE.phone, SITE.email,
     d.quote.trim() ? `\n${quoteTitle.toUpperCase()}\n${d.quote.trim()}` : ""
   ].join("\n").replace(/\n{3,}/g, "\n\n").trim();

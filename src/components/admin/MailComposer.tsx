@@ -8,7 +8,7 @@ import { SITE } from "@/lib/site";
 import { CURRENCIES } from "@/lib/origins";
 import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
 import { importImages } from "@/lib/imageImport";
-import { basisText, buildReply, EMPTY_OFFER, EMPTY_SECTION, TEMPLATES, timeLeft, type Offer, type ReplyData, type Section } from "@/lib/replyMail";
+import { basisText, buildReply, EMPTY_OFFER, offerSection, offersOf, PARTS, timeLeft, type Offer, type ReplyData, type Section } from "@/lib/replyMail";
 import { DateTimePicker } from "./DateTimePicker";
 import { useCalcCfg } from "./useCalcCfg";
 import { useAdmin } from "./AdminApp";
@@ -22,8 +22,10 @@ const KIND: Record<Section["kind"], { label: string; hint: string; ph: string }>
   text: { label: "Text", hint: "Každý riadok je samostatný odsek.", ph: "Voľný text…" },
   rows: { label: "Tabuľka údajov", hint: "Jeden údaj na riadok v tvare Názov: hodnota.", ph: "Záloha pred dražbou: 2 500 €\nÚhrada po vydražení: do 2 dní" },
   list: { label: "Číslovaný zoznam", hint: "Jeden krok na riadok, číslovanie sa doplní samo.", ph: "Potvrdíte maximálnu sumu príhozu.\nPripravíme zmluvu." },
-  table: { label: "Cenová tabuľka", hint: "Prvý riadok je hlavička, stĺpce oddeľte zvislou čiarou |.", ph: "Vydražená cena | Cena na Slovensku\n20 000 USD | 38 800 €" }
+  table: { label: "Cenová tabuľka", hint: "Prvý riadok je hlavička, stĺpce oddeľte zvislou čiarou |.", ph: "Vydražená cena | Cena na Slovensku\n20 000 USD | 38 800 €" },
+  offer: { label: "Ponuka auta", hint: "", ph: "" }
 };
+const TEXT_KINDS = ["text", "rows", "list", "table"] as const;
 
 /** Fotku zmenší a uloží ako JPEG, ktorý zobrazí každý e-mailový klient. */
 async function toJpeg(file: Blob, max = 1400, quality = 0.82): Promise<Blob> {
@@ -75,7 +77,7 @@ function pricesFor(cfg: NonNullable<ReturnType<typeof useCalcCfg>["cfg"]>, o: Pi
   return { priceNoReg: p(bare), priceReg: p(full), vat };
 }
 
-/** Editor e-mailu: adresát, ponuky áut, voľné časti, náhľad a otvorenie Gmailu. Koncept sa priebežne ukladá do databázy. */
+/** Editor e-mailu: adresát, časti poskladané v ľubovoľnom poradí, náhľad a otvorenie Gmailu. Koncept sa priebežne ukladá do databázy. */
 export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: Lead | null; cars: CarOpt[]; onClose: (m: Mail) => void }) {
   const sb = browserClient();
   const { toast, session } = useAdmin();
@@ -84,7 +86,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
   const [to, setTo] = useState({ email: mail.to_email, name: mail.to_name });
   const [status, setStatus] = useState<Mail["status"]>(mail.status);
   const [sentAt, setSentAt] = useState(mail.sent_at);
-  const [tab, setTab] = useState(0);
+  const [sel, setSel] = useState(() => { const s = mailData(mail).sections; return s.length === 1 ? 0 : s.findIndex((x) => !x.body.trim() && !(x.offer && (x.offer.title.trim() || x.offer.photos.length))); });
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(0);
   const [over, setOver] = useState(false);
@@ -97,13 +99,13 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
   const importRan = useRef(false);
   const first = useRef(true);
 
-  const cur = Math.min(tab, d.offers.length - 1);
-  const o: Offer | undefined = d.offers[cur];
+  const cur = sel;
+  const o: Offer | undefined = d.sections[sel]?.kind === "offer" ? d.sections[sel].offer : undefined;
   const set = <K extends keyof ReplyData>(k: K, v: ReplyData[K]) => setD((x) => ({ ...x, [k]: v }));
-  const patch = (i: number, p: Partial<Offer> | ((x: Offer) => Partial<Offer>)) =>
-    setD((x) => ({ ...x, offers: x.offers.map((of, j) => (j === i ? { ...of, ...(typeof p === "function" ? p(of) : p) } : of)) }));
-  const setO = <K extends keyof Offer>(k: K, v: Offer[K]) => patch(cur, { [k]: v } as Partial<Offer>);
   const setS = (i: number, p: Partial<Section>) => setD((x) => ({ ...x, sections: x.sections.map((s, j) => (j === i ? { ...s, ...p } : s)) }));
+  const patch = (i: number, p: Partial<Offer> | ((x: Offer) => Partial<Offer>)) =>
+    setD((x) => ({ ...x, sections: x.sections.map((s, j) => (j === i && s.offer ? { ...s, offer: { ...s.offer, ...(typeof p === "function" ? p(s.offer) : p) } } : s)) }));
+  const setO = <K extends keyof Offer>(k: K, v: Offer[K]) => patch(cur, { [k]: v } as Partial<Offer>);
 
   const mail_ = useMemo(() => buildReply(d), [d]);
   const row = useCallback((): Mail => ({ ...mail, to_email: to.email.trim(), to_name: to.name.trim(), subject: mail_.subject, data: d, status, sent_at: sentAt, updated_at: new Date().toISOString() }), [mail, to, mail_.subject, d, status, sentAt]);
@@ -164,41 +166,51 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
       estBid: est ? String(est) : "", calcCar,
       ...(est ? pricesFor(cfg, { calcCar, saleType: fixed ? "fixed" : "auction", currency, location: p.location || "" }, est) : {})
     };
-    let at = 0;
     setD((x) => {
-      // prázdnu ponuku na konci nahradíme, inak auto pridáme ako ďalšiu ponuku
-      const last = x.offers[x.offers.length - 1];
-      const reuse = last && !last.title.trim() && !last.photos.length && !last.vin.trim() && !last.priceReg.trim();
-      at = reuse ? x.offers.length - 1 : x.offers.length;
-      return { ...x, offers: reuse ? [...x.offers.slice(0, -1), offer] : [...x.offers, offer] };
+      // prázdnu ponuku nahradíme, inak auto zaradíme za poslednú ponuku, prípadne na koniec
+      const blank = x.sections.findIndex((s) => s.kind === "offer" && s.offer && !s.offer.title.trim() && !s.offer.photos.length && !s.offer.vin.trim() && !s.offer.priceReg.trim());
+      const lastOffer = x.sections.map((s) => s.kind).lastIndexOf("offer");
+      const at = blank >= 0 ? blank : lastOffer >= 0 ? lastOffer + 1 : x.sections.length;
+      const sections = [...x.sections];
+      sections.splice(at, blank >= 0 ? 1 : 0, offerSection(offer));
+      setTimeout(() => setSel(at), 0);
+      return { ...x, sections };
     });
-    setTimeout(() => setTab(at), 0);
     toast(`Auto z ${r.source} pridané${est ? "" : ". Doplňte sumu vydraženia a prepočítajte ceny"}.`);
     const urls = r.images.slice(0, 13);
     if (!urls.length) return;
     setImp({ done: 0, total: urls.length });
     importImages(urls, { carId: `emaily/${mail.id}`, slugHint: "foto", token: session.access_token, jpeg: true, onProgress: (done, total) => setImp({ done, total }) }).then(({ urls: got, failed }) => {
       setImp(null);
-      if (got.length) setD((x) => ({ ...x, offers: x.offers.map((of, j) => (j === at && of.sourceUrl === r.url ? { ...of, photos: [...of.photos, ...got] } : of)) }));
+      if (got.length) setD((x) => ({ ...x, sections: x.sections.map((s) => (s.offer && s.offer.sourceUrl === r.url && !s.offer.photos.length ? { ...s, offer: { ...s.offer, photos: got } } : s)) }));
       if (failed) toast(`Stiahnutých ${got.length} fotiek, ${failed} sa nepodarilo. Doplňte ich ručne.`, !got.length);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cfg]);
 
-  function addOffer(copy?: boolean) {
-    setD((x) => ({ ...x, offers: [...x.offers, copy && x.offers[cur] ? { ...x.offers[cur], photos: [...x.offers[cur].photos] } : { ...EMPTY_OFFER }] }));
-    setTab(d.offers.length);
+  function addPart(id: string) {
+    const part = PARTS.find((x) => x.id === id);
+    if (!part) return;
+    const at = d.sections.length;
+    setD((x) => ({ ...x, sections: [...x.sections, part.make()] }));
+    setSel(at);
   }
-  function removeOffer() {
-    if (!o || !confirm(`Odstrániť ponuku ${cur + 1}?`)) return;
-    setD((x) => ({ ...x, offers: x.offers.filter((_, j) => j !== cur) }));
-    setTab(Math.max(0, cur - 1));
+  function duplicate(i: number) {
+    setD((x) => { const a = [...x.sections]; const s = a[i]; a.splice(i + 1, 0, s.offer ? offerSection(s.offer) : { ...s }); return { ...x, sections: a }; });
+    setSel(i + 1);
   }
-  function moveOffer(dir: -1 | 1) {
-    const to_ = cur + dir;
-    if (to_ < 0 || to_ >= d.offers.length) return;
-    setD((x) => { const a = [...x.offers]; [a[cur], a[to_]] = [a[to_], a[cur]]; return { ...x, offers: a }; });
-    setTab(to_);
+  function removeSection(i: number) {
+    const s = d.sections[i];
+    const filled = s.kind === "offer" ? !!(s.offer?.title.trim() || s.offer?.photos.length) : !!s.body.trim();
+    if (filled && !confirm("Odstrániť túto časť e-mailu?")) return;
+    setD((x) => ({ ...x, sections: x.sections.filter((_, j) => j !== i) }));
+    setSel(-1);
+  }
+  function moveSection(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= d.sections.length) return;
+    setD((x) => { const a = [...x.sections]; [a[i], a[j]] = [a[j], a[i]]; return { ...x, sections: a }; });
+    setSel((s) => (s === i ? j : s === j ? i : s));
   }
   function waitForImport() {
     const on = !waiting;
@@ -211,15 +223,6 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
     if (!bid) return toast("Zadajte sumu vydraženia, z ktorej sa majú ceny vypočítať.", true);
     patch(cur, pricesFor(cfg, o, bid));
     toast("Ceny prepočítané podľa kalkulácie v nastaveniach. Skontrolujte ich prosím.");
-  }
-  function applyTemplate(id: string) {
-    const t = TEMPLATES.find((x) => x.id === id);
-    if (!t) return;
-    const n = t.make();
-    const hasCars = d.offers.some((x) => x.title.trim() || x.photos.length);
-    if (!confirm(`Použiť predlohu ${t.label}? Texty a voľné časti sa prepíšu${hasCars ? ", pridané autá ostanú" : ""}.`)) return;
-    setD((x) => ({ ...n, greeting: x.greeting, offers: hasCars ? x.offers : n.offers, quoteTitle: x.quoteTitle, quote: x.quote }));
-    setTab(0);
   }
 
   async function fillFromCar(id: string) {
@@ -298,7 +301,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
     if (!o) return;
     const path = o.photos[i].split("/car-images/")[1];
     // z úložiska mažeme len fotky nahraté k tomuto e-mailu, nie fotky áut z ponuky
-    if (path?.startsWith(`emaily/${mail.id}/`) && !d.offers.some((x, j) => j !== cur && x.photos.includes(o.photos[i]))) sb.storage.from("car-images").remove([path]);
+    if (path?.startsWith(`emaily/${mail.id}/`) && offersOf(d).filter((x) => x.photos.includes(o.photos[i])).length < 2) sb.storage.from("car-images").remove([path]);
     setO("photos", o.photos.filter((_, j) => j !== i));
   }
   function movePhoto(i: number, to_: number) {
@@ -307,11 +310,6 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
     const [x] = arr.splice(i, 1);
     arr.splice(to_, 0, x);
     setO("photos", arr);
-  }
-  function moveSection(i: number, dir: -1 | 1) {
-    const j = i + dir;
-    if (j < 0 || j >= d.sections.length) return;
-    setD((x) => { const a = [...x.sections]; [a[i], a[j]] = [a[j], a[i]]; return { ...x, sections: a }; });
   }
 
   const gmailUrl = `https://mail.google.com/mail/?authuser=${encodeURIComponent(SITE.email)}&view=cm&fs=1&to=${encodeURIComponent(to.email.trim())}&su=${encodeURIComponent(mail_.subject)}`;
@@ -335,6 +333,135 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
   const txt = (k: keyof Offer, label: string, ph?: string) => (
     <div className="field"><label>{label}</label><input className="input" value={(o?.[k] as string) || ""} placeholder={ph} onChange={(e) => setO(k, e.target.value as never)} /></div>
   );
+  const summary = (s: Section) => (s.kind === "offer" ? s.offer?.title.trim() || "Auto bez názvu" : s.heading.trim() || s.body.trim().split("\n")[0].slice(0, 70) || "Prázdna časť");
+
+  const offerForm = o && (
+    <>
+      {cars.length > 0 && (
+        <div className="field">
+          <label>Predvyplniť z auta na webe</label>
+          <select className="input" value="" onChange={(e) => fillFromCar(e.target.value)}>
+            <option value="">Vybrať auto…</option>
+            {cars.map((c) => <option key={c.id} value={c.id}>{c.year} {c.make} {c.model}</option>)}
+          </select>
+        </div>
+      )}
+      <div className="field">
+        <label>Odkaz na inzerát (interný)</label>
+        <div className="reply__pair" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
+          <input className="input" value={o.sourceUrl} placeholder="https://www.autobidmaster.com/…" onChange={(e) => setO("sourceUrl", e.target.value)} />
+          {/^https?:\/\//i.test(o.sourceUrl.trim()) ? <a className="rc-btn rc-btn--ghost rc-btn--sm" href={o.sourceUrl.trim()} target="_blank" rel="noopener noreferrer">Otvoriť ↗</a> : <span />}
+        </div>
+        <span className="hint">Len pre Vás, aby ste auto pri dopyte vždy našli. V e-maile sa nezobrazuje.</span>
+      </div>
+
+      <h3>Auto</h3>
+      {txt("title", "Názov auta", "2021 Jeep Wrangler Unlimited Rubicon 392")}
+      <div className="reply__g">
+        {txt("year", "Rok výroby", "2021")}
+        <div className="field">
+          <label>Najazdené</label>
+          <div className="reply__pair">
+            <input className="input" inputMode="numeric" value={o.mileage} placeholder="36672" onChange={(e) => setO("mileage", e.target.value)} />
+            <select className="input" value={o.mileageUnit} onChange={(e) => setO("mileageUnit", e.target.value as Offer["mileageUnit"])}><option value="mi">míle</option><option value="km">km</option></select>
+          </div>
+          <span className="hint">Míle sa v e-maile prepočítajú na kilometre.</span>
+        </div>
+        {txt("engine", "Motor", "6.4L V8, 470 HP")}
+        {txt("transmission", "Prevodovka", "Automatická")}
+        {txt("drive", "Pohon", "4x4")}
+        {txt("fuel", "Palivo", "Benzín")}
+        {txt("color", "Farba", "Červená")}
+        {txt("keys", "Kľúče", "Áno")}
+        {txt("condition", "Stav", "Štartuje a jazdí")}
+        {txt("damage", "Poškodenie", "Predná časť, bez poškodenia rámu")}
+        {txt("docs", "Doklady", "Originál (Texas)")}
+        {txt("vin", "VIN")}
+      </div>
+
+      <h3>Fotky</h3>
+      <div
+        className={`drop${over ? " over" : ""}`}
+        onClick={() => file.current?.click()}
+        onDragOver={(e) => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setOver(true); } }}
+        onDragLeave={() => setOver(false)}
+        onDrop={(e) => { if (e.dataTransfer.files.length) { e.preventDefault(); setOver(false); upload(e.dataTransfer.files); } }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") file.current?.click(); }}
+      >
+        <b>Pretiahnite fotky sem</b> alebo kliknite a vyberte zo zariadenia.
+        <div className="note" style={{ marginTop: 6 }}>Prvá fotka je v e-maile veľká, ostatné sú pod ňou po tri v rade. Zákazník si každú zväčší kliknutím.</div>
+        <input ref={file} type="file" accept="image/*" multiple hidden onChange={(e) => { if (e.target.files) upload(e.target.files); e.target.value = ""; }} />
+      </div>
+      {(o.photos.length > 0 || uploading > 0) && (
+        <div className="imgs">
+          {o.photos.map((src, i) => (
+            <div key={src + i} className={`it${i === 0 ? " cover" : ""}`} style={{ cursor: "default" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="" />
+              <div className="bar">
+                <span>{i === 0 ? "Hlavná" : i + 1}</span>
+                <span style={{ display: "flex", gap: 4 }}>
+                  {i > 0 && <button type="button" title="Posunúť dopredu" onClick={() => movePhoto(i, i - 1)}>←</button>}
+                  {i < o.photos.length - 1 && <button type="button" title="Posunúť dozadu" onClick={() => movePhoto(i, i + 1)}>→</button>}
+                  <button type="button" title="Odstrániť" onClick={() => removePhoto(i)}>✕</button>
+                </span>
+              </div>
+            </div>
+          ))}
+          {Array.from({ length: uploading }, (_, i) => <div key={`u${i}`} className="it up">Nahrávam…</div>)}
+        </div>
+      )}
+      <div className="field" style={{ marginTop: 12 }}>
+        <label>Alebo adresa obrázka</label>
+        <div className="reply__pair" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
+          <input className="input" value={url} placeholder="https://…" onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addUrl(); } }} />
+          <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={addUrl}>Pridať</button>
+        </div>
+      </div>
+
+      <h3>{o.saleType === "fixed" ? "Ponuka predajcu" : "Aukcia"}</h3>
+      <div className="reply__g">
+        <div className="field">
+          <label>Typ predaja</label>
+          <select className="input" value={o.saleType} onChange={(e) => setO("saleType", e.target.value as Offer["saleType"])}><option value="auction">Aukcia</option><option value="fixed">Od predajcu</option></select>
+        </div>
+        <div className="field">
+          <label>{o.saleType === "fixed" ? "Cena u predajcu" : "Aktuálna ponuka"}</label>
+          <div className="reply__pair">
+            <input className="input" inputMode="numeric" value={o.bid} placeholder="24500" onChange={(e) => setO("bid", e.target.value)} />
+            <select className="input" value={o.currency} onChange={(e) => setO("currency", e.target.value)}>{CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.code}</option>)}</select>
+          </div>
+        </div>
+        <DateTimePicker key={cur} label={o.saleType === "fixed" ? "Ponuka platí do" : "Koniec aukcie"} value={o.auctionEnd} onChange={(v) => setO("auctionEnd", v)} hint={left ? `V e-maile: ${left}` : "Počet dní do konca sa dopočíta sám."} />
+        {txt("location", "Lokalita", "Houston, Texas, USA")}
+      </div>
+
+      <h3>Cena na Slovensku</h3>
+      <div className="field">
+        <label>{o.saleType === "fixed" ? "Cena u predajcu, z ktorej sú ceny vypočítané" : "Suma vydraženia, z ktorej sú ceny vypočítané"} ({o.currency})</label>
+        <div className="reply__pair" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
+          <input className="input" inputMode="numeric" value={o.estBid} placeholder="25000" onChange={(e) => setO("estBid", e.target.value)} />
+          <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={recalc} disabled={!cfg}>Prepočítať ceny</button>
+        </div>
+        <span className="hint">{basisText(o) ? `V e-maile pod cenami: ${basisText(o)}` : "Zákazník pod cenami uvidí, z akej sumy sú vypočítané. Tlačidlo dopočíta obe ceny podľa Vašej kalkulácie."}</span>
+      </div>
+      <div className="reply__g">
+        <div className="field"><label>Bez prihlásenia (EUR)</label><input className="input" inputMode="numeric" value={o.priceNoReg} placeholder="46900" onChange={(e) => setO("priceNoReg", e.target.value)} /></div>
+        <div className="field"><label>S prihlásením (EUR)</label><input className="input" inputMode="numeric" value={o.priceReg} placeholder="52900" onChange={(e) => setO("priceReg", e.target.value)} /></div>
+        {txt("noRegNote", "Popis pod cenou bez prihlásenia")}
+        {txt("regNote", "Popis pod cenou s prihlásením")}
+        <div className="field">
+          <label>Ceny sú uvedené</label>
+          <select className="input" value={o.vat} onChange={(e) => setO("vat", e.target.value as Offer["vat"])}><option value="gross">s DPH</option><option value="net">bez DPH</option></select>
+        </div>
+        {txt("carUrl", "Odkaz na auto na webe", `${SITE.url}/auta/…`)}
+      </div>
+      <p className="note" style={{ marginTop: 0 }}>V e-maile sú ceny vždy označené ako odhadované.</p>
+      <div className="field"><label>Poznámka k tomuto autu</label><textarea className="input" rows={2} value={o.note} placeholder="Napríklad prečo ho odporúčate" onChange={(e) => setO("note", e.target.value)} /></div>
+    </>
+  );
 
   return (
     <div className="reply" role="dialog" aria-modal="true" aria-label="E-mail zákazníkovi">
@@ -344,10 +471,6 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
           <small>{to.name || lead?.phone || "Bez mena"} · {to.email || "bez adresy"} · {saved === "saving" ? "ukladám…" : saved === "err" ? "uloženie zlyhalo" : "uložené"}</small>
         </div>
         <div className="row-actions">
-          <select className="input reply__tpl" value="" onChange={(e) => applyTemplate(e.target.value)} aria-label="Predloha">
-            <option value="">Predloha…</option>
-            {TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-          </select>
           <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => { const s = status === "sent" ? "draft" : "sent"; setStatus(s); setSentAt(s === "sent" ? new Date().toISOString() : null); }}>{status === "sent" ? "Vrátiť medzi koncepty" : "Označiť ako odoslaný"}</button>
           <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => copy(false)}>Len skopírovať</button>
           <button className="rc-btn rc-btn--primary rc-btn--sm" onClick={() => copy(true)} disabled={uploading > 0 || !!imp}>Skopírovať a otvoriť Gmail</button>
@@ -365,188 +488,56 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
             <div className="field"><label>E-mail</label><input className="input" type="email" value={to.email} placeholder="zakaznik@email.sk" onChange={(e) => setTo((x) => ({ ...x, email: e.target.value }))} /></div>
             <div className="field"><label>Meno alebo firma</label><input className="input" value={to.name} placeholder="Ján Novák" onChange={(e) => setTo((x) => ({ ...x, name: e.target.value }))} /></div>
           </div>
-          <div className="field"><label>Predmet</label><input className="input" value={d.subject} placeholder={mail_.subject} onChange={(e) => set("subject", e.target.value)} /><span className="hint">Ak pole necháte prázdne, predmet sa vytvorí sám podľa obsahu.</span></div>
+          <div className="reply__g">
+            <div className="field"><label>Predmet</label><input className="input" value={d.subject} placeholder={mail_.subject} onChange={(e) => set("subject", e.target.value)} /></div>
+            <div className="field"><label>Oslovenie</label><input className="input" value={d.greeting} placeholder="Dobrý deň, pán Novák," onChange={(e) => set("greeting", e.target.value)} /></div>
+          </div>
 
-          <h3>Úvod</h3>
-          <div className="field"><label>Oslovenie</label><input className="input" value={d.greeting} placeholder="Dobrý deň, pán Novák," onChange={(e) => set("greeting", e.target.value)} /></div>
-          <div className="field"><label>Úvodný text</label><textarea className="input" rows={3} value={d.intro} onChange={(e) => set("intro", e.target.value)} /></div>
+          <h3>Obsah e-mailu</h3>
+          <p className="note" style={{ marginTop: 0 }}>E-mail si poskladáte z častí. Kliknutím časť otvoríte, šípkami zmeníte poradie. Vzhľad sa doplní sám.</p>
+          {d.sections.length === 0 && <div className="empty" style={{ padding: 24 }}>E-mail je zatiaľ prázdny. Pridajte prvú časť nižšie.</div>}
+          {d.sections.map((s, i) => {
+            const open = i === sel;
+            return (
+              <div className={`blk${open ? " on" : ""}`} key={i}>
+                <div className="blk__head" role="button" tabIndex={0} onClick={() => setSel(open ? -1 : i)} onKeyDown={(e) => { if (e.key === "Enter") setSel(open ? -1 : i); }}>
+                  <i>{i + 1}</i>
+                  <span className="blk__t"><b>{KIND[s.kind].label}</b><small>{summary(s)}</small></span>
+                  <span className="blk__act" onClick={(e) => e.stopPropagation()}>
+                    <button type="button" title="Posunúť vyššie" disabled={i === 0} onClick={() => moveSection(i, -1)}>↑</button>
+                    <button type="button" title="Posunúť nižšie" disabled={i === d.sections.length - 1} onClick={() => moveSection(i, 1)}>↓</button>
+                    <button type="button" title="Duplikovať" onClick={() => duplicate(i)}>⧉</button>
+                    <button type="button" title="Odstrániť" onClick={() => removeSection(i)}>✕</button>
+                  </span>
+                </div>
+                {open && (
+                  <div className="blk__body">
+                    {s.kind === "offer" ? offerForm : (
+                      <>
+                        <div className="reply__g">
+                          <div className="field"><label>Nadpis časti (nepovinný)</label><input className="input" value={s.heading} placeholder="Podmienky" onChange={(e) => setS(i, { heading: e.target.value })} /></div>
+                          <div className="field"><label>Vzhľad</label><select className="input" value={s.kind} onChange={(e) => setS(i, { kind: e.target.value as Section["kind"] })}>{TEXT_KINDS.map((k) => <option key={k} value={k}>{KIND[k].label}</option>)}</select></div>
+                        </div>
+                        <div className="field" style={{ marginBottom: 0 }}><textarea className="input" rows={Math.min(14, Math.max(4, s.body.split("\n").length + 1))} value={s.body} placeholder={KIND[s.kind].ph} onChange={(e) => setS(i, { body: e.target.value })} /><span className="hint">{KIND[s.kind].hint}</span></div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
-          <h3>Autá v e-maile</h3>
           <div className="reply__auc">
-            <div className="row-actions">
-              <button type="button" className={`rc-btn rc-btn--sm ${waiting ? "rc-btn--primary" : "rc-btn--ghost"}`} onClick={waitForImport}>{waiting ? "Čakám na auto z aukcie, zrušiť" : "Pridať auto z aukcie"}</button>
-              <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => addOffer()}>+ Prázdna ponuka</button>
+            <small className="blk__lbl">Pridať časť</small>
+            <div className="parts">
+              {PARTS.map((p) => <button type="button" key={p.id} title={p.hint} onClick={() => addPart(p.id)}>+ {p.label}</button>)}
+              <button type="button" className={waiting ? "on" : ""} onClick={waitForImport}>{waiting ? "Čakám na auto z aukcie, zrušiť" : "+ Auto z aukcie"}</button>
             </div>
-            {waiting
-              ? <p className="note">Otvorte inzerát na stránke aukcie, napíšte do políčka ponuky sumu vydraženia, s ktorou rátate, a kliknite na záložku <b>Import do REM</b>. Auto sa s údajmi, fotkami a cenami pridá do tohto e-mailu. Ak záložku ešte nemáte, potiahnite si ju na lištu záložiek: <a ref={bmRef} className="bm" onClick={(e) => { e.preventDefault(); toast("Tlačidlo neklikajte, potiahnite ho na lištu záložiek.", true); }}>Import do REM</a></p>
-              : <p className="note">Auto pridáte jedným kliknutím priamo zo stránky aukcie. Odkaz na inzerát ostane uložený pri dopyte, zákazníkovi sa neposiela.</p>}
+            {waiting && <p className="note">Otvorte inzerát na stránke aukcie, napíšte do políčka ponuky sumu vydraženia, s ktorou rátate, a kliknite na záložku <b>Import do REM</b>. Auto sa s údajmi, fotkami a cenami pridá do tohto e-mailu. Ak záložku ešte nemáte, potiahnite si ju na lištu záložiek: <a ref={bmRef} className="bm" onClick={(e) => { e.preventDefault(); toast("Tlačidlo neklikajte, potiahnite ho na lištu záložiek.", true); }}>Import do REM</a></p>}
           </div>
 
-          {d.offers.length > 0 && (
-            <div className="wiz reply__tabs">
-              {d.offers.map((x, i) => (
-                <button type="button" key={i} className={i === cur ? "on" : ""} onClick={() => setTab(i)}><i>{i + 1}</i>{x.title.trim() || `Ponuka ${i + 1}`}</button>
-              ))}
-            </div>
-          )}
-
-          {o && (
-            <>
-              <div className="row-actions" style={{ marginBottom: 14 }}>
-                <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => addOffer(true)}>Duplikovať</button>
-                {cur > 0 && <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => moveOffer(-1)}>← Posunúť</button>}
-                {cur < d.offers.length - 1 && <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => moveOffer(1)}>Posunúť →</button>}
-                <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={removeOffer}>Odstrániť ponuku {cur + 1}</button>
-              </div>
-
-              {cars.length > 0 && (
-                <div className="field">
-                  <label>Predvyplniť z auta na webe</label>
-                  <select className="input" value="" onChange={(e) => fillFromCar(e.target.value)}>
-                    <option value="">Vybrať auto…</option>
-                    {cars.map((c) => <option key={c.id} value={c.id}>{c.year} {c.make} {c.model}</option>)}
-                  </select>
-                </div>
-              )}
-              <div className="field">
-                <label>Odkaz na inzerát (interný)</label>
-                <div className="reply__pair" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
-                  <input className="input" value={o.sourceUrl} placeholder="https://www.autobidmaster.com/…" onChange={(e) => setO("sourceUrl", e.target.value)} />
-                  {/^https?:\/\//i.test(o.sourceUrl.trim()) ? <a className="rc-btn rc-btn--ghost rc-btn--sm" href={o.sourceUrl.trim()} target="_blank" rel="noopener noreferrer">Otvoriť ↗</a> : <span />}
-                </div>
-                <span className="hint">Len pre Vás, aby ste auto pri dopyte vždy našli. V e-maile sa nezobrazuje.</span>
-              </div>
-
-              <h3>Auto</h3>
-              {txt("title", "Názov auta", "2021 Jeep Wrangler Unlimited Rubicon 392")}
-              <div className="reply__g">
-                {txt("year", "Rok výroby", "2021")}
-                <div className="field">
-                  <label>Najazdené</label>
-                  <div className="reply__pair">
-                    <input className="input" inputMode="numeric" value={o.mileage} placeholder="36672" onChange={(e) => setO("mileage", e.target.value)} />
-                    <select className="input" value={o.mileageUnit} onChange={(e) => setO("mileageUnit", e.target.value as Offer["mileageUnit"])}><option value="mi">míle</option><option value="km">km</option></select>
-                  </div>
-                  <span className="hint">Míle sa v e-maile prepočítajú na kilometre.</span>
-                </div>
-                {txt("engine", "Motor", "6.4L V8, 470 HP")}
-                {txt("transmission", "Prevodovka", "Automatická")}
-                {txt("drive", "Pohon", "4x4")}
-                {txt("fuel", "Palivo", "Benzín")}
-                {txt("color", "Farba", "Červená")}
-                {txt("keys", "Kľúče", "Áno")}
-                {txt("condition", "Stav", "Štartuje a jazdí")}
-                {txt("damage", "Poškodenie", "Predná časť, bez poškodenia rámu")}
-                {txt("docs", "Doklady", "Originál (Texas)")}
-                {txt("vin", "VIN")}
-              </div>
-
-              <h3>Fotky</h3>
-              <div
-                className={`drop${over ? " over" : ""}`}
-                onClick={() => file.current?.click()}
-                onDragOver={(e) => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setOver(true); } }}
-                onDragLeave={() => setOver(false)}
-                onDrop={(e) => { if (e.dataTransfer.files.length) { e.preventDefault(); setOver(false); upload(e.dataTransfer.files); } }}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") file.current?.click(); }}
-              >
-                <b>Pretiahnite fotky sem</b> alebo kliknite a vyberte zo zariadenia.
-                <div className="note" style={{ marginTop: 6 }}>Prvá fotka je v e-maile veľká, ostatné sú pod ňou po tri v rade. Zákazník si každú zväčší kliknutím.</div>
-                <input ref={file} type="file" accept="image/*" multiple hidden onChange={(e) => { if (e.target.files) upload(e.target.files); e.target.value = ""; }} />
-              </div>
-              {(o.photos.length > 0 || uploading > 0) && (
-                <div className="imgs">
-                  {o.photos.map((src, i) => (
-                    <div key={src + i} className={`it${i === 0 ? " cover" : ""}`} style={{ cursor: "default" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt="" />
-                      <div className="bar">
-                        <span>{i === 0 ? "Hlavná" : i + 1}</span>
-                        <span style={{ display: "flex", gap: 4 }}>
-                          {i > 0 && <button type="button" title="Posunúť dopredu" onClick={() => movePhoto(i, i - 1)}>←</button>}
-                          {i < o.photos.length - 1 && <button type="button" title="Posunúť dozadu" onClick={() => movePhoto(i, i + 1)}>→</button>}
-                          <button type="button" title="Odstrániť" onClick={() => removePhoto(i)}>✕</button>
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  {Array.from({ length: uploading }, (_, i) => <div key={`u${i}`} className="it up">Nahrávam…</div>)}
-                </div>
-              )}
-              <div className="field" style={{ marginTop: 12 }}>
-                <label>Alebo adresa obrázka</label>
-                <div className="reply__pair" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
-                  <input className="input" value={url} placeholder="https://…" onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addUrl(); } }} />
-                  <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={addUrl}>Pridať</button>
-                </div>
-              </div>
-
-              <h3>{o.saleType === "fixed" ? "Ponuka predajcu" : "Aukcia"}</h3>
-              <div className="reply__g">
-                <div className="field">
-                  <label>Typ predaja</label>
-                  <select className="input" value={o.saleType} onChange={(e) => setO("saleType", e.target.value as Offer["saleType"])}><option value="auction">Aukcia</option><option value="fixed">Od predajcu</option></select>
-                </div>
-                <div className="field">
-                  <label>{o.saleType === "fixed" ? "Cena u predajcu" : "Aktuálna ponuka"}</label>
-                  <div className="reply__pair">
-                    <input className="input" inputMode="numeric" value={o.bid} placeholder="24500" onChange={(e) => setO("bid", e.target.value)} />
-                    <select className="input" value={o.currency} onChange={(e) => setO("currency", e.target.value)}>{CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.code}</option>)}</select>
-                  </div>
-                </div>
-                <DateTimePicker key={cur} label={o.saleType === "fixed" ? "Ponuka platí do" : "Koniec aukcie"} value={o.auctionEnd} onChange={(v) => setO("auctionEnd", v)} hint={left ? `V e-maile: ${left}` : "Počet dní do konca sa dopočíta sám."} />
-                {txt("location", "Lokalita", "Houston, Texas, USA")}
-              </div>
-
-              <h3>Cena na Slovensku</h3>
-              <div className="field">
-                <label>{o.saleType === "fixed" ? "Cena u predajcu, z ktorej sú ceny vypočítané" : "Suma vydraženia, z ktorej sú ceny vypočítané"} ({o.currency})</label>
-                <div className="reply__pair" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
-                  <input className="input" inputMode="numeric" value={o.estBid} placeholder="25000" onChange={(e) => setO("estBid", e.target.value)} />
-                  <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={recalc} disabled={!cfg}>Prepočítať ceny</button>
-                </div>
-                <span className="hint">{basisText(o) ? `V e-maile pod cenami: ${basisText(o)}` : "Zákazník pod cenami uvidí, z akej sumy sú vypočítané. Tlačidlo dopočíta obe ceny podľa Vašej kalkulácie."}</span>
-              </div>
-              <div className="reply__g">
-                <div className="field"><label>Bez prihlásenia (EUR)</label><input className="input" inputMode="numeric" value={o.priceNoReg} placeholder="46900" onChange={(e) => setO("priceNoReg", e.target.value)} /></div>
-                <div className="field"><label>S prihlásením (EUR)</label><input className="input" inputMode="numeric" value={o.priceReg} placeholder="52900" onChange={(e) => setO("priceReg", e.target.value)} /></div>
-                {txt("noRegNote", "Popis pod cenou bez prihlásenia")}
-                {txt("regNote", "Popis pod cenou s prihlásením")}
-                <div className="field">
-                  <label>Ceny sú uvedené</label>
-                  <select className="input" value={o.vat} onChange={(e) => setO("vat", e.target.value as Offer["vat"])}><option value="gross">s DPH</option><option value="net">bez DPH</option></select>
-                </div>
-                {txt("carUrl", "Odkaz na auto na webe", `${SITE.url}/auta/…`)}
-              </div>
-              <p className="note" style={{ marginTop: 0 }}>V e-maile sú ceny vždy označené ako odhadované.</p>
-              <div className="field"><label>Poznámka k tomuto autu</label><textarea className="input" rows={2} value={o.note} placeholder="Napríklad prečo ho odporúčate" onChange={(e) => setO("note", e.target.value)} /></div>
-            </>
-          )}
-
-          <h3>Voľné časti</h3>
-          <p className="note" style={{ marginTop: 0 }}>Text, tabuľka údajov, číslovaný zoznam alebo cenová tabuľka. V e-maile sú pod ponukami áut.</p>
-          {d.sections.map((s, i) => (
-            <div className="reply__sec" key={i}>
-              <div className="reply__g">
-                <div className="field"><label>Nadpis časti</label><input className="input" value={s.heading} placeholder="Podmienky" onChange={(e) => setS(i, { heading: e.target.value })} /></div>
-                <div className="field"><label>Typ</label><select className="input" value={s.kind} onChange={(e) => setS(i, { kind: e.target.value as Section["kind"] })}>{(Object.keys(KIND) as Section["kind"][]).map((k) => <option key={k} value={k}>{KIND[k].label}</option>)}</select></div>
-              </div>
-              <div className="field"><textarea className="input" rows={Math.min(12, Math.max(3, s.body.split("\n").length + 1))} value={s.body} placeholder={KIND[s.kind].ph} onChange={(e) => setS(i, { body: e.target.value })} /><span className="hint">{KIND[s.kind].hint}</span></div>
-              <div className="row-actions">
-                {i > 0 && <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => moveSection(i, -1)}>↑ Vyššie</button>}
-                {i < d.sections.length - 1 && <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => moveSection(i, 1)}>↓ Nižšie</button>}
-                <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => set("sections", d.sections.filter((_, j) => j !== i))}>Odstrániť časť</button>
-              </div>
-            </div>
-          ))}
-          <div className="row-actions">
-            {(Object.keys(KIND) as Section["kind"][]).map((k) => <button type="button" key={k} className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => set("sections", [...d.sections, { ...EMPTY_SECTION, kind: k }])}>+ {KIND[k].label}</button>)}
-          </div>
-
-          <h3>Záver e-mailu</h3>
-          <div className="field"><label>Záverečný text</label><textarea className="input" rows={3} value={d.outro} onChange={(e) => set("outro", e.target.value)} /></div>
+          <h3>Koniec e-mailu</h3>
+          <p className="note" style={{ marginTop: 0 }}>Podpis a kontakty sa dopĺňajú samy.</p>
           <div className="field"><label>Dopyt zákazníka na konci e-mailu</label><textarea className="input" rows={4} value={d.quote} onChange={(e) => set("quote", e.target.value)} /><span className="hint">Zákazník vidí, na čo odpovedáte. Ak je pole prázdne, časť sa v e-maile nezobrazí.</span></div>
         </div>
         <div className="reply__preview">
