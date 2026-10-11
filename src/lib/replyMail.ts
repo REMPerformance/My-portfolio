@@ -34,7 +34,8 @@ export interface Offer {
   priceReg: string;
   noRegNote: string;
   regNote: string;
-  vat: "gross" | "net";
+  /** final = konečná cena, nie sme platiteľ DPH */
+  vat: "gross" | "net" | "final";
   note: string;
   /** interná evidencia: ako ponuka u zákazníka dopadla, v e-maile sa nezobrazuje */
   status: OfferStatus;
@@ -75,11 +76,13 @@ export const EMPTY_OFFER: Offer = {
   priceNoReg: "", priceReg: "",
   noRegNote: "Bez opravy a homologizácie, vybavíte si ich sami",
   regNote: "Vrátane opravy, homologizácie a prihlásenia v SR",
-  vat: "gross",
+  vat: "final",
   note: "",
   status: "offered",
   internalNote: ""
 };
+
+export const VAT_LABEL: Record<Offer["vat"], string> = { final: "konečná cena", gross: "s DPH", net: "bez DPH" };
 
 export const EMPTY_SECTION: Section = { heading: "", kind: "text", body: "" };
 export const offerSection = (o: Partial<Offer> = {}): Section => ({ heading: "", kind: "offer", body: "", offer: { ...EMPTY_OFFER, ...o, photos: [...(o.photos || [])] } });
@@ -278,7 +281,7 @@ function offerHtml(d: Offer, n: number, total: number, now: number, divider: boo
   const carUrl = safeUrl(d.carUrl);
   const pNo = priceText(d.priceNoReg);
   const pReg = priceText(d.priceReg);
-  const vatLabel = d.vat === "gross" ? "s DPH" : "bez DPH";
+  const vatLabel = VAT_LABEL[d.vat] || VAT_LABEL.final;
   const fixed = d.saleType === "fixed";
   const basis = basisText(d);
   const prices = pNo && pReg
@@ -310,7 +313,7 @@ function offerText(d: Offer, n: number, total: number, now: number) {
     d.title.trim(),
     r.length ? "\nÚDAJE O AUTE\n" + line(r) : "",
     s.length ? `\n${d.saleType === "fixed" ? "PONUKA PREDAJCU" : "STAV AUKCIE"}\n` + line(s) : "",
-    pNo || pReg ? `\nODHADOVANÁ CENA NA SLOVENSKU (${d.vat === "gross" ? "s DPH" : "bez DPH"})` : "",
+    pNo || pReg ? `\nODHADOVANÁ CENA NA SLOVENSKU (${VAT_LABEL[d.vat] || VAT_LABEL.final})` : "",
     pNo ? `Bez prihlásenia: ${pNo}${d.noRegNote.trim() ? ` (${d.noRegNote.trim()})` : ""}` : "",
     pReg ? `S prihlásením: ${pReg}${d.regNote.trim() ? ` (${d.regNote.trim()})` : ""}` : "",
     pNo || pReg ? basisText(d) : "",

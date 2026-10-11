@@ -72,7 +72,7 @@ function pricesFor(cfg: NonNullable<ReturnType<typeof useCalcCfg>["cfg"]>, o: Pi
   if (!fixed && base.est_bid_usd !== bid) delete (car as { seller_fee_usd?: unknown }).seller_fee_usd;
   const full = carEstimate(cfg, car);
   const bare = carEstimate(cfg, car, { noHomolog: true });
-  const vat: Offer["vat"] = full.priceMode === "net" ? "net" : "gross";
+  const vat: Offer["vat"] = full.priceMode === "net" ? "net" : "final";
   const p = (r: typeof full) => String(Math.round(vat === "net" ? r.net : r.gross));
   return { priceNoReg: p(bare), priceReg: p(full), vat };
 }
@@ -234,7 +234,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
     const fixed = isFixed(c);
     const full = cfg ? carEstimate(cfg, c) : null;
     const bare = cfg ? carEstimate(cfg, c, { noHomolog: true }) : null;
-    const vat = full?.priceMode === "net" ? "net" : "gross";
+    const vat: Offer["vat"] = full?.priceMode === "net" ? "net" : "final";
     const price = (r: typeof full) => (r ? String(Math.round(vat === "net" ? r.net : r.gross)) : "");
     const est = (fixed ? c.price_usd : c.est_bid_usd || c.current_bid_usd) || 0;
     patch(i, {
@@ -454,7 +454,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
         {txt("regNote", "Popis pod cenou s prihlásením")}
         <div className="field">
           <label>Ceny sú uvedené</label>
-          <select className="input" value={o.vat} onChange={(e) => setO("vat", e.target.value as Offer["vat"])}><option value="gross">s DPH</option><option value="net">bez DPH</option></select>
+          <select className="input" value={o.vat} onChange={(e) => setO("vat", e.target.value as Offer["vat"])}><option value="final">konečná cena (nie sme platiteľ DPH)</option><option value="gross">s DPH</option><option value="net">bez DPH</option></select>
         </div>
         {txt("carUrl", "Odkaz na auto na webe", `${SITE.url}/auta/…`)}
       </div>
