@@ -100,7 +100,7 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
         {F({ k: "truckEur", label: "Kamión do SR", unit: "EUR", def: cfg.truckEur })}
       </div>
       <div className="three">
-        {F({ k: "creditEur", label: "Kredit RACEM (prázdne = podľa ceny, 0 = bez)", unit: "EUR", def: cfg.racemCredit[0]?.[1] ?? 0 })}
+        {F({ k: "creditEur", label: "Kredit RACEM (prázdne = predvolený, 0 = bez)", unit: "EUR", def: cfg.racemCredit[0]?.[1] ?? 0 })}
         {F({ k: "homologEur", label: oc.country.local ? "Prihlásenie na Slovensku" : "Homologizácia, STK, EČV", unit: "EUR", def: oc.country.local ? cfg.euRegEur ?? 250 : cfg.homologEur })}
       </div>
       <div className="lbl-sm" style={{ margin: "6px 0 8px" }}>Ďalšie náklady (napr. diely, lakovanie, doprava k lakovni)</div>

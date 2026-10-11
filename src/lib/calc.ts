@@ -26,7 +26,7 @@ export const DEFAULT_CALC: CalcConfig = {
   priceMode: "gross",
   depositPct: 0.1,
   depositMinEur: 500,
-  racemCredit: [[15000, 200], [30000, 400], [999999999, 700]]
+  racemCredit: [[999999999, 100]]
 };
 
 export interface CalcResult {
