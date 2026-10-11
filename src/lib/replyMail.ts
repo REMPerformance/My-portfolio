@@ -342,7 +342,8 @@ export function buildReply(d: ReplyData, now = Date.now()): { subject: string; h
 <tr><td style="padding:24px 24px 0">${para(d.greeting)}</td></tr>
 ${parts.join("\n")}
 <tr><td style="padding:14px 24px 24px;${lastOffer ? "border-top:1px solid #e4e6ea" : ""}">
-<p style="${F}margin:8px 0 0;font-size:15px;line-height:1.6;color:#22252b">S pozdravom<br><b>Lukáš Tonkovič</b><br>${esc(SITE.name)}</p>
+<p style="${F}margin:8px 0 12px;font-size:15px;line-height:1.6;color:#22252b">S pozdravom,</p>
+<img src="${SITE.url}/brand/podpis-email.png" width="552" alt="Lukáš Tonkovič, Managing Director, REM Performance, ${esc(SITE.phone)}, ${SITE.email}" style="display:block;width:100%;max-width:552px;height:auto;border:0;${F}font-size:14px;line-height:1.5;color:#22252b">
 </td></tr>
 ${d.quote.trim() ? `<tr><td style="padding:0 24px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tr><td style="${F}padding:14px 16px;background:#f5f6f8;border:1px solid #e4e6ea;border-left:4px solid #cfd3d9"><div style="${F}font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#6b7078;padding-bottom:6px">${esc(quoteTitle)}</div><div style="${F}font-size:13px;line-height:1.6;color:#4a4f58">${esc(d.quote.trim()).replace(/\n/g, "<br>")}</div></td></tr></table></td></tr>` : ""}
 <tr><td style="background:#f5f6f8;border-top:1px solid #e4e6ea;padding:16px 24px;${F}font-size:12px;line-height:1.7;color:#6b7078">Telefón a WhatsApp: <a href="tel:${SITE.phone.replace(/\s/g, "")}" style="color:#15171b;text-decoration:none;font-weight:bold">${esc(SITE.phone)}</a><br>E-mail: <a href="mailto:${SITE.email}" style="color:#15171b;text-decoration:none;font-weight:bold">${SITE.email}</a><br>Web: <a href="${SITE.url}" style="color:#15171b;text-decoration:none;font-weight:bold">${SITE.url.replace("https://", "")}</a></td></tr>
