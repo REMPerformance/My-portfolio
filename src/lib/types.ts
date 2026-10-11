@@ -152,3 +152,17 @@ export interface Lead {
   page_url: string | null;
   created_at: string;
 }
+
+/** Rozpísaný alebo odoslaný e-mail zákazníkovi. Obsah (data) má tvar ReplyData z replyMail.ts. */
+export interface Mail {
+  id: string;
+  lead_id: string | null;
+  to_email: string;
+  to_name: string;
+  subject: string;
+  data: unknown;
+  status: "draft" | "sent";
+  sent_at: string | null;
+  created_at: string;
+  updated_at: string;
+}

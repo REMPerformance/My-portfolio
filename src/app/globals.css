@@ -1090,3 +1090,19 @@ details.fold>div{padding:0 14px 12px}
 .state.sold b{color:var(--ok)}
 .pb-ended.is-sold{background:var(--ok)}
 .sold-count{color:var(--ok)}
+.reply__tpl{width:auto;padding:8px 36px 8px 12px;font-size:13px}
+.reply__auc{padding:14px;border:1px solid var(--rc-line);border-radius:var(--rc-radius);background:var(--rc-surface);margin-bottom:6px}
+.reply__auc .note{margin:10px 0 0}
+.reply__sec{padding:14px 14px 12px;border:1px solid var(--rc-line);border-radius:var(--rc-radius);background:var(--rc-surface);margin-bottom:12px}
+.reply__sec .field:last-of-type{margin-bottom:10px}
+.lead-mails{display:grid;gap:6px;margin:2px 0 12px;padding:10px 12px;border:1px solid var(--rc-line);border-radius:var(--rc-radius);background:var(--rc-surface-2)}
+.lead-mails>small{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--rc-text-dim)}
+.lead-mails .lm{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:14px}
+.lead-mails .lm b{font-weight:600}
+.lead-mails .lm a,.lead-mails .lm button{color:var(--rc-red-hi);font-size:13px;font-weight:600;background:none;border:0;padding:0;cursor:pointer}
+.lead-mails .lm span{font-size:12px;color:var(--rc-text-dim)}
+.tpls{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:22px}
+.tpls button{display:block;text-align:left;padding:14px;border:1px solid var(--rc-line);border-radius:var(--rc-radius);background:var(--rc-surface);color:var(--rc-text);cursor:pointer;transition:border-color var(--rc-fast)}
+.tpls button:hover{border-color:var(--rc-red)}
+.tpls button b{display:block;font-size:15px;margin-bottom:4px}
+.tpls button small{font-size:12px;line-height:1.45;color:var(--rc-text-dim)}

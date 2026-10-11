@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { browserClient } from "@/lib/supabase";
-import type { Lead } from "@/lib/types";
-import { eur, fmtDateTime } from "@/lib/format";
+import type { Lead, Mail } from "@/lib/types";
+import { eur, fmtDate, fmtDateTime } from "@/lib/format";
 import { useAdmin } from "@/components/admin/AdminApp";
-import { LeadReply } from "@/components/admin/LeadReply";
+import { createMail, mailCars } from "@/components/admin/mailStore";
 
 const STATUS: Record<Lead["status"], string> = { new: "Nový", contacted: "Kontaktovaný", contract: "Zmluva", deposit: "Záloha prijatá", won: "Vydražené", lost: "Neúspešné" };
 
@@ -18,13 +18,17 @@ function Leads() {
   const [cars, setCars] = useState<{ id: string; year: number | null; make: string; model: string; slug: string }[]>([]);
   const [carF, setCarF] = useState(params.get("auto") || "all");
   const [stF, setStF] = useState("all");
-  const [reply, setReply] = useState<Lead | null>(null);
+  const router = useRouter();
+  const [mails, setMails] = useState<Mail[]>([]);
+  const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const [{ data: l, error }, { data: c }] = await Promise.all([
+    const [{ data: l, error }, { data: c }, { data: m }] = await Promise.all([
       sb.from("leads").select("*").order("created_at", { ascending: false }),
-      sb.from("cars").select("id,year,make,model,slug").order("created_at", { ascending: false })
+      sb.from("cars").select("id,year,make,model,slug").order("created_at", { ascending: false }),
+      sb.from("mails").select("*").not("lead_id", "is", null).order("created_at", { ascending: true })
     ]);
+    setMails((m as Mail[]) || []);
     if (error) toast(error.message, true);
     setLeads((l as Lead[]) || []);
     setCars(c || []);
@@ -38,6 +42,18 @@ function Leads() {
     if (error) return toast(error.message, true);
     setLeads((ls) => (ls || []).map((x) => (x.id === l.id ? { ...x, ...patch } : x)));
     refreshCounts();
+  }
+  /** Odpoveď na dopyt: otvorí rozpísaný e-mail, alebo založí nový. S voľbou more vždy založí ďalší e-mail s novými autami. */
+  async function reply(l: Lead, more = false) {
+    if (busy) return;
+    const draft = more ? null : mails.filter((m) => m.lead_id === l.id && m.status === "draft").pop();
+    if (draft) return router.push(`/admin/emaily?m=${draft.id}`);
+    setBusy(true);
+    try {
+      const m = await createMail(sb, { lead: l, more: more || mails.some((x) => x.lead_id === l.id) });
+      if (l.status === "new") await update(l, { status: "contacted" });
+      router.push(`/admin/emaily?m=${m.id}`);
+    } catch (e) { toast((e as Error).message, true); setBusy(false); }
   }
   async function remove(l: Lead) {
     if (!confirm(`Zmazať dopyt od ${l.name || l.email}?`)) return;
@@ -89,7 +105,8 @@ function Leads() {
                   <select className="input" style={{ width: "auto", padding: "8px 36px 8px 12px" }} value={l.status} onChange={(e) => update(l, { status: e.target.value as Lead["status"] })}>
                     {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
-                  <button className="rc-btn rc-btn--primary rc-btn--sm" onClick={() => setReply(l)}>Odpovedať</button>
+                  <button className="rc-btn rc-btn--primary rc-btn--sm" disabled={busy} onClick={() => reply(l)}>Odpovedať</button>
+                  {mails.some((m) => m.lead_id === l.id) && <button className="rc-btn rc-btn--ghost rc-btn--sm" disabled={busy} onClick={() => reply(l, true)}>+ Poslať ďalšie autá</button>}
                   <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => remove(l)}>Zmazať</button>
                 </div>
               </div>
@@ -100,12 +117,32 @@ function Leads() {
                 {l.link && <a href={l.link} target="_blank" rel="noopener noreferrer">Odkaz na auto ↗</a>}
               </div>
               {l.message && <div className="msg">{l.message}</div>}
+              {mails.some((m) => m.lead_id === l.id) && (
+                <div className="lead-mails">
+                  <small>Autá a e-maily k tomuto dopytu</small>
+                  {mails.filter((m) => m.lead_id === l.id).map((m) => {
+                    const cs = mailCars(m);
+                    return (
+                      <div className="lm" key={m.id}>
+                        <span className={`pill ${m.status === "sent" ? "published" : "draft"}`}>{m.status === "sent" ? `Odoslané ${fmtDate(m.sent_at)}` : "Rozpísané"}</span>
+                        {cs.length ? cs.map((c, i) => (
+                          <span key={i} style={{ display: "contents" }}>
+                            <b>{c.title}</b>
+                            {c.sourceUrl && <a href={c.sourceUrl} target="_blank" rel="noopener noreferrer">inzerát ↗</a>}
+                            {c.carUrl && <a href={c.carUrl} target="_blank" rel="noopener noreferrer">web ↗</a>}
+                          </span>
+                        )) : <b>{m.subject || "E-mail bez áut"}</b>}
+                        <Link href={`/admin/emaily?m=${m.id}`}>Otvoriť e-mail</Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
               <input className="input" placeholder="Interná poznámka (uloží sa po opustení poľa)" defaultValue={l.admin_note || ""} onBlur={(e) => e.target.value !== (l.admin_note || "") && update(l, { admin_note: e.target.value || null })} />
             </div>
           ))}
         </div>
       )}
-      {reply && <LeadReply lead={reply} cars={cars} onClose={() => setReply(null)} onOpened={() => { if (reply.status === "new") update(reply, { status: "contacted" }); }} />}
     </>
   );
 }

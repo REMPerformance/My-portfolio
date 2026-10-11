@@ -10,6 +10,7 @@ import { COUNTRIES, CURRENCIES, countryDef, guessPlace } from "@/lib/origins";
 import { PlacePicker } from "@/components/admin/PlacePicker";
 import { parseListing, type Parsed } from "@/lib/listingParse";
 import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
+import { takeImportTarget } from "@/components/admin/mailStore";
 import { carSeoDescription, carSeoTitle, isDamaged } from "@/lib/carSeo";
 import { importImages } from "@/lib/imageImport";
 import { useAdmin } from "@/components/admin/AdminApp";
@@ -137,6 +138,16 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
     if (!r || !r.ok) return toast((j as { error?: string }).error || "VIN sa nepodarilo overiť.", true);
     apply((j as { data: Parsed }).data, "VIN");
   }
+
+  // ak v časti E-maily čaká rozpísaný e-mail na auto z aukcie, import patrí jemu a nie novému autu na webe
+  useEffect(() => {
+    if (!isNew || !/import=/.test(window.location.hash)) return;
+    const id = takeImportTarget();
+    if (!id) return;
+    importRan.current = true;
+    window.location.replace(`/admin/emaily?m=${id}${window.location.hash}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // import z inzerátu cez záložku v prehliadači: údaje prídu v adrese za znakom #
   useEffect(() => {

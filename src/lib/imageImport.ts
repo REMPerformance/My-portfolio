@@ -1,7 +1,7 @@
 import { browserClient } from "./supabase";
 
 /** Zmenší fotku v prehliadači (max 2000 px, WebP), aby web bol rýchly. */
-export async function compressImage(file: Blob, max = 2000, quality = 0.84): Promise<Blob> {
+export async function compressImage(file: Blob, max = 2000, quality = 0.84, type: "image/webp" | "image/jpeg" = "image/webp"): Promise<Blob> {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((res, rej) => {
@@ -14,8 +14,10 @@ export async function compressImage(file: Blob, max = 2000, quality = 0.84): Pro
     const w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
     const c = document.createElement("canvas");
     c.width = w; c.height = h;
-    c.getContext("2d")!.drawImage(img, 0, 0, w, h);
-    const blob = await new Promise<Blob | null>((res) => c.toBlob(res, "image/webp", quality));
+    const ctx = c.getContext("2d")!;
+    if (type === "image/jpeg") { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); }
+    ctx.drawImage(img, 0, 0, w, h);
+    const blob = await new Promise<Blob | null>((res) => c.toBlob(res, type, quality));
     return blob || file;
   } finally {
     URL.revokeObjectURL(url);
@@ -33,16 +35,16 @@ async function download(url: string, token: string): Promise<Blob> {
   return r.blob();
 }
 
-/** Stiahne fotky z cudzích adries, zmenší ich a nahrá k autu. Vráti verejné adresy v pôvodnom poradí. */
-export async function importImages(urls: string[], o: { carId: string; slugHint: string; token: string; onProgress?: (done: number, total: number) => void }) {
+/** Stiahne fotky z cudzích adries, zmenší ich a nahrá k autu. Vráti verejné adresy v pôvodnom poradí. S voľbou jpeg ich uloží vo formáte, ktorý zobrazí každý e-mailový klient. */
+export async function importImages(urls: string[], o: { carId: string; slugHint: string; token: string; jpeg?: boolean; onProgress?: (done: number, total: number) => void }) {
   const sb = browserClient();
   const out: (string | null)[] = new Array(urls.length).fill(null);
   let done = 0, failed = 0;
   for (let i = 0; i < urls.length; i += 3) {
     await Promise.all(urls.slice(i, i + 3).map(async (u, k) => {
       try {
-        const blob = await compressImage(await download(u, o.token));
-        const ext = blob.type === "image/webp" ? "webp" : "jpg";
+        const blob = o.jpeg ? await compressImage(await download(u, o.token), 1400, 0.82, "image/jpeg") : await compressImage(await download(u, o.token));
+        const ext = blob.type === "image/webp" ? "webp" : blob.type === "image/png" ? "png" : "jpg";
         const path = `${o.carId}/${(o.slugHint || "auto").slice(0, 50)}-${Date.now().toString(36)}-${i + k}.${ext}`;
         const { error } = await sb.storage.from("car-images").upload(path, blob, { contentType: blob.type || "image/jpeg", cacheControl: "31536000", upsert: false });
         if (error) throw error;
