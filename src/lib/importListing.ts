@@ -2,7 +2,7 @@
 import { mapDamage, mapDrive, mapFuel, mapTitle, mapType, parseListing, titleCase, type Parsed } from "./listingParse";
 import type { CalcOverride, Car, CarExtra, DamageZone, RunStatus, Severity } from "./types";
 
-export interface ImportPayload { u: string; t?: string; ld?: Record<string, unknown>[]; x?: string; i?: string[]; c?: string[]; f?: string; g?: string[]; n?: number }
+export interface ImportPayload { u: string; t?: string; ld?: Record<string, unknown>[]; x?: string; i?: string[]; c?: string[]; f?: string; g?: string[]; n?: number; k?: string }
 export interface Imported {
   parsed: Parsed;
   /** ďalšie polia auta, ktoré sa dajú odvodiť (krajina, mena, zóny poškodenia, popis…) */
@@ -21,7 +21,7 @@ export interface Imported {
  * sa deje až v administrácii, aby sa dalo zlepšovať bez opätovného pridávania záložky.
  */
 export function bookmarklet(origin: string) {
-  const code = `(function(){var D=document,go=function(){var d=document,q=function(s){return [].slice.call(d.querySelectorAll(s))},ld=[];q('script[type="application/ld+json"]').forEach(function(s){try{var j=JSON.parse(s.textContent);(Array.isArray(j)?j:j['@graph']||[j]).forEach(function(x){if(x&&/Product|Vehicle|Car/.test(String(x['@type'])))ld.push(x)})}catch(e){}});var im=[];ld.forEach(function(x){[].concat(x.image||[]).forEach(function(i){var u=typeof i==='string'?i:i&&(i.url||i.contentUrl);if(u)im.push(u)});delete x.image;delete x.review;delete x.aggregateRating});var c=[];q('img').forEach(function(i){[i.currentSrc,i.src,i.getAttribute('data-src'),i.getAttribute('data-lazy'),i.getAttribute('data-original')].forEach(function(u){if(u&&/^https?:/.test(u))c.push(u+(i.naturalWidth?'#'+i.naturalWidth:''))})});(d.documentElement.innerHTML.match(/https?:[^"'\\\\ )<>]+?\\.(?:jpe?g|webp|png)(?=["'\\\\ )?&<])/gi)||[]).forEach(function(u){c.push(u)});c=c.filter(function(u,i){return c.indexOf(u)===i&&!/logo|icon|sprite|flag|banner|avatar|favicon/i.test(u)}).slice(0,150);var bt=(d.body.innerText||'').replace(/\\n{2,}/g,'\\n'),fi=bt.lastIndexOf('Final Price Estimator'),fe=fi<0?'':bt.slice(fi,fi+2200).split(/\\n(?:Vehicles You Might Like|Similar Vehicles)/)[0];var ga=[],bi=q('img').filter(function(i){return i.naturalWidth>=500}).sort(function(a,b){return b.naturalWidth*b.naturalHeight-a.naturalWidth*a.naturalHeight})[0],ge=bi,gk=0,RX=/https?:[^"'\\\\ )<>]+?\\.(?:jpe?g|webp|png)/gi;var gn=0;while(ge&&gk++<12){ge=ge.parentElement;if(!ge||ge===d.body||(ge.innerText||'').length>350)break;var gu=(ge.innerHTML.match(RX)||[]).filter(function(u,i,a){return a.indexOf(u)===i});if(gu.length>=ga.length)ga=gu.slice(0,150);var gm=(ge.innerText||'').match(/(\\d+)\\s*\\/\\s*(\\d+)/);if(gm)gn=+gm[2]}var m=d.querySelector('main')||d.body,h=d.querySelector('h1'),p={u:location.href,t:d.title,h:h?h.innerText:'',ld:ld.slice(0,2),x:(m.innerText||'').replace(/\\n{2,}/g,'\\n').slice(0,4500),i:im.slice(0,60),c:c,f:fe,g:ga,n:gn},b=btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\\+/g,'-').replace(/\\//g,'_');var w=window.open('${origin}/admin/auta/nove#import='+b,'_blank');if(!w)location.href='${origin}/admin/auta/nove#import='+b};var b=[].slice.call(D.querySelectorAll('button,span')).filter(function(e){return e.children.length<3&&/^\\s*Final Price Estimator\\s*$/i.test(e.innerText||'')}).pop();if(b&&(D.body.innerText||'').search(/\\nFinal Bid\\n/)<0){try{b.click()}catch(e){}setTimeout(go,1800)}else go()})()`;
+  const code = `(function(){var D=document,go=function(){var d=document,q=function(s){return [].slice.call(d.querySelectorAll(s))},ld=[];q('script[type="application/ld+json"]').forEach(function(s){try{var j=JSON.parse(s.textContent);(Array.isArray(j)?j:j['@graph']||[j]).forEach(function(x){if(x&&/Product|Vehicle|Car/.test(String(x['@type'])))ld.push(x)})}catch(e){}});var im=[];ld.forEach(function(x){[].concat(x.image||[]).forEach(function(i){var u=typeof i==='string'?i:i&&(i.url||i.contentUrl);if(u)im.push(u)});delete x.image;delete x.review;delete x.aggregateRating});var c=[];q('img').forEach(function(i){[i.currentSrc,i.src,i.getAttribute('data-src'),i.getAttribute('data-lazy'),i.getAttribute('data-original')].forEach(function(u){if(u&&/^https?:/.test(u))c.push(u+(i.naturalWidth?'#'+i.naturalWidth:''))})});(d.documentElement.innerHTML.match(/https?:[^"'\\\\ )<>]+?\\.(?:jpe?g|webp|png)(?=["'\\\\ )?&<])/gi)||[]).forEach(function(u){c.push(u)});c=c.filter(function(u,i){return c.indexOf(u)===i&&!/logo|icon|sprite|flag|banner|avatar|favicon/i.test(u)}).slice(0,150);var bt=(d.body.innerText||'').replace(/\\n{2,}/g,'\\n'),fi=bt.lastIndexOf('Final Price Estimator'),fe=fi<0?'':bt.slice(fi,fi+2200).split(/\\n(?:Vehicles You Might Like|Similar Vehicles)/)[0];var ki=bt.lastIndexOf('Calculate the final price'),kc=ki<0?'':bt.slice(ki,ki+1700);var ga=[],bi=q('img').filter(function(i){return i.naturalWidth>=500}).sort(function(a,b){return b.naturalWidth*b.naturalHeight-a.naturalWidth*a.naturalHeight})[0],ge=bi,gk=0,RX=/https?:[^"'\\\\ )<>]+?\\.(?:jpe?g|webp|png)/gi;var gn=0;while(ge&&gk++<12){ge=ge.parentElement;if(!ge||ge===d.body||(ge.innerText||'').length>350)break;var gu=(ge.innerHTML.match(RX)||[]).filter(function(u,i,a){return a.indexOf(u)===i});if(gu.length>=ga.length)ga=gu.slice(0,150);var gm=(ge.innerText||'').match(/(\\d+)\\s*\\/\\s*(\\d+)/);if(gm)gn=+gm[2]}var m=d.querySelector('main')||d.body,h=d.querySelector('h1'),p={u:location.href,t:d.title,h:h?h.innerText:'',ld:ld.slice(0,2),x:(m.innerText||'').replace(/\\n{2,}/g,'\\n').slice(0,4500),i:im.slice(0,60),c:c,f:fe,g:ga,n:gn,k:kc},b=btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\\+/g,'-').replace(/\\//g,'_');var w=window.open('${origin}/admin/auta/nove#import='+b,'_blank');if(!w)location.href='${origin}/admin/auta/nove#import='+b};var b=[].slice.call(D.querySelectorAll('button,span')).filter(function(e){return e.children.length<3&&/^\\s*Final Price Estimator\\s*$/i.test(e.innerText||'')}).pop();if(b&&(D.body.innerText||'').search(/\\nFinal Bid\\n/)<0){try{b.click()}catch(e){}setTimeout(go,1800)}else go()})()`;
   return "javascript:" + encodeURIComponent(code);
 }
 
@@ -172,16 +172,19 @@ function pairs(block: string): [string, number][] {
 /** Zaokrúhli sumu vždy nahor na ďalšiu celú tisícku (18 100 → 19 000, 29 000 → 30 000). */
 export const roundUpK = (n: number) => (Math.floor(n / 1000) + 1) * 1000;
 
-export function parseEstimator(f: string) {
-  if (!/Final Bid/i.test(f)) return null;
-  const [est, calc = ""] = f.split(/\nCalculate the final price\n/i);
+export function parseEstimator(f: string, pageText = "") {
+  // tabuľka „Calculate the final price“ býva inde na stránke než okno Final Price Estimator, preto ju hľadáme aj v texte stránky
+  const cut = (t: string) => { const i = t.search(/(?:^|\n)\s*Calculate the final price\s*\n/i); return i < 0 ? "" : "\n" + t.slice(i).replace(/^\s*Calculate the final price\s*\n/i, "").slice(0, 1700); };
+  const est = f.split(/\nCalculate the final price\n/i)[0];
+  const calc = cut(f) || cut(pageText);
+  if (!/Final Bid/i.test(f) && !calc) return null;
   const a = pairs(est.split(/\nAll bids are/i)[0]);
   let bid = a.find(([l]) => /^Final Bid$/i.test(l))?.[1] || 0;
   const total = a.find(([l]) => /^Total$/i.test(l))?.[1] || 0;
   let rows = a.filter(([l]) => !/^(Final Bid|Total)$/i.test(l));
   let fees = total > bid ? Math.round((total - bid) * 100) / 100 : rows.reduce((s, [, v]) => s + v, 0);
   // tabuľka „Calculate the final price“ má prednosť: súčet vpravo hore zahŕňa všetky poplatky (aukcia, sprostredkovateľ, doklady, prevod, státie)
-  const c = calc ? pairs(calc.split(/\nShipping\n/i)[0]) : [];
+  const c = calc ? pairs(calc.split(/\nShipping\s*\n/i)[0]) : [];
   const cBid = c.find(([l]) => /^Final bid/i.test(l))?.[1] || 0;
   const cSum = c.find(([l]) => /^Auction fees$/i.test(l))?.[1] || 0;
   const cRows = c.filter(([l]) => !/^(Final bid|Auction fees$)/i.test(l));
@@ -189,7 +192,7 @@ export function parseEstimator(f: string) {
   if (cFees > 0) { fees = cFees; rows = cRows; if (cBid > 0) bid = cBid; }
   if (!fees) return null;
   let ship: { total: number; base: number; cover: number; coverRead: boolean; toSk: boolean; rows: string[] } | null = null;
-  const sm = calc.match(/\nShipping\n([^\n]+)\n([\s\S]*?)(?:\nVehicle protections?\n|\nTotal price|$)/i);
+  const sm = calc.match(/\nShipping\s*\n([^\n]+)\n([\s\S]*?)(?:\nVehicle protections?\s*\n|\nTotal price|$)/i);
   if (sm) {
     const s = pairs(sm[2]);
     const head = /^[$€]?\s?[\d.,]+\s*(USD|EUR|CAD)?$/.test(sm[1].trim()) ? amt(sm[1]) : 0;
@@ -370,7 +373,7 @@ export function fromImport(p: ImportPayload): Imported {
   }
 
   /* presné poplatky a doprava z kalkulačky na stránke aukcie (ak ju stránka má) */
-  const fee = parseEstimator(p.f || "");
+  const fee = parseEstimator(p.f || "", `${p.k || ""}\n${text}`);
   if (fee) {
     if (fee.bid > 0 && !buyout) patch.est_bid_usd = fee.bid;
     patch.seller_fee_usd = fee.fees;
@@ -379,9 +382,11 @@ export function fromImport(p: ImportPayload): Imported {
     if (fee.ship) {
       // celá doprava vrátane plného poistenia ide do jednej kolónky
       override.inlandUsd = 0;
+      // pri cene Kúpiť hneď sa poistenie počíta z pevnej ceny, nie z ponuky napísanej na stránke
+      if (buyout) { fee.ship.cover = Math.max(350, Math.round(patch.price_usd! * 0.07)); fee.ship.coverRead = false; fee.ship.total = fee.ship.base + fee.ship.cover; }
       override.oceanUsd = fee.ship.total;
       if (fee.ship.toSk) override.truckEur = 0;
-      missing.push(`kontrolu dopravy: z kalkulačky som prevzal dopravu spolu ${fee.ship.total.toLocaleString("sk-SK")} USD, z toho preprava ${fee.ship.base.toLocaleString("sk-SK")} USD (${fee.ship.rows.join(", ")}) a plné poistenie Full coverage ${fee.ship.cover.toLocaleString("sk-SK")} USD${fee.ship.coverRead ? "" : " (vypočítané ako 7 % z ponuky, najmenej 350 USD)"}${fee.ship.toSk ? ". Doprava je až na Slovensko, preto som kamión do SR nastavil na 0. Položku prístav a colný deklarant si skontrolujte" : ""}`);
+      missing.push(`kontrolu dopravy: z kalkulačky som prevzal dopravu spolu ${fee.ship.total.toLocaleString("sk-SK")} USD, z toho preprava ${fee.ship.base.toLocaleString("sk-SK")} USD (${fee.ship.rows.join(", ")}) a plné poistenie Full coverage ${fee.ship.cover.toLocaleString("sk-SK")} USD${fee.ship.coverRead ? "" : " (vypočítané ako 7 % z ceny auta, najmenej 350 USD)"}${fee.ship.toSk ? ". Doprava je až na Slovensko, preto som kamión do SR nastavil na 0. Položku prístav a colný deklarant si skontrolujte" : ""}`);
     }
     if (Object.keys(override).length) patch.calc_override = override;
   } else if (!/fixed/.test(patch.sale_type || "") || buyout) missing.push("aukčné poplatky (stránka kalkulačku neukázala, zadajte ich ručne alebo nechajte automatický odhad)");
