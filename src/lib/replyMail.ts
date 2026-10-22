@@ -49,7 +49,7 @@ export const OFFER_STATUS: Record<OfferStatus, string> = { offered: "Ponúknuté
 /** Jedna časť e-mailu. Časti idú v e-maile za sebou v poradí, v akom si ich poskladáte. */
 export interface Section {
   heading: string;
-  kind: "text" | "rows" | "list" | "table" | "offer";
+  kind: "text" | "rows" | "list" | "table" | "quote" | "offer";
   /** obsah textových častí: odseky, riadky „Názov: hodnota“, kroky zoznamu alebo riadky tabuľky */
   body: string;
   /** len pri časti typu offer */
@@ -97,7 +97,7 @@ export function normalizeReply(v: unknown): ReplyData | null {
   if (!v || typeof v !== "object") return null;
   const o = v as Partial<ReplyData> & { intro?: string; outro?: string; offers?: Partial<Offer>[] };
   if (!Array.isArray(o.sections) && !Array.isArray(o.offers)) return null;
-  const kinds = ["text", "rows", "list", "table", "offer"];
+  const kinds = ["text", "rows", "list", "table", "quote", "offer"];
   const fix = (x: Partial<Offer> | undefined): Offer => ({ ...EMPTY_OFFER, ...x, photos: Array.isArray(x?.photos) ? x.photos.filter((p) => typeof p === "string") : [] });
   const sections: Section[] = (Array.isArray(o.sections) ? o.sections : []).map((x) => {
     const kind = (kinds.includes(x?.kind) ? x.kind : "text") as Section["kind"];
@@ -122,6 +122,7 @@ export const PARTS: { id: string; label: string; hint: string; make: () => Secti
   { id: "dates", label: "Termíny", hint: "Dokedy má byť záloha, kedy je dražba a kedy auto dorazí.", make: () => ({ heading: "Termíny", kind: "rows", body: "Záloha na účte najneskôr: \nDražba: \nDodanie na Slovensko: orientačne 6 až 8 týždňov od úhrady" }) },
   { id: "steps", label: "Ako to prebieha", hint: "Číslovaný postup od potvrdenia po odovzdanie auta.", make: () => ({ heading: "Ako to prebieha", kind: "list", body: "Potvrdíte nám maximálnu sumu príhozu a pošlete fakturačné údaje.\nPripravíme zmluvu a uhradíte zálohu.\nZúčastníme sa dražby a o výsledku Vás informujeme ešte v ten deň.\nPo vydražení uhradíte cenu auta a aukčné poplatky.\nĎalšie platby idú postupne, vždy pred daným krokom: preprava, clo a DPH, oprava a nakoniec prihlásenie.\nAuto Vám odovzdáme prihlásené, s evidenčným číslom." }) },
   { id: "prices", label: "Cenová tabuľka", hint: "Cena na Slovensku pri rôznych sumách vydraženia.", make: () => ({ heading: "Odhadovaná cena podľa vydraženia", kind: "table", body: "Vydražená cena | Bez prihlásenia | S prihlásením\n20 000 USD | 0 € | 0 €\n22 000 USD | 0 € | 0 €\n25 000 USD | 0 € | 0 €" }) },
+  { id: "quote", label: "Individuálne nacenenie", hint: "Rozpis nákladov po položkách, súčet sa vypočíta sám.", make: () => ({ heading: "Rozpis nákladov", kind: "quote", body: QUOTE_TEMPLATE }) },
   { id: "repair", label: "Čo bude treba opraviť", hint: "Predbežný rozsah opravy podľa fotiek z aukcie.", make: () => ({ heading: "Predbežný rozsah opravy", kind: "rows", body: "Karoséria: \nPodvozok a riadenie: \nBezpečnostné prvky: \nOdhad ceny opravy: " }) },
   { id: "payment", label: "Platobné údaje", hint: "Účet, variabilný symbol a suma na úhradu.", make: () => ({ heading: "Platobné údaje", kind: "rows", body: "Príjemca: Lukáš Tonkovič, REM Performance\nBanka: Slovenská sporiteľňa, a.s.\nIBAN: SK30 0900 0000 0052 4141 6579\nSWIFT: GIBASKBX\nVariabilný symbol: \nSuma: " }) },
   { id: "rows", label: "Tabuľka údajov", hint: "Vlastná tabuľka v tvare názov a hodnota.", make: () => ({ heading: "", kind: "rows", body: "" }) },
@@ -130,6 +131,48 @@ export const PARTS: { id: string; label: string; hint: string; make: () => Secti
 ];
 
 /** Rýchle zostavy častí pre najčastejšie e-maily. */
+/** Predvolené položky nacenenia. Riadok: Položka | Popis | Suma. Suma s % sa počíta z položiek nad ňou. */
+export const QUOTE_TEMPLATE = [
+  "Kúpna cena vozidla | Obstarávacia cena vozidla u predajcu | ",
+  "Námorná preprava | Lodná doprava a poistenie do európskeho prístavu | ",
+  "Clo (10 %) | Zákonná colná sadzba z colnej hodnoty CIF | ",
+  "DPH pri dovoze (23 %) | Daň zo základu CIF a clo | ",
+  "Prístavné poplatky | Manipulácia v prístave a colná deklarácia | ",
+  "Pozemná preprava | Autoprepravník z prístavu na Slovensko | ",
+  "Úradné preklady | Súdny preklad dokladov k vozidlu | ",
+  "Technické kontroly | Kontrola originality, technická a emisná kontrola | ",
+  "Homologizácia | Schválenie vozidla a posudok technickej služby | ",
+  "Recyklačný poplatok | Zákonný príspevok do Environmentálneho fondu SR | ",
+  "Zápis do evidencie a EČV | Správny poplatok a tabuľky s evidenčným číslom | ",
+  "Odmena za sprostredkovanie | Komplexný manažment dovozu a prihlásenia | 3 %",
+  "= SPOLU cca | Odhad celkovej ceny vozidla na slovenských EČV"
+].join("\n");
+
+export interface QuoteRow { item: string; desc: string; amount: string; value: number; pct: number | null }
+export interface Quote { rows: QuoteRow[]; total: number; totalLabel: string; totalDesc: string }
+
+/** Rozoberie nacenenie. Percentuálna suma sa počíta zo súčtu položiek nad ňou, riadok začínajúci „=“ je súčet. */
+export function parseQuote(body: string): Quote {
+  let sum = 0;
+  let totalLabel = "SPOLU cca";
+  let totalDesc = "";
+  const rows: QuoteRow[] = [];
+  for (const raw of body.split("\n")) {
+    if (!raw.trim()) continue;
+    const [item = "", desc = "", amount = ""] = raw.split("|").map((x) => x.trim());
+    if (!item && !desc && !amount) continue;
+    if (item.startsWith("=")) { totalLabel = item.slice(1).trim() || totalLabel; totalDesc = desc; continue; }
+    const pm = amount.match(/^(\d+(?:[.,]\d+)?)\s*%$/);
+    const pct = pm ? Number(pm[1].replace(",", ".")) : null;
+    const value = pct != null ? Math.round((sum * pct) / 100) : toNum(amount) || 0;
+    sum += value;
+    rows.push({ item, desc, amount, value, pct });
+  }
+  return { rows, total: sum, totalLabel, totalDesc };
+}
+
+const amountText = (r: QuoteRow) => (r.value ? eur(r.value) : r.amount);
+
 export const PRESETS: { label: string; parts: string[] }[] = [
   { label: "Ponuka áut", parts: ["intro", "offer", "cta"] },
   { label: "Podmienky a postup", parts: ["text", "terms", "dates", "steps", "cta"] },
@@ -259,7 +302,15 @@ function sectionHtml(s: Section) {
   let body = "";
   if (s.kind === "rows") body = table(ls.map(pair));
   else if (s.kind === "list") body = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${ls.map((l, i) => `<tr><td width="34" valign="top" style="padding:0 0 10px"><div style="${F}width:24px;height:24px;line-height:24px;text-align:center;font-size:12px;font-weight:bold;color:#ffffff;background:${RED}">${i + 1}</div></td><td valign="top" style="${F}padding:2px 0 10px;font-size:15px;line-height:1.55;color:#22252b">${esc(l)}</td></tr>`).join("")}</table>`;
-  else if (s.kind === "table") {
+  else if (s.kind === "quote") {
+    const q = parseQuote(s.body);
+    const th = (t: string, right = false) => `<td style="${F}padding:10px 14px;font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#ffffff;background:#15171b;${right ? "text-align:right;" : ""}">${t}</td>`;
+    body = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #e4e6ea"><tr>${th("Položka")}${th("Popis")}${th("Suma", true)}</tr>${q.rows.map((r, i) => {
+      const bg = i % 2 ? "#f5f6f8" : "#ffffff";
+      const desc = r.pct != null ? `${r.desc}${r.desc ? " " : ""}(${String(r.pct).replace(".", ",")} % z celkovej sumy)` : r.desc;
+      return `<tr><td style="${F}padding:10px 14px;font-size:14px;color:#15171b;background:${bg};border-bottom:1px solid #e4e6ea">${esc(r.item)}</td><td style="${F}padding:10px 14px;font-size:13px;line-height:1.45;color:#4a4f58;background:${bg};border-bottom:1px solid #e4e6ea">${esc(desc)}</td><td style="${F}padding:10px 14px;font-size:14px;font-weight:bold;color:#15171b;background:${bg};border-bottom:1px solid #e4e6ea;text-align:right;white-space:nowrap">${esc(amountText(r))}</td></tr>`;
+    }).join("")}<tr><td style="${F}padding:12px 14px;font-size:14px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalLabel)}</td><td style="${F}padding:12px 14px;font-size:13px;color:#c3c7ce;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalDesc)}</td><td style="${F}padding:12px 14px;font-size:17px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED};text-align:right;white-space:nowrap">${esc(eur(q.total))}</td></tr></table><p style="${F}margin:10px 0 0;font-size:12px;line-height:1.55;color:#6b7078">Ceny sú odhad a výsledná suma sa môže líšiť.</p>`;
+  } else if (s.kind === "table") {
     const [head, ...rest] = ls.map(cells);
     const n = Math.max(1, ...ls.map((l) => cells(l).length));
     const fill = (r: string[]) => Array.from({ length: n }, (_, i) => r[i] || "");
@@ -270,6 +321,11 @@ function sectionHtml(s: Section) {
 
 function sectionText(s: Section) {
   const ls = lines(s.body);
+  if (s.kind === "quote") {
+    const q = parseQuote(s.body);
+    const out = [...q.rows.map((r) => `${r.item}: ${amountText(r)}`), `${q.totalLabel}: ${eur(q.total)}`].join("\n");
+    return [s.heading.trim().toUpperCase(), out].filter(Boolean).join("\n");
+  }
   const body = s.kind === "list" ? ls.map((l, i) => `${i + 1}. ${l}`).join("\n") : s.kind === "table" ? ls.map((l) => cells(l).join("  |  ")).join("\n") : ls.join("\n");
   return [s.heading.trim().toUpperCase(), body].filter(Boolean).join("\n");
 }

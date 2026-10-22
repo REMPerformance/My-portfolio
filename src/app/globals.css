@@ -1118,6 +1118,16 @@ details.fold>div{padding:0 14px 12px}
 .parts button:hover,.parts button.on{border-color:var(--rc-red)}
 .parts button.on{background:var(--rc-red);color:#fff}
 .reply__auc{margin-top:14px}
+.quote{display:flex;flex-direction:column;gap:6px}
+.quote__row{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(160px,2fr) 130px 104px;gap:6px;align-items:center}
+.quote__row .input{margin:0;padding:8px 10px;font-size:13px}
+.quote__row--head span{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--rc-text-dim)}
+.quote__amt{display:flex;flex-direction:column;gap:2px}
+.quote__amt small{font-size:11px;color:var(--rc-text-dim);padding-left:2px}
+.quote__row--total{margin-top:6px;padding-top:10px;border-top:2px solid var(--rc-red)}
+.quote__row--total b{font-size:16px;text-align:right;padding-right:4px;white-space:nowrap}
+.quote .blk__act{display:flex;gap:4px}
+@media(max-width:700px){.quote__row{grid-template-columns:1fr 1fr}.quote__row--head{display:none}}
 .newmail{padding:16px;border:1px solid var(--rc-line);border-radius:var(--rc-radius-lg);background:var(--rc-surface);margin-bottom:22px}
 .newmail h2{font-size:17px;margin:0 0 4px}
 .picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin:14px 0}
