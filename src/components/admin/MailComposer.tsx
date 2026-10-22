@@ -30,27 +30,32 @@ const KIND: Record<Section["kind"], { label: string; hint: string; ph: string }>
 
 /** Editor nacenenia: položky v tabuľke, súčet sa počíta priebežne. Obsah sa ukladá ako riadky Položka | Popis | Suma. */
 function QuoteEditor({ body, onChange }: { body: string; onChange: (b: string) => void }) {
-  const lines = body.split("\n").filter((l) => l.trim()).map((l) => { const [a = "", b = "", c = ""] = l.split("|").map((x) => x.trim()); return [a, b, c]; });
-  const totalIdx = lines.findIndex((l) => l[0].startsWith("="));
-  const items = lines.filter((_, i) => i !== totalIdx);
-  const total = totalIdx >= 0 ? lines[totalIdx] : ["= SPOLU cca", "Odhad celkovej ceny vozidla na slovenských EČV", ""];
+  const all = body.split("\n").filter((l) => l.trim()).map((l) => { const [a = "", b = "", c = ""] = l.split("|").map((x) => x.trim()); return [a, b, c]; });
+  const totalIdx = all.findIndex((l) => l[0].startsWith("="));
+  const markupLine = all.find((l) => l[0].startsWith("#") && /odmen/i.test(l[0]));
+  const items = all.filter((l, i) => i !== totalIdx && !l[0].startsWith("#"));
+  const total = totalIdx >= 0 ? all[totalIdx] : ["= SPOLU cca", "Odhad celkovej ceny vozidla na slovenských EČV", ""];
+  const markup = markupLine ? markupLine[1] : "";
   const q = parseQuote(body);
   const clean = (x: string) => x.replace(/\|/g, "/").replace(/\n/g, " ");
-  const save = (next: string[][], t = total) => onChange([...next, t].map((l) => l.slice(0, 3).map(clean).join(" | ")).join("\n"));
+  const save = (next: string[][], t = total, m = markup) => onChange([...next, ...(m.trim() ? [["#odmena", m.trim()]] : []), t].map((l) => l.slice(0, 3).map(clean).join(" | ")).join("\n"));
   const setCell = (i: number, k: number, v: string) => save(items.map((l, j) => (j === i ? l.map((c, m) => (m === k ? v : c)) : l)));
   const move = (i: number, dir: -1 | 1) => { const n = [...items]; const j = i + dir; if (j < 0 || j >= n.length) return; [n[i], n[j]] = [n[j], n[i]]; save(n); };
+  // zobrazená suma riadku po rozpustení odmeny (riadky v q.rows idú v rovnakom poradí, prázdne sa preskakujú)
+  const shown = (l: string[]) => q.rows.find((r) => r.item === l[0] && r.desc === l[1] && r.amount === l[2]);
   return (
     <div className="quote">
-      <div className="quote__row quote__row--head"><span>Položka</span><span>Popis pre zákazníka</span><span>Suma</span><span /></div>
+      <div className="quote__row quote__row--head"><span>Položka</span><span>Popis pre zákazníka</span><span>Suma (náklad)</span><span /></div>
       {items.map((l, i) => {
-        const r = parseQuote(items.slice(0, i + 1).map((x) => x.join(" | ")).join("\n")).rows.at(-1);
+        const r = shown(l);
+        const diff = r && r.value !== r.base;
         return (
           <div className="quote__row" key={i}>
             <input className="input" value={l[0]} placeholder="Položka" onChange={(e) => setCell(i, 0, e.target.value)} />
             <input className="input" value={l[1]} placeholder="Popis" onChange={(e) => setCell(i, 1, e.target.value)} />
             <span className="quote__amt">
-              <input className="input" value={l[2]} placeholder="0 € alebo 3 %" inputMode="decimal" onChange={(e) => setCell(i, 2, e.target.value)} />
-              {r?.pct != null && <small>= {eur(r.value)}</small>}
+              <input className="input" value={l[2]} placeholder="0 €" inputMode="decimal" onChange={(e) => setCell(i, 2, e.target.value)} />
+              {r && (r.pct != null || diff) && <small>v e-maile {eur(r.value)}</small>}
             </span>
             <span className="blk__act">
               <button type="button" title="Vyššie" disabled={i === 0} onClick={() => move(i, -1)}>↑</button>
@@ -66,10 +71,14 @@ function QuoteEditor({ body, onChange }: { body: string; onChange: (b: string) =
         <b>{eur(q.total)}</b>
         <span />
       </div>
+      <div className="quote__fee">
+        <label>Moja odmena (%)<input className="input" value={markup} placeholder="5" inputMode="decimal" onChange={(e) => save(items, total, e.target.value)} /></label>
+        <span>Odmena {eur(q.markup)} sa rozpustí do kúpy auta a služieb, zákazník ju nevidí. Clo, DPH, poplatky za evidenciu a rezerva sa nenavyšujú.{q.reserve ? ` Rezerva ${eur(q.reserve)}.` : ""}</span>
+      </div>
       <div className="row-actions" style={{ marginTop: 10 }}>
         <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => save([...items, ["", "", ""]])}>+ Pridať položku</button>
       </div>
-      <span className="hint">Sumu píšte v eurách. Ak napíšete percentá (napríklad 3 %), vypočítajú sa zo súčtu položiek nad nimi. Prázdne sumy sa v e-maile zobrazia bez čísla.</span>
+      <span className="hint">Sumy píšte ako skutočné náklady v eurách. Riadok s názvom Rezerva sa v e-maile doplní poznámkou, že je povinná a nevyčerpaná časť sa vracia.</span>
     </div>
   );
 }

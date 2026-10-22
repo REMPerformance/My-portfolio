@@ -144,33 +144,57 @@ export const QUOTE_TEMPLATE = [
   "Homologizácia | Schválenie vozidla a posudok technickej služby | ",
   "Recyklačný poplatok | Zákonný príspevok do Environmentálneho fondu SR | ",
   "Zápis do evidencie a EČV | Správny poplatok a tabuľky s evidenčným číslom | ",
-  "Rezerva na nepredvídané náklady | Zmeny kurzu, poplatkov a požiadaviek pri schválení vozidla | ",
-  "Odmena za sprostredkovanie | Komplexný manažment dovozu a prihlásenia | 3 %",
+  "Rezerva na nepredvídané náklady | Povinná, nevyčerpaná časť sa vracia | ",
+  "#odmena | 5",
   "= SPOLU cca | Odhad celkovej ceny vozidla na slovenských EČV"
 ].join("\n");
 
-export interface QuoteRow { item: string; desc: string; amount: string; value: number; pct: number | null }
-export interface Quote { rows: QuoteRow[]; total: number; totalLabel: string; totalDesc: string }
+export interface QuoteRow { item: string; desc: string; amount: string; value: number; pct: number | null; base: number }
+export interface Quote { rows: QuoteRow[]; total: number; totalLabel: string; totalDesc: string; markupPct: number; markup: number; reserve: number }
 
-/** Rozoberie nacenenie. Percentuálna suma sa počíta zo súčtu položiek nad ňou, riadok začínajúci „=“ je súčet. */
+/** Zákonné platby a rezerva sa nenavyšujú, skrytá odmena sa rozpúšťa len do ostatných položiek. */
+export const isFixedRow = (item: string) => /clo|dph|recykl|eviden|eČv|ečv|rezerv/i.test(item);
+export const isReserveRow = (item: string) => /^rezerv/i.test(item.trim());
+
+/**
+ * Rozoberie nacenenie. Riadok: Položka | Popis | Suma. Riadok „= …“ je súčet.
+ * Riadok „#odmena | 5“ je skrytá odmena v %: počíta sa zo všetkých položiek okrem rezervy
+ * a rozpustí sa pomerne do položiek, ktoré nie sú zákonné platby. V e-maile sa nezobrazí.
+ * Viditeľná percentuálna suma (napr. 3 %) sa počíta zo súčtu položiek nad ňou.
+ */
 export function parseQuote(body: string): Quote {
   let sum = 0;
   let totalLabel = "SPOLU cca";
   let totalDesc = "";
+  let markupPct = 0;
   const rows: QuoteRow[] = [];
   for (const raw of body.split("\n")) {
     if (!raw.trim()) continue;
     const [item = "", desc = "", amount = ""] = raw.split("|").map((x) => x.trim());
     if (!item && !desc && !amount) continue;
+    if (item.startsWith("#")) { if (/odmen/i.test(item)) markupPct = Number(desc.replace(",", ".").replace(/[^\d.]/g, "")) || 0; continue; }
     if (item.startsWith("=")) { totalLabel = item.slice(1).trim() || totalLabel; totalDesc = desc; continue; }
     const pm = amount.match(/^(\d+(?:[.,]\d+)?)\s*%$/);
     const pct = pm ? Number(pm[1].replace(",", ".")) : null;
     const value = pct != null ? Math.round((sum * pct) / 100) : toNum(amount) || 0;
     sum += value;
-    rows.push({ item, desc, amount, value, pct });
+    rows.push({ item, desc, amount, value, pct, base: value });
   }
-  return { rows, total: sum, totalLabel, totalDesc };
+  const reserve = rows.filter((r) => isReserveRow(r.item)).reduce((a, r) => a + r.value, 0);
+  const markup = Math.round(((sum - reserve) * markupPct) / 100);
+  const target = rows.filter((r) => r.pct == null && !isFixedRow(r.item) && r.value > 0);
+  const tBase = target.reduce((a, r) => a + r.value, 0);
+  if (markup > 0 && tBase > 0) {
+    // pomerné rozdelenie na celé eurá, zvyšok po zaokrúhlení ide do najväčších zvyškov
+    const parts = target.map((r) => { const x = (markup * r.value) / tBase; return { r, f: Math.floor(x), rem: x - Math.floor(x) }; });
+    let left = markup - parts.reduce((a, x) => a + x.f, 0);
+    parts.sort((a, b) => b.rem - a.rem).forEach((x) => { x.r.value += x.f + (left-- > 0 ? 1 : 0); });
+    sum += markup;
+  }
+  return { rows, total: sum, totalLabel, totalDesc, markupPct, markup: markup > 0 && tBase > 0 ? markup : 0, reserve };
 }
+
+export const RESERVE_NOTE = "Rezerva na nepredvídané náklady je povinnou súčasťou platby. Ak sa nevyčerpá, po prihlásení vozidla Vám nevyčerpanú časť vrátime.";
 
 const amountText = (r: QuoteRow) => (r.value ? eur(r.value) : r.amount);
 
@@ -310,7 +334,7 @@ function sectionHtml(s: Section) {
       const bg = i % 2 ? "#f5f6f8" : "#ffffff";
       const desc = r.pct != null ? `${r.desc}${r.desc ? " " : ""}(${String(r.pct).replace(".", ",")} % z celkovej sumy)` : r.desc;
       return `<tr><td style="${F}padding:10px 14px;font-size:14px;color:#15171b;background:${bg};border-bottom:1px solid #e4e6ea">${esc(r.item)}</td><td style="${F}padding:10px 14px;font-size:13px;line-height:1.45;color:#4a4f58;background:${bg};border-bottom:1px solid #e4e6ea">${esc(desc)}</td><td style="${F}padding:10px 14px;font-size:14px;font-weight:bold;color:#15171b;background:${bg};border-bottom:1px solid #e4e6ea;text-align:right;white-space:nowrap">${esc(amountText(r))}</td></tr>`;
-    }).join("")}<tr><td style="${F}padding:12px 14px;font-size:14px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalLabel)}</td><td style="${F}padding:12px 14px;font-size:13px;color:#c3c7ce;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalDesc)}</td><td style="${F}padding:12px 14px;font-size:17px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED};text-align:right;white-space:nowrap">${esc(eur(q.total))}</td></tr></table><p style="${F}margin:10px 0 0;font-size:12px;line-height:1.55;color:#6b7078">Ceny sú orientačné. Výsledná cena sa môže líšiť podľa kurzu, skutočných poplatkov a výsledku schválenia vozidla.</p>`;
+    }).join("")}<tr><td style="${F}padding:12px 14px;font-size:14px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalLabel)}</td><td style="${F}padding:12px 14px;font-size:13px;color:#c3c7ce;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalDesc)}</td><td style="${F}padding:12px 14px;font-size:17px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED};text-align:right;white-space:nowrap">${esc(eur(q.total))}</td></tr></table>${q.reserve ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;border-collapse:collapse"><tr><td style="${F}padding:10px 14px;font-size:13px;line-height:1.5;color:#15171b;background:#f5f6f8;border:1px solid #e4e6ea;border-left:4px solid ${RED}">${esc(RESERVE_NOTE)}</td></tr></table>` : ""}<p style="${F}margin:10px 0 0;font-size:12px;line-height:1.55;color:#6b7078">Ceny sú orientačné. Výsledná cena sa môže líšiť podľa kurzu, skutočných poplatkov a výsledku schválenia vozidla.</p>`;
   } else if (s.kind === "table") {
     const [head, ...rest] = ls.map(cells);
     const n = Math.max(1, ...ls.map((l) => cells(l).length));
@@ -324,7 +348,7 @@ function sectionText(s: Section) {
   const ls = lines(s.body);
   if (s.kind === "quote") {
     const q = parseQuote(s.body);
-    const out = [...q.rows.map((r) => `${r.item}: ${amountText(r)}`), `${q.totalLabel}: ${eur(q.total)}`].join("\n");
+    const out = [...q.rows.map((r) => `${r.item}: ${amountText(r)}`), `${q.totalLabel}: ${eur(q.total)}`, q.reserve ? `\n${RESERVE_NOTE}` : ""].filter(Boolean).join("\n");
     return [s.heading.trim().toUpperCase(), out].filter(Boolean).join("\n");
   }
   const body = s.kind === "list" ? ls.map((l, i) => `${i + 1}. ${l}`).join("\n") : s.kind === "table" ? ls.map((l) => cells(l).join("  |  ")).join("\n") : ls.join("\n");

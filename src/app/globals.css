@@ -1127,6 +1127,9 @@ details.fold>div{padding:0 14px 12px}
 .quote__row--total{margin-top:6px;padding-top:10px;border-top:2px solid var(--rc-red)}
 .quote__row--total b{font-size:16px;text-align:right;padding-right:4px;white-space:nowrap}
 .quote .blk__act{display:flex;gap:4px}
+.quote__fee{display:flex;gap:14px;align-items:flex-end;margin-top:10px;padding:10px 12px;border:1px dashed var(--rc-line-strong);border-radius:var(--rc-radius)}
+.quote__fee label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--rc-text-dim);flex:none;width:130px}
+.quote__fee span{font-size:12px;color:var(--rc-text-dim);line-height:1.45}
 @media(max-width:700px){.quote__row{grid-template-columns:1fr 1fr}.quote__row--head{display:none}}
 .newmail{padding:16px;border:1px solid var(--rc-line);border-radius:var(--rc-radius-lg);background:var(--rc-surface);margin-bottom:22px}
 .newmail h2{font-size:17px;margin:0 0 4px}
