@@ -144,6 +144,7 @@ export const QUOTE_TEMPLATE = [
   "Homologizácia | Schválenie vozidla a posudok technickej služby | ",
   "Recyklačný poplatok | Zákonný príspevok do Environmentálneho fondu SR | ",
   "Zápis do evidencie a EČV | Správny poplatok a tabuľky s evidenčným číslom | ",
+  "Rezerva na nepredvídané náklady | Zmeny kurzu, poplatkov a požiadaviek pri schválení vozidla | ",
   "Odmena za sprostredkovanie | Komplexný manažment dovozu a prihlásenia | 3 %",
   "= SPOLU cca | Odhad celkovej ceny vozidla na slovenských EČV"
 ].join("\n");
@@ -309,7 +310,7 @@ function sectionHtml(s: Section) {
       const bg = i % 2 ? "#f5f6f8" : "#ffffff";
       const desc = r.pct != null ? `${r.desc}${r.desc ? " " : ""}(${String(r.pct).replace(".", ",")} % z celkovej sumy)` : r.desc;
       return `<tr><td style="${F}padding:10px 14px;font-size:14px;color:#15171b;background:${bg};border-bottom:1px solid #e4e6ea">${esc(r.item)}</td><td style="${F}padding:10px 14px;font-size:13px;line-height:1.45;color:#4a4f58;background:${bg};border-bottom:1px solid #e4e6ea">${esc(desc)}</td><td style="${F}padding:10px 14px;font-size:14px;font-weight:bold;color:#15171b;background:${bg};border-bottom:1px solid #e4e6ea;text-align:right;white-space:nowrap">${esc(amountText(r))}</td></tr>`;
-    }).join("")}<tr><td style="${F}padding:12px 14px;font-size:14px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalLabel)}</td><td style="${F}padding:12px 14px;font-size:13px;color:#c3c7ce;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalDesc)}</td><td style="${F}padding:12px 14px;font-size:17px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED};text-align:right;white-space:nowrap">${esc(eur(q.total))}</td></tr></table><p style="${F}margin:10px 0 0;font-size:12px;line-height:1.55;color:#6b7078">Ceny sú odhad a výsledná suma sa môže líšiť.</p>`;
+    }).join("")}<tr><td style="${F}padding:12px 14px;font-size:14px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalLabel)}</td><td style="${F}padding:12px 14px;font-size:13px;color:#c3c7ce;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalDesc)}</td><td style="${F}padding:12px 14px;font-size:17px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED};text-align:right;white-space:nowrap">${esc(eur(q.total))}</td></tr></table><p style="${F}margin:10px 0 0;font-size:12px;line-height:1.55;color:#6b7078">Ceny sú orientačné. Výsledná cena sa môže líšiť podľa kurzu, skutočných poplatkov a výsledku schválenia vozidla.</p>`;
   } else if (s.kind === "table") {
     const [head, ...rest] = ls.map(cells);
     const n = Math.max(1, ...ls.map((l) => cells(l).length));
