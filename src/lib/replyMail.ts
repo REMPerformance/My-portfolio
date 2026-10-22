@@ -82,7 +82,7 @@ export const EMPTY_OFFER: Offer = {
   internalNote: ""
 };
 
-export const VAT_LABEL: Record<Offer["vat"], string> = { final: "konečná cena", gross: "s DPH", net: "bez DPH" };
+export const VAT_LABEL: Record<Offer["vat"], string> = { final: "odhad", gross: "s DPH", net: "bez DPH" };
 
 export const EMPTY_SECTION: Section = { heading: "", kind: "text", body: "" };
 export const offerSection = (o: Partial<Offer> = {}): Section => ({ heading: "", kind: "offer", body: "", offer: { ...EMPTY_OFFER, ...o, photos: [...(o.photos || [])] } });

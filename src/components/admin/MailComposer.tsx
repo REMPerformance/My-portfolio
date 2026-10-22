@@ -502,7 +502,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
         {txt("regNote", "Popis pod cenou s prihlásením")}
         <div className="field">
           <label>Ceny sú uvedené</label>
-          <select className="input" value={o.vat} onChange={(e) => setO("vat", e.target.value as Offer["vat"])}><option value="final">konečná cena (nie sme platiteľ DPH)</option><option value="gross">s DPH</option><option value="net">bez DPH</option></select>
+          <select className="input" value={o.vat} onChange={(e) => setO("vat", e.target.value as Offer["vat"])}><option value="final">odhad (nie sme platiteľ DPH)</option><option value="gross">s DPH</option><option value="net">bez DPH</option></select>
         </div>
         {txt("carUrl", "Odkaz na auto na webe", `${SITE.url}/auta/…`)}
       </div>
