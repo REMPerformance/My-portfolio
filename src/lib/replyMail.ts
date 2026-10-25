@@ -291,7 +291,7 @@ export function replySubject(d: ReplyData) {
 
 const F = "font-family:Arial,Helvetica,sans-serif;";
 const RED = "#c8102e";
-const para = (t: string) => t.trim().split(/\n+/).filter(Boolean).map((x) => `<p style="${F}margin:0 0 12px;font-size:15px;line-height:1.6;color:#22252b">${esc(x)}</p>`).join("");
+const para = (t: string) => t.trim().split(/\n+/).filter(Boolean).map((x) => `<p style="${F}margin:0 0 12px;font-size:15px;line-height:1.6;color:#22252b">${nb(x)}</p>`).join("");
 
 const table = (list: [string, string][]) =>
   `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #e4e6ea">${list.map(([k, v], i) =>
@@ -342,7 +342,7 @@ function sectionHtml(s: Section) {
     const [head, ...rest] = ls.map(cells);
     const n = Math.max(1, ...ls.map((l) => cells(l).length));
     const fill = (r: string[]) => Array.from({ length: n }, (_, i) => r[i] || "");
-    body = head ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #e4e6ea"><tr>${fill(head).map((c) => `<td style="${F}padding:10px 14px;font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#ffffff;background:#15171b">${esc(c)}</td>`).join("")}</tr>${rest.map((r, i) => `<tr>${fill(r).map((c, k) => { const m = k > 0 && looksMoney(c); return `<td style="${F}padding:10px 14px;font-size:14px;${k ? "font-weight:bold;" : ""}color:#15171b;background:${i % 2 ? "#f5f6f8" : "#ffffff"};border-bottom:1px solid #e4e6ea${m ? ";text-align:right;white-space:nowrap" : ""}">${m ? nb(c) : esc(c)}</td>`; }).join("")}</tr>`).join("")}</table>` : "";
+    body = head ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #e4e6ea"><tr>${fill(head).map((c) => `<td style="${F}padding:10px 14px;font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#ffffff;background:#15171b">${esc(c)}</td>`).join("")}</tr>${rest.map((r, i) => `<tr>${fill(r).map((c, k) => { const m = k > 0 && looksMoney(c); return `<td style="${F}padding:10px 14px;font-size:14px;${k ? "font-weight:bold;" : ""}color:#15171b;background:${i % 2 ? "#f5f6f8" : "#ffffff"};border-bottom:1px solid #e4e6ea${m ? ";text-align:right;white-space:nowrap" : ""}">${nb(c)}</td>`; }).join("")}</tr>`).join("")}</table>` : "";
   } else body = para(s.body);
   return `<tr><td style="padding:0 24px 4px">${s.heading.trim() ? heading(s.heading.trim()) : `<div style="height:8px;line-height:8px;font-size:1px">&nbsp;</div>`}${body}</td></tr>`;
 }
