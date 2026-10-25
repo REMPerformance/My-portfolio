@@ -152,14 +152,16 @@ export const QUOTE_TEMPLATE = [
 export interface QuoteRow { item: string; desc: string; amount: string; value: number; pct: number | null; base: number }
 export interface Quote { rows: QuoteRow[]; total: number; totalLabel: string; totalDesc: string; markupPct: number; markup: number; reserve: number }
 
-/** Zákonné platby a rezerva sa nenavyšujú, skrytá odmena sa rozpúšťa len do ostatných položiek. */
-export const isFixedRow = (item: string) => /clo|dph|recykl|eviden|eČv|ečv|rezerv/i.test(item);
+/** Cena auta, zákonné platby a rezerva sa nenavyšujú, skrytá odmena sa rozpúšťa len do ostatných položiek. */
+export const isCarRow = (item: string) => /^(kúpna cena|cena vozidla|vozidlo\b|odhad (vydražen|príhoz)|vydražen|príhoz)/i.test(item.trim());
+export const isFixedRow = (item: string) => /clo|dph|recykl|eviden|eČv|ečv|rezerv/i.test(item) || isCarRow(item);
 export const isReserveRow = (item: string) => /^rezerv/i.test(item.trim());
 
 /**
  * Rozoberie nacenenie. Riadok: Položka | Popis | Suma. Riadok „= …“ je súčet.
- * Riadok „#odmena | 5“ je skrytá odmena v %: počíta sa zo všetkých položiek okrem rezervy
- * a rozpustí sa pomerne do položiek, ktoré nie sú zákonné platby. V e-maile sa nezobrazí.
+ * Riadok „#odmena | 5“ je skrytá odmena v %: je to najmenej toľko percent z konečnej sumy SPOLU
+ * (vrátane odmeny samotnej, ceny auta, cla, DPH a rezervy), zaokrúhlené nahor na celé eurá.
+ * Rozpustí sa pomerne len do služieb, nie do ceny auta, cla, DPH, zákonných poplatkov a rezervy. V e-maile sa nezobrazí.
  * Viditeľná percentuálna suma (napr. 3 %) sa počíta zo súčtu položiek nad ňou.
  */
 export function parseQuote(body: string): Quote {
@@ -181,7 +183,8 @@ export function parseQuote(body: string): Quote {
     rows.push({ item, desc, amount, value, pct, base: value });
   }
   const reserve = rows.filter((r) => isReserveRow(r.item)).reduce((a, r) => a + r.value, 0);
-  const markup = Math.round(((sum - reserve) * markupPct) / 100);
+  // odmena = p % z konečnej sumy: m = p/100 * (sum + m)  =>  m = sum * p / (100 - p)
+  const markup = markupPct > 0 && markupPct < 100 ? Math.ceil((sum * markupPct) / (100 - markupPct)) : 0;
   const target = rows.filter((r) => r.pct == null && !isFixedRow(r.item) && r.value > 0);
   const tBase = target.reduce((a, r) => a + r.value, 0);
   if (markup > 0 && tBase > 0) {

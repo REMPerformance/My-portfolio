@@ -73,7 +73,7 @@ function QuoteEditor({ body, onChange }: { body: string; onChange: (b: string) =
       </div>
       <div className="quote__fee">
         <label>Moja odmena (%)<input className="input" value={markup} placeholder="5" inputMode="decimal" onChange={(e) => save(items, total, e.target.value)} /></label>
-        <span>Odmena {eur(q.markup)} sa rozpustí do kúpy auta a služieb, zákazník ju nevidí. Clo, DPH, poplatky za evidenciu a rezerva sa nenavyšujú.{q.reserve ? ` Rezerva ${eur(q.reserve)}.` : ""}</span>
+        <span>Odmena {eur(q.markup)} je {markup || 0} % z konečnej sumy a rozpustí sa do služieb, zákazník ju nevidí. Cena auta, clo, DPH, poplatky za evidenciu a rezerva sa nenavyšujú.{q.reserve ? ` Rezerva ${eur(q.reserve)}.` : ""}</span>
       </div>
       <div className="row-actions" style={{ marginTop: 10 }}>
         <button type="button" className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => save([...items, ["", "", ""]])}>+ Pridať položku</button>
