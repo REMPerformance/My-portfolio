@@ -28,7 +28,8 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/index.html", destination: "/", permanent: true },
-      { source: "/auta", destination: "/ponuka", permanent: true }
+      { source: "/auta", destination: "/ponuka", permanent: true },
+      { source: "/archiv", destination: "/skoncene-aukcie", permanent: true }
     ];
   }
 };

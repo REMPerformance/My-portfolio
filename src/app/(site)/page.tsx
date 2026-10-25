@@ -109,7 +109,7 @@ export default async function Home() {
                 <h2 className="title" id="predane-h">Naposledy sme predali</h2>
                 <p className="sub">Tieto autá sme kúpili a doviezli na objednávku. Hľadáte podobné? Nájdeme Vám ho.</p>
               </div>
-              <Link href="/archiv" className="rc-btn rc-btn--ghost">Všetky predané <IArrow /></Link>
+              <Link href="/skoncene-aukcie?tab=sold" className="rc-btn rc-btn--ghost">Všetky predané <IArrow /></Link>
             </div>
             <div className="grid">{sold.map((c) => <CarCard key={c.id} car={c} serverNow={serverNow} />)}</div>
           </div>

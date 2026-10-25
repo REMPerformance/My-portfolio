@@ -7,13 +7,13 @@ import { carPhase, TYPE_SHORT, eur } from "@/lib/format";
 import { DAMAGE_ZONES, DAMAGE_FLAGS } from "@/lib/damage";
 import { COUNTRIES, countryDef } from "@/lib/origins";
 import { useNow } from "./Countdown";
-import { TypeArt } from "./Icons";
+import { IArrow, TypeArt } from "./Icons";
 
 type F = {
   q: string; country: string; make: string; pmax: string; sale: string;
-  model: string; type: string; ymin: string; kmax: string; fuel: string; drive: string; dmg: string; status: string; sort: string;
+  model: string; type: string; ymin: string; kmax: string; fuel: string; drive: string; dmg: string; status: string; tab: string; sort: string;
 };
-const EMPTY: F = { q: "", country: "", make: "", pmax: "", sale: "", model: "", type: "", ymin: "", kmax: "", fuel: "", drive: "", dmg: "", status: "live", sort: "ending" };
+const EMPTY: F = { q: "", country: "", make: "", pmax: "", sale: "", model: "", type: "", ymin: "", kmax: "", fuel: "", drive: "", dmg: "", status: "live", tab: "", sort: "ending" };
 const KEYS = Object.keys(EMPTY) as (keyof F)[];
 const MORE: (keyof F)[] = ["model", "ymin", "kmax", "fuel", "drive", "dmg"];
 
@@ -42,6 +42,14 @@ const carDamageGroups = (c: CardCar) => {
   return g;
 };
 const uniq = (a: (string | null | undefined)[]) => [...new Set(a.map((x) => (x || "").trim()).filter(Boolean))].sort((x, y) => x.localeCompare(y, "sk"));
+export const ARCHIVE_TABS: { v: string; l: string }[] = [
+  { v: "", l: "Všetky" },
+  { v: "sold", l: "Predali sme" },
+  { v: "auction", l: "Skončené aukcie" },
+  { v: "fixed", l: "Ponuky od predajcov" }
+];
+const archTab = (c: CardCar) => (c.status === "sold" ? "sold" : (c.sale_type || "auction") === "fixed" ? "fixed" : "auction");
+
 const LABEL: Partial<Record<keyof F, string>> = { model: "Model", type: "Typ", ymin: "Rok od", kmax: "Km do", fuel: "Palivo", drive: "Pohon", dmg: "Poškodenie" };
 
 export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]; serverNow: number; mode?: "live" | "archive" }) {
@@ -83,6 +91,7 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
     const r = cars.filter((c) => {
       const ph = carPhase(c, now);
       if (mode === "archive" && ph !== "ended") return false;
+      if (mode === "archive" && f.tab && archTab(c) !== f.tab) return false;
       if (q && !`${c.year} ${c.make} ${c.model} ${c.trim ?? ""} ${c.vin ?? ""}`.toLowerCase().includes(q)) return false;
       if (f.country && (c.country || "US") !== f.country) return false;
       if (f.sale && (c.sale_type || "auction") !== f.sale) return false;
@@ -115,9 +124,10 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
   }, [cars, f, now, mode]);
 
   const liveList = mode === "live" ? list.filter((c) => carPhase(c, now) !== "ended") : list;
-  const endedList = mode === "live" ? list.filter((c) => carPhase(c, now) === "ended") : [];
+  const endedN = mode === "live" ? cars.filter((c) => carPhase(c, now) === "ended").length : 0;
   const activeMore = MORE.filter((k) => f[k]);
-  const anyActive = KEYS.some((k) => !["sort", "status"].includes(k) && f[k]);
+  const anyActive = KEYS.some((k) => !["sort", "status", "tab"].includes(k) && f[k]);
+  const tabCount = (v: string) => cars.filter((c) => carPhase(c, now) === "ended" && (!v || archTab(c) === v)).length;
 
   const sel = (k: keyof F, label: string, options: { v: string; l: string }[], all = "Všetko") => (
     <div className="field">
@@ -133,6 +143,19 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
 
   return (
     <div>
+      {mode === "archive" && (
+        <div className="atabs" role="tablist" aria-label="Druh skončenej ponuky">
+          {ARCHIVE_TABS.map((t) => {
+            const n = tabCount(t.v);
+            if (t.v && !n) return null;
+            return (
+              <button type="button" role="tab" key={t.v || "all"} aria-selected={f.tab === t.v} className={`atab${f.tab === t.v ? " on" : ""}`} onClick={() => set("tab", t.v)}>
+                {t.l} <span>{n}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
       <div className="types types--sm" role="group" aria-label="Typ vozidla" style={{ marginBottom: 14 }}>
         {(["", "car", "suv", "truck"] as const).filter((t) => !t || opts.types.includes(t)).map((t) => (
           <button type="button" key={t || "all"} className={`type${f.type === t ? " on" : ""}`} aria-pressed={f.type === t} onClick={() => set("type", t)}>
@@ -199,15 +222,19 @@ export function CarBrowser({ cars, serverNow, mode = "live" }: { cars: CardCar[]
           </div>
         )}
       </div>
-      {endedList.length > 0 && (
-        <>
-          <h2 className="ended-head">Predaj skončil <span>({endedList.length})</span></h2>
-          <div className="grid">{endedList.map((c) => <CarCard key={c.id} car={c} serverNow={serverNow} />)}</div>
-        </>
+      {mode === "live" ? (
+        endedN > 0 && (
+          <Link href="/skoncene-aukcie" className="ended-link">
+            <span>
+              <b>Skončené aukcie a predané autá</b>
+              <small>{endedN} {endedN === 1 ? "auto" : endedN < 5 ? "autá" : "áut"}, ktoré sme už mali v ponuke. Podobné Vám nájdeme znova.</small>
+            </span>
+            <span className="ended-link__go" aria-hidden="true"><IArrow /></span>
+          </Link>
+        )
+      ) : (
+        <p className="more"><Link href="/ponuka">Späť na aktuálnu ponuku áut</Link></p>
       )}
-      <p className="more">
-        {mode === "live" ? <Link href="/archiv">Pozrieť archív skončených a predaných áut</Link> : <Link href="/ponuka">Späť na aktuálnu ponuku áut</Link>}
-      </p>
     </div>
   );
 }

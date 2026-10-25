@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...MODELS.map((m) => ({ url: `${SITE.url}/znacky/${m.make}/${m.slug}`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.6 })),
     { url: `${SITE.url}/poradna`, changeFrequency: "weekly", priority: 0.7 },
     ...ARTICLES.map((a) => ({ url: `${SITE.url}/poradna/${a.slug}`, lastModified: new Date(a.updated), changeFrequency: "monthly" as const, priority: 0.8 })),
-    { url: `${SITE.url}/archiv`, lastModified: now, changeFrequency: "daily", priority: 0.5 },
+    { url: `${SITE.url}/skoncene-aukcie`, lastModified: now, changeFrequency: "daily", priority: 0.5 },
     { url: `${SITE.url}/kalkulacka-dovozu`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE.url}/ako-to-funguje`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE.url}/caste-otazky`, changeFrequency: "monthly", priority: 0.6 },

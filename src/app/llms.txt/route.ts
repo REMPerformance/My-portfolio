@@ -36,7 +36,7 @@ export async function GET() {
     `- [Kalkulačka dovozu](${u}/kalkulacka-dovozu)`,
     `- [Ako to funguje](${u}/ako-to-funguje)`,
     `- [Časté otázky](${u}/caste-otazky)`,
-    `- [Archív predaných áut](${u}/archiv)`,
+    `- [Skončené aukcie a predané autá](${u}/skoncene-aukcie)`,
     `- [Kontakt](${u}/kontakt)`,
     `- [Obchodné podmienky](${u}/vop)`,
     "",

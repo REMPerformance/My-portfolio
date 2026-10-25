@@ -17,7 +17,7 @@ export function Footer({ phone }: { phone?: string }) {
             <h2>Ponuka</h2>
             <ul>
               <li><Link href="/ponuka">Ponuka áut</Link></li>
-              <li><Link href="/archiv">Archív áut</Link></li>
+              <li><Link href="/skoncene-aukcie">Skončené aukcie</Link></li>
               <li><Link href="/auto-na-mieru">Auto na mieru</Link></li>
               <li><Link href="/kalkulacka-dovozu">Kalkulačka dovozu</Link></li>
               <li><Link href="/ako-to-funguje">Ako to funguje</Link></li>
