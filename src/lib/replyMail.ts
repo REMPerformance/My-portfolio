@@ -447,3 +447,16 @@ ${d.quote.trim() ? `<tr><td style="padding:0 24px 24px"><table role="presentatio
 
   return { subject: replySubject(d), html, text };
 }
+
+/** Ponuka ako samostatná stránka na tlač do PDF (A4). Obsah je rovnaký ako e-mail, aby ponuka a e-mail vždy sedeli. */
+export function offerPdfHtml(r: { subject: string; html: string }, autoPrint = false): string {
+  const title = esc(r.subject || "Ponuka REM Performance");
+  const css = `@page{size:A4;margin:10mm}html,body{margin:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body>.pdf{max-width:680px;margin:0 auto}img{break-inside:avoid;page-break-inside:avoid}h1,h2,h3{break-after:avoid}
+@media screen{body{padding:24px 12px;background:#eee}body>.pdf{background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.15)}}`;
+  // tlač až po načítaní fotiek, inak by v PDF chýbali
+  const js = autoPrint
+    ? `<script>window.addEventListener("load",function(){var i=[].slice.call(document.images).filter(function(x){return!x.complete});Promise.all(i.map(function(x){return new Promise(function(r){x.onload=x.onerror=r})})).then(function(){setTimeout(function(){window.print()},300)})});</script>`
+    : "";
+  return `<!doctype html><html lang="sk"><head><meta charset="utf-8"><title>${title}</title><style>${css}</style></head><body><div class="pdf">${r.html}</div>${js}</body></html>`;
+}

@@ -8,7 +8,7 @@ import { SITE } from "@/lib/site";
 import { CURRENCIES } from "@/lib/origins";
 import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
 import { importImages } from "@/lib/imageImport";
-import { basisText, buildReply, EMPTY_OFFER, offerSection, offersOf, parseQuote, PARTS, timeLeft, type Offer, type ReplyData, type Section } from "@/lib/replyMail";
+import { basisText, buildReply, EMPTY_OFFER, offerPdfHtml, offerSection, offersOf, parseQuote, PARTS, timeLeft, type Offer, type ReplyData, type Section } from "@/lib/replyMail";
 import { eur } from "@/lib/format";
 import { DateTimePicker } from "./DateTimePicker";
 import { useCalcCfg } from "./useCalcCfg";
@@ -386,6 +386,16 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
     }
   }
 
+  /** Otvorí ponuku na samostatnej stránke a spustí tlač, v dialógu sa zvolí Uložiť ako PDF. */
+  function printOffer() {
+    const win = window.open("about:blank", "_blank");
+    if (!win) return toast("Prehliadač zablokoval nové okno, povoľte vyskakovacie okná.", true);
+    win.document.open();
+    win.document.write(offerPdfHtml(mail_, true));
+    win.document.close();
+    toast("V dialógu tlače zvoľte Uložiť ako PDF.");
+  }
+
   const left = o ? timeLeft(o.auctionEnd) : "";
   const txt = (k: keyof Offer, label: string, ph?: string) => (
     <div className="field"><label>{label}</label><input className="input" value={(o?.[k] as string) || ""} placeholder={ph} onChange={(e) => setO(k, e.target.value as never)} /></div>
@@ -529,6 +539,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
         </div>
         <div className="row-actions">
           <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => { const s = status === "sent" ? "draft" : "sent"; setStatus(s); setSentAt(s === "sent" ? new Date().toISOString() : null); }}>{status === "sent" ? "Vrátiť medzi koncepty" : "Označiť ako odoslaný"}</button>
+          <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={printOffer} disabled={uploading > 0}>Vygenerovať ponuku (PDF)</button>
           <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => copy(false)}>Len skopírovať</button>
           <button className="rc-btn rc-btn--primary rc-btn--sm" onClick={() => copy(true)} disabled={uploading > 0 || !!imp}>Skopírovať a otvoriť Gmail</button>
           <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={close}>Zavrieť</button>
