@@ -539,10 +539,10 @@ img.main{display:block;width:100%;height:auto;max-height:118mm;object-fit:cover;
 tr{break-inside:avoid}
 .price,.total{background:#15171b;border-top:4px solid ${RED};color:#fff;padding:14px 18px;margin-top:6px}.price small,.total small{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#c9ccd2}
 .price b{display:block;font-size:26px;margin:2px 0}.price span,.total span{font-size:11px;color:#c9ccd2}.total{margin-top:16px}.total b{display:block;font-size:30px;margin:2px 0}
-p{margin:0 0 8px}.endblock{margin-top:14px}
-.sign{display:flex;align-items:flex-end;gap:30px;margin:22px 0 18px;font-size:12px;color:#4a4f58}.sign b{color:#15171b}.sig{border-bottom:1px solid #9aa0a8;width:220px;min-height:60px;display:flex;align-items:flex-end}.sig img{height:60px;width:auto;display:block}
-.foot{display:flex;justify-content:space-between;align-items:center;background:#0c0d10;border-top:4px solid ${RED};padding:14px 20px;color:#c9ccd2;font-size:11px;line-height:1.7;text-align:right}.foot b{color:#fff}
-.vop{margin-top:10px;font-size:7.5px;line-height:1.45;color:#6b7078;text-align:justify}
+p{margin:0 0 6px}.endblock{margin-top:10px;font-size:11.5px;line-height:1.45}.endblock h2{margin-top:12px}
+.sign{display:flex;align-items:flex-end;gap:30px;margin:14px 0 12px;font-size:12px;color:#4a4f58}.sign b{color:#15171b}.sig{border-bottom:1px solid #9aa0a8;width:220px;min-height:60px;display:flex;align-items:flex-end}.sig img{height:60px;width:auto;display:block}
+.foot{display:flex;justify-content:space-between;align-items:center;background:#0c0d10;border-top:4px solid ${RED};padding:10px 20px;color:#c9ccd2;font-size:11px;line-height:1.7;text-align:right}.foot b{color:#fff}
+.vop{margin-top:8px;font-size:7px;break-inside:avoid;line-height:1.45;color:#6b7078;text-align:justify}
 @media screen{body{background:#e9ebee;padding:20px 0}.page{background:#fff;width:186mm;margin:0 auto 16px;padding:0 0 10px;box-shadow:0 1px 6px rgba(0,0,0,.15)}}`;
   // tlač až po načítaní fotiek, inak by v PDF chýbali
   const js = autoPrint
