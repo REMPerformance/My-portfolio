@@ -64,6 +64,8 @@ export interface ReplyData {
   sections: Section[];
   quoteTitle: string;
   quote: string;
+  /** text na koniec PDF ponuky (postup, inštrukcie), do e-mailu sa nedáva */
+  pdfNote?: string;
 }
 
 export const EMPTY_OFFER: Offer = {
@@ -109,7 +111,8 @@ export function normalizeReply(v: unknown): ReplyData | null {
     greeting: o.greeting ?? EMPTY_REPLY.greeting,
     sections: [...text(o.intro), ...(Array.isArray(o.offers) ? o.offers.map((x) => offerSection(fix(x))) : []), ...sections, ...text(o.outro)],
     quoteTitle: o.quoteTitle || EMPTY_REPLY.quoteTitle,
-    quote: o.quote || ""
+    quote: o.quote || "",
+    pdfNote: o.pdfNote || ""
   };
 }
 
@@ -451,40 +454,99 @@ ${d.quote.trim() ? `<tr><td style="padding:0 24px 24px"><table role="presentatio
 /** Kto ponuku vyhotovil: meno, funkcia, tvar slovesa a podpis ako obrázok (data URL). Ukladá sa v nastaveniach pod kľúčom "signers". */
 export interface Signer { id: string; name: string; role: string; made: "Vyhotovil" | "Vyhotovila"; img: string }
 
+/** Skrátené obchodné podmienky na koniec PDF ponuky. Plné znenie je na webe. */
+export const PDF_TERMS = [
+  "Ponuka je nezáväzná a nie je návrhom na uzavretie zmluvy. Zmluvný vzťah vzniká až podpisom zmluvy o obstaraní, dovoze a dodaní vozidla, ktorá má prednosť pred týmito podmienkami.",
+  "Všetky ceny sú odhadom. Výsledná cena závisí najmä od kurzu v deň platby, skutočných nákladov na prepravu a poplatkov, výšky cla a DPH, ktorú určí colný úrad, a od požiadaviek pri schválení vozidla. REM Performance nie je platiteľom DPH.",
+  "REM Performance nie je predávajúcim vozidla, vozidlo obstaráva na účet klienta. Údaje o vozidle pochádzajú od predajcu, zo záznamov poisťovní a z kontroly vozidla, za skryté vady a nesprávne údaje predajcu REM Performance nezodpovedá.",
+  "Platby sa hradia postupne vopred podľa zmluvy, vždy pred tým, než príslušný náklad vznikne. Clo a dovoznú DPH platí klient ako dovozca priamo colnému úradu. Nevyčerpaná časť rezervy sa po prihlásení vozidla vracia.",
+  "Uvedené termíny sú orientačné. Za oneskorenie spôsobené predajcom, prepravcom, prístavom, colnými orgánmi alebo orgánmi pri schválení vozidla REM Performance nezodpovedá.",
+  "Klient, ktorý je spotrebiteľom, má právo odstúpiť od zmluvy uzavretej na diaľku do 14 dní za podmienok uvedených v zmluve. Reklamácie a sťažnosti vybavujeme na info@remperformance.sk do 30 dní, spotrebiteľ sa môže obrátiť aj na Slovenskú obchodnú inšpekciu (www.soi.sk).",
+];
+
 /**
- * Ponuka vozidla ako samostatná stránka na tlač do PDF (A4).
- * Obsahuje len karty áut a tabuľky (cenník, platby), bez oslovenia a textov z e-mailu.
- * Dole je vyhotovil/vyhotovila s podpisom a pätička s logom a kontaktom.
+ * Ponuka vozidla ako samostatný dokument na tlač do PDF (A4).
+ * Strana 1: názov a fotky. Strana 2: údaje o aute. Potom každá tabuľka na vlastnej strane
+ * (rozpis nákladov s konečnou sumou, platby). Na konci vlastný text (postup, inštrukcie),
+ * vyhotovil/vyhotovila s podpisom, skrátené VOP a pätička s logom a kontaktom.
  */
 export function offerPdfHtml(d: ReplyData, signer: Signer | null, autoPrint = false, now = Date.now()): string {
-  const secs = d.sections.filter(sectionFilled).filter((x) => x.kind === "offer" || x.kind === "table");
-  const total = secs.filter((x) => x.kind === "offer").length;
-  let n = 0;
-  const parts = secs.map((x, i) => {
-    if (x.kind === "offer") return offerHtml(x.offer!, ++n, total, now, i > 0);
-    const afterOffer = i > 0 && secs[i - 1].kind === "offer";
-    return (afterOffer ? `<tr><td style="border-top:8px solid #eef0f3;height:10px;line-height:10px;font-size:1px">&nbsp;</td></tr>` : "") + sectionHtml(x);
-  });
+  const h = (t: string) => `<h2>${esc(t)}</h2>`;
+  const kv = (list: [string, string][]) => `<table class="kv">${list.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${nb(v)}</td></tr>`).join("")}</table>`;
   const date = new Date(now).toLocaleDateString("sk-SK", { day: "numeric", month: "numeric", year: "numeric" });
-  const title = esc(replySubject(d) || "Cenová ponuka");
-  const logo = `<img src="${SITE.url}/brand/rem-performance-white.png" width="300" alt="REM PERFORMANCE" style="display:block;width:300px;max-width:100%;height:auto;border:0;${F}font-size:20px;font-weight:bold;font-style:italic;color:#ffffff">`;
+  const logo = (w: number) => `<img class="logo" src="${SITE.url}/brand/rem-performance-white.png" alt="REM PERFORMANCE" style="width:${w}px">`;
+  const top = `<div class="top">${logo(250)}<div>Cenová ponuka<br>${esc(date)}</div></div>`;
+  const pages: string[] = [];
+  const offers = d.sections.filter(sectionFilled).filter((x) => x.kind === "offer").map((x) => x.offer!);
+  offers.forEach((o, n) => {
+    const photos = o.photos.map(safeUrl).filter(Boolean);
+    const [main, ...rest] = photos;
+    pages.push(`${top}${offers.length > 1 ? `<div class="kicker">Ponuka ${n + 1} z ${offers.length}</div>` : ""}<h1>${esc(o.title.trim() || "Vozidlo")}</h1>
+${main ? `<img class="main" src="${esc(main)}" alt="">` : ""}${rest.length ? `<div class="grid">${rest.slice(0, 12).map((p) => `<img src="${esc(p)}" alt="">`).join("")}</div>` : ""}`);
+    const r = rows(o);
+    const sale = saleRows(o, now);
+    const pReg = priceText(o.priceReg);
+    const pNo = priceText(o.priceNoReg);
+    pages.push(`${top}<h1 class="small">${esc(o.title.trim())}</h1>${r.length ? h("Údaje o aute") + kv(r) : ""}${sale.length ? h(o.saleType === "fixed" ? "Ponuka predajcu" : "Stav aukcie") + kv(sale) : ""}
+${o.note.trim() ? h("Výbava a poznámky") + `<p>${esc(o.note.trim()).replace(/\n/g, "<br>")}</p>` : ""}
+${pReg || pNo ? h("Odhadovaná cena na Slovensku") + `<div class="price"><small>${pReg ? "S prihlásením" : "Bez prihlásenia"}</small><b>${nb(pReg || pNo)}</b><span>${esc((pReg ? o.regNote : o.noRegNote).trim())}</span></div>` : ""}`);
+  });
+  let totalShown = false;
+  for (const x of d.sections.filter(sectionFilled)) {
+    if (x.kind !== "table" && x.kind !== "quote") continue;
+    let body = "";
+    let total = "";
+    if (x.kind === "quote") {
+      const q = parseQuote(x.body);
+      body = `<table class="tb"><tr><th>Položka</th><th>Popis</th><th class="r">Suma</th></tr>${q.rows.map((r) => `<tr><td>${nb(r.item)}</td><td>${esc(r.desc)}</td><td class="r">${nb(amountText(r))}</td></tr>`).join("")}<tr class="sum"><td>${esc(q.totalLabel)}</td><td>${esc(q.totalDesc)}</td><td class="r">${nb(eur(q.total))}</td></tr></table>`;
+      total = eur(q.total);
+    } else {
+      const [head, ...rest] = lines(x.body).map(cells);
+      if (!head) continue;
+      const n = Math.max(1, ...[head, ...rest].map((c) => c.length));
+      const fill = (r: string[]) => Array.from({ length: n }, (_, i) => r[i] || "");
+      const isSum = (r: string[]) => /^spolu/i.test((r[0] || "").trim());
+      body = `<table class="tb"><tr>${fill(head).map((c, k) => `<th${k === n - 1 ? ' class="r"' : ""}>${esc(c)}</th>`).join("")}</tr>${rest.map((r) => `<tr${isSum(r) ? ' class="sum"' : ""}>${fill(r).map((c, k) => `<td${k > 0 && looksMoney(c) ? ' class="r"' : ""}>${nb(c)}</td>`).join("")}</tr>`).join("")}</table>`;
+      const last = rest[rest.length - 1];
+      if (last && isSum(last)) total = last[last.length - 1] || "";
+    }
+    const box = total && !totalShown ? `<div class="total"><small>Konečná suma, odhad</small><b>${nb(total)}</b><span>Odhad celkovej ceny vozidla na slovenských EČV</span></div>` : "";
+    if (box) totalShown = true;
+    pages.push(`${top}${h(x.heading.trim() || "Rozpis")}${body}${box}`);
+  }
+  const note = (d.pdfNote || "").trim();
   const sign = signer
-    ? `<tr><td style="padding:22px 24px 6px;border-top:1px solid #e4e6ea"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tr><td style="${F}font-size:13px;line-height:1.6;color:#22252b;vertical-align:bottom;padding-right:28px">${esc(signer.made)}:<br><b>${esc(signer.name)}</b>${signer.role ? `<br><span style="color:#6b7078">${esc(signer.role)}, REM Performance</span>` : ""}<br><span style="color:#6b7078">${esc(date)}</span></td><td style="vertical-align:bottom">${signer.img ? `<img src="${signer.img}" alt="Podpis" style="display:block;height:64px;width:auto;border:0">` : ""}<div style="border-top:1px solid #9aa0a8;width:220px;margin-top:2px"></div></td></tr></table></td></tr>`
+    ? `<div class="sign"><div>${esc(signer.made)}:<br><b>${esc(signer.name)}</b>${signer.role ? `<br>${esc(signer.role)}, REM Performance` : ""}<br>${esc(date)}</div><div class="sig">${signer.img ? `<img src="${signer.img}" alt="Podpis">` : ""}</div></div>`
     : "";
-  const html = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background:#ffffff">
-<tr><td style="background:#0c0d10;padding:20px 24px;border-bottom:4px solid ${RED}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>${logo}</td><td align="right" style="${F}font-size:12px;line-height:1.5;color:#c9ccd2;white-space:nowrap">Cenová ponuka<br>${esc(date)}</td></tr></table></td></tr>
-${parts.join("\n")}
-${sign}
-<tr><td style="padding:18px 24px 0"></td></tr>
-<tr><td style="background:#0c0d10;padding:18px 24px;border-top:4px solid ${RED}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="vertical-align:middle">${logo.replace('width="300"', 'width="220"').replace("width:300px", "width:220px")}</td><td align="right" style="${F}font-size:12px;line-height:1.7;color:#c9ccd2;white-space:nowrap">Tel. a WhatsApp: <b style="color:#fff">${esc(SITE.phone)}</b><br>E-mail: <b style="color:#fff">${SITE.email}</b><br>Web: <b style="color:#fff">${SITE.url.replace("https://", "")}</b></td></tr></table></td></tr>
-<tr><td style="${F}padding:10px 24px 0;font-size:10px;line-height:1.5;color:#8a8f97">Uvedené ceny sú odhadom. Kúpna cena vozidla sa prepočíta podľa aktuálneho kurzu v deň platby, výšku cla a DPH určí colný úrad.</td></tr>
-</table>`;
-  const css = `@page{size:A4;margin:10mm}html,body{margin:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-body>.pdf{max-width:640px;margin:0 auto}img{break-inside:avoid;page-break-inside:avoid}
-@media screen{body{padding:24px 12px;background:#eee}body>.pdf{background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.15)}}`;
+  const end = `${note ? h("Postup a inštrukcie") + note.split(/\n{2,}/).map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("") : ""}${sign}
+<div class="foot">${logo(200)}<div>Tel. a WhatsApp: <b>${esc(SITE.phone)}</b><br>E-mail: <b>${SITE.email}</b><br>Web: <b>${SITE.url.replace("https://", "")}</b></div></div>
+<div class="vop"><b>Obchodné podmienky (výťah).</b> ${PDF_TERMS.map(esc).join(" ")} Plné znenie obchodných podmienok je na ${SITE.url.replace("https://", "")}/vop.</div>`;
+  if (pages.length) pages[pages.length - 1] += `<div class="endblock">${end}</div>`;
+  else pages.push(`${top}${end}`);
+  const css = `@page{size:A4;margin:12mm 12mm 16mm}*{box-sizing:border-box}html,body{margin:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:Arial,Helvetica,sans-serif;color:#15171b;font-size:12.5px;line-height:1.5}
+.page{break-after:page;page-break-after:always}.page:last-child{break-after:auto;page-break-after:auto}
+.top{display:flex;justify-content:space-between;align-items:center;background:#0c0d10;border-bottom:4px solid ${RED};padding:16px 20px;color:#c9ccd2;font-size:11px;text-align:right;margin-bottom:18px}
+.logo{display:block;height:auto}
+h1{font-size:24px;line-height:1.25;margin:0 0 14px}h1.small{font-size:18px;margin-bottom:6px}.kicker{color:${RED};font-weight:bold;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+h2{font-size:12px;letter-spacing:1px;text-transform:uppercase;margin:18px 0 8px;padding-left:9px;border-left:3px solid ${RED};break-after:avoid}
+img.main{display:block;width:100%;height:auto;max-height:118mm;object-fit:cover;margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.grid img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.kv,.tb{width:100%;border-collapse:collapse;border:1px solid #e4e6ea}.kv td,.tb td,.tb th{padding:7px 11px;border-bottom:1px solid #e4e6ea;vertical-align:top;text-align:left}
+.kv td:first-child{color:#6b7078;width:34%;background:#f5f6f8}.kv td:last-child{font-weight:bold}
+.tb th{background:#15171b;color:#fff;font-size:10.5px;letter-spacing:1px;text-transform:uppercase}.tb td{font-size:12px}.tb td:first-child{white-space:nowrap}.tb tr:nth-child(odd) td{background:#f7f8fa}
+.tb .r{text-align:right;white-space:nowrap;font-weight:bold}.tb tr.sum td{background:#15171b!important;color:#fff;font-weight:bold;border-top:3px solid ${RED}}
+tr{break-inside:avoid}
+.price,.total{background:#15171b;border-top:4px solid ${RED};color:#fff;padding:14px 18px;margin-top:6px}.price small,.total small{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#c9ccd2}
+.price b{display:block;font-size:26px;margin:2px 0}.price span,.total span{font-size:11px;color:#c9ccd2}.total{margin-top:16px}.total b{display:block;font-size:30px;margin:2px 0}
+p{margin:0 0 8px}.endblock{margin-top:14px}
+.sign{display:flex;align-items:flex-end;gap:30px;margin:22px 0 18px;font-size:12px;color:#4a4f58}.sign b{color:#15171b}.sig{border-bottom:1px solid #9aa0a8;width:220px;min-height:60px;display:flex;align-items:flex-end}.sig img{height:60px;width:auto;display:block}
+.foot{display:flex;justify-content:space-between;align-items:center;background:#0c0d10;border-top:4px solid ${RED};padding:14px 20px;color:#c9ccd2;font-size:11px;line-height:1.7;text-align:right}.foot b{color:#fff}
+.vop{margin-top:10px;font-size:7.5px;line-height:1.45;color:#6b7078;text-align:justify}
+@media screen{body{background:#e9ebee;padding:20px 0}.page{background:#fff;width:186mm;margin:0 auto 16px;padding:0 0 10px;box-shadow:0 1px 6px rgba(0,0,0,.15)}}`;
   // tlač až po načítaní fotiek, inak by v PDF chýbali
   const js = autoPrint
     ? `<script>window.addEventListener("load",function(){var i=[].slice.call(document.images).filter(function(x){return!x.complete});Promise.all(i.map(function(x){return new Promise(function(r){x.onload=x.onerror=r})})).then(function(){setTimeout(function(){window.print()},300)})});</script>`
     : "";
-  return `<!doctype html><html lang="sk"><head><meta charset="utf-8"><title>${title}</title><style>${css}</style></head><body><div class="pdf">${html}</div>${js}</body></html>`;
+  return `<!doctype html><html lang="sk"><head><meta charset="utf-8"><title>${esc(replySubject(d) || "Cenová ponuka")}</title><style>${css}</style></head><body>${pages.map((p) => `<section class="page">${p}</section>`).join("")}${js}</body></html>`;
 }

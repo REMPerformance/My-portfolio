@@ -578,6 +578,11 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
             <div className="field"><label>Oslovenie</label><input className="input" value={d.greeting} placeholder="Dobrý deň, pán Novák," onChange={(e) => set("greeting", e.target.value)} /></div>
           </div>
 
+          <div className="field">
+            <label>Text na koniec PDF ponuky (postup, inštrukcie)</label>
+            <textarea className="input" rows={4} value={d.pdfNote || ""} placeholder="Napríklad postup kúpy, čo od zákazníka potrebujeme, platobné údaje. Odseky oddeľte prázdnym riadkom. Do e-mailu sa nedáva." onChange={(e) => set("pdfNote", e.target.value)} />
+          </div>
+
           <h3>Obsah e-mailu</h3>
           <p className="note" style={{ marginTop: 0 }}>E-mail si poskladáte z častí. Kliknutím časť otvoríte, šípkami zmeníte poradie. Vzhľad sa doplní sám.</p>
           {d.sections.length === 0 && <div className="empty" style={{ padding: 24 }}>E-mail je zatiaľ prázdny. Pridajte prvú časť nižšie.</div>}
