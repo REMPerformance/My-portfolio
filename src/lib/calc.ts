@@ -26,6 +26,7 @@ export const DEFAULT_CALC: CalcConfig = {
   priceMode: "gross",
   depositPct: 0.1,
   depositMinEur: 500,
+  depositTiers: [[49000, 2000], [69000, 3000], [999999999, 4500]],
   racemCredit: [[999999999, 100]]
 };
 
@@ -74,6 +75,21 @@ export interface CalcResult {
   feeManual: boolean;
   /** cena je bez homologizácie, zákazník si ju vybaví sám */
   noHomolog: boolean;
+}
+
+/** Záloha podľa konečnej sumy (pásma v nastaveniach). Bez pásiem platí starý výpočet percentom s minimom. */
+export function depositFor(cfg: Pick<CalcConfig, "depositTiers" | "depositPct" | "depositMinEur">, total: number) {
+  const t = (cfg.depositTiers?.length ? cfg.depositTiers : DEFAULT_CALC.depositTiers) || [];
+  if (t.length) return (t.find(([max]) => Math.round(total) <= max) || t[t.length - 1])[1];
+  return Math.max(cfg.depositMinEur, Math.round((total * cfg.depositPct) / 50) * 50);
+}
+
+/** „do 49 000 € záloha 2 000 €, do 69 000 € záloha 3 000 € a nad 69 000 € záloha 4 500 €“ */
+export function depositTiersText(cfg: Pick<CalcConfig, "depositTiers">) {
+  const t = (cfg.depositTiers?.length ? cfg.depositTiers : DEFAULT_CALC.depositTiers) || [];
+  const f = (n: number) => `${Math.round(n).toLocaleString("sk-SK").replace(/\s/g, "\u00a0")}\u00a0€`;
+  const parts = t.map(([max, v], i) => (i === t.length - 1 && t.length > 1 ? `nad ${f(t[i - 1][0])} záloha ${f(v)}` : `do ${f(max)} záloha ${f(v)}`));
+  return parts.length > 1 ? `${parts.slice(0, -1).join(", ")} a ${parts[parts.length - 1]}` : parts[0] || "";
 }
 
 export function auctionFee(cfg: CalcConfig, bidUsd: number) {
@@ -161,7 +177,7 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const priceMode: PriceMode = cfg.priceMode === "net" ? "net" : "gross";
   const total = priceMode === "net" ? net : gross;
   const credit = typeof i.creditEur === "number" && isFinite(i.creditEur) ? Math.max(0, i.creditEur) : (cfg.racemCredit.find(([max]) => gross <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
-  const deposit = Math.max(cfg.depositMinEur, Math.round((gross * cfg.depositPct) / 50) * 50);
+  const deposit = depositFor(cfg, gross);
   return {
     price, currency, bidUsd: price, carEur, feeEur, inlandEur, oceanEur,
     portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name,

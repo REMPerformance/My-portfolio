@@ -134,6 +134,8 @@ export interface CalcConfig {
   priceMode?: PriceMode;
   depositPct: number;
   depositMinEur: number;
+  /** záloha podľa konečnej sumy: [do sumy EUR, záloha EUR]; posledné pásmo s veľmi vysokou sumou */
+  depositTiers?: [number, number][];
   racemCredit: [number, number][];
 }
 

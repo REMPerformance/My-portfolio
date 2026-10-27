@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCalcConfig, getContent } from "@/lib/data";
-import { eur } from "@/lib/format";
+import { depositTiersText } from "@/lib/calc";
 import { Bonus, PageHead, Steps, Why, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { IArrow } from "@/components/Icons";
@@ -36,7 +36,7 @@ export default async function HowPage() {
           <p>Autá z aukcie majú uvedený <b>termín uzávierky objednávok</b>, spravidla 24 hodín pred koncom aukcie. Autá od predajcov majú uvedené, dokedy ponuka platí.</p>
 
           <h2>2. Zmluva o sprostredkovaní a záloha</h2>
-          <p>Po odoslaní dopytu Vás kontaktujeme, potvrdíme detaily a pošleme zmluvu o sprostredkovaní. V nej je Váš <b>maximálny limit</b>, do ktorého za Vás prihadzujeme, a výška nášho poplatku. Zložíte zálohu {Math.round(cfg.depositPct * 100)} % z limitu, minimálne {eur(cfg.depositMinEur)}.</p>
+          <p>Po odoslaní dopytu Vás kontaktujeme, potvrdíme detaily a pošleme zmluvu o sprostredkovaní. V nej je Váš <b>maximálny limit</b>, do ktorého za Vás prihadzujeme, a výška nášho poplatku. Zložíte zálohu podľa odhadovanej konečnej ceny auta: {depositTiersText(cfg)}. Záloha je súčasťou ceny.</p>
 
           <h2>3. Kúpa auta</h2>
           <p><b>Aukcia:</b> v deň aukcie za Vás prihadzujeme cez overeného brokera, nikdy nad limit zo zmluvy. Ak aukciu prehráme, zálohu vrátime do 5 pracovných dní alebo ju presunieme na ďalšie auto.</p>

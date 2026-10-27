@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Flag } from "@/components/Flag";
 import { browserClient } from "@/lib/supabase";
-import { calc, mergeCalc } from "@/lib/calc";
+import { calc, mergeCalc, DEFAULT_CALC } from "@/lib/calc";
 import { withLiveFx, type LiveFx } from "@/lib/fx";
 import { COUNTRIES, CURRENCIES, DEFAULT_FX, countryDef, placeKey, placesEn } from "@/lib/origins";
 import type { CalcConfig } from "@/lib/types";
@@ -173,9 +173,22 @@ export default function Settings() {
             </div>
             <div className="three">
               <Num label="DPH" value={pct(c.vatRate)} unit="%" step={0.1} onChange={(v) => upd({ vatRate: v / 100 })} />
-              <Num label="Záloha" value={pct(c.depositPct)} unit="%" step={1} onChange={(v) => upd({ depositPct: v / 100 })} />
-              <Num label="Minimálna záloha" value={c.depositMinEur} unit="EUR" onChange={(v) => upd({ depositMinEur: v })} />
             </div>
+          </div>
+
+          <div className="panel">
+            <h2>Záloha podľa konečnej sumy</h2>
+            {(c.depositTiers?.length ? c.depositTiers : DEFAULT_CALC.depositTiers || []).map(([max, v], i, all) => (
+              <div className="three" key={i}>
+                <Num label={i === all.length - 1 ? "Nad (posledné pásmo)" : "Konečná suma do"} value={max} unit="EUR" onChange={(x) => { const t = [...all]; t[i] = [x, v]; upd({ depositTiers: t }); }} />
+                <Num label="Záloha" value={v} unit="EUR" onChange={(x) => { const t = [...all]; t[i] = [max, x]; upd({ depositTiers: t }); }} />
+                <div className="field"><label>&nbsp;</label><button className="rc-btn rc-btn--ghost" onClick={() => upd({ depositTiers: all.filter((_, k) => k !== i) })}>Odstrániť</button></div>
+              </div>
+            ))}
+            <div className="two">
+              <button className="rc-btn rc-btn--ghost" onClick={() => { const all = c.depositTiers?.length ? c.depositTiers : DEFAULT_CALC.depositTiers || []; upd({ depositTiers: [...all.slice(0, -1), [((all[all.length - 2] || [0])[0] as number) + 10000, 0], ...all.slice(-1)] }); }}>+ Pridať pásmo</button>
+            </div>
+            <p className="note">Záloha sa sama doplní do ponúk v e-mailoch a zobrazí sa na webe. Posledné pásmo nechajte s veľmi vysokou sumou (napr. 999999999).</p>
           </div>
 
           <div className="panel">

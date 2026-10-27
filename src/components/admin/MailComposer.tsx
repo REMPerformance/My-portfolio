@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { browserClient } from "@/lib/supabase";
 import type { Car, Lead, Mail } from "@/lib/types";
-import { auctionFee, carEstimate, isFixed } from "@/lib/calc";
+import { auctionFee, carEstimate, depositFor, isFixed } from "@/lib/calc";
 import { carFullName, RUN_LABEL } from "@/lib/format";
 import { SITE } from "@/lib/site";
 import { CURRENCIES } from "@/lib/origins";
@@ -132,7 +132,7 @@ function pricesFor(cfg: NonNullable<ReturnType<typeof useCalcCfg>["cfg"]>, o: Pi
   const bare = carEstimate(cfg, car, { noHomolog: true });
   const vat: Offer["vat"] = full.priceMode === "net" ? "net" : "final";
   const p = (r: typeof full) => String(Math.round(vat === "net" ? r.net : r.gross));
-  return { priceNoReg: p(bare), priceReg: p(full), vat };
+  return { priceNoReg: p(bare), priceReg: p(full), deposit: String(depositFor(cfg, full.gross)), vat };
 }
 
 /** Editor e-mailu: adresát, časti poskladané v ľubovoľnom poradí, náhľad a otvorenie Gmailu. Koncept sa priebežne ukladá do databázy. */
@@ -331,6 +331,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
       calcCar: { type: c.type, country: c.country, state: c.state, currency: c.currency, sale_type: c.sale_type, seller_fee_usd: c.seller_fee_usd, location: c.location, calc_override: c.calc_override, est_bid_usd: est || null, repair_eur: c.repair_eur || 0 },
       priceNoReg: price(bare),
       priceReg: price(full),
+      deposit: full && cfg ? String(depositFor(cfg, full.gross)) : "",
       vat
     });
     toast("Údaje predvyplnené z auta v ponuke. Skontrolujte ich prosím.");
@@ -529,7 +530,8 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
       </div>
       <div className="reply__g">
         <div className="field"><label>Bez prihlásenia (EUR)</label><input className="input" inputMode="numeric" value={o.priceNoReg} placeholder="46900" onChange={(e) => setO("priceNoReg", e.target.value)} /></div>
-        <div className="field"><label>S prihlásením (EUR)</label><input className="input" inputMode="numeric" value={o.priceReg} placeholder="52900" onChange={(e) => setO("priceReg", e.target.value)} /></div>
+        <div className="field"><label>S prihlásením (EUR)</label><input className="input" inputMode="numeric" value={o.priceReg} placeholder="52900" onChange={(e) => { const v = e.target.value; const n = digits(v); patch(cur, { priceReg: v, ...(cfg && n ? { deposit: String(depositFor(cfg, n)) } : {}) }); }} /></div>
+        <div className="field"><label>Záloha po podpise zmluvy (EUR)</label><input className="input" inputMode="numeric" value={o.deposit || ""} placeholder="3000" onChange={(e) => setO("deposit", e.target.value)} /><span className="hint">Dopĺňa sa sama podľa ceny s prihlásením a pásiem záloh v Nastaveniach. Prázdna sa v e-maile nezobrazí.</span></div>
         {txt("noRegNote", "Popis pod cenou bez prihlásenia")}
         {txt("regNote", "Popis pod cenou s prihlásením")}
         <div className="field">

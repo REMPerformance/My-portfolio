@@ -25,7 +25,7 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Koľko je záloha a čo sa s ňou stane, ak aukciu prehráme?",
-    a: "Záloha je 10 % z Vašej maximálnej sumy, minimálne 500 €. Ak aukciu prehráme, zálohu Vám vrátime do 5 pracovných dní alebo ju na Vašu žiadosť presunieme na ďalšie auto."
+    a: "Záloha závisí od odhadovanej konečnej ceny auta: do 49 000 € je 2 000 €, do 69 000 € je 3 000 € a nad 69 000 € je 4 500 €. Je súčasťou ceny. Ak aukciu prehráme, zálohu Vám vrátime do 5 pracovných dní alebo ju na Vašu žiadosť presunieme na ďalšie auto."
   },
   {
     q: "Ako dlho trvá dovoz auta z USA?",

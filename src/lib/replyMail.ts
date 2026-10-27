@@ -32,6 +32,8 @@ export interface Offer {
   calcCar: Record<string, unknown> | null;
   priceNoReg: string;
   priceReg: string;
+  /** záloha po podpise zmluvy v EUR, dopĺňa sa podľa pásiem v nastaveniach; prázdna sa nezobrazí */
+  deposit?: string;
   noRegNote: string;
   regNote: string;
   /** final = konečná cena, nie sme platiteľ DPH */
@@ -75,7 +77,7 @@ export const EMPTY_OFFER: Offer = {
   vin: "", year: "", mileage: "", mileageUnit: "mi", color: "", engine: "", transmission: "", drive: "", fuel: "", docs: "", keys: "", condition: "", damage: "",
   saleType: "auction",
   bid: "", currency: "USD", auctionEnd: null, location: "", estBid: "", sourceUrl: "", calcCar: null,
-  priceNoReg: "", priceReg: "",
+  priceNoReg: "", priceReg: "", deposit: "",
   noRegNote: "Bez opravy a homologizácie, vybavíte si ich sami",
   regNote: "Vrátane opravy, homologizácie a prihlásenia v SR",
   vat: "final",
@@ -384,11 +386,18 @@ ${d.title.trim() ? `<div style="${F}font-size:24px;font-weight:bold;line-height:
 ${gallery(photos, d.title.trim())}
 ${r.length ? heading("Údaje o aute") + table(r) : ""}
 ${s.length ? heading(fixed ? "Ponuka predajcu" : "Stav aukcie") + table(s) : ""}
-${prices ? heading("Odhadovaná cena na Slovensku") + prices + (basis ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;border-collapse:collapse"><tr><td style="${F}padding:10px 14px;font-size:14px;font-weight:bold;line-height:1.5;color:#15171b;background:#f5f6f8;border:1px solid #e4e6ea;border-left:4px solid ${RED}">${esc(basis)}</td></tr></table>` : "") + `<p style="${F}margin:10px 0 0;font-size:12px;line-height:1.55;color:#6b7078">${esc(fixed ? "Ceny sú odhadované. Presnú kalkuláciu Vám pripravíme po potvrdení záujmu." : "Ceny sú odhadované a závisia od sumy, za ktorú sa auto vydraží, a od kurzu. Presnú kalkuláciu Vám pripravíme po potvrdení záujmu.")}</p>` : ""}
+${prices ? heading("Odhadovaná cena na Slovensku") + prices + depositHtml(d) + (basis ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;border-collapse:collapse"><tr><td style="${F}padding:10px 14px;font-size:14px;font-weight:bold;line-height:1.5;color:#15171b;background:#f5f6f8;border:1px solid #e4e6ea;border-left:4px solid ${RED}">${esc(basis)}</td></tr></table>` : "") + `<p style="${F}margin:10px 0 0;font-size:12px;line-height:1.55;color:#6b7078">${esc(fixed ? "Ceny sú odhadované. Presnú kalkuláciu Vám pripravíme po potvrdení záujmu." : "Ceny sú odhadované a závisia od sumy, za ktorú sa auto vydraží, a od kurzu. Presnú kalkuláciu Vám pripravíme po potvrdení záujmu.")}</p>` : ""}
 ${d.note.trim() ? `<div style="padding-top:16px">${para(d.note)}</div>` : ""}
 ${carUrl ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 0"><tr><td style="background:${RED};padding:12px 26px"><a href="${esc(carUrl)}" style="${F}font-size:13px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#ffffff;text-decoration:none">Zobraziť auto na webe</a></td></tr></table>` : ""}
 <div style="height:26px;line-height:26px;font-size:1px">&nbsp;</div>
 </td></tr>`;
+}
+
+/** „Záloha po podpise zmluvy: 4 500 €“ pod cenou, ak je vyplnená. */
+export const depositText = (d: Pick<Offer, "deposit">) => { const n = toNum(d.deposit || ""); return n ? `Záloha po podpise zmluvy: ${eur(n)}` : ""; };
+function depositHtml(d: Offer) {
+  const t = depositText(d);
+  return t ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;border-collapse:collapse"><tr><td style="${F}padding:10px 14px;font-size:14px;font-weight:bold;line-height:1.5;color:#15171b;background:#f5f6f8;border:1px solid #e4e6ea;border-left:4px solid ${RED};white-space:nowrap">${nb(t)}</td></tr></table>` : "";
 }
 
 function offerText(d: Offer, n: number, total: number, now: number) {
@@ -406,6 +415,7 @@ function offerText(d: Offer, n: number, total: number, now: number) {
     pNo || pReg ? `\nODHADOVANÁ CENA NA SLOVENSKU (${VAT_LABEL[d.vat] || VAT_LABEL.final})` : "",
     pNo ? `Bez prihlásenia: ${pNo}${d.noRegNote.trim() ? ` (${d.noRegNote.trim()})` : ""}` : "",
     pReg ? `S prihlásením: ${pReg}${d.regNote.trim() ? ` (${d.regNote.trim()})` : ""}` : "",
+    depositText(d),
     pNo || pReg ? basisText(d) : "",
     d.note.trim() ? `\n${d.note.trim()}` : "",
     carUrl ? `\nAuto na webe: ${carUrl}` : ""
@@ -489,7 +499,7 @@ ${main ? `<img class="main" src="${esc(main)}" alt="">` : ""}${rest.length ? `<d
     const pNo = priceText(o.priceNoReg);
     pages.push(`${top}<h1 class="small">${esc(o.title.trim())}</h1>${r.length ? h("Údaje o aute") + kv(r) : ""}${sale.length ? h(o.saleType === "fixed" ? "Ponuka predajcu" : "Stav aukcie") + kv(sale) : ""}
 ${o.note.trim() ? h("Výbava a poznámky") + `<p>${esc(o.note.trim()).replace(/\n/g, "<br>")}</p>` : ""}
-${pReg || pNo ? h("Odhadovaná cena na Slovensku") + `<div class="price"><small>${pReg ? "S prihlásením" : "Bez prihlásenia"}</small><b>${nb(pReg || pNo)}</b><span>${esc((pReg ? o.regNote : o.noRegNote).trim())}</span></div>` : ""}`);
+${pReg || pNo ? h("Odhadovaná cena na Slovensku") + `<div class="price"><small>${pReg ? "S prihlásením" : "Bez prihlásenia"}</small><b>${nb(pReg || pNo)}</b><span>${esc((pReg ? o.regNote : o.noRegNote).trim())}</span>${depositText(o) ? `<em>${nb(depositText(o))}</em>` : ""}</div>` : ""}`);
   });
   let totalShown = false;
   for (const x of d.sections.filter(sectionFilled)) {
@@ -538,7 +548,7 @@ img.main{display:block;width:100%;height:auto;max-height:118mm;object-fit:cover;
 .tb .r{text-align:right;white-space:nowrap;font-weight:bold}.tb tr.sum td{background:#15171b!important;color:#fff;font-weight:bold;border-top:3px solid ${RED}}
 tr{break-inside:avoid}
 .price,.total{background:#15171b;border-top:4px solid ${RED};color:#fff;padding:14px 18px;margin-top:6px}.price small,.total small{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#c9ccd2}
-.price b{display:block;font-size:26px;margin:2px 0}.price span,.total span{font-size:11px;color:#c9ccd2}.total{margin-top:16px}.total b{display:block;font-size:30px;margin:2px 0}
+.price b{display:block;font-size:26px;margin:2px 0}.price em{display:block;font-style:normal;font-weight:700;font-size:12.5px;margin-top:8px;padding-top:8px;border-top:1px solid #33363d;white-space:nowrap}.price span,.total span{font-size:11px;color:#c9ccd2}.total{margin-top:16px}.total b{display:block;font-size:30px;margin:2px 0}
 p{margin:0 0 6px}.endblock{margin-top:10px;font-size:11.5px;line-height:1.45}.endblock h2{margin-top:12px}
 .sign{display:flex;align-items:flex-end;gap:30px;margin:14px 0 12px;font-size:12px;color:#4a4f58}.sign b{color:#15171b}.sig{border-bottom:1px solid #9aa0a8;width:220px;min-height:60px;display:flex;align-items:flex-end}.sig img{height:60px;width:auto;display:block}
 .foot{display:flex;justify-content:space-between;align-items:center;background:#0c0d10;border-top:4px solid ${RED};padding:10px 20px;color:#c9ccd2;font-size:11px;line-height:1.7;text-align:right}.foot b{color:#fff}
