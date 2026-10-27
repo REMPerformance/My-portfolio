@@ -448,15 +448,43 @@ ${d.quote.trim() ? `<tr><td style="padding:0 24px 24px"><table role="presentatio
   return { subject: replySubject(d), html, text };
 }
 
-/** Ponuka ako samostatná stránka na tlač do PDF (A4). Obsah je rovnaký ako e-mail, aby ponuka a e-mail vždy sedeli. */
-export function offerPdfHtml(r: { subject: string; html: string }, autoPrint = false): string {
-  const title = esc(r.subject || "Ponuka REM Performance");
+/** Kto ponuku vyhotovil: meno, funkcia, tvar slovesa a podpis ako obrázok (data URL). Ukladá sa v nastaveniach pod kľúčom "signers". */
+export interface Signer { id: string; name: string; role: string; made: "Vyhotovil" | "Vyhotovila"; img: string }
+
+/**
+ * Ponuka vozidla ako samostatná stránka na tlač do PDF (A4).
+ * Obsahuje len karty áut a tabuľky (cenník, platby), bez oslovenia a textov z e-mailu.
+ * Dole je vyhotovil/vyhotovila s podpisom a pätička s logom a kontaktom.
+ */
+export function offerPdfHtml(d: ReplyData, signer: Signer | null, autoPrint = false, now = Date.now()): string {
+  const secs = d.sections.filter(sectionFilled).filter((x) => x.kind === "offer" || x.kind === "table");
+  const total = secs.filter((x) => x.kind === "offer").length;
+  let n = 0;
+  const parts = secs.map((x, i) => {
+    if (x.kind === "offer") return offerHtml(x.offer!, ++n, total, now, i > 0);
+    const afterOffer = i > 0 && secs[i - 1].kind === "offer";
+    return (afterOffer ? `<tr><td style="border-top:8px solid #eef0f3;height:10px;line-height:10px;font-size:1px">&nbsp;</td></tr>` : "") + sectionHtml(x);
+  });
+  const date = new Date(now).toLocaleDateString("sk-SK", { day: "numeric", month: "numeric", year: "numeric" });
+  const title = esc(replySubject(d) || "Cenová ponuka");
+  const logo = `<img src="${SITE.url}/brand/rem-performance-white.png" width="300" alt="REM PERFORMANCE" style="display:block;width:300px;max-width:100%;height:auto;border:0;${F}font-size:20px;font-weight:bold;font-style:italic;color:#ffffff">`;
+  const sign = signer
+    ? `<tr><td style="padding:22px 24px 6px;border-top:1px solid #e4e6ea"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse"><tr><td style="${F}font-size:13px;line-height:1.6;color:#22252b;vertical-align:bottom;padding-right:28px">${esc(signer.made)}:<br><b>${esc(signer.name)}</b>${signer.role ? `<br><span style="color:#6b7078">${esc(signer.role)}, REM Performance</span>` : ""}<br><span style="color:#6b7078">${esc(date)}</span></td><td style="vertical-align:bottom">${signer.img ? `<img src="${signer.img}" alt="Podpis" style="display:block;height:64px;width:auto;border:0">` : ""}<div style="border-top:1px solid #9aa0a8;width:220px;margin-top:2px"></div></td></tr></table></td></tr>`
+    : "";
+  const html = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background:#ffffff">
+<tr><td style="background:#0c0d10;padding:20px 24px;border-bottom:4px solid ${RED}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>${logo}</td><td align="right" style="${F}font-size:12px;line-height:1.5;color:#c9ccd2;white-space:nowrap">Cenová ponuka<br>${esc(date)}</td></tr></table></td></tr>
+${parts.join("\n")}
+${sign}
+<tr><td style="padding:18px 24px 0"></td></tr>
+<tr><td style="background:#0c0d10;padding:18px 24px;border-top:4px solid ${RED}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="vertical-align:middle">${logo.replace('width="300"', 'width="220"').replace("width:300px", "width:220px")}</td><td align="right" style="${F}font-size:12px;line-height:1.7;color:#c9ccd2;white-space:nowrap">Tel. a WhatsApp: <b style="color:#fff">${esc(SITE.phone)}</b><br>E-mail: <b style="color:#fff">${SITE.email}</b><br>Web: <b style="color:#fff">${SITE.url.replace("https://", "")}</b></td></tr></table></td></tr>
+<tr><td style="${F}padding:10px 24px 0;font-size:10px;line-height:1.5;color:#8a8f97">Uvedené ceny sú odhadom. Kúpna cena vozidla sa prepočíta podľa aktuálneho kurzu v deň platby, výšku cla a DPH určí colný úrad.</td></tr>
+</table>`;
   const css = `@page{size:A4;margin:10mm}html,body{margin:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-body>.pdf{max-width:680px;margin:0 auto}img{break-inside:avoid;page-break-inside:avoid}h1,h2,h3{break-after:avoid}
+body>.pdf{max-width:640px;margin:0 auto}img{break-inside:avoid;page-break-inside:avoid}
 @media screen{body{padding:24px 12px;background:#eee}body>.pdf{background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.15)}}`;
   // tlač až po načítaní fotiek, inak by v PDF chýbali
   const js = autoPrint
     ? `<script>window.addEventListener("load",function(){var i=[].slice.call(document.images).filter(function(x){return!x.complete});Promise.all(i.map(function(x){return new Promise(function(r){x.onload=x.onerror=r})})).then(function(){setTimeout(function(){window.print()},300)})});</script>`
     : "";
-  return `<!doctype html><html lang="sk"><head><meta charset="utf-8"><title>${title}</title><style>${css}</style></head><body><div class="pdf">${r.html}</div>${js}</body></html>`;
+  return `<!doctype html><html lang="sk"><head><meta charset="utf-8"><title>${title}</title><style>${css}</style></head><body><div class="pdf">${html}</div>${js}</body></html>`;
 }

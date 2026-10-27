@@ -8,6 +8,7 @@ import { COUNTRIES, CURRENCIES, DEFAULT_FX, countryDef, placeKey, placesEn } fro
 import type { CalcConfig } from "@/lib/types";
 import { useAdmin } from "@/components/admin/AdminApp";
 import { Breakdown } from "@/components/Breakdown";
+import { SignersPanel } from "@/components/admin/SignersPanel";
 
 function Num({ label, value, onChange, unit, step = 1 }: { label: string; value: number; onChange: (v: number) => void; unit?: string; step?: number }) {
   return (
@@ -51,6 +52,7 @@ export default function Settings() {
       </div>
       <div className="edit-grid">
         <div>
+          <SignersPanel />
           <div className="panel">
             <h2>Váš poplatok a cena na webe</h2>
             <div className="three">

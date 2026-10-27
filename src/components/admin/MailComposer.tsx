@@ -8,6 +8,7 @@ import { SITE } from "@/lib/site";
 import { CURRENCIES } from "@/lib/origins";
 import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
 import { importImages } from "@/lib/imageImport";
+import { useSigners } from "@/components/admin/useSigners";
 import { basisText, buildReply, EMPTY_OFFER, offerPdfHtml, offerSection, offersOf, parseQuote, PARTS, timeLeft, type Offer, type ReplyData, type Section } from "@/lib/replyMail";
 import { eur } from "@/lib/format";
 import { DateTimePicker } from "./DateTimePicker";
@@ -165,6 +166,15 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
   const setO = <K extends keyof Offer>(k: K, v: Offer[K]) => patch(cur, { [k]: v } as Partial<Offer>);
 
   const mail_ = useMemo(() => buildReply(d), [d]);
+  const signers = useSigners();
+  const [signerId, setSignerId] = useState("");
+  useEffect(() => {
+    if (signerId || !signers.loaded) return;
+    let saved = "";
+    try { saved = localStorage.getItem("rem.signer") || ""; } catch {}
+    const pick = signers.list.find((x) => x.id === saved) || signers.list[0];
+    if (pick) setSignerId(pick.id);
+  }, [signers.loaded, signers.list, signerId]);
   const row = useCallback((): Mail => ({ ...mail, to_email: to.email.trim(), to_name: to.name.trim(), subject: mail_.subject, data: d, status, sent_at: sentAt, updated_at: new Date().toISOString() }), [mail, to, mail_.subject, d, status, sentAt]);
   const latest = useRef(row);
   latest.current = row;
@@ -388,10 +398,13 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
 
   /** Otvorí ponuku na samostatnej stránke a spustí tlač, v dialógu sa zvolí Uložiť ako PDF. */
   function printOffer() {
+    const signer = signers.list.find((x) => x.id === signerId) || null;
+    if (!signer) return toast("Vyberte, kto ponuku vyhotovil. Podpisy nastavíte v Nastaveniach.", true);
+    try { localStorage.setItem("rem.signer", signer.id); } catch {}
     const win = window.open("about:blank", "_blank");
     if (!win) return toast("Prehliadač zablokoval nové okno, povoľte vyskakovacie okná.", true);
     win.document.open();
-    win.document.write(offerPdfHtml(mail_, true));
+    win.document.write(offerPdfHtml(d, signer, true));
     win.document.close();
     toast("V dialógu tlače zvoľte Uložiť ako PDF.");
   }
@@ -539,6 +552,10 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
         </div>
         <div className="row-actions">
           <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => { const s = status === "sent" ? "draft" : "sent"; setStatus(s); setSentAt(s === "sent" ? new Date().toISOString() : null); }}>{status === "sent" ? "Vrátiť medzi koncepty" : "Označiť ako odoslaný"}</button>
+          <select className="input input--sm" style={{ width: "auto" }} value={signerId} onChange={(e) => setSignerId(e.target.value)} title="Kto ponuku vyhotovil">
+            <option value="">Vyhotovil(a)…</option>
+            {signers.list.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+          </select>
           <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={printOffer} disabled={uploading > 0}>Vygenerovať ponuku (PDF)</button>
           <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => copy(false)}>Len skopírovať</button>
           <button className="rc-btn rc-btn--primary rc-btn--sm" onClick={() => copy(true)} disabled={uploading > 0 || !!imp}>Skopírovať a otvoriť Gmail</button>
