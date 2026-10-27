@@ -9,7 +9,7 @@ import { CURRENCIES } from "@/lib/origins";
 import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
 import { importImages } from "@/lib/imageImport";
 import { useSigners } from "@/components/admin/useSigners";
-import { basisText, buildReply, EMPTY_OFFER, offerPdfHtml, offerSection, offersOf, parseQuote, PARTS, timeLeft, type Offer, type ReplyData, type Section } from "@/lib/replyMail";
+import { basisText, buildReply, depositForTotal, EMPTY_OFFER, isReserveRow, offerPdfHtml, sectionTotal, setDepositTiers, offerSection, offersOf, parseQuote, PARTS, timeLeft, type Offer, type ReplyData, type Section } from "@/lib/replyMail";
 import { eur } from "@/lib/format";
 import { DateTimePicker } from "./DateTimePicker";
 import { useCalcCfg } from "./useCalcCfg";
@@ -135,6 +135,43 @@ function pricesFor(cfg: NonNullable<ReturnType<typeof useCalcCfg>["cfg"]>, o: Pi
   return { priceNoReg: p(bare), priceReg: p(full), deposit: String(depositFor(cfg, full.gross)), vat };
 }
 
+const fmtEur = (n: number) => `${Math.round(n).toLocaleString("sk-SK").replace(/\s/g, " ")} €`;
+/** Rezerva v rozpise a záloha pri aute podľa konečnej sumy. Vráti nové dáta, ak bolo treba niečo zmeniť. */
+function syncDeposits(d: ReplyData): ReplyData | null {
+  let changed = false;
+  const sections = d.sections.map((x) => ({ ...x }));
+  sections.forEach((x, i) => {
+    if (x.kind !== "offer" || !x.offer) return;
+    let j = i + 1;
+    while (j < sections.length && sections[j].kind !== "offer" && sectionTotal(sections[j]) == null) j++;
+    const t = j < sections.length && sections[j].kind !== "offer" ? sections[j] : null;
+    if (t && t.kind === "table") {
+      // pevná tabuľka: rezervu nastavíme na zálohu podľa pásma a o rozdiel upravíme SPOLU
+      const lines = t.body.split("\n");
+      const ri = lines.findIndex((l) => isReserveRow(l.split("|")[0] || ""));
+      const si = lines.map((l) => /^=?\s*spolu/i.test((l.split("|")[0] || "").trim())).lastIndexOf(true);
+      const num = (l: string) => Number((l.split("|").pop() || "").replace(/[^\d]/g, "")) || 0;
+      if (ri >= 0 && si >= 0) {
+        const rz = num(lines[ri]), total = num(lines[si]);
+        let dep = depositForTotal(total);
+        for (let k = 0; k < 3 && depositForTotal(total - rz + dep) !== dep; k++) dep = depositForTotal(total - rz + dep);
+        if (rz !== dep) {
+          const set = (l: string, v: number) => { const c = l.split("|"); c[c.length - 1] = ` ${fmtEur(v)}`; return c.join("|"); };
+          lines[ri] = set(lines[ri], dep);
+          lines[si] = set(lines[si], total - rz + dep);
+          sections[j] = { ...t, body: lines.join("\n") };
+          changed = true;
+        }
+      }
+    }
+    const total = (t && sectionTotal(sections[j])) || Number(String(x.offer.priceReg).replace(/[^\d]/g, "")) || 0;
+    const dep = total ? String(depositForTotal(total)) : "";
+    const price = t && total ? String(total) : x.offer.priceReg;
+    if ((x.offer.deposit || "") !== dep || x.offer.priceReg !== price) { sections[i] = { ...x, offer: { ...x.offer, deposit: dep, priceReg: price } }; changed = true; }
+  });
+  return changed ? { ...d, sections } : null;
+}
+
 /** Editor e-mailu: adresát, časti poskladané v ľubovoľnom poradí, náhľad a otvorenie Gmailu. Koncept sa priebežne ukladá do databázy. */
 export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: Lead | null; cars: CarOpt[]; onClose: (m: Mail) => void }) {
   const sb = browserClient();
@@ -164,6 +201,13 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
   const patch = (i: number, p: Partial<Offer> | ((x: Offer) => Partial<Offer>)) =>
     setD((x) => ({ ...x, sections: x.sections.map((s, j) => (j === i && s.offer ? { ...s, offer: { ...s.offer, ...(typeof p === "function" ? p(s.offer) : p) } } : s)) }));
   const setO = <K extends keyof Offer>(k: K, v: Offer[K]) => patch(cur, { [k]: v } as Partial<Offer>);
+
+  // záloha = rezerva podľa konečnej sumy (pásma v Nastaveniach); pri každom aute sa drží automaticky
+  useEffect(() => { setDepositTiers(cfg?.depositTiers); }, [cfg]);
+  useEffect(() => {
+    const next = syncDeposits(d);
+    if (next) setD(next);
+  }, [d, cfg]);
 
   const mail_ = useMemo(() => buildReply(d), [d]);
   const signers = useSigners();
@@ -531,7 +575,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
       <div className="reply__g">
         <div className="field"><label>Bez prihlásenia (EUR)</label><input className="input" inputMode="numeric" value={o.priceNoReg} placeholder="46900" onChange={(e) => setO("priceNoReg", e.target.value)} /></div>
         <div className="field"><label>S prihlásením (EUR)</label><input className="input" inputMode="numeric" value={o.priceReg} placeholder="52900" onChange={(e) => { const v = e.target.value; const n = digits(v); patch(cur, { priceReg: v, ...(cfg && n ? { deposit: String(depositFor(cfg, n)) } : {}) }); }} /></div>
-        <div className="field"><label>Záloha po podpise zmluvy (EUR)</label><input className="input" inputMode="numeric" value={o.deposit || ""} placeholder="3000" onChange={(e) => setO("deposit", e.target.value)} /><span className="hint">Dopĺňa sa sama podľa ceny s prihlásením a pásiem záloh v Nastaveniach. Prázdna sa v e-maile nezobrazí.</span></div>
+        <div className="field"><label>Záloha po podpise zmluvy (EUR)</label><input className="input" value={o.deposit || ""} readOnly /><span className="hint">Počíta sa sama z konečnej sumy podľa pásiem v Nastaveniach. Rovnaká suma je rezerva v rozpise nákladov.</span></div>
         {txt("noRegNote", "Popis pod cenou bez prihlásenia")}
         {txt("regNote", "Popis pod cenou s prihlásením")}
         <div className="field">

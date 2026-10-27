@@ -149,7 +149,7 @@ export const QUOTE_TEMPLATE = [
   "Homologizácia | Schválenie vozidla a posudok technickej služby | ",
   "Recyklačný poplatok | Zákonný príspevok do Environmentálneho fondu SR | ",
   "Zápis do evidencie a EČV | Správny poplatok a tabuľky s evidenčným číslom | ",
-  "Rezerva na nepredvídané náklady | Povinná, nevyčerpaná časť sa vracia | ",
+  "Rezerva na nepredvídané náklady | Záloha splatná po podpise zmluvy, nevyčerpaná časť sa vracia | záloha",
   "#odmena | 5",
   "= SPOLU cca | Odhad celkovej ceny vozidla na slovenských EČV"
 ].join("\n");
@@ -169,7 +169,29 @@ export const isReserveRow = (item: string) => /^rezerv/i.test(item.trim());
  * Rozpustí sa pomerne len do služieb, nie do ceny auta, cla, DPH, zákonných poplatkov a rezervy. V e-maile sa nezobrazí.
  * Viditeľná percentuálna suma (napr. 3 %) sa počíta zo súčtu položiek nad ňou.
  */
+/** Pásma záloh [do konečnej sumy, záloha]; admin ich nastaví podľa Nastavení cez setDepositTiers. */
+let DEPOSIT_TIERS: [number, number][] = [[49000, 2000], [69000, 3000], [999999999, 4500]];
+export function setDepositTiers(t: [number, number][] | undefined | null) { if (t?.length) DEPOSIT_TIERS = t; }
+/** Záloha (rezerva) podľa konečnej sumy. */
+export function depositForTotal(total: number) {
+  const t = DEPOSIT_TIERS;
+  return (t.find(([max]) => Math.round(total) <= max) || t[t.length - 1])[1];
+}
+const isAutoDeposit = (r: { item: string; amount: string }) => isReserveRow(r.item) && /^(z[aá]loha|auto)?$/i.test(r.amount.trim());
+
+/** Rezerva so sumou „záloha“ (alebo prázdnou) sa doplní podľa pásiem záloh tak, aby sedela ku konečnej sume. */
 export function parseQuote(body: string): Quote {
+  const auto = body.split("\n").some((raw) => { const [item = "", , amount = ""] = raw.split("|").map((x) => x.trim()); return isAutoDeposit({ item, amount }); });
+  if (!auto) return parseQuoteWith(body, null);
+  let q = parseQuoteWith(body, 0);
+  for (const [, rz] of DEPOSIT_TIERS) {
+    q = parseQuoteWith(body, rz);
+    if (depositForTotal(q.total) === rz) return q;
+  }
+  return q;
+}
+
+function parseQuoteWith(body: string, autoReserve: number | null): Quote {
   let sum = 0;
   let totalLabel = "SPOLU cca";
   let totalDesc = "";
@@ -183,7 +205,7 @@ export function parseQuote(body: string): Quote {
     if (item.startsWith("=")) { totalLabel = item.slice(1).trim() || totalLabel; totalDesc = desc; continue; }
     const pm = amount.match(/^(\d+(?:[.,]\d+)?)\s*%$/);
     const pct = pm ? Number(pm[1].replace(",", ".")) : null;
-    const value = pct != null ? Math.round((sum * pct) / 100) : toNum(amount) || 0;
+    const value = autoReserve != null && isAutoDeposit({ item, amount }) ? autoReserve : pct != null ? Math.round((sum * pct) / 100) : toNum(amount) || 0;
     sum += value;
     rows.push({ item, desc, amount, value, pct, base: value });
   }
@@ -200,6 +222,14 @@ export function parseQuote(body: string): Quote {
     sum += markup;
   }
   return { rows, total: sum, totalLabel, totalDesc, markupPct, markup: markup > 0 && tBase > 0 ? markup : 0, reserve };
+}
+
+/** Konečná suma časti s rozpisom: súčet pri automatickom rozpise, riadok SPOLU pri tabuľke. */
+export function sectionTotal(x: Section): number | null {
+  if (x.kind === "quote") return parseQuote(x.body).total || null;
+  if (x.kind !== "table") return null;
+  const last = x.body.split("\n").map((l) => l.split("|").map((c) => c.trim())).filter((c) => /^=?\s*spolu/i.test(c[0] || "")).pop();
+  return last ? toNum(last[last.length - 1] || "") : null;
 }
 
 export const RESERVE_NOTE = "Rezerva na nepredvídané náklady je povinnou súčasťou platby. Ak sa nevyčerpá, po prihlásení vozidla Vám nevyčerpanú časť vrátime.";
