@@ -23,7 +23,7 @@ export const DEFAULT_CALC: CalcConfig = {
   serviceFeePct: 0.15,
   serviceFeeMinEur: 0,
   serviceFeeBase: "car",
-  priceMode: "gross",
+  priceMode: "net",
   depositPct: 0.1,
   depositMinEur: 500,
   depositTiers: [[49000, 2000], [69000, 3000], [999999999, 4500]],
@@ -231,9 +231,13 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   spreadKeys.forEach((k, n) => { const add = n === spreadKeys.length - 1 ? left : Math.round((markupEur * base[k]) / spreadBase); svc[k] += add; left -= add; });
   // bez služieb na Slovensku (len dovoz) ide odmena do prepravy
   const inlandShown = spreadKeys.length ? inlandEur : inlandEur + markupEur;
-  const total = fixedSum + reserveEur + markupEur;
+  // konečná suma pre súkromnú osobu; firma s odpočtom DPH ju má nižšiu o DPH pri dovoze
+  const gross = fixedSum + reserveEur + markupEur;
   const vatTotal = importVat + euCarVat;
-  const credit = typeof i.creditEur === "number" && isFinite(i.creditEur) ? Math.max(0, i.creditEur) : (cfg.racemCredit.find(([max]) => total <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
+  const net = gross - vatTotal;
+  const priceMode: PriceMode = cfg.priceMode === "gross" ? "gross" : "net";
+  const total = priceMode === "net" ? net : gross;
+  const credit = typeof i.creditEur === "number" && isFinite(i.creditEur) ? Math.max(0, i.creditEur) : (cfg.racemCredit.find(([max]) => gross <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
   return {
     price, currency, bidUsd: price, carEur, feeEur, inlandEur: inlandShown, oceanEur, insuranceEur,
     portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name, countryCode: oc.country.code,
@@ -241,7 +245,7 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
     euPortEur: svc.port, truckEur: svc.truck, translationsEur: svc.translations, inspectionsEur: svc.inspections, homologEur: svc.homolog,
     recyclingEur: svc.recycling, registrationEur: svc.registration, adaptersEur: svc.adapters, reserveEur,
     serviceFeeEur: markupEur, feePct: mPct / 100,
-    repairEur, extraCosts: extras, net: total, gross: total, vatTotal, priceMode: "gross", total, credit, deposit: reserveEur, fixed, local, carNoVat, feeManual, noHomolog: !!i.noHomolog
+    repairEur, extraCosts: extras, net, gross, vatTotal, priceMode, total, credit, deposit: reserveEur, fixed, local, carNoVat, feeManual, noHomolog: !!i.noHomolog
   };
 }
 

@@ -69,8 +69,8 @@ export function CarCard({ car, priority = false, serverNow }: { car: CardCar; pr
             {car.trim && <small>{car.trim}</small>}
           </h3>
           <div className="car__price">
-            <b>{phase === "ended" && !sold ? <s>{eur(car.est.total)}</s> : eur(car.est.total)}</b>
-            <small>{sold ? "Predané a dovezené na objednávku, podobné auto Vám nájdeme" : "Odhad s dovozom, clom a DPH na slovenských značkách"}</small>
+            <b>{phase === "ended" && !sold ? <s>{eur(car.est.net)}</s> : eur(car.est.net)} <i>bez DPH</i></b>
+            <small>{sold ? "Predané a dovezené na objednávku, podobné auto Vám nájdeme" : `s DPH ${eur(car.est.gross)}`}</small>
           </div>
           <div className="car__specs">
             <div><SpecIcon k="year" /><span>{car.year ?? "—"}</span></div>

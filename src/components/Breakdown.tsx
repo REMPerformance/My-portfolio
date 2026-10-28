@@ -4,7 +4,7 @@ import { eur, money } from "@/lib/format";
 /** Rozpis odhadu po položkách, rovnako ako v cenových ponukách. Odmena je rozpustená v službách, DPH sa pripočítava len pri dovoze. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r: CalcResult; skPrice?: number | null; compact?: boolean; hideFee?: boolean }) {
-  const diff = skPrice ? skPrice - r.total : null;
+  const diff = skPrice ? skPrice - r.gross : null;
   const row = (k: React.ReactNode, v: number, note?: string) => (
     <div className="bd"><span>{k}{note && <em>{note}</em>}</span><span>{eur(v)}</span></div>
   );
@@ -55,8 +55,8 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       <div className="bd-total">
         <div>
           <small>{r.noHomolog ? "Odhad spolu s dovozom na Slovensko" : "Odhad spolu na slovenských značkách"}</small>
-          <b>{eur(r.total)}</b>
-          {r.reserveEur > 0 && <small>záloha po podpise zmluvy {eur(r.reserveEur)}</small>}
+          <b>{eur(r.net)} <i style={{ fontSize: 13, fontStyle: "normal" }}>bez DPH</i></b>
+          <small>s DPH {eur(r.gross)}{r.reserveEur > 0 ? ` · záloha po podpise zmluvy ${eur(r.reserveEur)}` : ""}</small>
         </div>
         {r.credit > 0 && <div className="cr"><small>Kredit RACEM</small><b>+{eur(r.credit)}</b></div>}
       </div>
