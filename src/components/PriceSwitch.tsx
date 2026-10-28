@@ -25,10 +25,9 @@ export function PriceSwitch({ full, self, priceMode, ended, endedLabel, local, r
   const noLbl = repair ? (local ? "Bez opravy a prihlásenia" : "Bez opravy a homologizácie") : local ? "Bez prihlásenia" : "Bez homologizácie";
   return (
     <>
-      <div className="lbl">Odhadovaná cena {priceMode === "net" ? "bez DPH" : "s DPH"}</div>
+      <div className="lbl">Odhadovaná cena</div>
       {ended && <div className={`pb-ended${endedLabel === "Predali sme" ? " is-sold" : ""}`}>{endedLabel}</div>}
       <div className="big" aria-live="polite">{ended && endedLabel !== "Predali sme" ? <s>{eur(p.total)}</s> : eur(p.total)}</div>
-      <div className="vatalt">{priceMode === "net" ? <>s DPH <b>{eur(p.gross)}</b></> : <>bez DPH <b>{eur(p.net)}</b></>}</div>
       <p className="note" style={{ marginTop: 2 }}>
         {own && self ? `s dovozom na Slovensko, ${repair ? "bez opravy a " : ""}bez ${local ? "prihlásenia" : "homologizácie"}` : "s dovozom na slovenských značkách"}. Cena je odhad, <a className="link" href={contact} target="_blank" rel="noopener">pre presnejší odhad nás kontaktujte</a>.
       </p>

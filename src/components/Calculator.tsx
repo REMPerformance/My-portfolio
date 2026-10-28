@@ -19,6 +19,9 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
   const [sk, setSk] = useState<number | "">("");
 
   const [own, setOwn] = useState(false);
+  const [fuel, setFuel] = useState<"ice" | "hybrid" | "bev">("ice");
+  const [origin, setOrigin] = useState(false);
+  const originOk = country === "US" || country === "KR" || country === "JP";
   const pickCountry = (c: string) => {
     const d = countryDef(c);
     setCountry(c);
@@ -28,8 +31,8 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
   };
 
   const r = useMemo(
-    () => calc(cfg, { price: Math.max(0, price || 0), currency: cd.currency, country, place, type, repairEur: Math.max(0, repair || 0), sellerFee: mode === "fixed" ? 0 : undefined, noHomolog: own }),
-    [cfg, price, cd.currency, country, place, type, repair, mode, own]
+    () => calc(cfg, { price: Math.max(0, price || 0), currency: cd.currency, country, place, type, repairEur: Math.max(0, repair || 0), sellerFee: mode === "fixed" ? 0 : undefined, noHomolog: own, fuel, dutyFree: originOk && origin }),
+    [cfg, price, cd.currency, country, place, type, repair, mode, own, fuel, origin, originOk]
   );
   const priceEur = (price || 0) * fxRate(cfg, cd.currency);
 
@@ -52,7 +55,7 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
           </div>
         </div>
         <div className="seg" role="radiogroup" aria-label="Spôsob kúpy">
-          <button type="button" role="radio" aria-checked={mode === "auction"} className={mode === "auction" ? "on" : ""} onClick={() => setMode("auction")}><b>Aukcia</b><small>Copart, IAAI – s aukčnými poplatkami</small></button>
+          <button type="button" role="radio" aria-checked={mode === "auction"} className={mode === "auction" ? "on" : ""} onClick={() => setMode("auction")}><b>Aukcia</b><small>s aukčnými poplatkami</small></button>
           <button type="button" role="radio" aria-checked={mode === "fixed"} className={mode === "fixed" ? "on" : ""} onClick={() => setMode("fixed")}><b>Od predajcu</b><small>Dealer, Buy Now, súkromný predajca</small></button>
         </div>
         <div className="field">
@@ -73,6 +76,21 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
             <div className="iw"><input className="input" id="cRepair" type="number" min={0} step={100} value={repair} inputMode="numeric" onChange={(e) => setRepair(+e.target.value)} /><span className="u">EUR</span></div>
           </div>
         </div>
+        <div className="field">
+          <label htmlFor="cFuel">Pohon</label>
+          <select className="input" id="cFuel" value={fuel} onChange={(e) => setFuel(e.target.value as typeof fuel)}>
+            <option value="ice">Benzín alebo nafta</option>
+            <option value="hybrid">Hybrid alebo plug-in hybrid</option>
+            <option value="bev">Elektromobil</option>
+          </select>
+          {country === "CN" && fuel === "bev" && <span className="hint">Na elektromobily z Číny sa platí aj vyrovnávacie clo EÚ (predvolene {Math.round((cfg.cvdRate ?? 0.207) * 1000) / 10} %, sadzba závisí od výrobcu) a k autu treba nabíjacie adaptéry.</span>}
+        </div>
+        {originOk && (
+          <label className="switch" style={{ margin: "0 0 12px" }}>
+            <input type="checkbox" checked={origin} onChange={(e) => setOrigin(e.target.checked)} />
+            Auto je vyrobené {country === "US" ? "v USA" : country === "KR" ? "v Kórei" : "v Japonsku"} a má doklad o pôvode (clo 0 %)
+          </label>
+        )}
         <label className="switch" style={{ margin: "0 0 16px" }}>
           <input type="checkbox" checked={own} onChange={(e) => setOwn(e.target.checked)} />
           {cd.local ? "Bez opravy a prihlásenia, vybavím si ich sám" : "Bez opravy a homologizácie, vybavím si ich sám (homologizujeme len autá opravené u nás)"}
@@ -82,7 +100,7 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
           <div className="iw"><input className="input" id="cSk" type="number" min={0} step={500} value={sk} inputMode="numeric" placeholder="na porovnanie" onChange={(e) => setSk(e.target.value === "" ? "" : +e.target.value)} /><span className="u">EUR</span></div>
         </div>
         {cd.note && <p className="note">{cd.note}</p>}
-        <p className="note">Všetky položky sú odhad. Presnú kalkuláciu ku konkrétnemu autu Vám pošleme pred kúpou.</p>
+        <p className="note">Všetky položky sú odhad vrátane našej odmeny. Presnú kalkuláciu ku konkrétnemu autu Vám pošleme pred kúpou.</p>
       </div>
       <div className="panel" aria-live="polite"><Breakdown r={r} skPrice={sk || null} hideFee={hideFee} /></div>
     </div>

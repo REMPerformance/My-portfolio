@@ -19,7 +19,7 @@ export async function GET() {
   const out = [
     "# REM Performance: dovoz áut z USA, Dubaja, Kanady, Ázie a Európskej únie na kľúč",
     "",
-    `> ${u.replace("https://", "")} je web firmy ${SITE.company.name} (${SITE.company.city}, IČO ${SITE.company.ico}). Firma sprostredkúva dovoz áut na Slovensko a do Česka: z USA (aukcie Copart a IAAI aj predajcovia), zo Spojených arabských emirátov (Dubaj), z Kanady, Južnej Kórey, Japonska, Číny a z krajín Európskej únie, najmä z Nemecka. Dováža havarované aj nehavarované autá. Služba je na kľúč: kontrola histórie, kúpa, doprava, clo, DPH, homologizácia a prihlásenie. Pri každom aute je vopred uvedená celková cena na slovenských značkách s DPH aj bez DPH. Zákazník dostane kredit na tuning v e-shope RACEM (racem.sk). Kontakt: ${SITE.email}, telefón a WhatsApp ${SITE.phone}.`,
+    `> ${u.replace("https://", "")} je web firmy ${SITE.company.name} (${SITE.company.city}, IČO ${SITE.company.ico}). Firma sprostredkúva dovoz áut na Slovensko a do Česka: z USA (aukcie aj predajcovia), zo Spojených arabských emirátov (Dubaj), z Kanady, Južnej Kórey, Japonska, Číny a z krajín Európskej únie, najmä z Nemecka. Dováža havarované aj nehavarované autá. Služba je na kľúč: kontrola histórie, kúpa, doprava, clo, DPH, homologizácia a prihlásenie. Pri každom aute je vopred uvedený odhad celkovej ceny na slovenských značkách vrátane cla a DPH. Zákazník dostane kredit na tuning v e-shope RACEM (racem.sk). Kontakt: ${SITE.email}, telefón a WhatsApp ${SITE.phone}.`,
     "",
     "Jediným predmetom činnosti prezentovanej na tomto webe je dovoz áut.",
     "",
@@ -54,7 +54,7 @@ export async function GET() {
     "",
     `## Aktuálna ponuka (${live.length})`,
     ...(live.length
-      ? live.map((c) => `- [${carFullName(c)}](${u}/auta/${c.slug}): ${countryDef(c.country).from}, ${c.odometer_mi ? km(c.odometer_mi) : "nájazd neuvedený"}, ${isDamaged(c) ? (c.primary_damage ? `poškodenie ${c.primary_damage.toLowerCase()}` : "stav podľa inzerátu") : "nehavarované"}, odhad ceny na slovenských značkách ${eur(c.est.gross)} s DPH`)
+      ? live.map((c) => `- [${carFullName(c)}](${u}/auta/${c.slug}): ${countryDef(c.country).from}, ${c.odometer_mi ? km(c.odometer_mi) : "nájazd neuvedený"}, ${isDamaged(c) ? (c.primary_damage ? `poškodenie ${c.primary_damage.toLowerCase()}` : "stav podľa inzerátu") : "nehavarované"}, odhad ceny na slovenských značkách ${eur(c.est.total)}`)
       : ["- Ponuka sa priebežne mení, aktuálny stav je na stránke Ponuka áut."]),
     ""
   ].join("\n");

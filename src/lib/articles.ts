@@ -73,7 +73,7 @@ export const ARTICLES: Article[] = [
         "DPH 23 % sa potom počíta zo sumy colná hodnota + clo + náklady na dopravu v rámci EÚ až do miesta určenia."
       ] },
       { h: "Môže si firma odpočítať DPH?", p: [
-        "Ak auto kupuje platiteľ DPH na podnikanie, môže si DPH zaplatené pri dovoze za zákonom stanovených podmienok uplatniť. Preto pri každom aute na našom webe vidíte cenu s DPH aj bez DPH. Konkrétnu situáciu odporúčame konzultovať s Vaším účtovníkom."
+        "Ak auto kupuje platiteľ DPH na podnikanie, môže si DPH zaplatené pri dovoze za zákonom stanovených podmienok uplatniť. Konkrétnu situáciu odporúčame konzultovať s Vaším účtovníkom."
       ] }
     ],
     faq: [

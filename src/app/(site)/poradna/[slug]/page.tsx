@@ -65,10 +65,10 @@ export default async function ArticlePage({ params }: Props) {
                 <p>Orientačné celkové ceny na slovenských značkách pre osobné auto z aukcie v New Jersey (aktuálny kurz a naše sadzby dopravy):</p>
                 <div className="art-table-wrap">
                   <table className="art-table">
-                    <thead><tr><th>Cena auta na aukcii</th><th>Doprava</th><th>Clo 10 %</th><th>DPH</th><th>Spolu s DPH</th></tr></thead>
+                    <thead><tr><th>Cena auta na aukcii</th><th>Doprava</th><th>Clo 10 %</th><th>DPH pri dovoze</th><th>Spolu na SK značkách</th></tr></thead>
                     <tbody>
                       {rows.map(({ usd, r }) => (
-                        <tr key={usd}><td>{money(usd, "USD")} <small>({eur(r.carEur)})</small></td><td>{eur(r.inlandEur + r.oceanEur)}</td><td>{eur(r.duty)}</td><td>{eur(r.vatTotal)}</td><td><b>{eur(r.gross)}</b></td></tr>
+                        <tr key={usd}><td>{money(usd, "USD")} <small>({eur(r.carEur)})</small></td><td>{eur(r.inlandEur + r.oceanEur)}</td><td>{eur(r.duty)}</td><td>{eur(r.importVat)}</td><td><b>{eur(r.total)}</b></td></tr>
                       ))}
                     </tbody>
                   </table>

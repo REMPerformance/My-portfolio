@@ -136,6 +136,21 @@ export interface CalcConfig {
   depositMinEur: number;
   /** záloha podľa konečnej sumy: [do sumy EUR, záloha EUR]; posledné pásmo s veľmi vysokou sumou */
   depositTiers?: [number, number][];
+  /** skrytá odmena v % z konečnej sumy, rozpustená do služieb */
+  markupPct?: number;
+  /** poistenie prepravy z USA a Kanady: % z ceny auta a minimum v USD */
+  insurancePct?: number;
+  insuranceMinUsd?: number;
+  /** vyrovnávacie clo EÚ na elektromobily z Číny */
+  cvdRate?: number;
+  translationsEur?: number;
+  inspectionsEur?: number;
+  recyclingEur?: number;
+  registrationEur?: number;
+  /** schválenie a adaptácia podľa krajiny pôvodu (kód krajiny → EUR), inak homologEur */
+  homologByCountry?: Record<string, number>;
+  /** nabíjacie adaptéry k čínskym elektromobilom (GB/T) */
+  adaptersEur?: number;
   racemCredit: [number, number][];
 }
 

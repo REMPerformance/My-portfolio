@@ -54,26 +54,11 @@ export default function Settings() {
         <div>
           <SignersPanel />
           <div className="panel">
-            <h2>Váš poplatok a cena na webe</h2>
+            <h2>Vaša odmena</h2>
             <div className="three">
-              <Num label="Váš poplatok" value={pct(c.serviceFeePct ?? 0)} unit="%" step={0.5} onChange={(v) => upd({ serviceFeePct: v / 100 })} />
-              <div className="field"><label>Percento sa počíta z</label>
-                <select className="input" value={c.serviceFeeBase || "car"} onChange={(e) => upd({ serviceFeeBase: e.target.value as "car" | "total" })}>
-                  <option value="car">ceny auta (vrátane aukčných poplatkov)</option>
-                  <option value="total">všetkých nákladov (auto, doprava, clo, homologizácia)</option>
-                </select>
-              </div>
-              <Num label="Minimálny poplatok" value={c.serviceFeeMinEur || 0} unit="EUR" onChange={(v) => upd({ serviceFeeMinEur: v })} />
+              <Num label="Skrytá odmena z konečnej sumy" value={c.markupPct ?? 5} unit="%" step={0.5} onChange={(v) => upd({ markupPct: v })} />
             </div>
-            <div className="three">
-              <div className="field"><label>Hlavná cena na webe (predvolene)</label>
-                <select className="input" value={c.priceMode || "gross"} onChange={(e) => upd({ priceMode: e.target.value as "gross" | "net" })}>
-                  <option value="gross">s DPH (bez DPH menším písmom)</option>
-                  <option value="net">bez DPH (s DPH menším písmom)</option>
-                </select>
-              </div>
-            </div>
-            <p className="note" style={{ marginTop: 0 }}>Poplatok zákazník na webe nikdy nevidí – je započítaný v cene. Všetky sumy v kalkulácii zadávajte bez DPH, DPH 23 % sa pripočíta k celku. Pri každom aute to viete zmeniť vo „Vlastnej kalkulácii“.</p>
+            <p className="note" style={{ marginTop: 0 }}>Zákazník odmenu nevidí ako riadok. Rozpustí sa do služieb (prístav, preprava na Slovensko, preklady, kontroly, schválenie), nikdy nie do ceny auta, cla, DPH, rezervy a zákonných poplatkov. Sumy zadávajte tak, ako ich reálne platíte, DPH sa pripočíta len pri dovoze.</p>
           </div>
 
           <div className="panel">
@@ -158,10 +143,26 @@ export default function Settings() {
           <div className="panel">
             <h2>Európa a Slovensko</h2>
             <div className="three">
-              <Num label="Prístav + deklarant (bez DPH)" value={c.euPortEur} unit="EUR" onChange={(v) => upd({ euPortEur: v })} />
-              <Num label="Kamión do SR (bez DPH)" value={c.truckEur} unit="EUR" onChange={(v) => upd({ truckEur: v })} />
-              <Num label="Homologizácia, STK, EČV (bez DPH)" value={c.homologEur} unit="EUR" onChange={(v) => upd({ homologEur: v })} />
-              <Num label="Prihlásenie auta z EÚ (bez DPH)" value={c.euRegEur ?? 250} unit="EUR" onChange={(v) => upd({ euRegEur: v })} />
+              <Num label="Prístav a colný deklarant" value={c.euPortEur} unit="EUR" onChange={(v) => upd({ euPortEur: v })} />
+              <Num label="Preprava z prístavu na Slovensko" value={c.truckEur} unit="EUR" onChange={(v) => upd({ truckEur: v })} />
+              <Num label="Úradné preklady" value={c.translationsEur ?? 150} unit="EUR" onChange={(v) => upd({ translationsEur: v })} />
+              <Num label="Technické kontroly (KO, TK, EK)" value={c.inspectionsEur ?? 180} unit="EUR" onChange={(v) => upd({ inspectionsEur: v })} />
+              <Num label="Recyklačný poplatok" value={c.recyclingEur ?? 30} unit="EUR" onChange={(v) => upd({ recyclingEur: v })} />
+              <Num label="Zápis do evidencie a EČV" value={c.registrationEur ?? 100} unit="EUR" onChange={(v) => upd({ registrationEur: v })} />
+              <Num label="Prihlásenie auta z EÚ" value={c.euRegEur ?? 250} unit="EUR" onChange={(v) => upd({ euRegEur: v })} />
+              <Num label="Nabíjacie adaptéry (elektromobil z Číny)" value={c.adaptersEur ?? 900} unit="EUR" onChange={(v) => upd({ adaptersEur: v })} />
+            </div>
+            <h3 style={{ margin: "14px 0 8px" }}>Schválenie a technická adaptácia podľa krajiny</h3>
+            <div className="three">
+              {COUNTRIES.filter((x) => !x.local).map((x) => (
+                <Num key={x.code} label={x.name} value={c.homologByCountry?.[x.code] ?? c.homologEur} unit="EUR" onChange={(v) => upd({ homologByCountry: { ...(c.homologByCountry || {}), [x.code]: v } })} />
+              ))}
+            </div>
+            <h3 style={{ margin: "14px 0 8px" }}>Poistenie a vyrovnávacie clo</h3>
+            <div className="three">
+              <Num label="Poistenie prepravy USA a Kanada" value={pct(c.insurancePct ?? 0.07)} unit="%" step={0.1} onChange={(v) => upd({ insurancePct: v / 100 })} />
+              <Num label="Minimálne poistenie" value={c.insuranceMinUsd ?? 350} unit="USD" onChange={(v) => upd({ insuranceMinUsd: v })} />
+              <Num label="Vyrovnávacie clo, elektromobily z Číny" value={pct(c.cvdRate ?? 0.207)} unit="%" step={0.1} onChange={(v) => upd({ cvdRate: v / 100 })} />
             </div>
           </div>
 

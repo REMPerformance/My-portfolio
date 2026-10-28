@@ -267,7 +267,7 @@ export default async function CarPage({ params }: Props) {
 
       <div className="mbar" aria-label="Cena a kontakt">
         <div className="mbar__price">
-          <small>{phase === "ended" ? (car.status === "sold" ? "Predali sme" : "Predaj skončil") : `Cena ${est.priceMode === "net" ? "bez DPH" : "s DPH"}`}</small>
+          <small>{phase === "ended" ? (car.status === "sold" ? "Predali sme" : "Predaj skončil") : "Odhadovaná cena"}</small>
           <b>{phase === "ended" && car.status !== "sold" ? <s>{eur(est.total)}</s> : eur(est.total)}</b>
         </div>
         <a className="mbar__wa" href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(`Dobrý deň, mám záujem o ${carFullName(car)} – ${SITE.url}/auta/${car.slug}`)}`} target="_blank" rel="noopener" aria-label="WhatsApp">

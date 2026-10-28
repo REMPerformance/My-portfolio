@@ -15,8 +15,8 @@ export const DEFAULT_CALC: CalcConfig = {
   oceanUsd: { east: 1150, central: 1350, west: 1900 },
   dutyRate: { car: 0.1, suv: 0.1, truck: 0.22, moto: 0.07 },
   vatRate: 0.23,
-  euPortEur: 550,
-  truckEur: 650,
+  euPortEur: 650,
+  truckEur: 950,
   homologEur: 900,
   euRegEur: 250,
   serviceFeeEur: 990,
@@ -27,6 +27,17 @@ export const DEFAULT_CALC: CalcConfig = {
   depositPct: 0.1,
   depositMinEur: 500,
   depositTiers: [[49000, 2000], [69000, 3000], [999999999, 4500]],
+  markupPct: 5,
+  insurancePct: 0.07,
+  insuranceMinUsd: 350,
+  cvdRate: 0.207,
+  translationsEur: 150,
+  inspectionsEur: 180,
+  recyclingEur: 30,
+  registrationEur: 100,
+  // schválenie a technická adaptácia podľa krajiny (autá mimo európskej špecifikácie sú drahšie)
+  homologByCountry: { US: 900, CA: 900, AE: 1500, KR: 1800, JP: 1800, CN: 3300 },
+  adaptersEur: 900,
   racemCredit: [[999999999, 100]]
 };
 
@@ -57,6 +68,19 @@ export interface CalcResult {
   feePct: number | null;
   /** dovozné DPH (z colnej hodnoty, cla a dopravy v EÚ) */
   importVat: number;
+  /** slovenská DPH z ceny auta z EÚ (nové auto alebo cena bez DPH) */
+  euCarVat: number;
+  insuranceEur: number;
+  cvdRate: number;
+  cvd: number;
+  countryCode: string;
+  translationsEur: number;
+  inspectionsEur: number;
+  recyclingEur: number;
+  registrationEur: number;
+  adaptersEur: number;
+  /** rezerva na nepredvídané náklady = záloha podľa pásma */
+  reserveEur: number;
   /** cena bez DPH / s DPH / DPH spolu */
   net: number;
   gross: number;
@@ -133,6 +157,10 @@ export interface CalcInput {
   isFixed?: boolean;
   /** cena auta je konečná, DPH sa k nej nepripočíta */
   carNoVat?: boolean;
+  /** pohon: elektromobil z Číny má vyrovnávacie clo */
+  fuel?: "ice" | "hybrid" | "bev" | null;
+  /** 0 % clo s dokladom o pôvode (dohoda EÚ s Kóreou, Japonskom, USA) */
+  dutyFree?: boolean;
   /** starý parameter – cena v USD */
   bidUsd?: number;
   rate?: number;
@@ -147,43 +175,73 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const feeManual = i.sellerFee !== undefined && i.sellerFee !== null;
   const fixed = i.isFixed ?? feeManual;
   const oc = originCosts(cfg, i.country, i.place);
-  // poplatky zadané ručne majú prednosť; automatický odhad platí len pre americké aukcie, v EÚ sa zadávajú vždy ručne
-  const feeEur = feeManual ? (Number(i.sellerFee) || 0) * r : oc.country.local ? 0 : auctionFee(cfg, carEur / usd) * usd;
-  const inlandEur = (i.inlandUsd ?? oc.inlandUsd) * usd;
   const local = !!oc.country.local;
+  // poplatky zadané ručne majú prednosť; automatický odhad platí len pre americké aukcie, v EÚ sa zadávajú vždy ručne
+  const feeEur = feeManual ? (Number(i.sellerFee) || 0) * r : local ? 0 : auctionFee(cfg, carEur / usd) * usd;
+  const inlandEur = (i.inlandUsd ?? oc.inlandUsd) * usd;
   const oceanEur = local ? 0 : (i.oceanUsd ?? oc.oceanUsd) * usd;
-  const cif = carEur + feeEur + inlandEur + oceanEur;
+  // plné poistenie prepravy (AutoBidMaster): % z ceny auta, najmenej minimum; len USA a Kanada, inde je v cene prepravy
+  const insured = !local && (oc.country.code === "US" || oc.country.code === "CA");
+  const insuranceEur = insured ? Math.max((cfg.insuranceMinUsd ?? 350) * usd, carEur * (cfg.insurancePct ?? 0.07)) : 0;
+  const cif = carEur + feeEur + inlandEur + oceanEur + insuranceEur;
   // v rámci EÚ sa neplatí clo, nie je colnica ani prístav a auto ide po ceste priamo na Slovensko
-  const dutyRate = local ? 0 : cfg.dutyRate[i.type || "car"] ?? 0.1;
+  const dutyRate = local || i.dutyFree ? 0 : cfg.dutyRate[i.type || "car"] ?? 0.1;
   const duty = cif * dutyRate;
-  const euPortEur = local ? 0 : cfg.euPortEur;
-  const truckEur = local ? 0 : cfg.truckEur;
-  const vat = local ? 0 : (cif + duty + euPortEur + truckEur) * cfg.vatRate;
+  // vyrovnávacie clo EÚ na elektromobily z Číny (sadzba podľa výrobcu, predvolene 20,7 %)
+  const cvdRate = !local && oc.country.code === "CN" && i.fuel === "bev" ? cfg.cvdRate ?? 0.207 : 0;
+  const cvd = cif * cvdRate;
+  const portBase = local ? 0 : cfg.euPortEur;
+  const truckBase = local ? 0 : cfg.truckEur;
+  const importVat = local ? 0 : (cif + duty + cvd + portBase + truckBase) * cfg.vatRate;
+  // jazdené auto z EÚ sa kupuje za konečnú cenu; pri novom aute (do 6 mesiacov) alebo cene bez DPH sa platí slovenská DPH z ceny auta
+  const carNoVat = i.carNoVat ?? local;
+  const euCarVat = local && !carNoVat ? carEur * cfg.vatRate : 0;
   const extras = (i.extraCosts || []).filter((x) => x && x.label && Number(x.eur));
   const extraSum = extras.reduce((a, x) => a + Number(x.eur), 0);
   const repairEur = i.noHomolog ? 0 : i.repairEur || 0;
-  // všetky položky sú bez DPH; DPH 23 % = dovozné DPH (clo, doprava) + DPH z tuzemských služieb
-  // auto z EÚ má európske typové schválenie, takže sa nehomologizuje, platí sa len prihlásenie
-  const homologEur = i.noHomolog ? 0 : local ? cfg.euRegEur ?? 250 : cfg.homologEur;
-  const costNet = cif + duty + euPortEur + truckEur + homologEur + repairEur + extraSum;
-  const pct = typeof cfg.serviceFeePct === "number" && isFinite(cfg.serviceFeePct) ? cfg.serviceFeePct : null;
-  const feeBase = cfg.serviceFeeBase === "total" ? costNet : carEur + feeEur;
-  const serviceFeeEur = pct !== null ? Math.max(cfg.serviceFeeMinEur || 0, feeBase * pct) : cfg.serviceFeeEur;
-  const net = costNet + serviceFeeEur;
-  // jazdené auto z EÚ sa kupuje za konečnú cenu, slovenská DPH sa k nej nepripočíta (ak admin neurčí inak)
-  const carNoVat = i.carNoVat ?? local;
-  const vatTotal = (net - (carNoVat ? carEur : 0)) * cfg.vatRate;
-  const gross = net + vatTotal;
-  const priceMode: PriceMode = cfg.priceMode === "net" ? "net" : "gross";
-  const total = priceMode === "net" ? net : gross;
-  const credit = typeof i.creditEur === "number" && isFinite(i.creditEur) ? Math.max(0, i.creditEur) : (cfg.racemCredit.find(([max]) => gross <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
-  const deposit = depositFor(cfg, gross);
+  const reg = !i.noHomolog;
+  // auto z EÚ má európske typové schválenie, nehomologizuje sa, platí sa len prihlásenie
+  const base = {
+    port: portBase,
+    truck: truckBase,
+    translations: local || !reg ? 0 : cfg.translationsEur ?? 150,
+    inspections: reg ? cfg.inspectionsEur ?? 180 : 0,
+    homolog: !reg ? 0 : local ? cfg.euRegEur ?? 250 : cfg.homologByCountry?.[oc.country.code] ?? cfg.homologEur,
+    // čínsky elektromobil má nabíjací port GB/T, k nemu adaptéry na CCS2 a Type 2
+    adapters: reg && !local && oc.country.code === "CN" && i.fuel === "bev" ? cfg.adaptersEur ?? 900 : 0,
+    recycling: reg ? cfg.recyclingEur ?? 30 : 0,
+    registration: reg ? cfg.registrationEur ?? 100 : 0
+  };
+  const fixedSum = cif + duty + cvd + importVat + euCarVat + repairEur + extraSum + Object.values(base).reduce((a, x) => a + x, 0);
+  // skrytá odmena = p % z konečnej sumy, rozpustí sa len do služieb (nie do auta, cla, DPH a rezervy)
+  const mPct = Math.max(0, Math.min(50, cfg.markupPct ?? 5));
+  const withMarkup = (sum: number) => (mPct > 0 ? Math.ceil((sum * mPct) / (100 - mPct)) : 0);
+  // rezerva = záloha podľa pásma konečnej sumy; hľadáme pásmo, ktoré sedí aj s rezervou v súčte
+  const tiers = (cfg.depositTiers?.length ? cfg.depositTiers : DEFAULT_CALC.depositTiers) || [];
+  let reserveEur = 0, markupEur = withMarkup(fixedSum);
+  for (const [, rz] of tiers) {
+    reserveEur = rz;
+    markupEur = withMarkup(fixedSum + rz);
+    if (depositFor(cfg, fixedSum + rz + markupEur) === rz) break;
+  }
+  const spreadKeys = (Object.keys(base) as (keyof typeof base)[]).filter((k) => !["recycling", "registration", "adapters"].includes(k) && base[k] > 0);
+  const spreadBase = spreadKeys.reduce((a, k) => a + base[k], 0);
+  const svc = { ...base };
+  let left = markupEur;
+  spreadKeys.forEach((k, n) => { const add = n === spreadKeys.length - 1 ? left : Math.round((markupEur * base[k]) / spreadBase); svc[k] += add; left -= add; });
+  // bez služieb na Slovensku (len dovoz) ide odmena do prepravy
+  const inlandShown = spreadKeys.length ? inlandEur : inlandEur + markupEur;
+  const total = fixedSum + reserveEur + markupEur;
+  const vatTotal = importVat + euCarVat;
+  const credit = typeof i.creditEur === "number" && isFinite(i.creditEur) ? Math.max(0, i.creditEur) : (cfg.racemCredit.find(([max]) => total <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
   return {
-    price, currency, bidUsd: price, carEur, feeEur, inlandEur, oceanEur,
-    portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name,
-    cif, dutyRate, duty, vat: vatTotal, importVat: vat,
-    euPortEur, truckEur, homologEur, serviceFeeEur, feePct: pct,
-    repairEur, extraCosts: extras, net, gross, vatTotal, priceMode, total, credit, deposit, fixed, local, carNoVat, feeManual, noHomolog: !!i.noHomolog
+    price, currency, bidUsd: price, carEur, feeEur, inlandEur: inlandShown, oceanEur, insuranceEur,
+    portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name, countryCode: oc.country.code,
+    cif, dutyRate, duty, cvdRate, cvd, vat: vatTotal, importVat, euCarVat,
+    euPortEur: svc.port, truckEur: svc.truck, translationsEur: svc.translations, inspectionsEur: svc.inspections, homologEur: svc.homolog,
+    recyclingEur: svc.recycling, registrationEur: svc.registration, adaptersEur: svc.adapters, reserveEur,
+    serviceFeeEur: markupEur, feePct: mPct / 100,
+    repairEur, extraCosts: extras, net: total, gross: total, vatTotal, priceMode: "gross", total, credit, deposit: reserveEur, fixed, local, carNoVat, feeManual, noHomolog: !!i.noHomolog
   };
 }
 
@@ -201,6 +259,8 @@ export function applyOverride(cfg: CalcConfig, o: CalcOverride | null | undefine
     euPortEur: n(o.euPortEur) ? o.euPortEur! : cfg.euPortEur,
     truckEur: n(o.truckEur) ? o.truckEur! : cfg.truckEur,
     homologEur: n(o.homologEur) ? o.homologEur! : cfg.homologEur,
+    // ručne zadaná homologizácia pri aute má prednosť pred sumou podľa krajiny
+    homologByCountry: n(o.homologEur) ? {} : cfg.homologByCountry,
     euRegEur: n(o.homologEur) ? o.homologEur! : cfg.euRegEur,
     dutyRate: n(o.dutyRate) ? { ...cfg.dutyRate, [type]: o.dutyRate! } : cfg.dutyRate
   };
@@ -209,10 +269,13 @@ export function applyOverride(cfg: CalcConfig, o: CalcOverride | null | undefine
 export const isFixed = (c: { sale_type?: string | null }) => c.sale_type === "fixed";
 
 type EstCar = Pick<Car, "est_bid_usd" | "current_bid_usd" | "type" | "repair_eur"> &
-  Partial<Pick<Car, "country" | "state" | "currency" | "sale_type" | "price_usd" | "seller_fee_usd" | "location">> & { calc_override?: CalcOverride | null };
+  Partial<Pick<Car, "country" | "state" | "currency" | "sale_type" | "price_usd" | "seller_fee_usd" | "location" | "fuel">> & { calc_override?: CalcOverride | null };
 
 /** Cena, z ktorej sa počíta (v mene auta). */
 export const carPrice = (car: EstCar) => (isFixed(car) ? car.price_usd || 0 : car.est_bid_usd || car.current_bid_usd || 0);
+
+/** „Elektro“, „Electric“ → bev, hybrid → hybrid, inak spaľovací. */
+export const fuelKind = (f?: string | null): "ice" | "hybrid" | "bev" => (/hybrid|phev|erev|reev/i.test(f || "") ? "hybrid" : /elektr|electric|\bbev\b|\bev\b/i.test(f || "") ? "bev" : "ice");
 
 export function carEstimate(cfg: CalcConfig, car: EstCar, opt: { noHomolog?: boolean } = {}) {
   const c = applyOverride(cfg, car.calc_override, car.type);
@@ -229,6 +292,7 @@ export function carEstimate(cfg: CalcConfig, car: EstCar, opt: { noHomolog?: boo
     sellerFee: isFixed(car) ? car.seller_fee_usd || 0 : car.seller_fee_usd ?? undefined,
     isFixed: isFixed(car),
     noHomolog: opt.noHomolog,
+    fuel: fuelKind(car.fuel),
     creditEur: n(o.creditEur),
     inlandUsd: n(o.inlandUsd),
     oceanUsd: n(o.oceanUsd),
@@ -239,7 +303,7 @@ export function carEstimate(cfg: CalcConfig, car: EstCar, opt: { noHomolog?: boo
 export function mergeCalc(v: unknown): CalcConfig {
   if (!v || typeof v !== "object") return DEFAULT_CALC;
   const o = v as Partial<CalcConfig>;
-  return { ...DEFAULT_CALC, ...o, fx: { ...DEFAULT_FX, ...(o.fx || {}), USD: o.usdToEur ?? o.fx?.USD ?? DEFAULT_FX.USD }, ports: o.ports || {}, inland: o.inland || {} };
+  return { ...DEFAULT_CALC, ...o, fx: { ...DEFAULT_FX, ...(o.fx || {}), USD: o.usdToEur ?? o.fx?.USD ?? DEFAULT_FX.USD }, ports: o.ports || {}, inland: o.inland || {}, homologByCountry: { ...DEFAULT_CALC.homologByCountry, ...(o.homologByCountry || {}) } };
 }
 
 /** Zoznam „V cene je zahrnuté“ zostavený z toho, čo je pri aute naozaj nastavené. */
@@ -258,9 +322,15 @@ export function includedItems(r: CalcResult): string[] {
     if (r.euPortEur > 0) out.push("Prístav, vykládka a colný deklarant");
     if (r.truckEur > 0) out.push("Kamión na Slovensko");
   }
-  if (r.priceMode !== "net") out.push(r.carNoVat ? "DPH 23 % z prepravy a služieb, cena auta je konečná" : "DPH 23 %");
+  if (r.insuranceEur > 0) out.push("Plné poistenie prepravy");
+  if (r.cvd > 0) out.push(`Vyrovnávacie clo EÚ ${pct(r.cvdRate)}`);
+  if (r.importVat > 0) out.push("DPH 23 % pri dovoze");
+  else if (r.euCarVat > 0) out.push("DPH 23 % na Slovensku z ceny auta");
+  else if (r.local && r.carNoVat) out.push("Cena auta je konečná, DPH sa k nej nepripočíta");
   if (r.noHomolog) out.push(r.local ? "Bez opravy a prihlásenia, vybavíte si ich sami" : "Bez opravy a homologizácie, vybavíte si ich sami");
-  if (r.homologEur > 0) out.push(r.local ? "Prihlásenie na Slovensku: kontrola originality, doklady a EČV" : "Homologizácia, STK, EK a EČV");
+  if (r.homologEur > 0) out.push(r.local ? "Prihlásenie na Slovensku: kontrola originality, doklady a EČV" : "Preklady, schválenie s úpravami, technické kontroly a EČV");
+  if (r.adaptersEur > 0) out.push("Nabíjacie adaptéry");
+  if (r.reserveEur > 0) out.push(`Rezerva na nepredvídané náklady ${new Intl.NumberFormat("sk-SK").format(r.reserveEur)} €, nevyčerpaná časť sa vracia`);
   if (r.repairEur > 0) out.push("Odhad opravy");
   for (const x of r.extraCosts) out.push(x.label);
   if (r.credit > 0) out.push(`Kredit ${new Intl.NumberFormat("sk-SK").format(Math.round(r.credit))} € na tuning v RACEM`);
