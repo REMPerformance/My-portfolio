@@ -89,7 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preload" href="/fonts/rem-display-bold-latin.woff2" as="font" type="font/woff2" crossOrigin="" />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <JsonLd data={orgLd} />
       </head>
       <body>{children}</body>

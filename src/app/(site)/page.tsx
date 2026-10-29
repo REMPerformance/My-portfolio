@@ -52,7 +52,7 @@ export default async function Home() {
         <div className="hero__scrim" />
         <div className="wrap">
           <div className="hero__in">
-            <h1 id="hero-h">{ct.hero.title1} <em>{ct.hero.title2}</em> {ct.hero.title3}</h1>
+            <h1 id="hero-h">{ct.hero.title1} <em><span>{ct.hero.title2}</span></em> <span className="hero__out">{ct.hero.title3}</span></h1>
             <p className="lead">{ct.hero.lead}</p>
             <div className="actions">
               <Link href="/ponuka" className="rc-btn rc-btn--primary">Pozrieť autá v ponuke <IArrow /></Link>
