@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { calc, fxRate } from "@/lib/calc";
+import { calc, euPortList, fxRate } from "@/lib/calc";
 import type { CalcConfig, CarType } from "@/lib/types";
 import { COUNTRIES, countryDef } from "@/lib/origins";
 import { money } from "@/lib/format";
@@ -21,6 +21,8 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
   const [own, setOwn] = useState(false);
   const [fuel, setFuel] = useState<"ice" | "hybrid" | "bev">("ice");
   const [origin, setOrigin] = useState(false);
+  const euPorts = useMemo(() => euPortList(cfg), [cfg]);
+  const [euPort, setEuPort] = useState(cfg.defaultEuPort || euPorts[0].id);
   const originOk = country === "US" || country === "KR" || country === "JP";
   const pickCountry = (c: string) => {
     const d = countryDef(c);
@@ -31,8 +33,8 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
   };
 
   const r = useMemo(
-    () => calc(cfg, { price: Math.max(0, price || 0), currency: cd.currency, country, place, type, repairEur: Math.max(0, repair || 0), sellerFee: mode === "fixed" ? 0 : undefined, noHomolog: own, fuel, dutyFree: originOk && origin }),
-    [cfg, price, cd.currency, country, place, type, repair, mode, own, fuel, origin, originOk]
+    () => calc(cfg, { price: Math.max(0, price || 0), currency: cd.currency, country, place, type, repairEur: Math.max(0, repair || 0), sellerFee: mode === "fixed" ? 0 : undefined, noHomolog: own, fuel, dutyFree: originOk && origin, euPort, reserve: false }),
+    [cfg, price, cd.currency, country, place, type, repair, mode, own, fuel, origin, originOk, euPort]
   );
   const priceEur = (price || 0) * fxRate(cfg, cd.currency);
 
@@ -54,6 +56,15 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
             </select>
           </div>
         </div>
+        {!cd.local && (
+          <div className="field">
+            <label htmlFor="cEuPort">Prístav v EÚ a preclenie</label>
+            <select className="input" id="cEuPort" value={euPort} onChange={(e) => setEuPort(e.target.value)}>
+              {euPorts.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.countryName}, DPH {Math.round(p.vatRate * 1000) / 10} %)</option>)}
+            </select>
+            <span className="hint">DPH pri dovoze sa platí v krajine, kde sa auto preclí. Výberom prístavu sa dá ušetriť, napríklad v Nemecku je 19 %.</span>
+          </div>
+        )}
         <div className="seg" role="radiogroup" aria-label="Spôsob kúpy">
           <button type="button" role="radio" aria-checked={mode === "auction"} className={mode === "auction" ? "on" : ""} onClick={() => setMode("auction")}><b>Aukcia</b><small>s aukčnými poplatkami</small></button>
           <button type="button" role="radio" aria-checked={mode === "fixed"} className={mode === "fixed" ? "on" : ""} onClick={() => setMode("fixed")}><b>Od predajcu</b><small>Dealer, Buy Now, súkromný predajca</small></button>

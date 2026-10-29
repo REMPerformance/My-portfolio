@@ -44,7 +44,7 @@ export default async function HowPage() {
           <p>Po kúpe Vám pošleme faktúru za auto a poplatky. Uhrádza sa zvyčajne do 2 pracovných dní.</p>
 
           <h2>4. Doprava a clo</h2>
-          <p>Auto odvezieme do najbližšieho prístavu (napr. Newark, Houston, Los Angeles, Džebel Ali v Dubaji), naložíme do kontajnera a pošleme do Bremerhavenu alebo Rotterdamu. Námorná preprava trvá 3 až 6 týždňov. V prístave auto preclíme: platí sa clo (osobné autá {Math.round(cfg.dutyRate.car * 100)} %, pickupy a úžitkové až {Math.round(cfg.dutyRate.truck * 100)} %) a {Math.round(cfg.vatRate * 100)} % DPH. Následne auto privezieme kamiónom na Slovensko.</p>
+          <p>Auto odvezieme do najbližšieho prístavu (napr. Newark, Houston, Los Angeles, Džebel Ali v Dubaji), naložíme do kontajnera a pošleme do prístavu v EÚ podľa Vášho výberu (Bremerhaven, Rotterdam, Antverpy alebo Koper). Námorná preprava trvá 3 až 6 týždňov. V prístave auto preclíme: platí sa clo (osobné autá {Math.round(cfg.dutyRate.car * 100)} %, pickupy a úžitkové až {Math.round(cfg.dutyRate.truck * 100)} %) a DPH v krajine preclenia, v Nemecku 19 %. Následne auto privezieme kamiónom na Slovensko.</p>
 
           <h2>5. Oprava, homologizácia a prihlásenie</h2>
           <p>Ak si to želáte, auto dáme opraviť u overených partnerov podľa vopred schválenej cenovej ponuky. Potom zabezpečíme úpravy na európske predpisy (svetlá, smerovky), individuálne schválenie vozidla, technickú a emisnú kontrolu a evidenčné čísla. Auto Vám odovzdáme pripravené na cestu spolu s kreditom do <a href="https://racem.sk" target="_blank" rel="noopener">RACEM.sk</a>.</p>

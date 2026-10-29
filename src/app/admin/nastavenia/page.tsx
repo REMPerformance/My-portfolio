@@ -4,7 +4,7 @@ import { Flag } from "@/components/Flag";
 import { browserClient } from "@/lib/supabase";
 import { calc, mergeCalc, DEFAULT_CALC } from "@/lib/calc";
 import { withLiveFx, type LiveFx } from "@/lib/fx";
-import { COUNTRIES, CURRENCIES, DEFAULT_FX, countryDef, placeKey, placesEn } from "@/lib/origins";
+import { COUNTRIES, CURRENCIES, DEFAULT_FX, EU_PORTS, countryDef, placeKey, placesEn } from "@/lib/origins";
 import type { CalcConfig } from "@/lib/types";
 import { useAdmin } from "@/components/admin/AdminApp";
 import { Breakdown } from "@/components/Breakdown";
@@ -141,10 +141,37 @@ export default function Settings() {
           </div>
 
           <div className="panel">
-            <h2>Európa a Slovensko</h2>
+            <h2>Prístavy v EÚ a preclenie</h2>
+            <p className="note" style={{ marginTop: 0 }}>Zákazník si v kalkulačke vyberie prístav, kde sa auto preclí. DPH pri dovoze sa platí v tej krajine (Nemecko 19 %). Prázdne pole = predvolená hodnota (sivá).</p>
+            <table className="otable">
+              <thead><tr><th>Prístav</th><th>DPH %</th><th>Prístav a deklarant EUR</th><th>Preprava na SK EUR</th><th>Príplatok k lodi USD</th></tr></thead>
+              <tbody>
+                {EU_PORTS.map((p) => {
+                  const o = c.euPorts?.[p.id] || {};
+                  const set = (k: "vatRate" | "portEur" | "truckEur" | "oceanAddUsd", raw: string) => {
+                    const n = { ...(c.euPorts || {}) }; const cur = { ...(n[p.id] || {}) };
+                    if (raw === "") delete cur[k]; else cur[k] = k === "vatRate" ? Number(raw) / 100 : Number(raw);
+                    if (Object.keys(cur).length) n[p.id] = cur; else delete n[p.id];
+                    upd({ euPorts: n });
+                  };
+                  const cell = (k: "vatRate" | "portEur" | "truckEur" | "oceanAddUsd", def: number, step = 1) => (
+                    <td style={{ width: 130 }}><input className="input" type="number" step={step} placeholder={String(k === "vatRate" ? Math.round(def * 1000) / 10 : def)} value={o[k] === undefined ? "" : k === "vatRate" ? Math.round(o[k]! * 1000) / 10 : o[k]} onChange={(e) => set(k, e.target.value)} /></td>
+                  );
+                  return (
+                    <tr key={p.id}><td>{p.name} <span style={{ color: "var(--rc-text-dim)" }}>({p.countryName})</span></td>{cell("vatRate", p.vatRate, 0.1)}{cell("portEur", p.portEur)}{cell("truckEur", p.truckEur)}{cell("oceanAddUsd", p.oceanAddUsd)}</tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div className="three" style={{ marginTop: 10 }}>
+              <div className="field"><label>Predvolený prístav</label><select className="input" value={c.defaultEuPort || EU_PORTS[0].id} onChange={(e) => upd({ defaultEuPort: e.target.value })}>{EU_PORTS.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.countryName})</option>)}</select></div>
+            </div>
+          </div>
+
+          <div className="panel">
+            <h2>Schválenie a prihlásenie na Slovensku</h2>
+            <p className="note" style={{ marginTop: 0 }}>V kalkulačke a rozpisoch sa tieto sumy ukazujú ako jedna položka „Schválenie a prihlásenie na Slovensku“.</p>
             <div className="three">
-              <Num label="Prístav a colný deklarant" value={c.euPortEur} unit="EUR" onChange={(v) => upd({ euPortEur: v })} />
-              <Num label="Preprava z prístavu na Slovensko" value={c.truckEur} unit="EUR" onChange={(v) => upd({ truckEur: v })} />
               <Num label="Úradné preklady" value={c.translationsEur ?? 150} unit="EUR" onChange={(v) => upd({ translationsEur: v })} />
               <Num label="Technické kontroly (KO, TK, EK)" value={c.inspectionsEur ?? 180} unit="EUR" onChange={(v) => upd({ inspectionsEur: v })} />
               <Num label="Recyklačný poplatok" value={c.recyclingEur ?? 30} unit="EUR" onChange={(v) => upd({ recyclingEur: v })} />
@@ -173,8 +200,9 @@ export default function Settings() {
               <Num label="Clo pickup / úžitkové" value={pct(c.dutyRate.truck)} unit="%" step={0.1} onChange={(v) => upd({ dutyRate: { ...c.dutyRate, truck: v / 100 } })} />
             </div>
             <div className="three">
-              <Num label="DPH" value={pct(c.vatRate)} unit="%" step={0.1} onChange={(v) => upd({ vatRate: v / 100 })} />
+              <Num label="DPH na Slovensku (nové auto z EÚ)" value={pct(c.vatRate)} unit="%" step={0.1} onChange={(v) => upd({ vatRate: v / 100 })} />
             </div>
+            <p className="note">DPH pri dovoze z tretích krajín sa berie podľa prístavu v EÚ (tabuľka vyššie).</p>
           </div>
 
           <div className="panel">

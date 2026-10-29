@@ -117,9 +117,18 @@ export interface CalcConfig {
   inlandUsd: Record<Region, number>;
   oceanUsd: Record<Region, number>;
   dutyRate: Record<CarType, number>;
+  /** DPH na Slovensku (nové auto z EÚ). Dovozná DPH sa berie z prístavu, kde sa auto preclí. */
   vatRate: number;
+  /** staršie polia, dnes sa používajú hodnoty prístavu v EÚ (euPorts) */
   euPortEur: number;
   truckEur: number;
+  /** prepísané hodnoty prístavov v EÚ podľa id („de-brv“): DPH, prístav, preprava na SK, príplatok k lodi */
+  euPorts?: Record<string, { vatRate?: number; portEur?: number; truckEur?: number; oceanAddUsd?: number }>;
+  /** predvolený prístav v EÚ (id) */
+  defaultEuPort?: string;
+  /** prepísané pri konkrétnom aute (nastavuje applyOverride, neukladá sa) */
+  euPortEurOverride?: number;
+  truckEurOverride?: number;
   homologEur: number;
   /** prihlásenie auta z EÚ: kontrola originality, doklady, značky (bez homologizácie) */
   euRegEur?: number;

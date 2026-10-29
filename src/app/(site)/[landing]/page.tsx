@@ -42,7 +42,7 @@ export default async function LandingPage({ params }: Props) {
   const now = Date.now();
   const cd = countryDef(l.country);
   const live = cars.filter((c) => (c.country || "US") === l.country && carPhase(c, now) !== "ended");
-  const ex = calc(cfg, { price: l.example.price, currency: cd.currency, country: cd.code, place: l.example.place, type: "car", sellerFee: l.example.auction ? undefined : 0 });
+  const ex = calc(cfg, { price: l.example.price, currency: cd.currency, country: cd.code, place: l.example.place, type: "car", sellerFee: l.example.auction ? undefined : 0, reserve: false });
   const makes = MAKES.filter((m) => m.from.includes(l.country)).slice(0, 10);
   const places = placesEn(cd.code);
   const crumbs = [{ name: "Domov", path: "/" }, { name: `Dovoz auta ${cd.from}`, path: `/${l.slug}` }];

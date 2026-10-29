@@ -18,7 +18,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         {r.local ? row("Preprava na Slovensko", r.inlandEur, r.placeName ? `${r.placeName}, autoprepravník` : "autoprepravník") : (
           <>
             {row("Odvoz do prístavu", r.inlandEur, [r.placeName, r.portName].filter(Boolean).join(" → "))}
-            {row("Námorná preprava", r.oceanEur, "do Bremerhavenu")}
+            {row("Námorná preprava", r.oceanEur, `${r.portName} → ${r.euPortName}`)}
             {r.insuranceEur > 0 && row("Poistenie prepravy", r.insuranceEur, "plné krytie")}
           </>
         )}
@@ -28,24 +28,20 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
           <h4>Clo a DPH</h4>
           {!r.local && row(`Clo ${pct(r.dutyRate)}`, r.duty, r.dutyRate > 0 ? "z colnej hodnoty" : "s dokladom o pôvode")}
           {r.cvd > 0 && row(`Vyrovnávacie clo EÚ ${pct(r.cvdRate)}`, r.cvd, "elektromobil z Číny")}
-          {!r.local && row("DPH pri dovoze 23 %", r.importVat, "z colnej hodnoty, cla a dopravy")}
-          {r.euCarVat > 0 && row("DPH na Slovensku 23 %", r.euCarVat, "z ceny auta")}
+          {!r.local && row(`DPH pri dovoze ${pct(r.vatRate)}`, r.importVat, `preclenie v krajine ${r.euPortCountry}, z colnej hodnoty, cla a dopravy`)}
+          {r.euCarVat > 0 && row(`DPH na Slovensku ${pct(r.vatRate)}`, r.euCarVat, "z ceny auta")}
         </div>
       )}
       <div className="bd-group">
         <h4>{r.local ? "Prihlásenie na Slovensku" : "Prístav a Slovensko"}</h4>
-        {!r.local && row("Prístav a colný deklarant", r.euPortEur)}
-        {!r.local && row("Preprava na Slovensko", r.truckEur, "autoprepravník")}
+        {!r.local && row("Prístav a colný deklarant", r.euPortEur, r.euPortName)}
+        {!r.local && row("Preprava na Slovensko", r.truckEur, `z prístavu ${r.euPortName}, autoprepravník`)}
         {r.noHomolog ? (
           <div className="bd"><span>{r.local ? "Prihlásenie na Slovensku" : "Schválenie a prihlásenie"}</span><span>vybavíte si sami</span></div>
         ) : (
           <>
-            {r.translationsEur > 0 && row("Úradné preklady", r.translationsEur)}
-            {row("Technické kontroly", r.inspectionsEur, r.local ? "kontrola originality" : "KO, TK, EK")}
-            {row(r.local ? "Prihlásenie a doklady" : "Schválenie a technická adaptácia", r.homologEur, r.local ? undefined : "úprava svetiel a pod.")}
+            {row(r.local ? "Prihlásenie na Slovensku" : "Schválenie a prihlásenie na Slovensku", r.regEur, r.local ? "kontrola originality, doklady, recyklačný poplatok a EČV" : "úradné preklady, technické kontroly, schválenie s úpravami, recyklačný poplatok, zápis a EČV")}
             {r.adaptersEur > 0 && row("Nabíjacie adaptéry", r.adaptersEur, "CCS2 a Type 2 na GB/T")}
-            {row("Recyklačný poplatok", r.recyclingEur)}
-            {row("Zápis do evidencie a EČV", r.registrationEur)}
           </>
         )}
         {r.repairEur > 0 && row("Odhad opravy", r.repairEur)}
@@ -55,8 +51,8 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       <div className="bd-total">
         <div>
           <small>{r.noHomolog ? "Odhad spolu s dovozom na Slovensko" : "Odhad spolu na slovenských značkách"}</small>
-          <b>{eur(r.net)} <i style={{ fontSize: 13, fontStyle: "normal" }}>bez DPH</i></b>
-          <small>s DPH {eur(r.gross)}{r.reserveEur > 0 ? ` · záloha po podpise zmluvy ${eur(r.reserveEur)}` : ""}</small>
+          <b>{eur(r.gross)}</b>
+          <small>{r.vatTotal > 0 ? `v tom DPH ${eur(r.vatTotal)}, firma s odpočtom DPH ju dostane späť` : "bez DPH"}{r.reserveEur > 0 ? ` · záloha po podpise zmluvy ${eur(r.reserveEur)}` : ""}</small>
         </div>
         {r.credit > 0 && <div className="cr"><small>Kredit RACEM</small><b>+{eur(r.credit)}</b></div>}
       </div>
@@ -69,7 +65,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       {!compact && (
         <p className="note">{r.local
           ? "Odhad. Auto z Európskej únie sa neclí a nehomologizuje sa. Pri jazdenom aute je cena u predajcu konečná. Pri novom aute (do 6 mesiacov alebo do 6 000 km) sa platí DPH 23 % na Slovensku."
-          : "Odhad. Colná hodnota je cena auta, poplatky, doprava do EÚ a poistenie. DPH 23 % sa platí pri dovoze z colnej hodnoty, cla a dopravy. Výsledok závisí od kurzu, skutočnej ceny auta a požiadaviek pri schválení."}</p>
+          : `Odhad. Colná hodnota je cena auta, poplatky, doprava do EÚ a poistenie. DPH sa platí pri dovoze v krajine, kde sa auto preclí (${r.euPortCountry} ${pct(r.vatRate)}), z colnej hodnoty, cla a dopravy. Námorná preprava sa pohybuje od 260 do 3 100 USD podľa prístavov a spôsobu nakládky. Výsledok závisí od kurzu, skutočnej ceny auta a požiadaviek pri schválení.`}</p>
       )}
     </div>
   );

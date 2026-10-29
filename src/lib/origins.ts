@@ -116,6 +116,33 @@ export const COUNTRIES: CountryDef[] = [
   }
 ];
 
+/**
+ * Prístavy v EÚ, kde auto vyloží loď a kde sa preclí. Dovozná DPH sa platí v krajine preclenia,
+ * preto sa prístavom dá ušetriť (Nemecko 19 %). Sumy sú predvolené, v admine (Kalkulačka) sa dajú prepísať.
+ */
+export interface EuPort {
+  id: string;
+  name: string;
+  country: string;
+  countryName: string;
+  /** DPH pri dovoze v krajine preclenia */
+  vatRate: number;
+  /** prístav, vykládka a colný deklarant (EUR) */
+  portEur: number;
+  /** autoprepravník z prístavu na Slovensko (EUR) */
+  truckEur: number;
+  /** príplatok k námornej preprave oproti základnej trase (USD) */
+  oceanAddUsd: number;
+}
+
+export const EU_PORTS: EuPort[] = [
+  { id: "de-brv", name: "Bremerhaven", country: "DE", countryName: "Nemecko", vatRate: 0.19, portEur: 550, truckEur: 1150, oceanAddUsd: 0 },
+  { id: "nl-rtm", name: "Rotterdam", country: "NL", countryName: "Holandsko", vatRate: 0.21, portEur: 550, truckEur: 1890, oceanAddUsd: 0 },
+  { id: "be-anr", name: "Antverpy", country: "BE", countryName: "Belgicko", vatRate: 0.21, portEur: 550, truckEur: 1900, oceanAddUsd: 0 },
+  { id: "si-kop", name: "Koper", country: "SI", countryName: "Slovinsko", vatRate: 0.22, portEur: 550, truckEur: 750, oceanAddUsd: 400 }
+];
+export const DEFAULT_EU_PORT = "de-brv";
+
 export const CURRENCIES: { code: Currency; name: string; symbol: string }[] = [
   { code: "USD", name: "Americký dolár", symbol: "$" },
   { code: "CAD", name: "Kanadský dolár", symbol: "C$" },

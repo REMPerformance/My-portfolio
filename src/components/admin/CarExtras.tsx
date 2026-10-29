@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { CalcConfig, CalcOverride, CarExtra, CarType } from "@/lib/types";
-import { originCosts } from "@/lib/calc";
+import { euPortDef, originCosts } from "@/lib/calc";
 
 const EQUIP_SUGGEST = [
   "Kožené sedadlá", "Vyhrievané sedadlá", "Ventilované sedadlá", "Navigácia", "Apple CarPlay / Android Auto", "Cúvacia kamera",
@@ -56,6 +56,7 @@ export function ExtrasPanel({ extra, onChange }: { extra: CarExtra; onChange: (e
 
 export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { o: CalcOverride; onChange: (o: CalcOverride) => void; cfg: CalcConfig; type: CarType; country: string; place: string | null }) {
   const oc = originCosts(cfg, country, place);
+  const ep = euPortDef(cfg);
   const num = (k: keyof CalcOverride, v: string) => {
     const n = { ...o } as Record<string, unknown>;
     if (v === "") delete n[k]; else n[k] = Number(v);
@@ -92,12 +93,12 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
       </label>
       <div className="three">
         {F({ k: "dutyRate", label: "Clo", unit: "%", def: cfg.dutyRate[type], scale: 100 })}
-        {F({ k: "euPortEur", label: "Prístav + deklarant", unit: "EUR", def: cfg.euPortEur })}
+        {F({ k: "euPortEur", label: `Prístav + deklarant (${ep.name})`, unit: "EUR", def: ep.portEur })}
       </div>
       <div className="three">
         {F({ k: "inlandUsd", label: oc.country.local ? "Preprava na Slovensko" : `Odvoz do prístavu (${oc.port.name})`, unit: "USD", def: oc.inlandUsd })}
-        {F({ k: "oceanUsd", label: "Námorná preprava", unit: "USD", def: oc.oceanUsd })}
-        {F({ k: "truckEur", label: "Kamión do SR", unit: "EUR", def: cfg.truckEur })}
+        {F({ k: "oceanUsd", label: `Námorná preprava do ${ep.name}`, unit: "USD", def: oc.oceanUsd + ep.oceanAddUsd })}
+        {F({ k: "truckEur", label: `Preprava ${ep.name} → SR`, unit: "EUR", def: ep.truckEur })}
       </div>
       <div className="three">
         {F({ k: "creditEur", label: "Kredit RACEM (prázdne = predvolený, 0 = bez)", unit: "EUR", def: cfg.racemCredit[0]?.[1] ?? 0 })}
