@@ -62,7 +62,6 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
             <select className="input" id="cEuPort" value={euPort} onChange={(e) => setEuPort(e.target.value)}>
               {euPorts.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.countryName}, DPH {Math.round(p.vatRate * 1000) / 10} %)</option>)}
             </select>
-            <span className="hint">DPH pri dovoze sa platí v krajine, kde sa auto preclí. Výberom prístavu sa dá ušetriť, napríklad v Nemecku je 19 %.</span>
           </div>
         )}
         <div className="seg" role="radiogroup" aria-label="Spôsob kúpy">
