@@ -52,7 +52,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         <div>
           <small>{r.noHomolog ? "Odhad spolu s dovozom na Slovensko" : "Odhad spolu na slovenských značkách"}</small>
           <b>{eur(r.gross)}</b>
-          <small>{r.vatTotal > 0 ? `v tom DPH ${eur(r.vatTotal)}, firma s odpočtom DPH ju dostane späť` : "bez DPH"}{r.reserveEur > 0 ? ` · záloha po podpise zmluvy ${eur(r.reserveEur)}` : ""}</small>
+          {r.reserveEur > 0 && <small>záloha po podpise zmluvy {eur(r.reserveEur)}</small>}
         </div>
         {r.credit > 0 && <div className="cr"><small>Kredit RACEM</small><b>+{eur(r.credit)}</b></div>}
       </div>
