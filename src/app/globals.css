@@ -708,8 +708,9 @@ details.fold>div{padding:0 14px 12px}
 /* ═══ REM Display – nadpisy, ceny, tlačidlá ═══ */
 :root{--display:"REM Display",var(--body)}
 .hero h1,.phead h1,.title,.cta-band h2,.ctitle,.car__price b,.pricebox .big,.step::before,.rc-btn,.rc-arrow,.eyebrow,.lbl-display{font-family:var(--display);font-weight:700;font-synthesis:none}
-.hero h1{font-size:clamp(28px,4.1vw,50px);letter-spacing:-.01em;line-height:1.15}
-.hero h1 em{color:#ff3b55}
+.hero h1{font-family:var(--body);font-weight:800;font-size:clamp(38px,5.2vw,66px);letter-spacing:-.035em;line-height:1.04;text-wrap:balance;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+.hero h1 em{color:#ff3b55;font-style:normal;white-space:nowrap;position:relative;z-index:0}
+.hero h1 em::after{content:"";position:absolute;left:-.06em;right:-.06em;bottom:.06em;height:.16em;background:rgba(255,59,85,.3);transform:skewX(-14deg);z-index:-1}
 .phead h1{font-size:clamp(24px,3vw,36px);letter-spacing:-.01em;line-height:1.2}
 .title{font-size:clamp(22px,2.5vw,30px);letter-spacing:-.01em;line-height:1.25}
 .cta-band h2{font-size:clamp(18px,2vw,24px);letter-spacing:0}
@@ -869,7 +870,7 @@ details.fold>div{padding:0 14px 12px}
   .eyebrow{font-size:10.5px}
   /* hero */
   .hero .wrap{padding-top:40px;padding-bottom:44px}
-  .hero h1{font-size:28px}
+  .hero h1{font-size:34px;line-height:1.08}
   .hero .lead{font-size:15px}
   .hero .actions{flex-direction:column;align-items:stretch}
   .hero .actions .rc-btn{width:100%}
