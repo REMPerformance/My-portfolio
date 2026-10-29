@@ -6,7 +6,7 @@
 /* ═══════════ REM PERFORMANCE – svetlý obsah, tmavá hlavička (RACEM červená) ═══════════ */
 :root{
   --rc-red:#c8102e; --rc-red-dark:#a30c25; --rc-red-hi:#c8102e;
-  --rc-red-soft:rgba(200,16,46,.08); --rc-red-line:rgba(200,16,46,.3);
+  --rc-red-soft:#fbeaed; --rc-red-line:#e8b7bf;
   --rc-bg:#f5f6f8; --rc-black:#f1f2f5; --rc-input:#fff;
   --rc-surface:#ffffff; --rc-surface-2:#f1f2f5; --rc-surface-3:#e6e8ec;
   --rc-line:#e4e6ea; --rc-line-strong:#cfd3d9;
@@ -27,7 +27,7 @@
   --rc-line:rgba(255,255,255,.08); --rc-line-strong:rgba(255,255,255,.15);
   --rc-text:#f3f4f6; --rc-text-mid:#a9aeb6; --rc-text-dim:#747a84;
   --rc-hover:rgba(255,255,255,.06);
-  --rc-red-hi:#e5364f; --rc-red-soft:rgba(200,16,46,.14);
+  --rc-red-hi:#e5364f; --rc-red-soft:#2a1419; --rc-red-line:#5a2530;
   --ok:#34c77b; --warn:#f0a93b;
   --shadow:0 10px 30px rgba(0,0,0,.4);
   color:var(--rc-text);
@@ -84,7 +84,7 @@ section{padding:var(--rc-section-y) 0;position:relative}
 .adm .rc-btn,.login .rc-btn{text-transform:none;letter-spacing:0;font-size:14px;font-weight:700}
 .tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--rc-pill);font-size:12px;font-weight:700;background:var(--rc-red);color:#fff;line-height:1.4;white-space:nowrap}
 .tag>span{display:contents}
-.tag--dark{background:rgba(15,17,20,.78);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.tag--dark{background:#0f1114;color:#fff}
 .tag--warn{background:#f0a93b;color:#241703}
 .tag--ok{background:#fff;color:#138a52}
 .tag--fixed{background:#fff;color:#15171b}
@@ -93,7 +93,7 @@ section{padding:var(--rc-section-y) 0;position:relative}
 .hsw button{text-align:left;background:var(--rc-input);border:1.5px solid var(--rc-line-strong);border-radius:var(--rc-radius);color:var(--rc-text-mid);padding:10px 12px;cursor:pointer;display:grid;gap:3px}
 .hsw button b{font-size:14px;font-weight:800;color:var(--rc-text)}
 .hsw button small{font-size:12px;line-height:1.35}
-.hsw button.on{border-color:var(--rc-red);box-shadow:inset 0 0 0 1px var(--rc-red);background:var(--rc-red-soft)}
+.hsw button.on{border-color:var(--rc-red);box-shadow:inset 0 0 0 1px var(--rc-red);background:var(--rc-input)}
 .car__flag{position:absolute;top:12px;right:12px;transform:rotate(9deg);padding:4px;background:#fff;border-radius:5px;box-shadow:0 6px 16px rgba(0,0,0,.35);line-height:0;z-index:2}
 .car__flag .flagi{width:38px;height:26px;border-radius:3px;box-shadow:none}
 .car__flag--lg{top:18px;right:18px;padding:5px}
@@ -133,7 +133,7 @@ section{padding:var(--rc-section-y) 0;position:relative}
 .topbar .tb-r a:hover{color:#fff}
 .topbar .tb-wa{color:#25d366;font-weight:700}
 @media(max-width:760px){.topbar .tb-l,.topbar .tb-mail{display:none}.topbar .wrap{justify-content:center}}
-.hdr{position:sticky;top:0;z-index:60;background:rgba(17,19,23,.96);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--rc-line)}
+.hdr{position:sticky;top:0;z-index:60;background:#111317;border-bottom:1px solid var(--rc-line)}
 .hdr .wrap{display:flex;align-items:center;gap:20px;height:72px}
 .brand{display:flex;align-items:center;gap:12px;flex:none}
 .brand__mark{width:38px;height:38px;flex:none;border-radius:9px;box-shadow:0 0 0 1px rgba(255,255,255,.1)}
@@ -335,7 +335,7 @@ details.fold>div{padding:0 14px 12px}
 .seg button{text-align:left;background:var(--rc-input);border:1.5px solid var(--rc-line-strong);border-radius:var(--rc-radius);color:var(--rc-text-mid);padding:12px 14px;cursor:pointer;display:grid;gap:2px}
 .seg button b{font-size:15px;font-weight:800;color:var(--rc-text)}
 .seg button small{font-size:12px}
-.seg button.on{border-color:var(--rc-red);box-shadow:inset 0 0 0 1px var(--rc-red);background:var(--rc-red-soft)}
+.seg button.on{border-color:var(--rc-red);box-shadow:inset 0 0 0 1px var(--rc-red);background:var(--rc-input)}
 @media(max-width:560px){.seg{grid-template-columns:1fr}}
 
 /* bonus / tiers / why */
@@ -850,7 +850,7 @@ details.fold>div{padding:0 14px 12px}
   .detail__main>.gallery{order:1}
   .detail__side{order:2}
   /* spodná lišta s cenou */
-  .mbar{display:flex;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:95;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-top:1px solid var(--rc-line);box-shadow:0 -6px 20px rgba(0,0,0,.08)}
+  .mbar{display:flex;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:95;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--rc-line);box-shadow:0 -6px 20px rgba(0,0,0,.08)}
   .mbar__price{flex:1;min-width:0;line-height:1.15}
   .mbar__price small{display:block;font-size:11px;font-weight:700;color:var(--rc-text-dim);text-transform:uppercase;letter-spacing:.04em}
   .mbar__price b{font-family:var(--display);font-weight:700;font-size:21px;white-space:nowrap}
