@@ -85,7 +85,7 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
             <option value="net">Konečná cena bez DPH</option>
           </select>
         </div>
-        {F({ k: "serviceFeePct", label: "Váš poplatok", unit: "%", def: cfg.serviceFeePct ?? 0, scale: 100 })}
+        {F({ k: "serviceFeePct", label: "Vaša skrytá odmena z konečnej sumy", unit: "%", def: (cfg.markupPct ?? 5) / 100, scale: 100 })}
       </div>
       <label className="switch" style={{ margin: "0 0 16px" }}>
         <input type="checkbox" checked={o.carNoVat ?? !!oc.country.local} onChange={(e) => onChange({ ...o, carNoVat: e.target.checked })} />

@@ -288,6 +288,8 @@ export function applyOverride(cfg: CalcConfig, o: CalcOverride | null | undefine
     serviceFeeEur: n(o.serviceFeeEur) ? o.serviceFeeEur! : cfg.serviceFeeEur,
     // pevná suma pri aute vypne percento; percento pri aute má prednosť
     serviceFeePct: n(o.serviceFeePct) ? o.serviceFeePct! : n(o.serviceFeeEur) ? null : cfg.serviceFeePct,
+    // „Váš poplatok“ pri aute (0.1 = 10 %) prepíše skrytú odmenu z nastavení
+    markupPct: n(o.serviceFeePct) ? o.serviceFeePct! * 100 : cfg.markupPct,
     priceMode: o.priceMode === "net" || o.priceMode === "gross" ? o.priceMode : cfg.priceMode,
     euPortEur: n(o.euPortEur) ? o.euPortEur! : cfg.euPortEur,
     truckEur: n(o.truckEur) ? o.truckEur! : cfg.truckEur,
