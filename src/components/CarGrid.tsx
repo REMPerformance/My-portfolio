@@ -18,7 +18,8 @@ export function CarGrid({ cars, serverNow, showFilters = true, showEnded = true,
   const t = now ?? serverNow;
   const { live, ended } = useMemo(() => {
     const list = cars.filter((c) => filter === "all" || c.type === filter);
-    const live = list.filter((c) => carPhase(c, t) !== "ended");
+    // topované autá (featured) idú na začiatok, zvyšok ostáva v pôvodnom poradí
+    const live = list.filter((c) => carPhase(c, t) !== "ended").sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
     const ended = list.filter((c) => carPhase(c, t) === "ended");
     return { live: limit ? live.slice(0, limit) : live, ended };
   }, [cars, filter, t, limit]);

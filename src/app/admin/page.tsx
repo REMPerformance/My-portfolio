@@ -63,6 +63,22 @@ export default function AdminCars() {
     toast(`Stav zmenený: ${STATUS_LABEL[status]}`);
     await revalidate([c.slug]); load();
   }
+  /** Predaj skončil: auto ostáva na webe, ale ako ukončené (ponuka aj aukcia sa uzavrú teraz). */
+  async function endSale(c: Car) {
+    const nowIso = new Date().toISOString();
+    const patch = c.sale_type === "fixed" ? { order_close_at: nowIso } : { order_close_at: nowIso, auction_end_at: nowIso };
+    const { error } = await sb.from("cars").update(patch).eq("id", c.id);
+    if (error) return toast(error.message, true);
+    toast("Predaj skončil");
+    await revalidate([c.slug]); load();
+  }
+  /** Topované auto sa na domovskej stránke ukazuje ako prvé. */
+  async function toggleTop(c: Car) {
+    const { error } = await sb.from("cars").update({ featured: !c.featured }).eq("id", c.id);
+    if (error) return toast(error.message, true);
+    toast(c.featured ? "Auto už nie je topované" : "Auto je topované na domovskej stránke");
+    await revalidate([c.slug]); load();
+  }
   async function duplicate(c: Car) {
     const { id: _id, created_at: _c, updated_at: _u, views: _v, leads_count: _l, ...rest } = c;
     const copy = { ...rest, slug: `${c.slug}-kopia-${Date.now().toString(36)}`, status: "draft" as const, images: [] as string[] };
@@ -152,14 +168,18 @@ export default function AdminCars() {
                     <td>
                       <div className="row-actions">
                         <Link className="rc-btn rc-btn--ghost rc-btn--sm" href={`/admin/auta/${c.id}`}>Upraviť</Link>
-                        {c.status !== "published" ? (
-                          <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => setStatus(c, "published")}>Zverejniť</button>
+                        {c.status === "published" ? (
+                          <>
+                            <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => setStatus(c, "sold")}>Predali sme</button>
+                            {ph !== "ended" && <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => endSale(c)}>Predaj skončil</button>}
+                          </>
                         ) : (
-                          <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => setStatus(c, "sold")}>Predané</button>
+                          <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => setStatus(c, "published")}>Zverejniť</button>
                         )}
-                        {(c.status === "published" || c.status === "sold") && <a className="rc-btn rc-btn--ghost rc-btn--sm" href={`/auta/${c.slug}`} target="_blank" rel="noopener">Web ↗</a>}
                         <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => duplicate(c)}>Kopírovať</button>
                         <button className="rc-btn rc-btn--ghost rc-btn--sm" onClick={() => remove(c)}>Zmazať</button>
+                        {(c.status === "published" || c.status === "sold") && <a className="rc-btn rc-btn--ghost rc-btn--sm" href={`/auta/${c.slug}`} target="_blank" rel="noopener">Web ↗</a>}
+                        {c.status === "published" && <button className={`rc-btn rc-btn--sm ${c.featured ? "rc-btn--primary" : "rc-btn--ghost"}`} onClick={() => toggleTop(c)}>{c.featured ? "Topované ★" : "Topovať na homepage"}</button>}
                       </div>
                     </td>
                   </tr>
