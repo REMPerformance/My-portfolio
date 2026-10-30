@@ -243,14 +243,8 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   // skrytá odmena = p % z konečnej sumy, rozpustí sa len do služieb (nie do auta, cla, DPH a rezervy)
   const mPct = Math.max(0, Math.min(50, cfg.markupPct ?? 5));
   const withMarkup = (sum: number) => (mPct > 0 ? Math.ceil((sum * mPct) / (100 - mPct)) : 0);
-  // rezerva = záloha podľa pásma konečnej sumy; hľadáme pásmo, ktoré sedí aj s rezervou v súčte (verejná kalkulačka ju nepočíta)
-  const tiers = i.reserve === false ? [] : (cfg.depositTiers?.length ? cfg.depositTiers : DEFAULT_CALC.depositTiers) || [];
-  let reserveEur = 0, markupEur = withMarkup(fixedSum);
-  for (const [, rz] of tiers) {
-    reserveEur = rz;
-    markupEur = withMarkup(fixedSum + rz);
-    if (depositFor(cfg, fixedSum + rz + markupEur) === rz) break;
-  }
+  // rezerva = povinná záloha podľa pásma konečnej sumy, do konečnej sumy sa nezapočítava (verejná kalkulačka ju nepočíta)
+  const markupEur = withMarkup(fixedSum);
   const spreadKeys = (Object.keys(base) as (keyof typeof base)[]).filter((k) => !["recycling", "registration", "adapters"].includes(k) && base[k] > 0);
   const spreadBase = spreadKeys.reduce((a, k) => a + base[k], 0);
   const svc = { ...base };
@@ -259,7 +253,8 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   // bez služieb na Slovensku (len dovoz) ide odmena do prepravy
   const inlandShown = spreadKeys.length ? inlandEur : inlandEur + markupEur;
   // konečná suma pre súkromnú osobu; firma s odpočtom DPH ju má nižšiu o DPH pri dovoze
-  const gross = fixedSum + reserveEur + markupEur;
+  const gross = fixedSum + markupEur;
+  const reserveEur = i.reserve === false ? 0 : depositFor(cfg, gross);
   const vatTotal = importVat + euCarVat;
   const net = gross - vatTotal;
   const priceMode: PriceMode = cfg.priceMode === "gross" ? "gross" : "net";
@@ -368,7 +363,6 @@ export function includedItems(r: CalcResult): string[] {
   if (r.noHomolog) out.push(r.local ? "Bez opravy a prihlásenia, vybavíte si ich sami" : "Bez opravy a homologizácie, vybavíte si ich sami");
   if (r.regEur > 0) out.push(r.local ? "Prihlásenie na Slovensku: kontrola originality, doklady, recyklačný poplatok a EČV" : "Schválenie a prihlásenie na Slovensku: úradné preklady, technické kontroly, schválenie s úpravami, recyklačný poplatok, zápis a EČV");
   if (r.adaptersEur > 0) out.push("Nabíjacie adaptéry");
-  if (r.reserveEur > 0) out.push(`Rezerva na nepredvídané náklady ${new Intl.NumberFormat("sk-SK").format(r.reserveEur)} €, nevyčerpaná časť sa vracia`);
   if (r.repairEur > 0) out.push("Odhad opravy");
   for (const x of r.extraCosts) out.push(x.label);
   if (r.credit > 0) out.push(`Kredit ${new Intl.NumberFormat("sk-SK").format(Math.round(r.credit))} € na tuning v RACEM`);

@@ -46,7 +46,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         )}
         {r.repairEur > 0 && row("Odhad opravy", r.repairEur)}
         {r.extraCosts?.map((x) => <div className="bd" key={x.label}><span>{x.label}</span><span>{eur(x.eur)}</span></div>)}
-        {r.reserveEur > 0 && row("Rezerva na nepredvídané náklady", r.reserveEur, "záloha, nevyčerpaná časť sa vracia")}
+        {r.reserveEur > 0 && row("Povinná záloha (rezerva)", r.reserveEur, "nezapočítava sa do konečnej sumy, nevyčerpaná časť sa vracia")}
       </div>
       <div className="bd-total">
         <div>

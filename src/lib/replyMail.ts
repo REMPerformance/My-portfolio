@@ -155,7 +155,7 @@ export const QUOTE_TEMPLATE = [
 ].join("\n");
 
 export interface QuoteRow { item: string; desc: string; amount: string; value: number; pct: number | null; base: number }
-export interface Quote { rows: QuoteRow[]; total: number; totalLabel: string; totalDesc: string; markupPct: number; markup: number; reserve: number }
+export interface Quote { rows: QuoteRow[]; /** riadky rezervy, zobrazia sa pod konečnou sumou */ reserveRows: QuoteRow[]; total: number; totalLabel: string; totalDesc: string; markupPct: number; markup: number; reserve: number }
 
 /** Cena auta, zákonné platby a rezerva sa nenavyšujú, skrytá odmena sa rozpúšťa len do ostatných položiek. */
 export const isCarRow = (item: string) => /^(kúpna cena|cena vozidla|vozidlo\b|odhad (vydražen|príhoz)|vydražen|príhoz)/i.test(item.trim());
@@ -183,12 +183,9 @@ const isAutoDeposit = (r: { item: string; amount: string }) => isReserveRow(r.it
 export function parseQuote(body: string): Quote {
   const auto = body.split("\n").some((raw) => { const [item = "", , amount = ""] = raw.split("|").map((x) => x.trim()); return isAutoDeposit({ item, amount }); });
   if (!auto) return parseQuoteWith(body, null);
-  let q = parseQuoteWith(body, 0);
-  for (const [, rz] of DEPOSIT_TIERS) {
-    q = parseQuoteWith(body, rz);
-    if (depositForTotal(q.total) === rz) return q;
-  }
-  return q;
+  // rezerva sa do konečnej sumy nezapočítava, záloha sa určí z konečnej sumy
+  const q = parseQuoteWith(body, 0);
+  return parseQuoteWith(body, depositForTotal(q.total));
 }
 
 function parseQuoteWith(body: string, autoReserve: number | null): Quote {
@@ -206,7 +203,8 @@ function parseQuoteWith(body: string, autoReserve: number | null): Quote {
     const pm = amount.match(/^(\d+(?:[.,]\d+)?)\s*%$/);
     const pct = pm ? Number(pm[1].replace(",", ".")) : null;
     const value = autoReserve != null && isAutoDeposit({ item, amount }) ? autoReserve : pct != null ? Math.round((sum * pct) / 100) : toNum(amount) || 0;
-    sum += value;
+    // povinná rezerva (záloha) sa platí, ale do konečnej sumy sa nezapočítava
+    if (!isReserveRow(item)) sum += value;
     rows.push({ item, desc, amount, value, pct, base: value });
   }
   const reserve = rows.filter((r) => isReserveRow(r.item)).reduce((a, r) => a + r.value, 0);
@@ -221,7 +219,7 @@ function parseQuoteWith(body: string, autoReserve: number | null): Quote {
     parts.sort((a, b) => b.rem - a.rem).forEach((x) => { x.r.value += x.f + (left-- > 0 ? 1 : 0); });
     sum += markup;
   }
-  return { rows, total: sum, totalLabel, totalDesc, markupPct, markup: markup > 0 && tBase > 0 ? markup : 0, reserve };
+  return { rows: rows.filter((r) => !isReserveRow(r.item)), reserveRows: rows.filter((r) => isReserveRow(r.item)), total: sum, totalLabel, totalDesc, markupPct, markup: markup > 0 && tBase > 0 ? markup : 0, reserve };
 }
 
 /** Konečná suma časti s rozpisom: súčet pri automatickom rozpise, riadok SPOLU pri tabuľke. */
@@ -232,7 +230,7 @@ export function sectionTotal(x: Section): number | null {
   return last ? toNum(last[last.length - 1] || "") : null;
 }
 
-export const RESERVE_NOTE = "Rezerva na nepredvídané náklady je povinnou súčasťou platby. Ak sa nevyčerpá, po prihlásení vozidla Vám nevyčerpanú časť vrátime.";
+export const RESERVE_NOTE = "Rezerva na nepredvídané náklady je povinná záloha a do konečnej sumy sa nezapočítava. Ak sa nevyčerpá, po prihlásení vozidla Vám nevyčerpanú časť vrátime.";
 
 const amountText = (r: QuoteRow) => (r.value ? eur(r.value) : r.amount);
 
@@ -375,7 +373,7 @@ function sectionHtml(s: Section) {
       const bg = i % 2 ? "#f5f6f8" : "#ffffff";
       const desc = r.pct != null ? `${r.desc}${r.desc ? " " : ""}(${String(r.pct).replace(".", ",")} % z celkovej sumy)` : r.desc;
       return `<tr><td style="${F}padding:10px 14px;font-size:14px;color:#15171b;background:${bg};border-bottom:1px solid #e4e6ea">${nb(r.item)}</td><td style="${F}padding:10px 14px;font-size:13px;line-height:1.45;color:#4a4f58;background:${bg};border-bottom:1px solid #e4e6ea">${esc(desc)}</td><td style="${F}padding:10px 14px;font-size:14px;font-weight:bold;color:#15171b;background:${bg};border-bottom:1px solid #e4e6ea;text-align:right;white-space:nowrap">${nb(amountText(r))}</td></tr>`;
-    }).join("")}<tr><td style="${F}padding:12px 14px;font-size:14px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalLabel)}</td><td style="${F}padding:12px 14px;font-size:13px;color:#c3c7ce;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalDesc)}</td><td style="${F}padding:12px 14px;font-size:17px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED};text-align:right;white-space:nowrap">${nb(eur(q.total))}</td></tr></table>${q.reserve ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;border-collapse:collapse"><tr><td style="${F}padding:10px 14px;font-size:13px;line-height:1.5;color:#15171b;background:#f5f6f8;border:1px solid #e4e6ea;border-left:4px solid ${RED}">${esc(RESERVE_NOTE)}</td></tr></table>` : ""}<p style="${F}margin:10px 0 0;font-size:12px;line-height:1.55;color:#6b7078">Ceny sú orientačné. Výsledná cena sa môže líšiť podľa kurzu, skutočných poplatkov a výsledku schválenia vozidla.</p>`;
+    }).join("")}<tr><td style="${F}padding:12px 14px;font-size:14px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalLabel)}</td><td style="${F}padding:12px 14px;font-size:13px;color:#c3c7ce;background:#15171b;border-top:4px solid ${RED}">${esc(q.totalDesc)}</td><td style="${F}padding:12px 14px;font-size:17px;font-weight:bold;color:#ffffff;background:#15171b;border-top:4px solid ${RED};text-align:right;white-space:nowrap">${nb(eur(q.total))}</td></tr>${q.reserveRows.map((r) => `<tr><td style="${F}padding:10px 14px;font-size:14px;font-weight:bold;color:#15171b;background:#f5f6f8;border-bottom:1px solid #e4e6ea">${nb(r.item)}</td><td style="${F}padding:10px 14px;font-size:13px;color:#4a4f58;background:#f5f6f8;border-bottom:1px solid #e4e6ea">${esc(r.desc)}</td><td style="${F}padding:10px 14px;font-size:14px;font-weight:bold;color:#15171b;background:#f5f6f8;border-bottom:1px solid #e4e6ea;text-align:right;white-space:nowrap">${nb(amountText(r))}</td></tr>`).join("")}</table>${q.reserve ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;border-collapse:collapse"><tr><td style="${F}padding:10px 14px;font-size:13px;line-height:1.5;color:#15171b;background:#f5f6f8;border:1px solid #e4e6ea;border-left:4px solid ${RED}">${esc(RESERVE_NOTE)}</td></tr></table>` : ""}<p style="${F}margin:10px 0 0;font-size:12px;line-height:1.55;color:#6b7078">Ceny sú orientačné. Výsledná cena sa môže líšiť podľa kurzu, skutočných poplatkov a výsledku schválenia vozidla.</p>`;
   } else if (s.kind === "table") {
     const [head, ...rest] = ls.map(cells);
     const n = Math.max(1, ...ls.map((l) => cells(l).length));
@@ -389,7 +387,7 @@ function sectionText(s: Section) {
   const ls = lines(s.body);
   if (s.kind === "quote") {
     const q = parseQuote(s.body);
-    const out = [...q.rows.map((r) => `${r.item}: ${amountText(r)}`), `${q.totalLabel}: ${eur(q.total)}`, q.reserve ? `\n${RESERVE_NOTE}` : ""].filter(Boolean).join("\n");
+    const out = [...q.rows.map((r) => `${r.item}: ${amountText(r)}`), `${q.totalLabel}: ${eur(q.total)}`, ...q.reserveRows.map((r) => `${r.item}: ${amountText(r)}`), q.reserve ? `\n${RESERVE_NOTE}` : ""].filter(Boolean).join("\n");
     return [s.heading.trim().toUpperCase(), out].filter(Boolean).join("\n");
   }
   const body = s.kind === "list" ? ls.map((l, i) => `${i + 1}. ${l}`).join("\n") : s.kind === "table" ? ls.map((l) => cells(l).join("  |  ")).join("\n") : ls.join("\n");
@@ -538,7 +536,7 @@ ${pReg || pNo ? h("Odhadovaná cena na Slovensku") + `<div class="price"><small>
     let total = "";
     if (x.kind === "quote") {
       const q = parseQuote(x.body);
-      body = `<table class="tb"><tr><th>Položka</th><th>Popis</th><th class="r">Suma</th></tr>${q.rows.map((r) => `<tr><td>${nb(r.item)}</td><td>${esc(r.desc)}</td><td class="r">${nb(amountText(r))}</td></tr>`).join("")}<tr class="sum"><td>${esc(q.totalLabel)}</td><td>${esc(q.totalDesc)}</td><td class="r">${nb(eur(q.total))}</td></tr></table>`;
+      body = `<table class="tb"><tr><th>Položka</th><th>Popis</th><th class="r">Suma</th></tr>${q.rows.map((r) => `<tr><td>${nb(r.item)}</td><td>${esc(r.desc)}</td><td class="r">${nb(amountText(r))}</td></tr>`).join("")}<tr class="sum"><td>${esc(q.totalLabel)}</td><td>${esc(q.totalDesc)}</td><td class="r">${nb(eur(q.total))}</td></tr>${q.reserveRows.map((r) => `<tr><td>${nb(r.item)}</td><td>${esc(r.desc)}</td><td class="r">${nb(amountText(r))}</td></tr>`).join("")}</table>`;
       total = eur(q.total);
     } else {
       const [head, ...rest] = lines(x.body).map(cells);
@@ -547,8 +545,8 @@ ${pReg || pNo ? h("Odhadovaná cena na Slovensku") + `<div class="price"><small>
       const fill = (r: string[]) => Array.from({ length: n }, (_, i) => r[i] || "");
       const isSum = (r: string[]) => /^spolu/i.test((r[0] || "").trim());
       body = `<table class="tb"><tr>${fill(head).map((c, k) => `<th${k === n - 1 ? ' class="r"' : ""}>${esc(c)}</th>`).join("")}</tr>${rest.map((r) => `<tr${isSum(r) ? ' class="sum"' : ""}>${fill(r).map((c, k) => `<td${k > 0 && looksMoney(c) ? ' class="r"' : ""}>${nb(c)}</td>`).join("")}</tr>`).join("")}</table>`;
-      const last = rest[rest.length - 1];
-      if (last && isSum(last)) total = last[last.length - 1] || "";
+      const last = [...rest].reverse().find(isSum);
+      if (last) total = last[last.length - 1] || "";
     }
     const box = total && !totalShown ? `<div class="total"><small>Konečná suma, odhad</small><b>${nb(total)}</b><span>Odhad celkovej ceny vozidla na slovenských EČV</span></div>` : "";
     if (box) totalShown = true;

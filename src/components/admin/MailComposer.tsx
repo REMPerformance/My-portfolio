@@ -43,7 +43,7 @@ function QuoteEditor({ body, onChange }: { body: string; onChange: (b: string) =
   const setCell = (i: number, k: number, v: string) => save(items.map((l, j) => (j === i ? l.map((c, m) => (m === k ? v : c)) : l)));
   const move = (i: number, dir: -1 | 1) => { const n = [...items]; const j = i + dir; if (j < 0 || j >= n.length) return; [n[i], n[j]] = [n[j], n[i]]; save(n); };
   // zobrazená suma riadku po rozpustení odmeny (riadky v q.rows idú v rovnakom poradí, prázdne sa preskakujú)
-  const shown = (l: string[]) => q.rows.find((r) => r.item === l[0] && r.desc === l[1] && r.amount === l[2]);
+  const shown = (l: string[]) => [...q.rows, ...q.reserveRows].find((r) => r.item === l[0] && r.desc === l[1] && r.amount === l[2]);
   return (
     <div className="quote">
       <div className="quote__row quote__row--head"><span>Položka</span><span>Popis pre zákazníka</span><span>Suma (náklad)</span><span /></div>
@@ -137,7 +137,7 @@ function pricesFor(cfg: NonNullable<ReturnType<typeof useCalcCfg>["cfg"]>, o: Pi
 
 const fmtEur = (n: number) => `${Math.round(n).toLocaleString("sk-SK").replace(/\s/g, " ")} €`;
 /** Rezerva v rozpise a záloha pri aute podľa konečnej sumy. Vráti nové dáta, ak bolo treba niečo zmeniť. */
-function syncDeposits(d: ReplyData): ReplyData | null {
+function syncDeposits(d: ReplyData, locked = false): ReplyData | null {
   let changed = false;
   const sections = d.sections.map((x) => ({ ...x }));
   sections.forEach((x, i) => {
@@ -145,23 +145,29 @@ function syncDeposits(d: ReplyData): ReplyData | null {
     let j = i + 1;
     while (j < sections.length && sections[j].kind !== "offer" && sectionTotal(sections[j]) == null) j++;
     const t = j < sections.length && sections[j].kind !== "offer" ? sections[j] : null;
-    if (t && t.kind === "table") {
-      // pevná tabuľka: rezervu nastavíme na zálohu podľa pásma a o rozdiel upravíme SPOLU
-      const lines = t.body.split("\n");
-      const ri = lines.findIndex((l) => isReserveRow(l.split("|")[0] || ""));
-      const si = lines.map((l) => /^=?\s*spolu/i.test((l.split("|")[0] || "").trim())).lastIndexOf(true);
+    if (t && t.kind === "table" && !locked) {
+      // pevná tabuľka: rezerva (záloha) sa do SPOLU nezapočítava a ide pod súčet; jej výška podľa pásma konečnej sumy
+      let lines = t.body.split("\n");
+      const isRes = (l: string) => isReserveRow(l.split("|")[0] || "");
+      const isSum = (l: string) => /^=?\s*spolu/i.test((l.split("|")[0] || "").trim());
       const num = (l: string) => Number((l.split("|").pop() || "").replace(/[^\d]/g, "")) || 0;
+      const set = (l: string, v: number) => { const c = l.split("|"); c[c.length - 1] = ` ${fmtEur(v)}`; return c.join("|"); };
+      let ri = lines.findIndex(isRes);
+      let si = lines.map(isSum).lastIndexOf(true);
       if (ri >= 0 && si >= 0) {
-        const rz = num(lines[ri]), total = num(lines[si]);
-        let dep = depositForTotal(total);
-        for (let k = 0; k < 3 && depositForTotal(total - rz + dep) !== dep; k++) dep = depositForTotal(total - rz + dep);
-        if (rz !== dep) {
-          const set = (l: string, v: number) => { const c = l.split("|"); c[c.length - 1] = ` ${fmtEur(v)}`; return c.join("|"); };
-          lines[ri] = set(lines[ri], dep);
-          lines[si] = set(lines[si], total - rz + dep);
-          sections[j] = { ...t, body: lines.join("\n") };
-          changed = true;
+        const before = lines.join("\n");
+        if (ri < si) {
+          // starší rozpis mal rezervu v súčte: odpočítame ju a presunieme pod SPOLU
+          const res = lines[ri];
+          lines[si] = set(lines[si], num(lines[si]) - num(res));
+          lines = lines.filter((_, k) => k !== ri);
+          si = lines.map(isSum).lastIndexOf(true);
+          lines.splice(si + 1, 0, res);
+          ri = si + 1;
         }
+        const dep = depositForTotal(num(lines[si]));
+        if (num(lines[ri]) !== dep) lines[ri] = set(lines[ri], dep);
+        if (lines.join("\n") !== before) { sections[j] = { ...t, body: lines.join("\n") }; changed = true; }
       }
     }
     const total = (t && sectionTotal(sections[j])) || Number(String(x.offer.priceReg).replace(/[^\d]/g, "")) || 0;
@@ -205,7 +211,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
   // záloha = rezerva podľa konečnej sumy (pásma v Nastaveniach); pri každom aute sa drží automaticky
   useEffect(() => { setDepositTiers(cfg?.depositTiers); }, [cfg]);
   useEffect(() => {
-    const next = syncDeposits(d);
+    const next = syncDeposits(d, mail.status === "sent");
     if (next) setD(next);
   }, [d, cfg]);
 
