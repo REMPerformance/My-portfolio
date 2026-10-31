@@ -63,6 +63,7 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
     onChange(n as CalcOverride);
   };
   const extras = o.extraCosts || [];
+  const pct = (x: number) => `${+(x * 100).toFixed(1)} %`.replace(".", ",");
   const F = ({ k, label, unit, def, scale = 1 }: { k: keyof CalcOverride; label: string; unit: string; def: number; scale?: number }) => (
     <div className="field">
       <label>{label}</label>
@@ -100,6 +101,19 @@ export function CalcOverridePanel({ o, onChange, cfg, type, country, place }: { 
         {F({ k: "oceanUsd", label: `Námorná preprava do ${ep.name}`, unit: "USD", def: oc.oceanUsd + ep.oceanAddUsd })}
         {F({ k: "truckEur", label: `Preprava ${ep.name} → SR`, unit: "EUR", def: ep.truckEur })}
       </div>
+      {!oc.country.local && (
+        <div className="three">
+          <div className="field">
+            <label>Poistenie prepravy</label>
+            <select className="input" value={o.insuranceMode || "custom"} onChange={(e) => { const n = { ...o }; const v = e.target.value as CalcOverride["insuranceMode"]; if (v === "custom") delete n.insuranceMode; else n.insuranceMode = v; if (v !== "custom") delete n.insuranceEur; onChange(n); }}>
+              <option value="custom">Vlastná suma (prázdne = bez poistenia)</option>
+              <option value="basic">Základné ({pct(cfg.insuranceBasicPct ?? 0.015)} z ceny auta, min. {cfg.insuranceBasicMinUsd ?? 150} USD)</option>
+              <option value="full">Plné ({pct(cfg.insurancePct ?? 0.07)} z ceny auta, min. {cfg.insuranceMinUsd ?? 350} USD)</option>
+            </select>
+          </div>
+          {(o.insuranceMode || "custom") === "custom" && F({ k: "insuranceEur", label: "Suma poistenia", unit: "EUR", def: 0 })}
+        </div>
+      )}
       <div className="three">
         {F({ k: "creditEur", label: "Kredit RACEM (prázdne = predvolený, 0 = bez)", unit: "EUR", def: cfg.racemCredit[0]?.[1] ?? 0 })}
         {F({ k: "homologEur", label: oc.country.local ? "Prihlásenie na Slovensku" : "Homologizácia, STK, EČV", unit: "EUR", def: oc.country.local ? cfg.euRegEur ?? 250 : cfg.homologEur })}

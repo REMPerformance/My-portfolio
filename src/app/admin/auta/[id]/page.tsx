@@ -522,12 +522,12 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
           <div className="panel sumcard">
             <div className="note" style={{ margin: 0 }}>{fixed ? "Cena spolu na SK značkách" : "Odhad spolu na SK značkách"}</div>
             <div className="big">{est ? eur(est.net) : "—"}{est && <small style={{ fontSize: 13, marginLeft: 6, color: "var(--rc-text-dim)" }}>bez DPH</small>}</div>
-            {est && <p className="note" style={{ marginTop: 2 }}>s DPH {eur(est.gross)} · Záloha {eur(est.reserveEur)} · Vaša skrytá odmena <b>{eur(est.serviceFeeEur)}</b>{est.feePct !== null ? ` (${+(est.feePct * 100).toFixed(1)} %)` : ""}</p>}
+            {est && <p className="note" style={{ marginTop: 2 }}>s DPH {eur(est.gross)} · Záloha {eur(est.reserveEur)} · Vaša odmena <b>{eur(est.serviceFeeEur)}</b>{est.feeVisibleEur > 0 ? ` (viditeľný poplatok ${eur(est.feeVisibleEur)})` : ""}{est.feePct !== null ? ` (${+(est.feePct * 100).toFixed(1)} %)` : ""}</p>}
             {est && <p className="note" style={{ marginTop: 4 }}>Auto {money(est.price, est.currency)} = {eur(est.carEur)} · {est.placeName} → {est.portName}{cfg.fxDate ? ` · kurz ECB ${new Date(cfg.fxDate).toLocaleDateString("sk-SK")}` : ""}</p>}
             {est && (
               <details className="fold" style={{ marginTop: 12 }}>
                 <summary>Rozpis</summary>
-                <div><Breakdown r={est} skPrice={f.sk_price_eur} compact /></div>
+                <div><Breakdown r={est} skPrice={f.sk_price_eur} compact admin /></div>
               </details>
             )}
           </div>

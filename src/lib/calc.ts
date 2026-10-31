@@ -1,4 +1,4 @@
-import type { CalcConfig, CarType, Car, CalcOverride, PriceMode } from "./types";
+import type { CalcConfig, CarType, Car, CalcOverride, PriceMode, InsuranceMode } from "./types";
 import { DEFAULT_EU_PORT, DEFAULT_FX, EU_PORTS, countryDef, guessPlace, placeDef, placeKey, portDef, type Currency, type EuPort } from "./origins";
 
 export const DEFAULT_CALC: CalcConfig = {
@@ -30,8 +30,11 @@ export const DEFAULT_CALC: CalcConfig = {
   depositMinEur: 500,
   depositTiers: [[49000, 2000], [69000, 3000], [999999999, 4500]],
   markupPct: 5,
+  markupHiddenMaxPct: 50,
   insurancePct: 0.07,
   insuranceMinUsd: 350,
+  insuranceBasicPct: 0.015,
+  insuranceBasicMinUsd: 150,
   cvdRate: 0.207,
   translationsEur: 150,
   inspectionsEur: 180,
@@ -73,6 +76,8 @@ export interface CalcResult {
   /** slovenská DPH z ceny auta z EÚ (nové auto alebo cena bez DPH) */
   euCarVat: number;
   insuranceEur: number;
+  /** poistenie prepravy: bez, základné, plné alebo vlastná suma */
+  insuranceMode: InsuranceMode;
   cvdRate: number;
   cvd: number;
   countryCode: string;
@@ -90,6 +95,14 @@ export interface CalcResult {
   vatRate: number;
   /** rezerva na nepredvídané náklady = záloha podľa pásma (0, ak sa nepočíta) */
   reserveEur: number;
+  /** skutočné náklady na služby bez skrytej odmeny (pre admin) */
+  base: { port: number; truck: number; translations: number; inspections: number; homolog: number; adapters: number; recycling: number; registration: number; inland: number; reg: number };
+  /** celá odmena (skrytá + viditeľný poplatok) */
+  markupEur: number;
+  /** časť odmeny rozpustená v službách */
+  hiddenEur: number;
+  /** viditeľný poplatok za sprostredkovanie (zvyšok odmeny nad strop rozpustenia) */
+  feeVisibleEur: number;
   /** cena bez DPH / s DPH / DPH spolu */
   net: number;
   gross: number;
@@ -181,6 +194,10 @@ export interface CalcInput {
   dutyFree?: boolean;
   /** prístav v EÚ, kde sa auto preclí (id z EU_PORTS); chýbajúci = predvolený z nastavení */
   euPort?: string | null;
+  /** poistenie prepravy: predvolene bez poistenia */
+  insurance?: InsuranceMode | null;
+  /** suma poistenia pri „custom“ (EUR) */
+  insuranceEur?: number | null;
   /** false = bez rezervy na nepredvídané náklady (verejná kalkulačka) */
   reserve?: boolean;
   /** starý parameter – cena v USD */
@@ -205,9 +222,11 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const inlandEur = (i.inlandUsd ?? oc.inlandUsd) * usd;
   // ručne zadaná námorná preprava pri aute je už konečná, príplatok prístavu sa pripočíta len k odhadu
   const oceanEur = local ? 0 : (i.oceanUsd ?? oc.oceanUsd + ep.oceanAddUsd) * usd;
-  // plné poistenie prepravy (AutoBidMaster): % z ceny auta, najmenej minimum; len USA a Kanada, inde je v cene prepravy
-  const insured = !local && (oc.country.code === "US" || oc.country.code === "CA");
-  const insuranceEur = insured ? Math.max((cfg.insuranceMinUsd ?? 350) * usd, carEur * (cfg.insurancePct ?? 0.07)) : 0;
+  // poistenie prepravy je samostatná položka, predvolene bez poistenia; základné a plné = % z ceny auta s minimom, custom = vlastná suma v EUR
+  const insuranceMode: InsuranceMode = local ? "none" : i.insurance || "none";
+  const insuranceEur = insuranceMode === "full" ? Math.max((cfg.insuranceMinUsd ?? 350) * usd, carEur * (cfg.insurancePct ?? 0.07))
+    : insuranceMode === "basic" ? Math.max((cfg.insuranceBasicMinUsd ?? 150) * usd, carEur * (cfg.insuranceBasicPct ?? 0.015))
+    : insuranceMode === "custom" ? Math.max(0, Number(i.insuranceEur) || 0) : 0;
   const cif = carEur + feeEur + inlandEur + oceanEur + insuranceEur;
   // v rámci EÚ sa neplatí clo, nie je colnica ani prístav a auto ide po ceste priamo na Slovensko
   const dutyRate = local || i.dutyFree ? 0 : cfg.dutyRate[i.type || "car"] ?? 0.1;
@@ -247,11 +266,13 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const markupEur = withMarkup(fixedSum);
   const spreadKeys = (Object.keys(base) as (keyof typeof base)[]).filter((k) => !["recycling", "registration", "adapters"].includes(k) && base[k] > 0);
   const spreadBase = spreadKeys.reduce((a, k) => a + base[k], 0);
+  // do služieb sa rozpustí najviac markupHiddenMaxPct % ich skutočnej ceny, aby pri drahom aute nevyzerali nereálne; zvyšok je viditeľný poplatok za sprostredkovanie
+  const hiddenEur = spreadKeys.length ? Math.min(markupEur, Math.round((spreadBase * Math.max(0, cfg.markupHiddenMaxPct ?? 50)) / 100)) : 0;
+  const feeVisibleEur = markupEur - hiddenEur;
   const svc = { ...base };
-  let left = markupEur;
-  spreadKeys.forEach((k, n) => { const add = n === spreadKeys.length - 1 ? left : Math.round((markupEur * base[k]) / spreadBase); svc[k] += add; left -= add; });
-  // bez služieb na Slovensku (len dovoz) ide odmena do prepravy
-  const inlandShown = spreadKeys.length ? inlandEur : inlandEur + markupEur;
+  let left = hiddenEur;
+  spreadKeys.forEach((k, n) => { const add = n === spreadKeys.length - 1 ? left : Math.round((hiddenEur * base[k]) / spreadBase); svc[k] += add; left -= add; });
+  const inlandShown = inlandEur;
   // konečná suma pre súkromnú osobu; firma s odpočtom DPH ju má nižšiu o DPH pri dovoze
   const gross = fixedSum + markupEur;
   const reserveEur = i.reserve === false ? 0 : depositFor(cfg, gross);
@@ -261,7 +282,8 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const total = priceMode === "net" ? net : gross;
   const credit = typeof i.creditEur === "number" && isFinite(i.creditEur) ? Math.max(0, i.creditEur) : (cfg.racemCredit.find(([max]) => gross <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
   return {
-    price, currency, bidUsd: price, carEur, feeEur, inlandEur: inlandShown, oceanEur, insuranceEur,
+    price, currency, bidUsd: price, carEur, feeEur, inlandEur: inlandShown, oceanEur, insuranceEur, insuranceMode, markupEur, hiddenEur, feeVisibleEur,
+    base: { ...base, inland: inlandEur, reg: base.translations + base.inspections + base.homolog + base.recycling + base.registration },
     portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name, countryCode: oc.country.code,
     cif, dutyRate, duty, cvdRate, cvd, vat: vatTotal, importVat, euCarVat, vatRate,
     euPortId: ep.id, euPortName: ep.name, euPortCountry: ep.countryName,
@@ -329,6 +351,8 @@ export function carEstimate(cfg: CalcConfig, car: EstCar, opt: { noHomolog?: boo
     creditEur: n(o.creditEur),
     inlandUsd: n(o.inlandUsd),
     oceanUsd: n(o.oceanUsd),
+    insurance: o.insuranceMode ?? (n(o.insuranceEur) ? "custom" : null),
+    insuranceEur: n(o.insuranceEur),
     carNoVat: typeof o.carNoVat === "boolean" ? o.carNoVat : undefined
   });
 }
@@ -355,7 +379,7 @@ export function includedItems(r: CalcResult): string[] {
     if (r.euPortEur > 0) out.push("Prístav, vykládka a colný deklarant");
     if (r.truckEur > 0) out.push(`Preprava z prístavu ${r.euPortName} na Slovensko`);
   }
-  if (r.insuranceEur > 0) out.push("Plné poistenie prepravy");
+  if (r.insuranceEur > 0) out.push(r.insuranceMode === "full" ? "Plné poistenie prepravy" : r.insuranceMode === "basic" ? "Základné poistenie prepravy" : "Poistenie prepravy");
   if (r.cvd > 0) out.push(`Vyrovnávacie clo EÚ ${pct(r.cvdRate)}`);
   if (r.importVat > 0) out.push(`DPH ${pct(r.vatRate)} pri dovoze (platí sa v krajine preclenia)`);
   else if (r.euCarVat > 0) out.push(`DPH ${pct(r.vatRate)} na Slovensku z ceny auta`);

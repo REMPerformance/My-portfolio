@@ -28,7 +28,12 @@ export interface CalcOverride {
   carNoVat?: boolean;
   /** kredit RACEM pre toto auto v EUR (0 = bez kreditu); prázdne = podľa tabuľky v Nastaveniach */
   creditEur?: number;
+  /** poistenie prepravy: custom (predvolené, prázdna suma = bez poistenia), základné alebo plné */
+  insuranceMode?: InsuranceMode;
+  /** suma poistenia pri custom v EUR */
+  insuranceEur?: number;
 }
+export type InsuranceMode = "none" | "basic" | "full" | "custom";
 export type CarStatus = "draft" | "published" | "sold" | "archived";
 export type SaleType = "auction" | "fixed";
 export type RunStatus = "run_drive" | "starts" | "no_start" | "unknown";
@@ -150,6 +155,11 @@ export interface CalcConfig {
   /** poistenie prepravy z USA a Kanady: % z ceny auta a minimum v USD */
   insurancePct?: number;
   insuranceMinUsd?: number;
+  /** najviac koľko % zo skutočnej ceny služieb sa do nich rozpustí zo skrytej odmeny (zvyšok je viditeľný poplatok) */
+  markupHiddenMaxPct?: number;
+  /** základné poistenie (len totálna škoda) */
+  insuranceBasicPct?: number;
+  insuranceBasicMinUsd?: number;
   /** vyrovnávacie clo EÚ na elektromobily z Číny */
   cvdRate?: number;
   translationsEur?: number;

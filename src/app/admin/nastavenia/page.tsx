@@ -56,9 +56,10 @@ export default function Settings() {
           <div className="panel">
             <h2>Vaša odmena</h2>
             <div className="three">
-              <Num label="Skrytá odmena z konečnej sumy" value={c.markupPct ?? 5} unit="%" step={0.5} onChange={(v) => upd({ markupPct: v })} />
+              <Num label="Odmena z konečnej sumy" value={c.markupPct ?? 5} unit="%" step={0.5} onChange={(v) => upd({ markupPct: v })} />
+              <Num label="Do služieb rozpustiť najviac" value={c.markupHiddenMaxPct ?? 50} unit="% ich ceny" step={5} onChange={(v) => upd({ markupHiddenMaxPct: v })} />
             </div>
-            <p className="note" style={{ marginTop: 0 }}>Zákazník odmenu nevidí ako riadok. Rozpustí sa do služieb (prístav, preprava na Slovensko, preklady, kontroly, schválenie), nikdy nie do ceny auta, cla, DPH, rezervy a zákonných poplatkov. Sumy zadávajte tak, ako ich reálne platíte, DPH sa pripočíta len pri dovoze.</p>
+            <p className="note" style={{ marginTop: 0 }}>Odmena sa rozpustí do služieb najviac do zadaného percenta ich skutočnej ceny (pri 50 % sa prístav za 550 € zobrazí najviac za 825 €). Čo sa nezmestí, zákazník vidí ako „Poplatok za sprostredkovanie dovozu“. Rozpúšťa sa do služieb (prístav, preprava na Slovensko, preklady, kontroly, schválenie), nikdy nie do ceny auta, cla, DPH, rezervy a zákonných poplatkov. Sumy zadávajte tak, ako ich reálne platíte, DPH sa pripočíta len pri dovoze.</p>
           </div>
 
           <div className="panel">
@@ -185,10 +186,12 @@ export default function Settings() {
                 <Num key={x.code} label={x.name} value={c.homologByCountry?.[x.code] ?? c.homologEur} unit="EUR" onChange={(v) => upd({ homologByCountry: { ...(c.homologByCountry || {}), [x.code]: v } })} />
               ))}
             </div>
-            <h3 style={{ margin: "14px 0 8px" }}>Poistenie a vyrovnávacie clo</h3>
+            <h3 style={{ margin: "14px 0 8px" }}>Poistenie prepravy (vyberá sa pri aute, predvolene bez poistenia) a vyrovnávacie clo</h3>
             <div className="three">
-              <Num label="Poistenie prepravy USA a Kanada" value={pct(c.insurancePct ?? 0.07)} unit="%" step={0.1} onChange={(v) => upd({ insurancePct: v / 100 })} />
-              <Num label="Minimálne poistenie" value={c.insuranceMinUsd ?? 350} unit="USD" onChange={(v) => upd({ insuranceMinUsd: v })} />
+              <Num label="Základné poistenie (z ceny auta)" value={pct(c.insuranceBasicPct ?? 0.015)} unit="%" step={0.1} onChange={(v) => upd({ insuranceBasicPct: v / 100 })} />
+              <Num label="Základné poistenie, minimum" value={c.insuranceBasicMinUsd ?? 150} unit="USD" onChange={(v) => upd({ insuranceBasicMinUsd: v })} />
+              <Num label="Plné poistenie (z ceny auta)" value={pct(c.insurancePct ?? 0.07)} unit="%" step={0.1} onChange={(v) => upd({ insurancePct: v / 100 })} />
+              <Num label="Plné poistenie, minimum" value={c.insuranceMinUsd ?? 350} unit="USD" onChange={(v) => upd({ insuranceMinUsd: v })} />
               <Num label="Vyrovnávacie clo, elektromobily z Číny" value={pct(c.cvdRate ?? 0.207)} unit="%" step={0.1} onChange={(v) => upd({ cvdRate: v / 100 })} />
             </div>
           </div>
@@ -234,7 +237,7 @@ export default function Settings() {
         <aside className="edit-side">
           <div className="panel">
             <h2>Náhľad: $12 000, Texas</h2>
-            {preview && <Breakdown r={preview} compact />}
+            {preview && <Breakdown r={preview} compact admin />}
           </div>
         </aside>
       </div>

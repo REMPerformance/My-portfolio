@@ -3,7 +3,10 @@ import { eur, money } from "@/lib/format";
 
 /** Rozpis odhadu po položkách, rovnako ako v cenových ponukách. Odmena je rozpustená v službách, DPH sa pripočítava len pri dovoze. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r: CalcResult; skPrice?: number | null; compact?: boolean; hideFee?: boolean }) {
+export function Breakdown({ r, skPrice, compact = false, hideFee = false, admin = false }: { r: CalcResult; skPrice?: number | null; compact?: boolean; hideFee?: boolean; admin?: boolean }) {
+  // admin vidí skutočné náklady a skrytú odmenu zvlášť, zákazník vidí odmenu rozpustenú v službách
+  const s = admin ? { ...r.base, regEur: r.base.reg } : { port: r.euPortEur, truck: r.truckEur, inland: r.inlandEur, adapters: r.adaptersEur, regEur: r.regEur };
+  const insNote = r.insuranceMode === "full" ? "plné krytie" : r.insuranceMode === "basic" ? "základné krytie" : undefined;
   const diff = skPrice ? skPrice - r.gross : null;
   const row = (k: React.ReactNode, v: number, note?: string) => (
     <div className="bd"><span>{k}{note && <em>{note}</em>}</span><span>{eur(v)}</span></div>
@@ -15,11 +18,11 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
         <h4>{r.local ? "Auto a preprava" : "Auto a doprava do EÚ"}</h4>
         {row(r.fixed ? "Cena auta" : "Odhad ceny na aukcii", r.carEur, r.currency !== "EUR" ? money(r.price, r.currency) : undefined)}
         {r.fixed ? (r.feeEur > 0 && row("Poplatky predajcu", r.feeEur)) : (r.feeManual || !r.local) && row("Aukčné poplatky", r.feeEur, r.feeManual ? undefined : "odhad")}
-        {r.local ? row("Preprava na Slovensko", r.inlandEur, r.placeName ? `${r.placeName}, autoprepravník` : "autoprepravník") : (
+        {r.local ? row("Preprava na Slovensko", s.inland, r.placeName ? `${r.placeName}, autoprepravník` : "autoprepravník") : (
           <>
-            {row("Odvoz do prístavu", r.inlandEur, [r.placeName, r.portName].filter(Boolean).join(" → "))}
+            {row("Odvoz do prístavu", s.inland, [r.placeName, r.portName].filter(Boolean).join(" → "))}
             {row("Námorná preprava", r.oceanEur, `${r.portName} → ${r.euPortName}`)}
-            {r.insuranceEur > 0 && row("Poistenie prepravy", r.insuranceEur, "plné krytie")}
+            {r.insuranceEur > 0 && row("Poistenie prepravy", r.insuranceEur, insNote)}
           </>
         )}
       </div>
@@ -34,18 +37,20 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false }: { r:
       )}
       <div className="bd-group">
         <h4>{r.local ? "Prihlásenie na Slovensku" : "Prístav a Slovensko"}</h4>
-        {!r.local && row("Prístav a colný deklarant", r.euPortEur, r.euPortName)}
-        {!r.local && row("Preprava na Slovensko", r.truckEur, `z prístavu ${r.euPortName}, autoprepravník`)}
+        {!r.local && row("Prístav a colný deklarant", s.port, r.euPortName)}
+        {!r.local && row("Preprava na Slovensko", s.truck, `z prístavu ${r.euPortName}, autoprepravník`)}
         {r.noHomolog ? (
           <div className="bd"><span>{r.local ? "Prihlásenie na Slovensku" : "Schválenie a prihlásenie"}</span><span>vybavíte si sami</span></div>
         ) : (
           <>
-            {row(r.local ? "Prihlásenie na Slovensku" : "Schválenie a prihlásenie na Slovensku", r.regEur, r.local ? "kontrola originality, doklady, recyklačný poplatok a EČV" : "úradné preklady, technické kontroly, schválenie s úpravami, recyklačný poplatok, zápis a EČV")}
-            {r.adaptersEur > 0 && row("Nabíjacie adaptéry", r.adaptersEur, "CCS2 a Type 2 na GB/T")}
+            {row(r.local ? "Prihlásenie na Slovensku" : "Schválenie a prihlásenie na Slovensku", s.regEur, r.local ? "kontrola originality, doklady, recyklačný poplatok a EČV" : "úradné preklady, technické kontroly, schválenie s úpravami, recyklačný poplatok, zápis a EČV")}
+            {s.adapters > 0 && row("Nabíjacie adaptéry", s.adapters, "CCS2 a Type 2 na GB/T")}
           </>
         )}
         {r.repairEur > 0 && row("Odhad opravy", r.repairEur)}
         {r.extraCosts?.map((x) => <div className="bd" key={x.label}><span>{x.label}</span><span>{eur(x.eur)}</span></div>)}
+        {admin ? (r.markupEur > 0 && row(<b>Tvoja odmena</b>, r.markupEur, `${+((r.feePct ?? 0) * 100).toFixed(1)} % z konečnej sumy, z toho ${eur(r.hiddenEur)} rozpustené v službách${r.feeVisibleEur > 0 ? ` a ${eur(r.feeVisibleEur)} ako poplatok za sprostredkovanie` : ""}`))
+          : r.feeVisibleEur > 0 && row("Poplatok za sprostredkovanie dovozu", r.feeVisibleEur)}
         {r.reserveEur > 0 && row("Povinná záloha (rezerva)", r.reserveEur, "nezapočítava sa do konečnej sumy, nevyčerpaná časť sa vracia")}
       </div>
       <div className="bd-total">
