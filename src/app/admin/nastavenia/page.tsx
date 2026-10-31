@@ -56,10 +56,9 @@ export default function Settings() {
           <div className="panel">
             <h2>Vaša odmena</h2>
             <div className="three">
-              <Num label="Odmena z konečnej sumy" value={c.markupPct ?? 5} unit="%" step={0.5} onChange={(v) => upd({ markupPct: v })} />
-              <Num label="Do služieb rozpustiť najviac" value={c.markupHiddenMaxPct ?? 50} unit="% ich ceny" step={5} onChange={(v) => upd({ markupHiddenMaxPct: v })} />
+              <Num label="Skrytá odmena z konečnej sumy" value={c.markupPct ?? 5} unit="%" step={0.5} onChange={(v) => upd({ markupPct: v })} />
             </div>
-            <p className="note" style={{ marginTop: 0 }}>Odmena sa rozpustí do služieb najviac do zadaného percenta ich skutočnej ceny (pri 50 % sa prístav za 550 € zobrazí najviac za 825 €). Čo sa nezmestí, zákazník vidí ako „Poplatok za sprostredkovanie dovozu“. Rozpúšťa sa do služieb (prístav, preprava na Slovensko, preklady, kontroly, schválenie), nikdy nie do ceny auta, cla, DPH, rezervy a zákonných poplatkov. Sumy zadávajte tak, ako ich reálne platíte, DPH sa pripočíta len pri dovoze.</p>
+            <p className="note" style={{ marginTop: 0 }}>Zákazník odmenu nikde na webe nevidí. Rozpustí sa do služieb (prístav, preprava na Slovensko, preklady, kontroly, schválenie), nikdy nie do ceny auta, cla, DPH, rezervy a zákonných poplatkov. Sumy zadávajte tak, ako ich reálne platíte, DPH sa pripočíta len pri dovoze.</p>
           </div>
 
           <div className="panel">

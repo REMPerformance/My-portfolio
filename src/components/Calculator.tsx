@@ -110,7 +110,7 @@ export function Calculator({ cfg, hideFee = false }: { cfg: CalcConfig; hideFee?
           <div className="iw"><input className="input" id="cSk" type="number" min={0} step={500} value={sk} inputMode="numeric" placeholder="na porovnanie" onChange={(e) => setSk(e.target.value === "" ? "" : +e.target.value)} /><span className="u">EUR</span></div>
         </div>
         {cd.note && <p className="note">{cd.note}</p>}
-        <p className="note">Všetky položky sú odhad vrátane našej odmeny. Presnú kalkuláciu ku konkrétnemu autu Vám pošleme pred kúpou.</p>
+        <p className="note">Všetky položky sú odhad. Presnú kalkuláciu ku konkrétnemu autu Vám pošleme pred kúpou.</p>
       </div>
       <div className="panel" aria-live="polite"><Breakdown r={r} skPrice={sk || null} hideFee={hideFee} /></div>
     </div>

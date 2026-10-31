@@ -30,7 +30,6 @@ export const DEFAULT_CALC: CalcConfig = {
   depositMinEur: 500,
   depositTiers: [[49000, 2000], [69000, 3000], [999999999, 4500]],
   markupPct: 5,
-  markupHiddenMaxPct: 50,
   insurancePct: 0.07,
   insuranceMinUsd: 350,
   insuranceBasicPct: 0.015,
@@ -97,12 +96,8 @@ export interface CalcResult {
   reserveEur: number;
   /** skutočné náklady na služby bez skrytej odmeny (pre admin) */
   base: { port: number; truck: number; translations: number; inspections: number; homolog: number; adapters: number; recycling: number; registration: number; inland: number; reg: number };
-  /** celá odmena (skrytá + viditeľný poplatok) */
+  /** skrytá odmena rozpustená v službách (na webe sa nikdy nezobrazuje) */
   markupEur: number;
-  /** časť odmeny rozpustená v službách */
-  hiddenEur: number;
-  /** viditeľný poplatok za sprostredkovanie (zvyšok odmeny nad strop rozpustenia) */
-  feeVisibleEur: number;
   /** cena bez DPH / s DPH / DPH spolu */
   net: number;
   gross: number;
@@ -266,13 +261,11 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const markupEur = withMarkup(fixedSum);
   const spreadKeys = (Object.keys(base) as (keyof typeof base)[]).filter((k) => !["recycling", "registration", "adapters"].includes(k) && base[k] > 0);
   const spreadBase = spreadKeys.reduce((a, k) => a + base[k], 0);
-  // do služieb sa rozpustí najviac markupHiddenMaxPct % ich skutočnej ceny, aby pri drahom aute nevyzerali nereálne; zvyšok je viditeľný poplatok za sprostredkovanie
-  const hiddenEur = spreadKeys.length ? Math.min(markupEur, Math.round((spreadBase * Math.max(0, cfg.markupHiddenMaxPct ?? 50)) / 100)) : 0;
-  const feeVisibleEur = markupEur - hiddenEur;
+  // odmena sa na webe nikdy nezobrazuje: celá sa rozpustí do služieb (bez služieb do prepravy)
   const svc = { ...base };
-  let left = hiddenEur;
-  spreadKeys.forEach((k, n) => { const add = n === spreadKeys.length - 1 ? left : Math.round((hiddenEur * base[k]) / spreadBase); svc[k] += add; left -= add; });
-  const inlandShown = inlandEur;
+  let left = markupEur;
+  spreadKeys.forEach((k, n) => { const add = n === spreadKeys.length - 1 ? left : Math.round((markupEur * base[k]) / spreadBase); svc[k] += add; left -= add; });
+  const inlandShown = spreadKeys.length ? inlandEur : inlandEur + markupEur;
   // konečná suma pre súkromnú osobu; firma s odpočtom DPH ju má nižšiu o DPH pri dovoze
   const gross = fixedSum + markupEur;
   const reserveEur = i.reserve === false ? 0 : depositFor(cfg, gross);
@@ -282,7 +275,7 @@ export function calc(cfg: CalcConfig, i: CalcInput): CalcResult {
   const total = priceMode === "net" ? net : gross;
   const credit = typeof i.creditEur === "number" && isFinite(i.creditEur) ? Math.max(0, i.creditEur) : (cfg.racemCredit.find(([max]) => gross <= max) || cfg.racemCredit[cfg.racemCredit.length - 1])[1];
   return {
-    price, currency, bidUsd: price, carEur, feeEur, inlandEur: inlandShown, oceanEur, insuranceEur, insuranceMode, markupEur, hiddenEur, feeVisibleEur,
+    price, currency, bidUsd: price, carEur, feeEur, inlandEur: inlandShown, oceanEur, insuranceEur, insuranceMode, markupEur,
     base: { ...base, inland: inlandEur, reg: base.translations + base.inspections + base.homolog + base.recycling + base.registration },
     portName: oc.port.name, placeName: oc.place?.name ?? null, countryName: oc.country.name, countryCode: oc.country.code,
     cif, dutyRate, duty, cvdRate, cvd, vat: vatTotal, importVat, euCarVat, vatRate,

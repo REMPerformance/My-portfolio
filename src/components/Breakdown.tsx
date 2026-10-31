@@ -49,8 +49,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false, admin 
         )}
         {r.repairEur > 0 && row("Odhad opravy", r.repairEur)}
         {r.extraCosts?.map((x) => <div className="bd" key={x.label}><span>{x.label}</span><span>{eur(x.eur)}</span></div>)}
-        {admin ? (r.markupEur > 0 && row(<b>Tvoja odmena</b>, r.markupEur, `${+((r.feePct ?? 0) * 100).toFixed(1)} % z konečnej sumy, z toho ${eur(r.hiddenEur)} rozpustené v službách${r.feeVisibleEur > 0 ? ` a ${eur(r.feeVisibleEur)} ako poplatok za sprostredkovanie` : ""}`))
-          : r.feeVisibleEur > 0 && row("Poplatok za sprostredkovanie dovozu", r.feeVisibleEur)}
+        {admin && r.markupEur > 0 && row(<b>Tvoja skrytá odmena</b>, r.markupEur, `${+((r.feePct ?? 0) * 100).toFixed(1)} % z konečnej sumy, vidíš ju len v admine, na webe je rozpustená v službách`)}
         {r.reserveEur > 0 && row("Povinná záloha (rezerva)", r.reserveEur, "nezapočítava sa do konečnej sumy, nevyčerpaná časť sa vracia")}
       </div>
       <div className="bd-total">

@@ -155,8 +155,6 @@ export interface CalcConfig {
   /** poistenie prepravy z USA a Kanady: % z ceny auta a minimum v USD */
   insurancePct?: number;
   insuranceMinUsd?: number;
-  /** najviac koľko % zo skutočnej ceny služieb sa do nich rozpustí zo skrytej odmeny (zvyšok je viditeľný poplatok) */
-  markupHiddenMaxPct?: number;
   /** základné poistenie (len totálna škoda) */
   insuranceBasicPct?: number;
   insuranceBasicMinUsd?: number;
