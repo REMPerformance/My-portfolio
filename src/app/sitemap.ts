@@ -24,6 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE.url}/skoncene-aukcie`, lastModified: now, changeFrequency: "daily", priority: 0.5 },
     { url: `${SITE.url}/kalkulacka-dovozu`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE.url}/ako-to-funguje`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE.url}/sledovanie`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE.url}/caste-otazky`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE.url}/kontakt`, changeFrequency: "yearly", priority: 0.5 },
     { url: `${SITE.url}/vop`, changeFrequency: "yearly", priority: 0.2 },

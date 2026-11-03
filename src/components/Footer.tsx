@@ -21,6 +21,7 @@ export function Footer({ phone }: { phone?: string }) {
               <li><Link href="/auto-na-mieru">Auto na mieru</Link></li>
               <li><Link href="/kalkulacka-dovozu">Kalkulačka dovozu</Link></li>
               <li><Link href="/ako-to-funguje">Ako to funguje</Link></li>
+              <li><Link href="/sledovanie">Sledovanie objednávky</Link></li>
               <li><Link href="/caste-otazky">Časté otázky</Link></li>
               <li><Link href="/poradna">Poradňa</Link></li>
             </ul>

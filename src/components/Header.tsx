@@ -24,6 +24,7 @@ export function Header() {
         <div className="wrap">
           <span className="tb-l">Dovoz áut z USA, Dubaja, Kanady a Ázie na slovenské značky</span>
           <span className="tb-r">
+            <Link className="tb-track" href="/sledovanie">Sledovanie objednávky</Link>
             <a className="tb-mail" href={`mailto:${SITE.email}`}>{SITE.email}</a>
             <a href={`tel:${SITE.phone.replace(/\s/g, "")}`}>{SITE.phone}</a>
             <a className="tb-wa" href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener">WhatsApp</a>

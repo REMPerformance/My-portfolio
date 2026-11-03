@@ -5,6 +5,7 @@ import { depositTiersText } from "@/lib/calc";
 import { Bonus, PageHead, Steps, Why, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { IArrow } from "@/components/Icons";
+import { TrackPromo } from "@/components/track/TrackPromo";
 
 export const revalidate = 300;
 
@@ -49,6 +50,9 @@ export default async function HowPage() {
           <h2>5. Oprava, homologizácia a prihlásenie</h2>
           <p>Ak si to želáte, auto dáme opraviť u overených partnerov podľa vopred schválenej cenovej ponuky. Potom zabezpečíme úpravy na európske predpisy (svetlá, smerovky), individuálne schválenie vozidla, technickú a emisnú kontrolu a evidenčné čísla. Auto Vám odovzdáme pripravené na cestu spolu s kreditom do <a href="https://racem.sk" target="_blank" rel="noopener">RACEM.sk</a>.</p>
 
+          <h2>6. Sledovanie objednávky online</h2>
+          <p>Počas celého dovozu máte prístup k <Link href="/sledovanie">sledovaniu objednávky</Link>. Stačí zadať VIN vozidla a číslo zmluvy. Uvidíte, v akom kroku sa dovoz nachádza, polohu lode na mape, predpokladaný termín prevzatia a fotky, ktoré náš agent urobí pri kontrole vozidla v prístave a počas prepravy. O každej novej udalosti Vám zároveň pošleme e-mail.</p>
+
           <table>
             <thead><tr><th>Krok</th><th>Obvyklý čas</th></tr></thead>
             <tbody>
@@ -72,6 +76,8 @@ export default async function HowPage() {
           <Why items={ct.why} risk={ct.risk} />
         </div>
       </section>
+
+      <TrackPromo />
 
       <Bonus b={ct.bonus} />
 

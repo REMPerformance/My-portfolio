@@ -94,6 +94,7 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
     { href: "/admin", label: "Autá", icon: I("M5 17h14M6 17l1.5-5h9L18 17M7 17v2M17 17v2M8 12l1-3h6l1 3") },
     { href: "/admin/dopyty", label: "Dopyty", badge: newLeads, icon: I("M4 5h16v11H8l-4 4z") },
     { href: "/admin/emaily", label: "E-maily", icon: I("M4 6h16v12H4zM4 7l8 6 8-6") },
+    { href: "/admin/sledovanie", label: "Sledovanie zásielok", icon: I("M3 17h13l3-4h2M5 17l1-5h9l1 5M3 20c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1M12 4v5M9 7l3 2 3-2") },
     { href: "/admin/ponuky", label: "Evidencia ponúk", icon: I("M5 4h14v16H5zM8 8h8M8 12h8M8 16h5") },
     { href: "/admin/navstevnost", label: "Návštevnosť", icon: I("M4 20V10M10 20V4M16 20v-7M22 20H2") },
     { sec: "Nastavenia" },

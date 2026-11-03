@@ -4,11 +4,11 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 
 export const mailConfigured = () => !!process.env.RESEND_API_KEY;
 
-export async function sendMail({ to, subject, text, replyTo, fromName }: { to: string[]; subject: string; text: string; replyTo?: string; fromName?: string }) {
+export async function sendMail({ to, subject, text, replyTo, fromName, html: customHtml }: { to: string[]; subject: string; text: string; replyTo?: string; fromName?: string; html?: string }) {
   const key = process.env.RESEND_API_KEY;
   if (!key || !to.length) return { ok: false, error: "not_configured" };
   const fromAddr = process.env.RESEND_FROM || "dopyty@remperformance.sk";
-  const html = `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#111">${esc(text).replace(/\n/g, "<br>")}</div>`;
+  const html = customHtml || `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#111">${esc(text).replace(/\n/g, "<br>")}</div>`;
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },

@@ -7,6 +7,7 @@ import { COUNTRIES } from "@/lib/origins";
 import { CarCard } from "@/components/CarCard";
 import { CarGrid } from "@/components/CarGrid";
 import { Steps } from "@/components/Sections";
+import { TrackPromo } from "@/components/track/TrackPromo";
 import { IArrow, SpecIcon, TypeArt } from "@/components/Icons";
 import { Flag } from "@/components/Flag";
 import { HeroSlides } from "@/components/HeroSlides";
@@ -153,6 +154,8 @@ export default async function Home() {
           <Steps items={ct.steps} />
         </div>
       </section>
+
+      <TrackPromo />
 
       <section style={{ paddingTop: 0 }}>
         <div className="wrap">
