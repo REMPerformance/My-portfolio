@@ -1382,3 +1382,55 @@ details.fold>div{padding:0 14px 12px}
 .trk-up{grid-template-columns:150px minmax(0,1fr)}
 .trk-up .when b{font-size:14px}
 @media (max-width:640px){.trk-up{grid-template-columns:1fr}}
+
+/* ═══ Hlavné menu: odlesk pri hoveri a výrazné sledovanie objednávky ═══ */
+.menu a{position:relative;overflow:hidden;isolation:isolate}
+.menu a::before{content:"";position:absolute;top:-20%;bottom:-20%;left:-60%;width:45%;z-index:-1;pointer-events:none;
+  background:linear-gradient(100deg,transparent 0%,rgba(255,255,255,0) 20%,rgba(255,255,255,.22) 48%,rgba(255,255,255,.5) 50%,rgba(255,255,255,.22) 52%,rgba(255,255,255,0) 80%,transparent 100%);
+  transform:skewX(-20deg) translateX(0);opacity:0}
+.menu a::after{content:"";position:absolute;left:11px;right:11px;bottom:5px;height:2px;background:var(--rc-red);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--rc-ease)}
+.menu a:hover{background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03))}
+.menu a:hover::before{animation:menuGlare .75s var(--rc-ease) forwards}
+.menu a:hover::after,.menu a[aria-current=page]::after{transform:scaleX(1)}
+@keyframes menuGlare{0%{opacity:1;transform:skewX(-20deg) translateX(0)}100%{opacity:1;transform:skewX(-20deg) translateX(420%)}}
+.menu .menu-track{display:none}
+
+.hdr-track{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;gap:10px;flex:none;padding:7px 16px 7px 8px;border:1px solid var(--rc-red);border-radius:4px;
+  background:linear-gradient(180deg,rgba(200,16,46,.22),rgba(200,16,46,.08));color:#fff;transition:background var(--rc-fast),box-shadow var(--rc-fast)}
+.hdr-track::before{content:"";position:absolute;top:-30%;bottom:-30%;left:-50%;width:40%;z-index:-1;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.35) 50%,transparent);transform:skewX(-20deg);animation:trackGlare 5s ease-in-out 1.2s infinite}
+@keyframes trackGlare{0%,70%{left:-50%}100%{left:130%}}
+.hdr-track:hover{background:linear-gradient(180deg,rgba(200,16,46,.45),rgba(200,16,46,.2));box-shadow:0 0 0 3px rgba(200,16,46,.18),0 6px 22px rgba(200,16,46,.3)}
+.hdr-track:hover::before{animation:menuGlare .75s var(--rc-ease) forwards;left:-50%}
+.hdr-track.on{background:var(--rc-red)}
+.hdr-track__ic{position:relative;width:34px;height:34px;display:grid;place-items:center;background:var(--rc-red);border-radius:3px;flex:none}
+.hdr-track__ic svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hdr-track__ic i{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#34c77b;box-shadow:0 0 0 2px #111317}
+.hdr-track__ic i::after{content:"";position:absolute;inset:0;border-radius:50%;background:#34c77b;animation:trackPing 1.8s ease-out infinite}
+@keyframes trackPing{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.8);opacity:0}}
+.hdr-track__t{display:flex;flex-direction:column;line-height:1.15}
+.hdr-track__t small{font-size:11px;color:#f2b8c2;font-weight:600}
+.hdr-track__t b{font-family:var(--display);font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.hdr .rc-arrow{overflow:hidden}
+.hdr .rc-arrow:hover::after{width:4px}
+@media(max-width:1300px){
+  .hdr-track{margin-left:auto}
+  .burger{margin-left:0}
+  .menu .menu-track{display:flex;color:#fff;background:linear-gradient(90deg,rgba(200,16,46,.28),transparent);border-left:3px solid var(--rc-red);padding-left:12px}
+  .menu a::after{display:none}
+}
+@media(max-width:640px){
+  .hdr .wrap{gap:10px}
+  .hdr-track{padding:4px}
+  .hdr-track__t{display:none}
+}
+@media (prefers-reduced-motion:reduce){.menu a::before,.hdr-track::before,.hdr-track__ic i::after{animation:none!important}}
+@media(min-width:1301px){
+  .hdr .wrap{gap:14px}
+  .menu a{padding:8px 9px;font-size:14.5px}
+  .menu a::after{left:9px;right:9px}
+  .hdr-track{padding:5px 12px 5px 5px;gap:8px}
+  .hdr-track__ic{width:30px;height:30px}
+  .hdr-track__t small,.hdr-track__more{display:none}
+}
+@media(min-width:1301px) and (max-width:1640px){.hdr-cta{display:none}}
