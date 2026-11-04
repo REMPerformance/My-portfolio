@@ -184,10 +184,14 @@ export function fromChe168(p: ImportPayload): Imported {
 
 /** Fotky z galérie inzerátu (autoimg.cn), v najväčšej veľkosti. */
 function photos(p: ImportPayload, d: Obj): string[] {
-  const fromCode = (Array.isArray(d.catepiclist) ? d.catepiclist : []).flatMap((c) => (c && typeof c === "object" && Array.isArray((c as Obj).list) ? ((c as Obj).list as unknown[]).map(s) : []));
-  const list = fromCode.length ? fromCode : [...(p.g || []), ...(p.c || [])].map((u) => u.split("#")[0]).filter((u) => /autoimg\.cn\/escimg\//i.test(u));
   // veľkosť je v názve súboru („1400x0_c42_…“, „0x0_…“ = originál); berieme 1400 px, každú fotku raz
   const key = (u: string) => u.split("?")[0].replace(/\/\d+x\d+_c\d+_/, "/");
+  const fromCode = (Array.isArray(d.catepiclist) ? d.catepiclist : []).flatMap((c) => (c && typeof c === "object" && Array.isArray((c as Obj).list) ? ((c as Obj).list as unknown[]).map(s) : []));
+  // bez údajov z kódu stránky: len galéria auta (na stránke sú aj fotky odporúčaných áut), najviac toľko, koľko ukazuje počítadlo „1/16“
+  const car = (l: string[]) => l.map((u) => u.split("#")[0]).filter((u) => /autoimg\.cn\/escimg\//i.test(u));
+  const gal = car(p.g || []);
+  const max = (p.n || 0) > 0 ? p.n! : (Number(((p.x || "").match(/\n1\/(\d+)\n/) || [])[1]) || 0);
+  const list = fromCode.length ? fromCode : (gal.length >= 3 ? gal : car(p.c || [])).filter((u, i, a) => a.findIndex((v) => key(v) === key(u)) === i).slice(0, max || 60);
   const seen = new Set<string>();
   return list.map((u) => u.split("?")[0]).filter((u) => /^https:\/\//.test(u)).map((u) => u.replace(/\/(\d+)x(\d+)_c(\d+)_/, "/1400x0_c$3_")).filter((u) => { const k = key(u); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 60);
 }

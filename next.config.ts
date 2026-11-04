@@ -10,9 +10,14 @@ const nextConfig: NextConfig = {
           { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
           { key: "Cache-Control", value: "no-store" },
           { key: "Content-Security-Policy", value: "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin" }
         ]
       },
+      {
+        // stránky, na ktoré prichádza import zo záložky, musia ostať prepojené s kartou inzerátu (sťahovanie fotiek cez ňu)
+        source: "/admin/:path((?!auta/nove|emaily).*)",
+        headers: [{ key: "Cross-Origin-Opener-Policy", value: "same-origin" }]
+      },
+      { source: "/admin", headers: [{ key: "Cross-Origin-Opener-Policy", value: "same-origin" }] },
       {
         source: "/:path*",
         headers: [

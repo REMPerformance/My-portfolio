@@ -7,6 +7,7 @@ import { carFullName, RUN_LABEL } from "@/lib/format";
 import { SITE } from "@/lib/site";
 import { CURRENCIES } from "@/lib/origins";
 import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
+import { enrichImport } from "@/lib/importEnrich";
 import { importImages } from "@/lib/imageImport";
 import { useSigners } from "@/components/admin/useSigners";
 import { basisText, buildReply, depositForTotal, EMPTY_OFFER, isReserveRow, offerPdfHtml, sectionTotal, setDepositTiers, offerSection, offersOf, parseQuote, PARTS, timeLeft, type Offer, type ReplyData, type Section } from "@/lib/replyMail";
@@ -263,7 +264,9 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
     history.replaceState(null, "", window.location.pathname + window.location.search);
     setImportTarget(null);
     setWaiting(false);
-    const r = fromImport(data);
+    // stará záložka nemusí priniesť údaje z Encaru a che168, administrácia si ich v tom prípade dotiahne sama
+    void enrichImport(data, session.access_token).then((full) => {
+    const r = fromImport(full);
     const p = r.parsed;
     const fixed = r.patch.sale_type === "fixed";
     const currency = r.patch.currency || "USD";
@@ -301,6 +304,7 @@ export function MailComposer({ mail, lead, cars, onClose }: { mail: Mail; lead: 
       setImp(null);
       if (got.length) setD((x) => ({ ...x, sections: x.sections.map((s) => (s.offer && s.offer.sourceUrl === r.url && !s.offer.photos.length ? { ...s, offer: { ...s.offer, photos: got } } : s)) }));
       if (failed) toast(`Stiahnutých ${got.length} fotiek, ${failed} sa nepodarilo. Doplňte ich ručne.`, !got.length);
+    });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cfg]);

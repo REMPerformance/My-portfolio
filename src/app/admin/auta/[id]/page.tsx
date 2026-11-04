@@ -10,6 +10,7 @@ import { COUNTRIES, CURRENCIES, countryDef, guessPlace } from "@/lib/origins";
 import { PlacePicker } from "@/components/admin/PlacePicker";
 import { parseListing, type Parsed } from "@/lib/listingParse";
 import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
+import { enrichImport } from "@/lib/importEnrich";
 import { takeImportTarget } from "@/components/admin/mailStore";
 import { carSeoDescription, carSeoTitle, isDamaged } from "@/lib/carSeo";
 import { importImages } from "@/lib/imageImport";
@@ -157,7 +158,9 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
     if (!data) return;
     importRan.current = true;
     history.replaceState(null, "", window.location.pathname);
-    const r = fromImport(data);
+    // stará záložka nemusí priniesť údaje z Encaru a che168, administrácia si ich v tom prípade dotiahne sama
+    void enrichImport(data, session.access_token).then((full) => {
+    const r = fromImport(full);
     apply(r.parsed, r.source);
     // poradie je dôležité: krajina a mena z inzerátu majú prednosť pred odhadom z rozpoznaného textu
     patch({ ...r.patch, auction_url: r.url, ...(r.saleEnd ? { auction_end_at: r.saleEnd } : {}) });
@@ -171,6 +174,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
       setImp(null);
       if (urls.length) { setDirty(true); setF((o) => (o ? { ...o, images: [...o.images, ...urls] } : o)); }
       toast(failed ? `Stiahnutých ${urls.length} fotiek, ${failed} sa nepodarilo. Doplňte ich ručne v kroku Fotky.` : `Stiahnutých ${urls.length} fotiek z inzerátu.`, failed > 0 && !urls.length);
+    });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNew, f === null]);
@@ -333,7 +337,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                 </div>
                 <div className="three">
                   <div className="field"><label>Palivo</label>
-                    <select className="input" value={f.fuel ?? ""} onChange={(e) => set("fuel", e.target.value)}><option>Benzín</option><option>Diesel</option><option>Hybrid</option><option>Plug-in hybrid</option><option>Elektro</option></select>
+                    <select className="input" value={f.fuel ?? ""} onChange={(e) => set("fuel", e.target.value)}>{["Benzín", "Diesel", "Hybrid", "Mild hybrid", "Plug-in hybrid", "Elektro", "LPG", "Vodík", ...(f.fuel && !["Benzín", "Diesel", "Hybrid", "Mild hybrid", "Plug-in hybrid", "Elektro", "LPG", "Vodík"].includes(f.fuel) ? [f.fuel] : [])].map((x) => <option key={x}>{x}</option>)}</select>
                   </div>
                   <div className="field"><label>Farba</label><input className="input" value={f.color ?? ""} onChange={(e) => set("color", e.target.value)} /></div>
                   <div className="field"><label>Stav</label>
