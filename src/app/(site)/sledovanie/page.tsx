@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { TrackLookup } from "@/components/track/TrackLookup";
-import { TrackFeats } from "@/components/track/TrackPromo";
 
 export const metadata: Metadata = {
   title: "Sledovanie dovozu auta podľa VIN",
@@ -14,7 +13,6 @@ export default function TrackingPage() {
     <section className="trk-page">
       <div className="wrap">
         <TrackLookup />
-        <TrackFeats />
       </div>
     </section>
   );

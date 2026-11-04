@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CONTRACT_RE, VIN_RE, normContract, normVin } from "@/lib/tracking";
 import { STORE_KEY, readStored } from "./TrackStatus";
-import { TrackMap } from "./TrackMap";
 
 export function TrackLookup() {
   const router = useRouter();
@@ -30,11 +29,9 @@ export function TrackLookup() {
   }
 
   return (
-    <div className="trk-search dark">
-      <TrackMap className="trk-bgmap" from="savannah" to="bremerhaven" sea={0.62} post={0} decorative />
+    <div className="trk-search">
       <form className="trk-form" onSubmit={submit} noValidate>
-        <span className="eyebrow">Sledovanie dovozu</span>
-        <h1>Kde je <em>Vaše auto?</em></h1>
+        <h1>Sledovanie dovozu</h1>
         <div className="field">
           <label htmlFor="trk-vin">VIN vozidla</label>
           <input className="input mono" id="trk-vin" value={vin} maxLength={17} autoComplete="off" spellCheck={false} placeholder="17 znakov" aria-invalid={err?.f === "vin" || undefined}

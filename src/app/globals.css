@@ -1434,3 +1434,7 @@ details.fold>div{padding:0 14px 12px}
   .hdr-track__t small,.hdr-track__more{display:none}
 }
 @media(min-width:1301px) and (max-width:1640px){.hdr-cta{display:none}}
+/* zjednodušené vyhľadanie */
+.trk-search{min-height:0;display:flex;justify-content:center;padding:clamp(24px,6vw,72px) 0;background:none;border:0;overflow:visible}
+.trk-search .trk-form{width:min(460px,100%);background:var(--rc-surface);border:1px solid var(--rc-line);border-top:3px solid var(--rc-red);box-shadow:var(--shadow)}
+.trk-search .trk-form h1{font-size:clamp(22px,3vw,28px);margin:0 0 20px;color:var(--rc-text)}
