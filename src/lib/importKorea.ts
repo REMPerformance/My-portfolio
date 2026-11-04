@@ -381,7 +381,8 @@ function autowiniPhotos(p: ImportPayload): string[] {
     const cur = pick.get(m[3]);
     if (!cur || size > cur.size) pick.set(m[3], { url: m[0], size });
   }
-  return [...pick.values()].filter((x) => x.size >= 600).map((x) => x.url).slice(0, 60);
+  // ak je fotka v zozname len v malej veľkosti, adresu 1024 px poskladáme (všetky fotky ju majú)
+  return [...pick.entries()].map(([id, x]) => (x.size >= 600 ? x.url : `${best[0][1]}${id}_1024.jpg`)).slice(0, 60);
 }
 
 /** Ak je inzerát z Encaru alebo Autowini, vráti import, inak null. */
