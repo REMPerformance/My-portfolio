@@ -34,12 +34,16 @@ export async function GET(req: Request) {
 
   try {
     const r = await fetch(u, { redirect: "error", cache: "no-store", signal: AbortSignal.timeout(15000), headers: { accept: "image/*" } });
-    const type = r.headers.get("content-type") || "";
-    if (!r.ok || !/^image\/(jpeg|png|webp|avif|gif)/i.test(type)) return NextResponse.json({ error: "Na adrese nie je obrázok." }, { status: 415 });
+    // niektoré úložiská (Autowini) posielajú typ len „image“, formát doplníme podľa prípony
+    const ext = (u.pathname.match(/\.(jpe?g|png|webp|avif|gif)$/i) || [])[1]?.toLowerCase();
+    const byExt = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : ext === "avif" ? "image/avif" : ext === "gif" ? "image/gif" : ext ? "image/jpeg" : "";
+    const raw = (r.headers.get("content-type") || "").split(";")[0].trim();
+    const type = /^image\/(jpeg|png|webp|avif|gif)$/i.test(raw) ? raw : (/^image$/i.test(raw) || /octet-stream/i.test(raw) || !raw) && byExt ? byExt : "";
+    if (!r.ok || !type) return NextResponse.json({ error: r.ok ? "Na adrese nie je obrázok." : `Úložisko fotku nevydalo (${r.status}).` }, { status: r.ok ? 415 : 502 });
     if (Number(r.headers.get("content-length") || 0) > MAX) return NextResponse.json({ error: "Obrázok je príliš veľký." }, { status: 413 });
     const buf = await r.arrayBuffer();
     if (buf.byteLength > MAX) return NextResponse.json({ error: "Obrázok je príliš veľký." }, { status: 413 });
-    return new NextResponse(buf, { headers: { "content-type": type.split(";")[0], "cache-control": "no-store", "x-content-type-options": "nosniff" } });
+    return new NextResponse(buf, { headers: { "content-type": type, "cache-control": "no-store", "x-content-type-options": "nosniff" } });
   } catch {
     return NextResponse.json({ error: "Obrázok sa nepodarilo stiahnuť." }, { status: 502 });
   }
