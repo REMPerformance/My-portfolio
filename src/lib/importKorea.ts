@@ -26,8 +26,8 @@ export const KR_EXPORT_FEE_EUR = 250;
 const EXPORT_COST = { label: "Kontrola vozidla a vývozná dokumentácia v Kórei", eur: KR_EXPORT_FEE_EUR };
 /** Cena v KRW zaokrúhlená nahor na ďalší celý milión (rezerva na zmenu ceny u predajcu). */
 const roundUpM = (x: number) => (Math.floor(x / 1e6) + 1) * 1e6;
-/** Cena v USD zaokrúhlená nahor na ďalšiu celú stovku. */
-const roundUpH = (x: number) => (Math.floor(x / 100) + 1) * 100;
+/** Cena v USD zaokrúhlená nahor na ďalšiu celú tisícku (rovnako ako pevné ceny z USA). */
+const roundUpK = (x: number) => (Math.floor(x / 1000) + 1) * 1000;
 
 export const isEncar = (u: string) => /(^|\.)encar\.com$/i.test(host(u));
 export const isAutowini = (u: string) => /(^|\.)autowini\.com$/i.test(host(u));
@@ -311,8 +311,8 @@ function fromAutowini(p: ImportPayload): Imported {
   const fob = prices.length ? prices[prices.length - 1] : 0;
   let price = 0;
   if (fob) {
-    price = roundUpH(fob);
-    missing.push(`kontrolu ceny: inzerát uvádza FOB ${num(fob)} USD, nastavil som pevnú cenu ${num(price)} USD (zaokrúhlené nahor na celú stovku). Cena FOB zahŕňa dopravu do prístavu, preto je odvoz do prístavu 0`);
+    price = roundUpK(fob);
+    missing.push(`kontrolu ceny: inzerát uvádza FOB ${num(fob)} USD, nastavil som pevnú cenu ${num(price)} USD (zaokrúhlené nahor na celú tisícku). Cena FOB zahŕňa dopravu do prístavu, preto je odvoz do prístavu 0`);
   } else missing.push("cenu FOB (Autowini ju ukáže len po prihlásení, prihláste sa a importujte znova)");
 
   const override: CalcOverride = { inlandUsd: 0, extraCosts: [EXPORT_COST] };
