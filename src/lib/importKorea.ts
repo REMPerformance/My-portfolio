@@ -76,6 +76,18 @@ const PART_SK: [RegExp, string][] = [
 const STATUS_SK: [RegExp, string, Severity][] = [[/^X$|교환/, "vymenený", "medium"], [/^W$|판금|용접/, "opravený plech alebo zváranie", "medium"], [/^C$|부식/, "korózia", "light"], [/^A$|흠집/, "škrabance", "light"], [/^U$|요철/, "nerovnosť", "light"], [/^T$|손상/, "poškodenie", "medium"]];
 
 const low = (x: string) => (/^[A-Z]{2,}$/.test(x) ? x : x.toLowerCase());
+const EQUIP: Record<string, string> = {
+  "driver airbag": "Airbag vodiča", "passenger airbag": "Airbag spolujazdca", "side airbag": "Bočné airbagy", "curtain airbag": "Hlavové airbagy", "knee airbag": "Kolenný airbag",
+  "front warning sensor": "Predné parkovacie senzory", "park assist sensor": "Parkovacie senzory", "rear view camera": "Cúvacia kamera", "surround view": "Kamera 360°",
+  "abs (anti-lock brake system)": "ABS", "esp (electronic stability program)": "ESP", "eps (electric power steering)": "Elektrický posilňovač riadenia",
+  "ldws (lane departure warning system)": "Varovanie pred opustením jazdného pruhu", "aeb(autonomous emergency braking)": "Automatické núdzové brzdenie", "bsd(blind spot detection device)": "Sledovanie mŕtveho uhla",
+  "led lamp": "LED svetlá", "panorama sunroof": "Panoramatická strecha", sunroof: "Strešné okno", "alloy wheels": "Hliníkové disky", "hid lamp": "Xenónové svetlá",
+  "air conditioner": "Klimatizácia", "full auto air conditioner": "Automatická klimatizácia", "rear air conditioner": "Klimatizácia vzadu", "heating seat": "Vyhrievané sedadlá",
+  "leather seats": "Kožené sedadlá", "memory seat": "Pamäť sedadiel", "power seat": "Elektrické sedadlá", "cooling seat": "Ventilované sedadlá", "heated steering": "Vyhrievaný volant",
+  "cruise control": "Tempomat", "smart cruise control": "Adaptívny tempomat", radio: "Rádio", usb: "USB", bluetooth: "Bluetooth", "navigation": "Navigácia", "auto folding side mirror": "Elektricky sklopné zrkadlá",
+  "power windows": "Elektrické okná", "power trunk": "Elektrické veko kufra", "smart key": "Bezkľúčové odomykanie", "button start/stop": "Štartovanie tlačidlom", "digital cluster": "Digitálny prístrojový panel",
+  "hud (head up display)": "Head-up displej", "electric parking brake": "Elektrická parkovacia brzda", "rain sensor": "Dažďový senzor", "auto light": "Automatické svetlá"
+};
 const events = (k: number) => (k === 1 ? "1 poistná udalosť" : k <= 4 ? `${k} poistné udalosti` : `${k} poistných udalostí`);
 const EN_COLOR: Record<string, string> = { black: "Čierna", white: "Biela", "pearl white": "Perleťovo biela", silver: "Strieborná", gray: "Sivá", grey: "Sivá", "dark gray": "Tmavosivá", blue: "Modrá", "dark blue": "Tmavomodrá", navy: "Tmavomodrá", red: "Červená", wine: "Bordová", green: "Zelená", yellow: "Žltá", orange: "Oranžová", brown: "Hnedá", beige: "Béžová", gold: "Zlatá", purple: "Fialová", pink: "Ružová" };
 /** „15th Feb. 2005“ → „15. 2. 2005“ */
@@ -232,7 +244,7 @@ function encarPhotos(v: Obj): string[] {
   const ph = (Array.isArray(v.photos) ? v.photos : []).map((x) => ({ path: s(o(x).path), code: n(o(x).code), type: s(o(x).type) })).filter((x) => x.path);
   // poradie ako na Encare: exteriér, interiér, výbava
   const rank = (t: string) => (/OUTER/i.test(t) ? 0 : /INNER/i.test(t) ? 1 : 2);
-  return ph.sort((a, b) => rank(a.type) - rank(b.type) || a.code - b.code).map((x) => `https://ci.encar.com/carpicture${x.path.startsWith("/") ? "" : "/"}${x.path}`).slice(0, 40);
+  return ph.sort((a, b) => rank(a.type) - rank(b.type) || a.code - b.code).map((x) => `https://ci.encar.com/carpicture${x.path.startsWith("/") ? "" : "/"}${x.path}`).slice(0, 60);
 }
 
 /* ───────── Autowini ───────── */
@@ -255,14 +267,19 @@ function fromAutowini(p: ImportPayload): Imported {
   const mcg = line(info, "Model / Class / Grade") || "";
   const [model, ...rest] = mcg.split(/\s+\/\s+/);
   if (model) out.model = model.trim();
+  // „Grade“ je často reklama predajcu („NO*ACCI(SUNROOF+360CAM…“), takú do výbavy nedávame
   const trim = rest.join(" ").trim();
-  if (trim) out.trim = trim.slice(0, 40);
+  if (trim && !/[*+]|NO\s*ACC|\(\S*$/i.test(trim) && trim.length <= 40) out.trim = trim;
   const vin = (text.match(/\b([A-HJ-NPR-Z0-9]{17})\b/) || [])[1];
   if (vin) out.vin = vin.toUpperCase();
 
   const cc = n(line(info, "Engine Volume"));
-  out.fuel = mapFuel(line(info, "Fuel Type"));
-  out.engine = out.fuel === "Elektro" ? "Elektro" : cc ? (cc / 1000).toFixed(1) : undefined;
+  const fuelEn = line(info, "Fuel Type") || "";
+  out.fuel = /LPG|LPI/i.test(fuelEn) ? "LPG" : /hybrid/i.test(fuelEn) && /plug/i.test(fuelEn) ? "Plug-in hybrid" : /hybrid/i.test(fuelEn) ? "Hybrid" : /hydrogen/i.test(fuelEn) ? "Vodík" : mapFuel(fuelEn);
+  const cylN = n(line(info, "Number of Cylinder", "Cylinders"));
+  const hp = n(line(info, "Engine Power"));
+  if (cylN) specs.push({ label: "Počet valcov", value: String(cylN) });
+  out.engine = out.fuel === "Elektro" ? `Elektro${hp ? ` ${Math.round(hp * 0.7457)} kW` : ""}` : cc ? [(cc / 1000).toFixed(1), cylN ? (cylN >= 6 ? `V${cylN}` : `R${cylN}`) : "", hp ? `${Math.round(hp * 0.7457)} kW (${hp} k)` : ""].filter(Boolean).join(" ") : undefined;
   if (cc) specs.push({ label: "Objem motora", value: `${num(cc)} cm³` });
   const tr = line(info, "Transmission") || "";
   out.transmission = /auto/i.test(tr) ? "Automat" : /manual/i.test(tr) ? "Manuál" : tr || undefined;
@@ -272,7 +289,7 @@ function fromAutowini(p: ImportPayload): Imported {
   if (odoN && !/not actual/i.test(odo)) out.odometer_mi = /mi(le)?s?\b/i.test(odo) ? odoN : Math.round(odoN / 1.609344);
   else missing.push("nájazd (predajca ho neuvádza alebo nie je skutočný)");
   const colorEn = line(info, "Exterior Color");
-  if (colorEn) out.color = EN_COLOR[colorEn.toLowerCase().replace(/\s*\(.*\)$/, "")] || titleCase(colorEn);
+  if (colorEn) out.color = { charcoal: "Antracitová", "metal gray": "Sivá metalíza", "dark silver": "Tmavostrieborná", "light blue": "Svetlomodrá", ivory: "Slonovinová" }[colorEn.toLowerCase()] || EN_COLOR[colorEn.toLowerCase().replace(/\s*\(.*\)$/, "")] || titleCase(colorEn);
   const vt = line(info, "Vehicle Type") || "";
   out.type = /truck|pickup|bus|cargo/i.test(vt) ? "truck" : /suv|van|mini ?van|mpv/i.test(vt) ? "suv" : "car";
   if (vt) specs.push({ label: "Karoséria", value: /suv/i.test(vt) ? "SUV" : /van/i.test(vt) ? "MPV" : /sedan/i.test(vt) ? "Sedan" : /hatch/i.test(vt) ? "Hatchback" : /wagon/i.test(vt) ? "Kombi" : /coupe/i.test(vt) ? "Kupé" : /convert/i.test(vt) ? "Kabriolet" : /truck|pickup/i.test(vt) ? "Pickup" : vt });
@@ -306,8 +323,9 @@ function fromAutowini(p: ImportPayload): Imported {
   out.title_type = salvage ? "Kórejská registrácia, v histórii totálna škoda" : "Kórejská registrácia (čistá)";
   out.run_status = /\nEngine\s*\n\s*Working/i.test(cond) ? "run_drive" : bad.some(([k]) => k === "Engine") ? "no_start" : "unknown";
 
-  /* cena FOB v USD (zobrazí sa len prihlásenému) */
-  const prices = [...head.split(/Total Price with Shipping/i)[0].matchAll(/(?:US\s?\$|USD|\$)\s?([\d,]{3,})/gi)].map((m) => n(m[1])).filter((x) => x >= 300);
+  /* cena FOB v USD: stránka ju má v kóde (prvok s cenou), v texte ju ukáže len prihlásenému */
+  const fromAttr = n(p.ap);
+  const prices = fromAttr >= 300 ? [fromAttr] : [...head.split(/Total Price with Shipping/i)[0].matchAll(/(?:US\s?\$|USD|\$)\s?([\d,]{3,})/gi)].map((m) => n(m[1])).filter((x) => x >= 300);
   const fob = prices.length ? prices[prices.length - 1] : 0;
   let price = 0;
   if (fob) {
@@ -315,6 +333,9 @@ function fromAutowini(p: ImportPayload): Imported {
     missing.push(`kontrolu ceny: inzerát uvádza FOB ${num(fob)} USD, nastavil som pevnú cenu ${num(price)} USD (zaokrúhlené nahor na celú tisícku). Cena FOB zahŕňa dopravu do prístavu, preto je odvoz do prístavu 0`);
   } else missing.push("cenu FOB (Autowini ju ukáže len po prihlásení, prihláste sa a importujte znova)");
 
+  /* výbava zo zoznamu Options (nadpisy skupín vynecháme) */
+  const opt = (text.match(/\nOptions\n([\s\S]*?)\n(?:Price Guide|Seller'?s Vehicle Condition)/i) || [])[1] || "";
+  const equipment = [...new Set(opt.split("\n").map((x) => x.trim()).filter((x) => x && !/^(Safety Device|Exterior Option|Interior Option|Options?|Multimedia|Convenience)$/i.test(x)).map((x) => EQUIP[x.toLowerCase()] || x))].slice(0, 60);
   const override: CalcOverride = { inlandUsd: 0, extraCosts: [EXPORT_COST] };
   const name = [out.year, out.make, out.model, out.trim].filter(Boolean).join(" ");
   const desc: string[] = [];
@@ -337,7 +358,7 @@ function fromAutowini(p: ImportPayload): Imported {
     patch: {
       country: "KR", currency: "USD", state: pl.state, sale_type: "fixed", auction: "Dealer", auction_end_at: null,
       ...(price ? { price_usd: price } : {}), seller_fee_usd: 0,
-      damage_zones: [...zones.values()], extra: { specs }, calc_override: override, description: desc.join(" ")
+      damage_zones: [...zones.values()], extra: { specs, ...(equipment.length ? { equipment } : {}) }, calc_override: override, description: desc.join(" ")
     },
     url: p.u, images, saleEnd: null, source: "autowini.com", missing
   };
@@ -355,11 +376,12 @@ function autowiniPhotos(p: ImportPayload): string[] {
   const pick = new Map<string, { url: string; size: number }>();
   for (const m of best) {
     // „_1024“ je najväčšia bežná veľkosť, „_“ bez čísla je originál, dlhé číslo je časová značka (ignorujeme)
-    const size = m[4] === "" ? 5000 : Number(m[4]) > 4000 ? 0 : Number(m[4]);
+    // berieme 1024 px, originál len ak 1024 chýba (originály bývajú veľmi veľké)
+    const size = m[4] === "" ? 900 : Number(m[4]) > 4000 ? 0 : Number(m[4]);
     const cur = pick.get(m[3]);
     if (!cur || size > cur.size) pick.set(m[3], { url: m[0], size });
   }
-  return [...pick.values()].filter((x) => x.size >= 600).map((x) => x.url).slice(0, 40);
+  return [...pick.values()].filter((x) => x.size >= 600).map((x) => x.url).slice(0, 60);
 }
 
 /** Ak je inzerát z Encaru alebo Autowini, vráti import, inak null. */

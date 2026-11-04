@@ -189,5 +189,5 @@ function photos(p: ImportPayload, d: Obj): string[] {
   // veľkosť je v názve súboru („1400x0_c42_…“, „0x0_…“ = originál); berieme 1400 px, každú fotku raz
   const key = (u: string) => u.split("?")[0].replace(/\/\d+x\d+_c\d+_/, "/");
   const seen = new Set<string>();
-  return list.map((u) => u.split("?")[0]).filter((u) => /^https:\/\//.test(u)).map((u) => u.replace(/\/(\d+)x(\d+)_c(\d+)_/, "/1400x0_c$3_")).filter((u) => { const k = key(u); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 40);
+  return list.map((u) => u.split("?")[0]).filter((u) => /^https:\/\//.test(u)).map((u) => u.replace(/\/(\d+)x(\d+)_c(\d+)_/, "/1400x0_c$3_")).filter((u) => { const k = key(u); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 60);
 }
