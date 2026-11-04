@@ -6,7 +6,7 @@ import { SITE } from "@/lib/site";
 import { getContent } from "@/lib/data";
 import { IDoc, IGlobe, IMail, IPhone } from "@/components/Icons";
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Kontakt – dopyt na dovoz auta",

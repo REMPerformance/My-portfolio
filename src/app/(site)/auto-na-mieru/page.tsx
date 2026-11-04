@@ -7,7 +7,7 @@ import { IMail, IPhone } from "@/components/Icons";
 import { SITE } from "@/lib/site";
 import { makeBySlug } from "@/lib/makes";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Auto na mieru – nájdeme a dovezieme Vám auto zo zahraničia",

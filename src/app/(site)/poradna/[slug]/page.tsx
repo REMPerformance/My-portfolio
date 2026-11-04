@@ -10,7 +10,7 @@ import { PageHead, breadcrumbLd, Faq, faqLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { IArrow } from "@/components/Icons";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 export const dynamicParams = false;
 export function generateStaticParams() {
   return ARTICLES.map((a) => ({ slug: a.slug }));

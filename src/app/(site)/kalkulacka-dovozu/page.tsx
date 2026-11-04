@@ -8,7 +8,7 @@ import { PageHead, breadcrumbLd, faqLd, Faq } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE } from "@/lib/site";
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Kalkulačka dovozu auta – USA, Dubaj, Kanada | clo, DPH, doprava",

@@ -13,7 +13,7 @@ import { Flag } from "@/components/Flag";
 import { HeroSlides } from "@/components/HeroSlides";
 import { landingByCountry } from "@/lib/landing";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: { absolute: "Dovoz áut z USA, Dubaja a Kanady na kľúč | REM Performance" },

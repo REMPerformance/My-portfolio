@@ -8,7 +8,7 @@ import { MODELS, modelMake } from "@/lib/models";
 import { ARTICLES } from "@/lib/articles";
 import { isDamaged } from "@/lib/carSeo";
 
-export const revalidate = 300;
+export const revalidate = 21600;
 
 /** llms.txt pre AI asistentov (ChatGPT, Claude, Perplexity, Gemini): stručné fakty o firme a aktuálna ponuka. */
 export async function GET() {

@@ -6,7 +6,7 @@ import { SITE } from "@/lib/site";
 import { getCalcConfig } from "@/lib/data";
 import { depositTiersText } from "@/lib/calc";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Všeobecné obchodné podmienky – sprostredkovanie dovozu áut",

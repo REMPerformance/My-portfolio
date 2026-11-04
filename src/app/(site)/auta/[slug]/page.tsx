@@ -22,7 +22,7 @@ import { modelForCar } from "@/lib/models";
 import { carKeywords, carSeoDescription, carSeoTitle, isDamaged, isSpotless } from "@/lib/carSeo";
 import { landingByCountry } from "@/lib/landing";
 
-export const revalidate = 60;
+export const revalidate = 600;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

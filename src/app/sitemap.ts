@@ -6,7 +6,7 @@ import { MAKES } from "@/lib/makes";
 import { ARTICLES } from "@/lib/articles";
 import { MODELS } from "@/lib/models";
 
-export const revalidate = 300;
+export const revalidate = 21600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const cars = await getPublicCars();

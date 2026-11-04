@@ -9,7 +9,7 @@ import { CarGrid } from "@/components/CarGrid";
 import { PageHead, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: "Ponuka áut z USA, Dubaja a Kanady – aukcie aj pevné ceny",

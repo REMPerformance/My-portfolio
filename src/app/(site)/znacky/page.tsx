@@ -8,7 +8,7 @@ import { PageHead, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { Flag } from "@/components/Flag";
 
-export const revalidate = 300;
+export const revalidate = 21600;
 
 export const metadata: Metadata = {
   title: "Dovoz áut podľa značky a modelu: BMW, Mercedes, Porsche, Ford, Tesla",

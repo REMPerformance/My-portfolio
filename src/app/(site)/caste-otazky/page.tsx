@@ -4,7 +4,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { getContent } from "@/lib/data";
 import { LeadForm } from "@/components/LeadForm";
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Časté otázky o dovoze auta z USA",

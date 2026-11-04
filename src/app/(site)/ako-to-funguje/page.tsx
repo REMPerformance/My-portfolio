@@ -7,7 +7,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { IArrow } from "@/components/Icons";
 import { TrackPromo } from "@/components/track/TrackPromo";
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Ako funguje dovoz auta zo zahraničia – postup krok za krokom",

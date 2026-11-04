@@ -15,7 +15,7 @@ import { Breakdown } from "@/components/Breakdown";
 import { Flag } from "@/components/Flag";
 import { IArrow } from "@/components/Icons";
 
-export const revalidate = 300;
+export const revalidate = 21600;
 export const dynamicParams = false;
 
 export function generateStaticParams() {

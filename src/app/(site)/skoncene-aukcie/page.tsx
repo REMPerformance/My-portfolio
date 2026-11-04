@@ -8,7 +8,7 @@ import { PageHead, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { IArrow } from "@/components/Icons";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: "Skončené aukcie a predané autá z dovozu",
