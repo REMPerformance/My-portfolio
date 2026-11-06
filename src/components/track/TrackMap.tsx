@@ -19,7 +19,7 @@ function land() {
 }
 
 /** Bodová mapa s trasou lode: prejdená časť červenou, zostávajúca prerušovanou, značka na aktuálnej polohe. */
-export function TrackMap({ from, to, sea, post, className, decorative }: { from: string; to: string; sea: number; post: number; className?: string; decorative?: boolean }) {
+export function TrackMap({ from, to, sea, post, className, decorative, dest = "Bratislava" }: { from: string; to: string; sea: number; post: number; className?: string; decorative?: boolean; dest?: string }) {
   const r = useMemo(() => routeOf(from, to), [from, to]);
   const ref = useRef<SVGSVGElement>(null);
   const all = [...r.sea, ...r.post];
@@ -36,7 +36,7 @@ export function TrackMap({ from, to, sea, post, className, decorative }: { from:
   const labels: { ll: P; n: string; dx: number; dy: number }[] = [
     { ll: r.a.ll, n: r.a.n, dx: r.a.ll[0] > 60 ? 1 : 1, dy: -1 },
     { ll: r.b.ll, n: r.b.n, dx: -1, dy: -1 },
-    { ll: r.post[r.post.length - 1], n: "Bratislava", dx: 1, dy: 1 }
+    { ll: r.post[r.post.length - 1], n: dest, dx: 1, dy: 1 }
   ];
 
   useEffect(() => {

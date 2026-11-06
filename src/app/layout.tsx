@@ -30,6 +30,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#111317", width: "device-width", initialScale: 1 };
 
+const THEME_SCRIPT = `(function(){try{var s=localStorage.getItem("rem-theme");var m=window.matchMedia("(prefers-color-scheme: dark)");var t=s==="dark"||s==="light"?s:(m.matches?"dark":"light");document.documentElement.setAttribute("data-theme",t);if(!s&&m.addEventListener)m.addEventListener("change",function(e){if(!localStorage.getItem("rem-theme"))document.documentElement.setAttribute("data-theme",e.matches?"dark":"light")})}catch(e){}})();`;
+
 const orgLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -81,8 +83,10 @@ const orgLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="sk">
+    <html lang="sk" suppressHydrationWarning>
       <head>
+        {/* téma sa nastaví ešte pred vykreslením, aby stránka nezablikala na bielo */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://racem.sk" />

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SITE } from "@/lib/site";
-import { PHASES, PHASE_STATE, PORTS_FROM, PORTS_TO, fLong, fShort, legProgress, plDays, resolve, routeOf, splitRoute, type Shipment } from "@/lib/tracking";
+import { PHASES, PHASE_STATE, PORTS_FROM, fLong, fShort, legProgress, plDays, resolve, routeOf, splitRoute, type Shipment } from "@/lib/tracking";
 import { TrackMap } from "./TrackMap";
 
 /* Ilustrácie fáz; trieda hl zvýrazní detail aktuálneho kroku, anim sa jemne hýbe. */
@@ -87,7 +87,22 @@ export function TrackStatus({ s }: { s: Shipment }) {
   ) : null;
 
   const country = PORTS_FROM[s.port_from]?.country || "";
-  const updates = [...(s.updates || [])].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  const dIso = (v?: string | null) => (v ? fShort(new Date(v + "T12:00:00").getTime()) : "");
+  const facts: [string, string, boolean?][] = [
+    ["Lodná spoločnosť", s.shipping_line || ""],
+    ["Loď", [s.vessel, s.voyage && `plavba ${s.voyage}`].filter(Boolean).join(", ") || "upresníme po nakládke"],
+    ["Kontajner", s.container_no || "", true],
+    [s.atd ? "Odplávanie" : "Očakávané odplávanie", dIso(s.atd || s.etd) || (seaStep?.start ? fShort(seaStep.start) : "upresníme"), true],
+    [s.ata ? "Prílev" : "Očakávaný prílev", dIso(s.ata || s.eta) || (seaStep?.end ? fShort(seaStep.end - 864e5) : "upresníme"), true]
+  ].filter(([, v]) => v) as [string, string, boolean?][];
+  const routeStops = [
+    s.pickup_place ? { k: "Odkiaľ", v: s.pickup_place } : null,
+    { k: "Prístav nakládky", v: route.a.n, c: route.a.country },
+    { k: "Prístav vykládky", v: route.b.n, c: route.b.country },
+    { k: "Kam", v: s.destination_place || "Slovensko" }
+  ].filter(Boolean) as { k: string; v: string; c?: string }[];
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  const toggle = (i: number) => setOpen((o) => { const n = new Set(o); if (n.has(i)) n.delete(i); else n.add(i); return n; });
 
   return (
     <div className="wrap trk">
@@ -113,7 +128,7 @@ export function TrackStatus({ s }: { s: Shipment }) {
             const st = allDone || (items.length && items.every((x) => x.st === "done")) ? "done" : curPh === i ? "cur" : "next";
             const lastDone = items.map((x) => x.doneAt || 0).reduce((a, b) => Math.max(a, b), 0);
             const firstStart = items.find((x) => x.start !== null)?.start ?? null;
-            const when = st === "done" ? (lastDone ? fShort(lastDone) : "hotovo") : st === "cur" ? "prebieha" : firstStart ? `odhad ${fShort(firstStart)}` : "termín upresníme";
+            const when = st === "done" ? (lastDone ? fShort(lastDone) : "hotovo") : st === "cur" ? "prebieha" : firstStart ? `očakávané ${fShort(firstStart)}` : "termín upresníme";
             return (
               <div className={`trk-step ${st}`} key={n} style={{ ["--d" as string]: `${i * 0.07}s`, ["--ia" as string]: ICONS[i].a }}>
                 <div className="tw"><div className="tile">{st === "done" && <span className="ck" />}<svg viewBox="0 0 48 48" aria-hidden="true">{ICONS[i].s}</svg></div><span className="link" /></div>
@@ -128,14 +143,14 @@ export function TrackStatus({ s }: { s: Shipment }) {
 
       <div className="trk-dates">
         <div className="trk-box trk-date now"><span className="trk-lbl">Aktuálny stav</span><strong>{allDone ? "Vozidlo je odovzdané" : cur?.t}</strong><div className="when"><span>od</span><b>{curSince ? fLong(curSince) : "dnes"}</b></div></div>
-        <div className="trk-box trk-date"><span className="trk-lbl">Ďalší krok</span><strong>{next ? next.t : "Hotovo"}</strong><div className="when"><span>predpoklad</span><b>{next?.start ? fLong(next.start) : next ? "upresníme" : ""}</b></div></div>
-        <div className="trk-box trk-date eta"><span className="trk-lbl">Odhad prevzatia</span><strong className="big">{eta ? fLong(eta) : "Upresníme"}</strong><div className="when"><span>{etaDays !== null && etaDays > 0 ? `približne o ${etaDays} ${plDays(etaDays)}` : eta ? fShort(eta) : "po nakládke na loď"}</span></div></div>
+        <div className="trk-box trk-date"><span className="trk-lbl">Ďalší krok</span><strong>{next ? next.t : "Hotovo"}</strong><div className="when"><span>očakávané</span><b>{next?.start ? fLong(next.start) : next ? "upresníme" : ""}</b></div></div>
+        <div className="trk-box trk-date eta"><span className="trk-lbl">Očakávané prevzatie</span><strong className="big">{eta ? fLong(eta) : "Upresníme"}</strong><div className="when"><span>{etaDays !== null && etaDays > 0 ? `približne o ${etaDays} ${plDays(etaDays)}` : eta ? fShort(eta) : "po nakládke na loď"}</span></div></div>
       </div>
 
       <section className="trk-box trk-mapcard">
         <div className="trk-h"><h2>Poloha lode</h2></div>
         <div className="trk-mapgrid">
-          <div className="trk-map dark"><TrackMap from={s.port_from} to={s.port_to} sea={leg.sea} post={leg.post} /></div>
+          <div className="trk-map dark"><TrackMap from={s.port_from} to={s.port_to} sea={leg.sea} post={leg.post} dest={s.destination_place || "Bratislava"} /></div>
           <div className="trk-facts">
             <div className="trk-voy">
               <span className="trk-lbl">Plavba</span>
@@ -143,50 +158,65 @@ export function TrackStatus({ s }: { s: Shipment }) {
               <div className="track"><i style={{ width: `${Math.round(leg.sea * 100)}%` }} /></div>
               <div className="row"><span>{route.a.n}</span><span className="mono">{leg.sea > 0 && leg.sea < 1 ? `zostáva ${Math.round(sp.L * (1 - leg.sea)).toLocaleString("sk-SK")} nm` : `${Math.round(sp.L).toLocaleString("sk-SK")} nm`}</span><span>{route.b.n}</span></div>
             </div>
-            <div className="trk-fact"><span>Loď</span><b>{s.vessel || "Upresníme po nakládke"}</b></div>
-            <div className="trk-fact"><span>Trasa</span><b>{PORTS_FROM[s.port_from]?.n} → {PORTS_TO[s.port_to]?.n}</b></div>
-            <div className="trk-fact"><span>{seaStep?.doneAt || (seaStep?.start && seaStep.start <= now) ? "Odplávanie" : "Plánované odplávanie"}</span><b className="mono">{seaStep?.start ? fShort(seaStep.start) : "upresníme"}</b></div>
-            <div className="trk-fact"><span>Predpokladaný prílev</span><b className="mono">{seaStep?.doneAt ? fShort(seaStep.doneAt) : seaStep?.end ? fShort(seaStep.end - 864e5) : "upresníme"}</b></div>
+            {facts.map(([k, v, mono]) => <div className="trk-fact" key={k}><span>{k}</span><b className={mono ? "mono" : undefined}>{v}</b></div>)}
           </div>
+        </div>
+        <div className="trk-route">
+          {routeStops.map((r, i) => (
+            <div className="trk-route__s" key={i}><span className="trk-lbl">{r.k}</span><b>{r.v}</b>{r.c ? <small>{r.c}</small> : null}</div>
+          ))}
         </div>
       </section>
 
       <section className="trk-box">
-        <div className="trk-h"><h2>Aktualizácie z cesty</h2>{s.email_masked ? <span className="trk-mailnote">Aktualizácie posielame aj na <b>{s.email_masked}</b></span> : null}</div>
-        {updates.length ? (
-          <div className="trk-feed">
-            {updates.map((u, k) => {
-              const d = new Date(u.created_at), t = s.milestones[u.step]?.t || "Aktualizácia";
-              return (
-                <article className="trk-up" key={u.created_at + k}>
-                  <div className="when"><b>{fLong(d.getTime())}</b><span>{d.getFullYear()}</span></div>
-                  <div><h3>{t}</h3>{u.text ? <p>{u.text}</p> : null}{thumbs(u.photos || [], t, 8)}</div>
-                </article>
-              );
-            })}
-          </div>
-        ) : <div className="trk-empty">Prvé fotky a správy z cesty sa tu zobrazia, keď vozidlo prevezme náš agent v prístave.</div>}
-      </section>
-
-      <section className="trk-box">
-        <div className="trk-h"><h2>Priebeh dovozu</h2><span className="trk-lbl mono">{R.pct} % hotovo</span></div>
-        <div className="trk-plist">
-          {R.vis.map((m, k) => {
+        <div className="trk-h"><h2>Priebeh dovozu</h2><span className="trk-pct"><b>{R.pct} %</b> hotovo</span></div>
+        <div className="trk-total"><i style={{ width: `${R.pct}%` }} /></div>
+        <ol className="trk-tl">
+          {R.vis.map((m) => {
             const range = m.start !== null && m.end !== null && m.end - m.start > 864e5;
-            const when = m.st === "done" ? (m.doneAt ? fShort(m.doneAt) : "") : m.st === "cur" ? (range ? `${fShort(m.start!)} až ${fShort(m.end! - 864e5)}` : m.start ? fShort(m.start) : "prebieha") : m.start ? `odhad ${fShort(m.start)}` : "termín upresníme";
-            const ph = (s.updates || []).filter((u) => u.step === m.i).flatMap((u) => u.photos || []);
+            const when = m.st === "done" ? (m.doneAt ? fShort(m.doneAt) : "hotovo")
+              : m.st === "cur" ? (range ? `${fShort(m.start!)} až ${fShort(m.end! - 864e5)}` : m.start ? `očakávané ${fShort(m.start)}` : "prebieha")
+              : m.start ? `očakávané ${fShort(m.start)}${range ? ` až ${fShort(m.end! - 864e5)}` : ""}` : "termín upresníme";
+            const ph = [...(m.photos || []), ...(s.updates || []).filter((u) => u.step === m.i).flatMap((u) => u.photos || [])];
+            const docs = m.docs || [];
+            const extra = ph.length + docs.length;
+            const isOpen = open.has(m.i);
+            const fill = m.st === "done" ? 1 : m.st === "cur" ? Math.max(.08, m.p) : 0;
             return (
-              <article className={`trk-pm ${m.st}`} key={m.i} style={{ ["--d" as string]: `${k * 0.04}s` }}>
-                <div className="hd"><span className="no">{String(k + 1).padStart(2, "0")}</span><span className="st"><i />{{ done: "Dokončené", cur: "Prebieha", next: "Plánované" }[m.st]}</span></div>
-                <h3>{m.t}</h3>
-                <p>{m.d}</p>
-                {thumbs(ph, m.t, 3)}
-                {m.st === "cur" && range ? <div className="mini"><i style={{ width: `${Math.round(m.p * 100)}%` }} /></div> : null}
-                <time>{when}</time>
-              </article>
+              <li className={`trk-tl__i ${m.st}${isOpen ? " open" : ""}`} key={m.i}>
+                <span className="trk-tl__rail" aria-hidden="true"><i style={{ height: `${fill * 100}%` }} /></span>
+                <span className="trk-tl__dot" aria-hidden="true" />
+                <div className="trk-tl__b">
+                  {extra ? (
+                    <button type="button" className="trk-tl__h" aria-expanded={isOpen} onClick={() => toggle(m.i)}>
+                      <span className="t"><b>{m.t}</b><time>{when}</time></span>
+                      <span className="att">{ph.length ? `${ph.length} ${ph.length === 1 ? "fotka" : ph.length < 5 ? "fotky" : "fotiek"}` : ""}{ph.length && docs.length ? " · " : ""}{docs.length ? `${docs.length} ${docs.length === 1 ? "dokument" : docs.length < 5 ? "dokumenty" : "dokumentov"}` : ""}<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg></span>
+                    </button>
+                  ) : (
+                    <div className="trk-tl__h"><span className="t"><b>{m.t}</b><time>{when}</time></span></div>
+                  )}
+                  {m.st === "cur" && range ? <div className="trk-tl__bar"><i style={{ width: `${Math.round(m.p * 100)}%` }} /></div> : null}
+                  {isOpen && (
+                    <div className="trk-tl__x">
+                      <p>{m.d}</p>
+                      {thumbs(ph, m.t, 12)}
+                      {docs.length > 0 && (
+                        <div className="trk-docs">
+                          {docs.map((d) => (
+                            <a key={d.url} href={d.url} target="_blank" rel="noopener" className="trk-doc">
+                              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6v18h12V7z" /><path d="M14 3v4h4M9 13h6M9 17h6" /></svg>
+                              <span>{d.name}</span><small>PDF</small>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
       </section>
 
       <section className="trk-box trk-contact">

@@ -16,7 +16,7 @@ export default function AdminTracking() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
-  const [f, setF] = useState({ vin: "", contract_no: "", car_label: "", customer_name: "", customer_email: "", port_from: "savannah", port_to: "bremerhaven" });
+  const [f, setF] = useState({ vin: "", contract_no: "", car_label: "", customer_name: "", customer_email: "", port_from: "savannah", port_to: "bremerhaven", pickup_place: "", destination_place: "" });
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -61,8 +61,10 @@ export default function AdminTracking() {
             <div className="field"><label htmlFor="n-car">Auto</label><input className="input" id="n-car" value={f.car_label} placeholder="Kia Carnival 2024" onChange={set("car_label")} /></div>
             <div className="field"><label htmlFor="n-name">Zákazník</label><input className="input" id="n-name" value={f.customer_name} onChange={set("customer_name")} /></div>
             <div className="field"><label htmlFor="n-mail">E-mail zákazníka</label><input className="input" id="n-mail" type="email" value={f.customer_email} onChange={set("customer_email")} /></div>
-            <div className="field"><label htmlFor="n-pf">Prístav odoslania</label><select className="input" id="n-pf" value={f.port_from} onChange={set("port_from")}>{Object.entries(PORTS_FROM).map(([k, p]) => <option key={k} value={k}>{p.n} ({p.country})</option>)}</select></div>
-            <div className="field"><label htmlFor="n-pt">Prístav určenia</label><select className="input" id="n-pt" value={f.port_to} onChange={set("port_to")}>{Object.entries(PORTS_TO).map(([k, p]) => <option key={k} value={k}>{p.n}</option>)}</select></div>
+            <div className="field"><label htmlFor="n-pf">Prístav nakládky</label><select className="input" id="n-pf" value={f.port_from} onChange={set("port_from")}>{Object.entries(PORTS_FROM).map(([k, p]) => <option key={k} value={k}>{p.n} ({p.country})</option>)}</select></div>
+            <div className="field"><label htmlFor="n-pick">Odkiaľ (miesto vyzdvihnutia)</label><input className="input" id="n-pick" value={f.pickup_place} placeholder="napr. Soul" onChange={set("pickup_place")} /></div>
+            <div className="field"><label htmlFor="n-pt">Prístav vykládky</label><select className="input" id="n-pt" value={f.port_to} onChange={set("port_to")}>{Object.entries(PORTS_TO).map(([k, p]) => <option key={k} value={k}>{p.n}</option>)}</select></div>
+            <div className="field"><label htmlFor="n-dest">Kam (miesto odovzdania)</label><input className="input" id="n-dest" value={f.destination_place} placeholder="napr. Nitra" onChange={set("destination_place")} /></div>
           </div>
           <button className="rc-btn rc-btn--primary" disabled={busy}>{busy ? "Vytváram…" : "Vytvoriť zásielku"}</button>
         </form>
