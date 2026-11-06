@@ -8,6 +8,7 @@ import { CarBrowser } from "@/components/CarBrowser";
 import { CarGrid } from "@/components/CarGrid";
 import { PageHead, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
+import { QuickRequest } from "@/components/QuickRequest";
 
 export const revalidate = 600;
 
@@ -48,6 +49,8 @@ export default async function Ponuka() {
           <p className="more">Nevidíte svoje auto? <Link href="/auto-na-mieru">Napíšte nám, čo hľadáte</Link> a nájdeme ho za Vás.</p>
         </div>
       </section>
+
+      <section className="hla-sec" aria-label="Rýchly dopyt"><div className="wrap"><QuickRequest /></div></section>
     </>
   );
 }

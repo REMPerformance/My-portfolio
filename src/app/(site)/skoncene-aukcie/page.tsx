@@ -7,6 +7,7 @@ import { CarBrowser } from "@/components/CarBrowser";
 import { PageHead, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { IArrow } from "@/components/Icons";
+import { QuickRequest } from "@/components/QuickRequest";
 
 export const revalidate = 600;
 
@@ -46,6 +47,8 @@ export default async function SkonceneAukcie() {
           )}
         </div>
       </section>
+
+      <section className="hla-sec" aria-label="Rýchly dopyt"><div className="wrap"><QuickRequest /></div></section>
     </>
   );
 }

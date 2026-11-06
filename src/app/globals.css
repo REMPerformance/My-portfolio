@@ -1438,3 +1438,38 @@ details.fold>div{padding:0 14px 12px}
 .trk-search{min-height:0;display:flex;justify-content:center;padding:clamp(24px,6vw,72px) 0;background:none;border:0;overflow:visible}
 .trk-search .trk-form{width:min(460px,100%);background:var(--rc-surface);border:1px solid var(--rc-line);border-top:3px solid var(--rc-red);box-shadow:var(--shadow)}
 .trk-search .trk-form h1{font-size:clamp(22px,3vw,28px);margin:0 0 20px;color:var(--rc-text)}
+
+/* ═══ Hľadáte auto? (krátky dopyt) ═══ */
+.hla{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:16px 32px;align-items:center;padding:22px 24px;background:var(--rc-surface);border:1px solid var(--rc-line);border-left:4px solid var(--rc-red);border-radius:var(--rc-radius);box-shadow:var(--shadow)}
+.hla__txt h2{font-family:var(--display);font-size:22px;font-weight:700;line-height:1.15;margin-bottom:6px}
+.hla__txt p{font-size:14.5px;color:var(--rc-text-mid);line-height:1.5}
+.hla__form{min-width:0}
+.hla__row{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.1fr) auto;gap:10px;align-items:end}
+.hla__f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.hla__f span{font-size:12.5px;font-weight:600;color:var(--rc-text-mid)}
+.hla__f .input{height:46px}
+.hla__btn{height:46px;white-space:nowrap;padding:0 22px}
+.hla__gdpr{margin:10px 0 0;font-size:12.5px}
+.hla__gdpr input{margin-top:2px}
+.hla__err{margin-top:10px}
+.hla__ok{padding:14px 16px;border-radius:var(--rc-radius);background:rgba(19,138,82,.08);border:1px solid rgba(19,138,82,.3);color:var(--ok);font-size:15px}
+.hla__ok b{display:block}
+.hla__hp{position:absolute;left:-9999px;width:1px;height:1px}
+.hla-sec{padding:0 0 clamp(28px,4vw,48px)}
+@media (max-width:1100px){
+  .hla{grid-template-columns:1fr}
+  .hla__row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .hla__f--car{grid-column:1/-1}
+  .hla__btn{grid-column:1/-1}
+}
+@media (max-width:560px){
+  .hla{padding:18px 16px;gap:14px;border-left-width:0;border-top:4px solid var(--rc-red)}
+  .hla__txt h2{font-size:20px}
+  .hla__row{grid-template-columns:1fr;gap:12px}
+  .hla__f .input{font-size:16px;height:50px}
+  .hla__btn{height:52px;font-size:15px}
+  .hla__gdpr{font-size:13px;gap:12px}
+  .hla__gdpr input{width:20px;height:20px;margin-top:0}
+}
+
+.hla{width:100%}

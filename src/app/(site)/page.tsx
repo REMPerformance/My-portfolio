@@ -8,6 +8,7 @@ import { CarCard } from "@/components/CarCard";
 import { CarGrid } from "@/components/CarGrid";
 import { Steps } from "@/components/Sections";
 import { TrackPromo } from "@/components/track/TrackPromo";
+import { QuickRequest } from "@/components/QuickRequest";
 import { IArrow, SpecIcon, TypeArt } from "@/components/Icons";
 import { Flag } from "@/components/Flag";
 import { HeroSlides } from "@/components/HeroSlides";
@@ -100,6 +101,8 @@ export default async function Home() {
           <div className="home-cars"><CarGrid cars={cars} serverNow={serverNow} showFilters={false} showEnded={false} limit={6} /></div>
         </div>
       </section>
+
+      <section className="hla-sec" aria-label="Rýchly dopyt"><div className="wrap"><QuickRequest id="hladate-auto" /></div></section>
 
       {sold.length > 0 && (
         <section aria-labelledby="predane-h" style={{ paddingTop: 0 }}>
