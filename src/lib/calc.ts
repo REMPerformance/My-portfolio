@@ -28,7 +28,7 @@ export const DEFAULT_CALC: CalcConfig = {
   priceMode: "net",
   depositPct: 0.1,
   depositMinEur: 500,
-  depositTiers: [[49000, 2000], [69000, 3000], [999999999, 4500]],
+  depositTiers: [[49000, 2500], [69000, 3000], [999999999, 4500]],
   markupPct: 5,
   insurancePct: 0.07,
   insuranceMinUsd: 350,
@@ -125,7 +125,7 @@ export function depositFor(cfg: Pick<CalcConfig, "depositTiers" | "depositPct" |
   return Math.max(cfg.depositMinEur, Math.round((total * cfg.depositPct) / 50) * 50);
 }
 
-/** „do 49 000 € záloha 2 000 €, do 69 000 € záloha 3 000 € a nad 69 000 € záloha 4 500 €“ */
+/** „do 49 000 € záloha 2 500 €, do 69 000 € záloha 3 000 € a nad 69 000 € záloha 4 500 €“ */
 export function depositTiersText(cfg: Pick<CalcConfig, "depositTiers">) {
   const t = (cfg.depositTiers?.length ? cfg.depositTiers : DEFAULT_CALC.depositTiers) || [];
   const f = (n: number) => `${Math.round(n).toLocaleString("sk-SK").replace(/\s/g, "\u00a0")}\u00a0€`;

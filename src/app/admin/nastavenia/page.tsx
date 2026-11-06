@@ -116,7 +116,7 @@ export default function Settings() {
             <div className="toolbar" style={{ marginTop: 10 }}>
               {COUNTRIES.map((x) => <button key={x.code} type="button" className={`chip${tab === x.code ? " active" : ""}`} onClick={() => setTab(x.code)}><Flag code={x.code} /> {x.name}</button>)}
             </div>
-            <div className="lbl-sm" style={{ margin: "8px 0" }}>Námorná preprava z prístavu do EÚ + poistenie</div>
+            <div className="lbl-sm" style={{ margin: "8px 0" }}>Námorná preprava z prístavu do EÚ (bez poistenia)</div>
             <table className="otable"><tbody>
               {countryDef(tab).ports.map((pt) => (
                 <tr key={pt.id}><td>{pt.name}</td><td style={{ width: 140 }}>

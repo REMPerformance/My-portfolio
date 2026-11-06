@@ -139,7 +139,7 @@ export const PARTS: { id: string; label: string; hint: string; make: () => Secti
 /** Predvolené položky nacenenia. Riadok: Položka | Popis | Suma. Suma s % sa počíta z položiek nad ňou. */
 export const QUOTE_TEMPLATE = [
   "Kúpna cena vozidla | Obstarávacia cena vozidla u predajcu | ",
-  "Námorná preprava | Lodná doprava a poistenie do európskeho prístavu | ",
+  "Námorná preprava (bez poistenia) | Lodná doprava do európskeho prístavu | ",
   "Clo (10 %) | Zákonná colná sadzba z colnej hodnoty CIF | ",
   "DPH pri dovoze (23 %) | Daň zo základu CIF a clo | ",
   "Prístavné poplatky | Manipulácia v prístave a colná deklarácia | ",
@@ -170,7 +170,7 @@ export const isReserveRow = (item: string) => /^rezerv/i.test(item.trim());
  * Viditeľná percentuálna suma (napr. 3 %) sa počíta zo súčtu položiek nad ňou.
  */
 /** Pásma záloh [do konečnej sumy, záloha]; admin ich nastaví podľa Nastavení cez setDepositTiers. */
-let DEPOSIT_TIERS: [number, number][] = [[49000, 2000], [69000, 3000], [999999999, 4500]];
+let DEPOSIT_TIERS: [number, number][] = [[49000, 2500], [69000, 3000], [999999999, 4500]];
 export function setDepositTiers(t: [number, number][] | undefined | null) { if (t?.length) DEPOSIT_TIERS = t; }
 /** Záloha (rezerva) podľa konečnej sumy. */
 export function depositForTotal(total: number) {

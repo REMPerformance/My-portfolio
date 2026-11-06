@@ -21,7 +21,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false, admin 
         {r.local ? row("Preprava na Slovensko", s.inland, r.placeName ? `${r.placeName}, autoprepravník` : "autoprepravník") : (
           <>
             {row("Odvoz do prístavu", s.inland, [r.placeName, r.portName].filter(Boolean).join(" → "))}
-            {row("Námorná preprava", r.oceanEur, `${r.portName} → ${r.euPortName}`)}
+            {row("Námorná preprava (bez poistenia)", r.oceanEur, `${r.portName} → ${r.euPortName}`)}
             {r.insuranceEur > 0 && row("Poistenie prepravy", r.insuranceEur, insNote)}
           </>
         )}
@@ -69,7 +69,7 @@ export function Breakdown({ r, skPrice, compact = false, hideFee = false, admin 
       {!compact && (
         <p className="note">{r.local
           ? "Odhad. Auto z Európskej únie sa neclí a nehomologizuje sa. Pri jazdenom aute je cena u predajcu konečná. Pri novom aute (do 6 mesiacov alebo do 6 000 km) sa platí DPH 23 % na Slovensku."
-          : `Odhad. Colná hodnota je cena auta, poplatky, doprava do EÚ a poistenie. DPH sa platí pri dovoze v krajine, kde sa auto preclí (${r.euPortCountry} ${pct(r.vatRate)}), z colnej hodnoty, cla a dopravy. Námorná preprava sa pohybuje od 260 do 3 100 USD podľa prístavov a spôsobu nakládky. Výsledok závisí od kurzu, skutočnej ceny auta a požiadaviek pri schválení.`}</p>
+          : `Odhad. Colná hodnota je cena auta, poplatky a doprava do EÚ, prípadne aj poistenie, ak si ho zvolíte. DPH sa platí pri dovoze v krajine, kde sa auto preclí (${r.euPortCountry} ${pct(r.vatRate)}), z colnej hodnoty, cla a dopravy. Námorná preprava sa pohybuje od 260 do 3 100 USD podľa prístavov a spôsobu nakládky. Výsledok závisí od kurzu, skutočnej ceny auta a požiadaviek pri schválení.`}</p>
       )}
     </div>
   );

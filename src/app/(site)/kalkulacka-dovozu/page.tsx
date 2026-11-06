@@ -43,8 +43,8 @@ export default async function CalcPage() {
           <ol>
             <li><b>Cena auta</b>: vydražená alebo pevná cena, prepočítaná aktuálnym kurzom ECB na EUR.</li>
             <li><b>Poplatky</b>: pri aukcii poplatok kupujúceho a sprostredkovateľa, pri pevnej cene poplatky predajcu.</li>
-            <li><b>Doprava do prístavu, námorná preprava a poistenie</b>: podľa štátu či emirátu, najbližšieho prístavu a prístavu v EÚ, ktorý si vyberiete.</li>
-            <li><b>Clo</b>: {Math.round(cfg.dutyRate.car * 100)} % pri osobných autách z colnej hodnoty (auto, poplatky, doprava do EÚ a poistenie). Pri aute s dokladom o pôvode z USA, Kórey alebo Japonska môže byť 0 %. Na elektromobily z Číny sa platí aj vyrovnávacie clo EÚ.</li>
+            <li><b>Doprava do prístavu a námorná preprava (bez poistenia)</b>: podľa štátu či emirátu, najbližšieho prístavu a prístavu v EÚ, ktorý si vyberiete.</li>
+            <li><b>Clo</b>: {Math.round(cfg.dutyRate.car * 100)} % pri osobných autách z colnej hodnoty (auto, poplatky a doprava do EÚ, prípadne poistenie). Pri aute s dokladom o pôvode z USA, Kórey alebo Japonska môže byť 0 %. Na elektromobily z Číny sa platí aj vyrovnávacie clo EÚ.</li>
             <li><b>DPH pri dovoze</b>: platí sa v krajine preclenia z colnej hodnoty, cla a dopravy. Nemecko 19 %, Holandsko a Belgicko 21 %, Slovinsko 22 %, Slovensko 23 %.</li>
             <li><b>Prístav a Slovensko</b>: vykládka, colný deklarant, doprava na Slovensko a jedna položka za schválenie a prihlásenie (úradné preklady, technické kontroly, schválenie s úpravami, recyklačný poplatok, zápis a EČV).</li>
           </ol>
