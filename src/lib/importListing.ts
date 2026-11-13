@@ -3,6 +3,7 @@ import { mapDamage, mapDrive, mapFuel, mapTitle, mapType, parseListing, titleCas
 import type { CalcOverride, Car, CarExtra, DamageZone, RunStatus, Severity } from "./types";
 import { fromKorea } from "./importKorea";
 import { fromChe168, isChe168 } from "./importChina";
+import { fromSsancar } from "./importSsancar";
 
 export interface ImportPayload { /** verzia záložky (chýba pri starej) */ bv?: number; u: string; t?: string; ld?: Record<string, unknown>[]; x?: string; i?: string[]; c?: string[]; f?: string; g?: string[]; n?: number; k?: string; /** cena z atribútu stránky (Autowini) */ ap?: string; /** Encar: údaje z ich rozhrania (v inzerát, r poistný register, i technická prehliadka) */ e?: Record<string, unknown> }
 export interface Imported {
@@ -222,6 +223,8 @@ export function fromImport(p: ImportPayload): Imported {
 
 function fromSource(p: ImportPayload): Imported {
   // kórejské a čínske inzeráty majú vlastné rozpoznávanie
+  const ss = fromSsancar(p);
+  if (ss) return ss;
   const kr = fromKorea(p);
   if (kr) return kr;
   if (isChe168(p.u)) return fromChe168(p);

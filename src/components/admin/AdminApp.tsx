@@ -92,6 +92,7 @@ export function AdminApp({ children }: { children: React.ReactNode }) {
   const nav = [
     { sec: "Ponuka" },
     { href: "/admin", label: "Autá", icon: I("M5 17h14M6 17l1.5-5h9L18 17M7 17v2M17 17v2M8 12l1-3h6l1 3") },
+    { href: "/admin/korea", label: "Kórea SSANCAR", icon: I("M12 3a9 9 0 100 18 9 9 0 000-18zM8 9a4 4 0 008 6M8 9a2 2 0 004 0 2 2 0 014 0") },
     { href: "/admin/dopyty", label: "Dopyty", badge: newLeads, icon: I("M4 5h16v11H8l-4 4z") },
     { href: "/admin/emaily", label: "E-maily", icon: I("M4 6h16v12H4zM4 7l8 6 8-6") },
     { href: "/admin/sledovanie", label: "Sledovanie zásielok", icon: I("M3 17h13l3-4h2M5 17l1-5h9l1 5M3 20c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1M12 4v5M9 7l3 2 3-2") },

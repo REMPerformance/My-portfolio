@@ -1609,3 +1609,16 @@ button.trk-tl__h:hover{background:var(--rc-hover)}
 }
 @media(max-width:370px){.brand__word{display:none}}
 @media(max-width:420px){.brand__word{height:9px}.brand__mark{width:32px;height:32px}}
+
+/* admin: Kórea SSANCAR */
+.ss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:16px;margin-top:12px}
+.ss-card{border:1px solid var(--rc-line-strong);border-radius:var(--rc-radius-lg,14px);overflow:hidden;background:var(--rc-surface);display:flex;flex-direction:column}
+.ss-card__img{position:relative;aspect-ratio:4/3;background:var(--rc-line,#eee);display:flex;align-items:center;justify-content:center;color:var(--rc-text-dim);font-size:13px}
+.ss-card__img img{width:100%;height:100%;object-fit:cover}
+.ss-card__img small{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;padding:2px 8px;border-radius:999px;font-size:11px}
+.ss-card__body{padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.ss-card__body>small{color:var(--rc-text-mid);font-size:12.5px}
+.ss-card__price{margin:6px 0 4px;display:flex;flex-direction:column}
+.ss-card__price span{font-weight:700}
+.ss-card__price small{color:var(--rc-text-mid);font-size:12px}
+.ss-card .row-actions{margin-top:6px;flex-wrap:wrap;gap:6px}
