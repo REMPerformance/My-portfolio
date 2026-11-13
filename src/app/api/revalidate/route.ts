@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { after } from "next/server";
 import { pingIndexNow } from "@/lib/indexnow";
@@ -14,7 +14,9 @@ export async function POST(req: Request) {
   });
   const { data: isAdmin } = await sb.rpc("is_admin");
   if (!isAdmin) return NextResponse.json({ ok: false }, { status: 403 });
-  const body = (await req.json().catch(() => ({}))) as { slugs?: string[] };
+  const body = (await req.json().catch(() => ({}))) as { slugs?: string[]; ssancar?: boolean };
+  // ponuka „Ihneď k odberu z Kórey“: nové stiahnutie skladu z Kórey
+  if (body.ssancar) revalidateTag("ssancar", "max");
   revalidatePath("/", "layout");
   for (const s of body.slugs || []) revalidatePath(`/auta/${s}`);
   after(() => pingIndexNow(["/", "/ponuka", "/kalkulacka-dovozu", "/ako-to-funguje", "/caste-otazky", "/kontakt", "/vop", ...(body.slugs || []).map((s) => `/auta/${s}`)]));

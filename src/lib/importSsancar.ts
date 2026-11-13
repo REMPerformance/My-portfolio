@@ -103,8 +103,7 @@ function fromStock(p: ImportPayload, it: SsStock): Imported {
     parsed: out,
     patch: {
       country: "KR", currency: pr?.currency || "USD", state: pl.state, sale_type: "fixed", auction: "Dealer", auction_end_at: null,
-      ...(pr ? { price_usd: pr.value } : {}), seller_fee_usd: 0, damage_zones: [], extra, calc_override: override, description: desc.join(" "),
-      note: `SSANCAR sklad, ID ${it.id}${it.plate_number ? `, ŠPZ ${it.plate_number}` : ""}${it.detail_url ? `, ${it.detail_url}` : ""}`
+      ...(pr ? { price_usd: pr.value } : {}), seller_fee_usd: 0, damage_zones: [], extra, calc_override: override, description: desc.join(" ")
     },
     url: p.u, images, saleEnd: null, source: "SSANCAR (sklad)", missing
   };
@@ -116,7 +115,6 @@ function fromLot(p: ImportPayload, it: SsLot): Imported {
   out.type = "car";
   out.title_type = "Kórejská registrácia";
   out.run_status = "unknown";
-  out.lot = it.lot_no || undefined;
   if (it.grade) specs.push({ label: "Hodnotenie stavu na aukcii", value: String(it.grade) });
   const pr = price(it.start_price, false);
   // termín aukcie v kórejskom čase (dopoludnia), uzávierku objednávok si nastavíte sami
@@ -139,11 +137,10 @@ function fromLot(p: ImportPayload, it: SsLot): Imported {
     patch: {
       country: "KR", currency: pr?.currency || "KRW", state: "KR-X", location: "Južná Kórea", sale_type: "auction", auction: "Aukcia v Kórei",
       ...(pr ? { current_bid_usd: pr.value } : {}), seller_fee_usd: 0, ...(end ? { auction_end_at: end } : {}), lot: it.lot_no || null,
-      damage_zones: [], extra: { specs }, calc_override: { inlandUsd: 0, extraCosts: [EXPORT_COST] }, description: desc.join(" "),
-      // aukčný dom len interne, zákazník ho nevidí
-      note: `SSANCAR aukcia ${SS_HOUSE[it.house] || it.house}, lot ${it.lot_no || "?"}, ID ${it.id}`
+      damage_zones: [], extra: { specs }, calc_override: { inlandUsd: 0, extraCosts: [EXPORT_COST] }, description: desc.join(" ")
     },
-    url: p.u, images, saleEnd: end, source: "SSANCAR (aukcia)", missing
+    // aukčný dom a lot len v internej adrese (auction_url sa na web neposiela), poznámka auta sa na webe zobrazuje
+    url: `${p.u}#${encodeURIComponent(`${SS_HOUSE[it.house] || it.house}, lot ${it.lot_no || "?"}`)}`, images, saleEnd: end, source: "SSANCAR (aukcia)", missing
   };
 }
 

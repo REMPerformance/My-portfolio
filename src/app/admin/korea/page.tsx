@@ -120,6 +120,12 @@ export default function KoreaPage() {
     if (r) toast(`Dopyt odoslaný do SSANCAR (č. ${r.id}).`);
   }
 
+  /** Sekcia „Ihneď k odberu z Kórey“ sa obnovuje sama každú hodinu, toto ju stiahne nanovo hneď. */
+  async function refreshWeb() {
+    const r = await fetch("/api/revalidate", { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${session.access_token}` }, body: JSON.stringify({ ssancar: true }) }).catch(() => null);
+    toast(r?.ok ? "Ponuka z Kórey sa na webe obnoví pri najbližšom načítaní (o pár sekúnd)." : "Obnovenie sa nepodarilo.", !r?.ok);
+  }
+
   async function markSold(w: Watched) {
     const { error } = await sb.from("cars").update({ status: "sold" }).eq("id", w.id);
     if (error) return toast(error.message, true);
@@ -159,8 +165,14 @@ export default function KoreaPage() {
 
   return (
     <>
-      <div className="adm__head"><h1>Kórea SSANCAR</h1></div>
-      <p className="note" style={{ marginTop: 0 }}>Sklad kórejských predajcov a denné kórejské aukcie cez partnerské API SSANCAR. Auto sa importom otvorí ako nové auto s vyplnenými údajmi, fotkami a kalkuláciou, uloží sa až po Vašej kontrole. Názov aukčného domu ide len do internej poznámky.</p>
+      <div className="adm__head">
+        <h1>Kórea SSANCAR</h1>
+        <div className="row-actions">
+          <a className="rc-btn rc-btn--ghost rc-btn--sm" href="/ihned-z-korey" target="_blank" rel="noopener">Sekcia na webe ↗</a>
+          <button className="rc-btn rc-btn--ghost rc-btn--sm" disabled={busy} onClick={refreshWeb}>Obnoviť ponuku na webe</button>
+        </div>
+      </div>
+      <p className="note" style={{ marginTop: 0 }}>Celý sklad sa zobrazuje sám na webe v sekcii Ihneď k odberu z Kórey s orientačnou cenou podľa cenníka v src/lib/krStock.ts (obnova každú hodinu). Tu nájdete sklad aj denné kórejské aukcie cez partnerské API SSANCAR. Auto sa importom otvorí ako nové auto s vyplnenými údajmi, fotkami a kalkuláciou, uloží sa až po Vašej kontrole. Názov aukčného domu ide len do internej poznámky.</p>
 
       {keyErr ? (
         <div className="empty" style={{ textAlign: "left" }}>

@@ -47,7 +47,7 @@ export function ssPhoto(p: SsPhoto): string {
 /** Interná adresa auta zo SSANCAR uložená v cars.auction_url (na webe sa nezobrazuje). */
 export const ssRef = (kind: "stock" | "lot", id: string) => `ssancar://${kind}/${encodeURIComponent(id)}`;
 export function parseSsRef(u: string | null | undefined): { kind: "stock" | "lot"; id: string } | null {
-  const m = (u || "").match(/^ssancar:\/\/(stock|lot)\/(.+)$/);
+  const m = (u || "").split("#")[0].match(/^ssancar:\/\/(stock|lot)\/(.+)$/);
   return m ? { kind: m[1] as "stock" | "lot", id: decodeURIComponent(m[2]) } : null;
 }
 

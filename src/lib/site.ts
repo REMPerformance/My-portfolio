@@ -27,6 +27,7 @@ export const SITE = {
 
 export const NAV = [
   { href: "/ponuka", label: "Ponuka áut" },
+  { href: "/ihned-z-korey", label: "Ihneď z Kórey" },
   { href: "/skoncene-aukcie", label: "Skončené aukcie" },
   { href: "/ako-to-funguje", label: "Ako to funguje" },
   { href: "/kalkulacka-dovozu", label: "Kalkulačka" },

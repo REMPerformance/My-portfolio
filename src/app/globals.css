@@ -1622,3 +1622,10 @@ button.trk-tl__h:hover{background:var(--rc-hover)}
 .ss-card__price span{font-weight:700}
 .ss-card__price small{color:var(--rc-text-mid);font-size:12px}
 .ss-card .row-actions{margin-top:6px;flex-wrap:wrap;gap:6px}
+
+/* Ihneď k odberu z Kórey */
+.kr-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;margin-top:36px}
+.kr-info>div{border:1px solid var(--rc-line-strong);border-radius:var(--rc-radius-lg,14px);padding:18px 20px;background:var(--rc-surface);display:flex;flex-direction:column;gap:6px}
+.kr-info span{color:var(--rc-text-mid);font-size:14.5px;line-height:1.55}
+.kr-price{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:4px 0 2px}
+.kr-nophoto{display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:var(--rc-text-dim);font-size:14px;background:var(--rc-surface)}

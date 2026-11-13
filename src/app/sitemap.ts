@@ -14,6 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: MetadataRoute.Sitemap = [
     { url: `${SITE.url}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
     { url: `${SITE.url}/ponuka`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
+    { url: `${SITE.url}/ihned-z-korey`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
     { url: `${SITE.url}/auto-na-mieru`, changeFrequency: "monthly", priority: 0.9 },
     ...LANDINGS.map((l) => ({ url: `${SITE.url}/${l.slug}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.9 })),
     { url: `${SITE.url}/znacky`, lastModified: now, changeFrequency: "daily", priority: 0.7 },
