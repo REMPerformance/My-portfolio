@@ -16,9 +16,19 @@ export async function POST(req: Request) {
   if (!isAdmin) return NextResponse.json({ ok: false }, { status: 403 });
   const body = (await req.json().catch(() => ({}))) as { slugs?: string[]; ssancar?: boolean };
   // ponuka „Ihneď k odberu z Kórey“: nové stiahnutie skladu z Kórey
-  if (body.ssancar) revalidateTag("ssancar", "max");
-  revalidatePath("/", "layout");
-  for (const s of body.slugs || []) revalidatePath(`/auta/${s}`);
+  if (body.ssancar) { revalidateTag("ssancar", "max"); revalidatePath("/ihned-z-korey"); }
+  const slugs = body.slugs || [];
+  if (slugs.length) {
+    // zmena konkrétnych áut: obnovia sa len stránky, kde sa autá zobrazujú (nie celý web)
+    for (const p of ["/", "/ponuka", "/skoncene-aukcie", "/znacky", "/sitemap.xml", "/llms.txt"]) revalidatePath(p);
+    revalidatePath("/[landing]", "page");
+    revalidatePath("/znacky/[slug]", "page");
+    revalidatePath("/znacky/[slug]/[model]", "page");
+    for (const s of slugs) revalidatePath(`/auta/${s}`);
+  } else if (!body.ssancar) {
+    // nastavenia, obsah, mazanie auta: obnoví sa celý web
+    revalidatePath("/", "layout");
+  }
   after(() => pingIndexNow(["/", "/ponuka", "/kalkulacka-dovozu", "/ako-to-funguje", "/caste-otazky", "/kontakt", "/vop", ...(body.slugs || []).map((s) => `/auta/${s}`)]));
   return NextResponse.json({ ok: true });
 }

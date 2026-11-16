@@ -13,9 +13,8 @@ import { LeadForm } from "@/components/LeadForm";
 import { Crumbs, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 
-export const revalidate = 3600;
-export const dynamicParams = true;
-export async function generateStaticParams() { return []; }
+// Detail sa vyrába pri návšteve a neukladá sa do ISR cache (tisíce áut × obnova každú hodinu míňali limit ISR zápisov na Verceli)
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
 const fullName = (c: { year: number | null; make: string; model: string; trim: string | null }) => [c.year, c.make, c.model, c.trim].filter(Boolean).join(" ");

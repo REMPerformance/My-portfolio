@@ -115,7 +115,7 @@ function KrCard({ car, eager }: { car: KrCar; eager: boolean }) {
   const name = [car.year, car.make, car.model].filter(Boolean).join(" ");
   return (
     <article className="car">
-      <Link href={`/ihned-z-korey/${encodeURIComponent(car.id)}`} aria-label={`${name} ${car.trim ?? ""} – detail`} style={{ display: "contents" }}>
+      <Link prefetch={false} href={`/ihned-z-korey/${encodeURIComponent(car.id)}`} aria-label={`${name} ${car.trim ?? ""} – detail`} style={{ display: "contents" }}>
         <div className="car__img">
           {car.photos[0]
             // eslint-disable-next-line @next/next/no-img-element

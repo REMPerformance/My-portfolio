@@ -8,7 +8,7 @@ import { titleCase } from "./listingParse";
 import type { CarType } from "./types";
 
 /** Ako často sa ponuka z Kórey obnovuje (sekundy). Stránky sa generujú vopred a zákazník dostane hotovú ponuku. */
-export const KR_REVALIDATE = 3600;
+export const KR_REVALIDATE = 21600;
 /** Najviac áut v sekcii (strán po 100). */
 const MAX_PAGES = 30;
 

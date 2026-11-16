@@ -9,7 +9,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { IArrow } from "@/components/Icons";
 import { QuickRequest } from "@/components/QuickRequest";
 
-export const revalidate = 600;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Skončené aukcie a predané autá z dovozu",
