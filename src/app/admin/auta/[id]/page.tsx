@@ -47,6 +47,8 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
   const sb = browserClient();
   const router = useRouter();
   const { toast, revalidate, session } = useAdmin();
+  // fotky sa ukladajú priebežne; web sa obnoví raz, 8 s po poslednej zmene (nie po každom obrázku)
+  const imgRevalidate = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [f, setF] = useState<Form | null>(isNew ? blank() : null);
   const { cfg } = useCalcCfg();
   const [slugTouched, setSlugTouched] = useState(!isNew);
@@ -445,7 +447,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                 onError={(m) => toast(m, true)}
                 onChange={(imgs) => {
                   set("images", imgs);
-                  if (!isNew) sb.from("cars").update({ images: imgs }).eq("id", f.id).then(({ error }) => { if (!error) revalidate([f.slug]); });
+                  if (!isNew) sb.from("cars").update({ images: imgs }).eq("id", f.id).then(({ error }) => { if (!error) { clearTimeout(imgRevalidate.current); imgRevalidate.current = setTimeout(() => revalidate([f.slug]), 8000); } });
                 }}
               />
               <p className="note">Prvá fotka je titulná. Poradie zmeníte potiahnutím. {isNew ? "Fotky sa priradia k autu po prvom uložení." : "Zmeny fotiek sa ukladajú automaticky."}</p>

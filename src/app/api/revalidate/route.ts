@@ -15,8 +15,18 @@ export async function POST(req: Request) {
   const { data: isAdmin } = await sb.rpc("is_admin");
   if (!isAdmin) return NextResponse.json({ ok: false }, { status: 403 });
   const body = (await req.json().catch(() => ({}))) as { slugs?: string[] };
-  revalidatePath("/", "layout");
-  for (const s of body.slugs || []) revalidatePath(`/auta/${s}`);
+  const slugs = body.slugs || [];
+  if (slugs.length) {
+    // zmena konkrétnych áut: obnovia sa len stránky, kde sa autá zobrazujú (nie celý web)
+    for (const p of ["/", "/ponuka", "/skoncene-aukcie", "/znacky", "/sitemap.xml", "/llms.txt"]) revalidatePath(p);
+    revalidatePath("/[landing]", "page");
+    revalidatePath("/znacky/[slug]", "page");
+    revalidatePath("/znacky/[slug]/[model]", "page");
+    for (const s of slugs) revalidatePath(`/auta/${s}`);
+  } else {
+    // nastavenia, obsah, mazanie auta: obnoví sa celý web
+    revalidatePath("/", "layout");
+  }
   after(() => pingIndexNow(["/", "/ponuka", "/kalkulacka-dovozu", "/ako-to-funguje", "/caste-otazky", "/kontakt", "/vop", ...(body.slugs || []).map((s) => `/auta/${s}`)]));
   return NextResponse.json({ ok: true });
 }
