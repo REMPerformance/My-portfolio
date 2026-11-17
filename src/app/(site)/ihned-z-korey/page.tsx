@@ -7,8 +7,8 @@ import { PageHead, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
 import { QuickRequest } from "@/components/QuickRequest";
 
-// ponuka sa pripravuje vopred a obnovuje každých 6 hodín (rovnako ako KR_REVALIDATE)
-export const revalidate = 21600;
+// ponuka sa pripravuje vopred a obnovuje každé 3 hodiny (rovnako ako KR_REVALIDATE)
+export const revalidate = 10800;
 
 export const metadata: Metadata = {
   title: "Ihneď k odberu z Kórey: autá skladom u predajcov",
