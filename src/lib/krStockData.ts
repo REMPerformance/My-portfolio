@@ -44,10 +44,18 @@ const COLOR: [RegExp, string][] = [[/pearl/i, "Perleťovo biela"], [/white/i, "B
 const REGION: [RegExp, string][] = [[/seoul|서울/i, "Soul"], [/incheon|인천/i, "Inčchon"], [/gyeonggi|경기|suwon|bundang|ilsan/i, "Kjonggi"], [/busan|pusan|부산/i, "Pusan"], [/daegu|대구/i, "Tegu"], [/gwangju|광주/i, "Kwangdžu"], [/daejeon|대전/i, "Tedžon"], [/ulsan|울산/i, "Ulsan"]];
 const pick = (m: [RegExp, string][], v?: string | null) => (v ? m.find(([r]) => r.test(v))?.[1] : undefined);
 
+/** Nákladné autá, autobusy, karavany a stroje: cenník (loď 2 300 USD, schválenie M1) na ne neplatí, preto sa na webe neukazujú. */
+const COMMERCIAL_MAKE = /bus|truck|triaxle|tata daewoo|korea (commercial|special|merit)|scania|^man$|iveco|adria|elddis|swift|keystone|forest river|lunar|wiesner|campmaster|dpeco|cleantec|daechang|cevo/i;
+const COMMERCIAL_MODEL = /\d+(\.\d+)?\s*ton|truck|\bbus\b|forklift|camp|trailer|caravan|trago|\bx?cient\b|excient|mighty|pavise|universe|county|aero ?(city|town|space)|novus|dump|crane|tractor|vacuum|ambulance|wing ?body|refrigerat/i;
+/** Ľahké úžitkové (dodávka s korbou): clo ako nákladné auto. */
+const LIGHT_TRUCK = /porter|bongo|labo|damas|pickup|cargo/i;
+
 function toCar(s: SsStock, cfg: Awaited<ReturnType<typeof getCalcConfig>>): KrCar | null {
   if (!ssAvailable(s.status) || s.price_on_request || !s.make || !s.model) return null;
+  const name = `${s.model} ${s.trim || ""}`;
+  if (COMMERCIAL_MAKE.test(String(s.make)) || COMMERCIAL_MODEL.test(name)) return null;
   const body = pick(BODY, s.body_type) || null;
-  const type: CarType = /truck|pickup|cargo/i.test(s.body_type || "") ? "truck" : /suv|van|mpv|rv/i.test(s.body_type || "") ? "suv" : "car";
+  const type: CarType = /truck|pickup|cargo/i.test(s.body_type || "") || LIGHT_TRUCK.test(name) ? "truck" : /suv|van|mpv|rv/i.test(s.body_type || "") ? "suv" : "car";
   const fuel = pick(FUEL, s.fuel) || (s.fuel ? titleCase(s.fuel) : null);
   const est = krStockEstimate(cfg, { usd: s.price?.usd, krw: s.price?.krw, fuel, type });
   if (!est) return null;
