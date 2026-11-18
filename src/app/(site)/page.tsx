@@ -13,6 +13,7 @@ import { IArrow, SpecIcon, TypeArt } from "@/components/Icons";
 import { Flag } from "@/components/Flag";
 import { HeroSlides } from "@/components/HeroSlides";
 import { landingByCountry } from "@/lib/landing";
+import { getKrStock } from "@/lib/krStockData";
 
 export const revalidate = 3600;
 
@@ -29,7 +30,7 @@ const TYPES = [
 ];
 
 const ORIGIN_HINT: Record<string, string> = {
-  US: "Všetkých 50 štátov · Copart, IAAI, predajcovia",
+  US: "Všetkých 50 štátov · aukcie aj predajcovia",
   AE: "Dubaj, Abú Zabí, Šardžá · luxusné a športové autá",
   CA: "Ontário, Québec, Alberta, Britská Kolumbia",
   KR: "Soul, Pusan · Hyundai, Kia, Genesis",
@@ -39,11 +40,10 @@ const ORIGIN_HINT: Record<string, string> = {
 };
 
 export default async function Home() {
-  const [{ cars }, ct] = await Promise.all([getCardCars(), getContent()]);
+  const [{ cars }, ct, kr] = await Promise.all([getCardCars(), getContent(), getKrStock().catch(() => [])]);
   const serverNow = Date.now();
   const live = cars.filter((c) => c.status === "published" && carPhase(c, serverNow) !== "ended");
   const sold = cars.filter((c) => c.status === "sold").sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at)).slice(0, 3);
-  const nType = (t: string) => live.filter((c) => c.type === t).length;
   const nCountry = (code: string) => live.filter((c) => (c.country || "US") === code).length;
   const cnt = (n: number) => (n ? `${n} ${n === 1 ? "auto" : n < 5 ? "autá" : "áut"}` : "Na objednávku");
 
@@ -73,12 +73,56 @@ export default async function Home() {
         </div>
       </div>
 
+      <section aria-labelledby="odkial-h">
+        <div className="wrap">
+          <div className="sec-head">
+            <div>
+              <span className="eyebrow">Odkiaľ dovážame</span>
+              <h2 className="title" id="odkial-h">Autá tam, kde sú najvýhodnejšie</h2>
+              <p className="sub">Dopravu počítame podľa konkrétneho štátu či emirátu a najbližšieho prístavu.</p>
+            </div>
+          </div>
+          <div className="origins">
+            {COUNTRIES.map((c) => {
+              const n = nCountry(c.code);
+              if (c.code === "KR" && kr.length) {
+                // Kórea: karta vedie na stránku krajiny, tlačidlo na autá skladom u predajcov
+                const href = `/${landingByCountry(c.code)?.slug ?? `ponuka?country=${c.code}`}`;
+                return (
+                  <div key={c.code} className="ocard ocard--kr">
+                    <Link href={href} className="ocard__link" aria-label={c.name} />
+                    <Flag code={c.code} className="ocard__flag" />
+                    <span className="ocard__txt">
+                      <b>{c.name}</b>
+                      <small>{ORIGIN_HINT[c.code]}</small>
+                    </span>
+                    <span className="ocard__go" aria-hidden="true"><IArrow /></span>
+                    <Link href="/ihned-z-korey" className="rc-btn rc-btn--primary rc-btn--sm ocard__kr">Ihneď k odberu: {kr.length.toLocaleString("sk-SK")} áut skladom <IArrow /></Link>
+                  </div>
+                );
+              }
+              return (
+                <Link key={c.code} className="ocard" href={`/${landingByCountry(c.code)?.slug ?? `ponuka?country=${c.code}`}`}>
+                  <Flag code={c.code} className="ocard__flag" />
+                  <span className="ocard__txt">
+                    <b>{c.name}</b>
+                    <small>{ORIGIN_HINT[c.code]}</small>
+                  </span>
+                  <span className={`ocard__n${n ? " has" : ""}`}>{n ? cnt(n) : "Na objednávku"}</span>
+                  <span className="ocard__go" aria-hidden="true"><IArrow /></span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section aria-labelledby="typy-h" style={{ paddingBottom: 0 }}>
         <div className="wrap">
           <div className="sec-head"><div><span className="eyebrow">Čo hľadáte?</span><h2 className="title" id="typy-h">Vyberte si typ auta</h2></div></div>
           <div className="types">
             {TYPES.map((x) => (
-              <Link key={x.t} href={`/ponuka?type=${x.t}`} className="type"><TypeArt t={x.t} />{x.l}<small>{cnt(nType(x.t))}</small></Link>
+              <Link key={x.t} href={`/ponuka?type=${x.t}`} className="type"><TypeArt t={x.t} />{x.l}</Link>
             ))}
             <div className="cta-tile">
               <b>Hľadáte konkrétne auto?</b>
@@ -119,34 +163,6 @@ export default async function Home() {
           </div>
         </section>
       )}
-
-      <section className="alt" aria-labelledby="odkial-h">
-        <div className="wrap">
-          <div className="sec-head">
-            <div>
-              <span className="eyebrow">Odkiaľ dovážame</span>
-              <h2 className="title" id="odkial-h">Autá tam, kde sú najvýhodnejšie</h2>
-              <p className="sub">Dopravu počítame podľa konkrétneho štátu či emirátu a najbližšieho prístavu.</p>
-            </div>
-          </div>
-          <div className="origins">
-            {COUNTRIES.map((c) => {
-              const n = nCountry(c.code);
-              return (
-                <Link key={c.code} className="ocard" href={`/${landingByCountry(c.code)?.slug ?? `ponuka?country=${c.code}`}`}>
-                  <Flag code={c.code} className="ocard__flag" />
-                  <span className="ocard__txt">
-                    <b>{c.name}</b>
-                    <small>{ORIGIN_HINT[c.code]}</small>
-                  </span>
-                  <span className={`ocard__n${n ? " has" : ""}`}>{n ? cnt(n) : "Na objednávku"}</span>
-                  <span className="ocard__go" aria-hidden="true"><IArrow /></span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
       <section aria-labelledby="proces-h">
         <div className="wrap">

@@ -136,10 +136,10 @@ export interface EuPort {
 }
 
 export const EU_PORTS: EuPort[] = [
-  { id: "de-brv", name: "Bremerhaven", country: "DE", countryName: "Nemecko", vatRate: 0.19, portEur: 550, truckEur: 1150, oceanAddUsd: 0 },
-  { id: "nl-rtm", name: "Rotterdam", country: "NL", countryName: "Holandsko", vatRate: 0.21, portEur: 550, truckEur: 1890, oceanAddUsd: 0 },
-  { id: "be-anr", name: "Antverpy", country: "BE", countryName: "Belgicko", vatRate: 0.21, portEur: 550, truckEur: 1900, oceanAddUsd: 0 },
-  { id: "si-kop", name: "Koper", country: "SI", countryName: "Slovinsko", vatRate: 0.22, portEur: 550, truckEur: 750, oceanAddUsd: 400 }
+  { id: "de-brv", name: "Bremerhaven", country: "DE", countryName: "Nemecko", vatRate: 0.19, portEur: 990, truckEur: 2200, oceanAddUsd: 0 },
+  { id: "nl-rtm", name: "Rotterdam", country: "NL", countryName: "Holandsko", vatRate: 0.21, portEur: 990, truckEur: 2200, oceanAddUsd: 0 },
+  { id: "be-anr", name: "Antverpy", country: "BE", countryName: "Belgicko", vatRate: 0.21, portEur: 990, truckEur: 2200, oceanAddUsd: 0 },
+  { id: "si-kop", name: "Koper", country: "SI", countryName: "Slovinsko", vatRate: 0.22, portEur: 990, truckEur: 2200, oceanAddUsd: 400 }
 ];
 export const DEFAULT_EU_PORT = "de-brv";
 

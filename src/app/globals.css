@@ -1629,3 +1629,47 @@ button.trk-tl__h:hover{background:var(--rc-hover)}
 .kr-info span{color:var(--rc-text-mid);font-size:14.5px;line-height:1.55}
 .kr-price{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:4px 0 2px}
 .kr-nophoto{display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:var(--rc-text-dim);font-size:14px;background:var(--rc-surface)}
+
+/* Ihneď z Kórey: protokol o technickom stave */
+.dbadges a{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.dbadges a:hover{text-decoration:underline}
+.kri__lead{margin-bottom:14px}
+.kri__sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kri__s{border:1px solid var(--rc-line);border-radius:var(--rc-radius-lg);padding:12px 14px;display:grid;gap:2px;background:var(--rc-surface)}
+.kri__s small{color:var(--rc-text-mid);font-size:12.5px}
+.kri__s b{font-size:15px}
+.kri__s--good{border-color:color-mix(in srgb,var(--ok) 45%,var(--rc-line))}.kri__s--good b{color:var(--ok)}
+.kri__s--alert{border-color:color-mix(in srgb,#d97706 55%,var(--rc-line))}.kri__s--alert b{color:#d97706}
+.kri__grid{margin-bottom:14px}
+.kri__map{position:relative;background:#fff;border-radius:12px;overflow:hidden;max-width:420px;margin:0 auto 12px;aspect-ratio:1}
+.kri__map img{width:100%;height:100%;object-fit:contain;display:block}
+.kri__mk{position:absolute;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;color:#fff;font:800 12px/24px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 3px rgba(255,255,255,.85),0 2px 6px rgba(0,0,0,.35)}
+.kri__ok{color:var(--ok);font-weight:700;font-size:14.5px;margin:0 0 8px}
+.kri__find{list-style:none;display:grid;gap:8px;margin:0 0 10px;padding:0;font-size:14.5px}
+.kri__find li{display:flex;gap:10px;align-items:flex-start}
+.kri__find b{display:block}
+.kri__find span:last-child{color:var(--rc-text-mid)}.kri__find b{color:var(--rc-text)}
+.kri__code,.kri__legend i{flex:none;display:inline-block;width:20px;height:20px;border-radius:50%;color:#fff;font:800 11px/20px system-ui,sans-serif;text-align:center;font-style:normal}
+.kri__legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--rc-text-mid)}
+.kri__legend span{display:inline-flex;align-items:center;gap:6px}
+.kri__rows{list-style:none;margin:0;padding:0;display:grid;font-size:14.5px}
+.kri__rows li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--rc-line)}
+.kri__rows li:last-child{border-bottom:0}
+.kri__rows span{color:var(--rc-text-mid)}
+.kri__t--good{color:var(--ok)}.kri__t--alert{color:#d97706}.kri__t--neutral{color:var(--rc-text)}
+.kri__meta{margin-top:14px}
+.kri__warn{margin-bottom:14px;border-color:color-mix(in srgb,#d97706 55%,var(--rc-line))}
+.kri__dev{margin-bottom:12px}
+.kri__dev summary{cursor:pointer;list-style:none}
+.kri__dev summary::-webkit-details-marker{display:none}
+.kri__dev summary h3{display:inline;margin:0}
+.kri__dev summary::after{content:"Zobraziť";float:right;font-size:13px;font-weight:700;color:var(--rc-red,#c8102e)}
+.kri__dev[open] summary::after{content:"Skryť"}
+.kri__devgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 28px;margin-top:14px}
+.kri__devgrid h4{margin:12px 0 2px;font-size:14px}
+@media (max-width:760px){.kri__sum{grid-template-columns:repeat(2,1fr)}.kri__devgrid{grid-template-columns:1fr}}
+/* hlavná stránka: karta Kórey s tlačidlom na autá skladom */
+.ocard__link{position:absolute;inset:0;z-index:1}
+.ocard--kr .ocard__kr{position:relative;z-index:2;grid-column:1/-1;justify-self:stretch;justify-content:center}
+.ocard--kr:hover{border-color:var(--rc-red-line);transform:translateY(-2px);box-shadow:var(--shadow)}
+.ocard--kr:hover .ocard__go{background:var(--rc-red)}

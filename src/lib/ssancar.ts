@@ -14,6 +14,9 @@ export interface SsStock {
   body_type?: string | null; drive?: string | null; seats?: number | null; options?: string[] | string | null; location?: string | null;
   price: SsPrice; price_on_request?: boolean | null; photos?: SsPhoto[] | null; photo_count?: number | null;
   source_updated_at?: string | null; updated_at: string;
+  /** len v detaile (GET /v1/stock/{id}) */
+  listing?: { drive?: string | null; engine_cc?: number | null; first_registration_date?: string | null } | null;
+  inspection_record?: import("./krInspection").SsInspection | null;
 }
 
 export interface SsLot {

@@ -6,6 +6,7 @@ import { includedItems } from "./calc";
 import { SS_BASE, ssAvailable, ssItems, ssPhoto, type SsPage, type SsStock } from "./ssancar";
 import { titleCase } from "./listingParse";
 import type { CarType } from "./types";
+import { krInspection, type KrInspection } from "./krInspection";
 
 /** Ako často sa ponuka z Kórey obnovuje (sekundy). Stránky sa generujú vopred a zákazník dostane hotovú ponuku. */
 export const KR_REVALIDATE = 10800;
@@ -64,7 +65,7 @@ function toCar(s: SsStock, cfg: Awaited<ReturnType<typeof getCalcConfig>>): KrCa
     id: s.id, make: titleCase(String(s.make).trim()), model: String(s.model).trim(), trim: s.trim ? String(s.trim).trim().slice(0, 60) : null,
     year: s.year ? Number(s.year) : null, km: s.mileage_km ? Number(s.mileage_km) : null, fuel,
     gear: /auto|cvt|dct/i.test(s.transmission || "") ? "Automat" : /manual/i.test(s.transmission || "") ? "Manuál" : s.transmission || null,
-    drive: /4wd|4x4|awd/i.test(s.drive || "") ? (/awd/i.test(s.drive || "") ? "AWD" : "4x4") : /rwd|rear/i.test(s.drive || "") ? "RWD" : /fwd|front/i.test(s.drive || "") ? "FWD" : null,
+    drive: /4wd|4x4|awd/i.test(s.drive || "") ? (/awd/i.test(s.drive || "") ? "AWD" : "4x4") : /rwd|rear/i.test(s.drive || "") ? "RWD" : /fwd|front/i.test(s.drive || "") ? "FWD" : /2wd/i.test(s.drive || "") ? "2WD" : null,
     color: pick(COLOR, s.color) || (s.color ? titleCase(s.color) : null), body, cc: s.engine_cc ? Number(s.engine_cc) : null, seats: s.seats ? Number(s.seats) : null,
     type, region: pick(REGION, s.location) || null, firstReg: s.first_registration ? String(s.first_registration).slice(0, 10) : null,
     photos: (s.photos || []).map(ssPhoto).filter((u) => /^https:\/\//.test(u)).slice(0, 40),
@@ -90,15 +91,19 @@ export const getKrStock = cache(async (): Promise<KrCar[]> => {
 });
 
 /** Jedno auto (aktuálny stav). null = predané, stiahnuté alebo API nie je pripojené. */
-export const getKrCar = cache(async (id: string): Promise<(KrCar & { included: string[] }) | null> => {
+export const getKrCar = cache(async (id: string): Promise<(KrCar & { included: string[]; inspection: KrInspection | null }) | null> => {
   if (!/^[A-Za-z0-9_.:-]{1,80}$/.test(id)) return null;
-  const [s, cfg] = await Promise.all([ss<SsStock>(`/v1/stock/${encodeURIComponent(id)}`), getCalcConfig()]);
+  const [raw, cfg] = await Promise.all([ss<SsStock>(`/v1/stock/${encodeURIComponent(id)}`), getCalcConfig()]);
+  // detail má pohon, objem a dátum registrácie v časti listing, doplníme ich do základných údajov
+  const s = raw ? { ...raw, drive: raw.drive || raw.listing?.drive || null, engine_cc: raw.engine_cc || raw.listing?.engine_cc || raw.inspection_record?.specification?.displacement_cc || null, first_registration: raw.listing?.first_registration_date || raw.first_registration } : null;
   const car = s ? toCar(s, cfg) : null;
   if (!s || !car) return null;
+  const inspection = krInspection(s.inspection_record);
+  if (inspection && !car.options.length) car.options = inspection.options;
   // zoznam „V cene je zahrnuté“ bez súm (nákupná cena a odmena sa zákazníkovi neukazujú)
   const est = krStockEstimate(cfg, { usd: s.price?.usd, krw: s.price?.krw, fuel: car.fuel, type: car.type });
   const included = est ? includedItems(est).map((x) => (/^Námorná preprava/.test(x) ? `${x} (bez poistenia)` : x)) : [];
-  return { ...car, included };
+  return { ...car, included, inspection };
 });
 
 export const krName = (c: Pick<KrCar, "year" | "make" | "model">) => [c.year, c.make, c.model].filter(Boolean).join(" ");

@@ -15,8 +15,8 @@ export const DEFAULT_CALC: CalcConfig = {
   oceanUsd: { east: 1150, central: 1350, west: 1900 },
   dutyRate: { car: 0.1, suv: 0.1, truck: 0.22, moto: 0.07 },
   vatRate: 0.23,
-  euPortEur: 550,
-  truckEur: 1150,
+  euPortEur: 990,
+  truckEur: 2200,
   euPorts: {},
   defaultEuPort: DEFAULT_EU_PORT,
   homologEur: 900,
@@ -28,7 +28,8 @@ export const DEFAULT_CALC: CalcConfig = {
   priceMode: "net",
   depositPct: 0.1,
   depositMinEur: 500,
-  depositTiers: [[49000, 2500], [69000, 3000], [999999999, 4500]],
+  // od 18. 11. 2026: do 29 999 € 2 500 €, potom za každých ďalších 10 000 € o 1 000 € viac
+  depositTiers: [[29999, 2500], [39999, 3500], [49999, 4500], [59999, 5500], [69999, 6500], [79999, 7500], [89999, 8500], [99999, 9500], [109999, 10500], [119999, 11500], [129999, 12500], [139999, 13500], [149999, 14500], [159999, 15500], [169999, 16500], [179999, 17500], [189999, 18500], [199999, 19500], [999999999, 20500]],
   markupPct: 5,
   insurancePct: 0.07,
   insuranceMinUsd: 350,
@@ -125,10 +126,15 @@ export function depositFor(cfg: Pick<CalcConfig, "depositTiers" | "depositPct" |
   return Math.max(cfg.depositMinEur, Math.round((total * cfg.depositPct) / 50) * 50);
 }
 
-/** „do 49 000 € záloha 2 500 €, do 69 000 € záloha 3 000 € a nad 69 000 € záloha 4 500 €“ */
+/** „do 29 999 € záloha 2 500 €, od 30 000 € do 39 999 € záloha 3 500 € …“; pri mnohých rovnomerných pásmach skrátene */
 export function depositTiersText(cfg: Pick<CalcConfig, "depositTiers">) {
   const t = (cfg.depositTiers?.length ? cfg.depositTiers : DEFAULT_CALC.depositTiers) || [];
   const f = (n: number) => `${Math.round(n).toLocaleString("sk-SK").replace(/\s/g, "\u00a0")}\u00a0€`;
+  if (t.length > 5) {
+    const step = t[2][0] - t[1][0], add = t[2][1] - t[1][1];
+    const even = t.slice(1, -1).every(([m, v], i, a) => i === 0 || (m - a[i - 1][0] === step && v - a[i - 1][1] === add));
+    if (even && step > 0 && add > 0) return `do ${f(t[0][0])} záloha ${f(t[0][1])}, od ${f(t[0][0] + 1)} do ${f(t[1][0])} záloha ${f(t[1][1])}, od ${f(t[1][0] + 1)} do ${f(t[2][0])} záloha ${f(t[2][1])} a za každých ďalších ${f(step)} o ${f(add)} viac`;
+  }
   const parts = t.map(([max, v], i) => (i === t.length - 1 && t.length > 1 ? `nad ${f(t[i - 1][0])} záloha ${f(v)}` : `do ${f(max)} záloha ${f(v)}`));
   return parts.length > 1 ? `${parts.slice(0, -1).join(", ")} a ${parts[parts.length - 1]}` : parts[0] || "";
 }

@@ -24,7 +24,7 @@ export default async function CalcPage() {
   const faq = [
     { q: "Z čoho sa počíta clo pri dovoze auta z USA?", a: `Clo sa počíta z colnej hodnoty, teda z ceny auta, aukčných poplatkov a dopravy až na hranicu EÚ. Pri osobných autách je sadzba ${Math.round(cfg.dutyRate.car * 100)} %, pri pickupoch a úžitkových vozidlách až ${Math.round(cfg.dutyRate.truck * 100)} %.` },
     { q: "Koľko je DPH pri dovoze auta?", a: "DPH pri dovoze sa platí v krajine, kde sa auto preclí, z colnej hodnoty zvýšenej o clo a dopravu. Pri preclení v Nemecku (Bremerhaven) je to 19 %, v Holandsku a Belgicku 21 %, v Slovinsku 22 % a na Slovensku 23 %. Prístav si vyberiete v kalkulačke." },
-    { q: "Koľko stojí doprava auta z USA alebo z Dubaja?", a: "Odvoz do prístavu v USA stojí približne 250 až 1 300 USD podľa štátu. Námorná preprava vychádza od 260 do 3 100 USD na vozidlo podľa prístavu odoslania, prístavu v EÚ a spôsobu nakládky (zdieľaný kontajner, RoRo). Autoprepravník z prístavu na Slovensko stojí podľa prístavu približne 1 150 € z Bremerhavenu a 1 890 € z Rotterdamu." },
+    { q: "Koľko stojí doprava auta z USA alebo z Dubaja?", a: "Odvoz do prístavu v USA stojí približne 250 až 1 300 USD podľa štátu. Námorná preprava vychádza od 260 do 3 100 USD na vozidlo podľa prístavu odoslania, prístavu v EÚ a spôsobu nakládky (zdieľaný kontajner, RoRo). Autoprepravník z prístavu na Slovensko stojí približne 2 200 €, prístavné poplatky a colné konanie približne 990 €." },
     { q: "Je výsledok kalkulačky záväzný?", a: "Nie, ide o orientačný odhad. Presnú kalkuláciu ku konkrétnemu autu Vám pošleme pred kúpou." }
   ];
   return (

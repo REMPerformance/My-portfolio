@@ -170,7 +170,7 @@ export const isReserveRow = (item: string) => /^rezerv/i.test(item.trim());
  * Viditeľná percentuálna suma (napr. 3 %) sa počíta zo súčtu položiek nad ňou.
  */
 /** Pásma záloh [do konečnej sumy, záloha]; admin ich nastaví podľa Nastavení cez setDepositTiers. */
-let DEPOSIT_TIERS: [number, number][] = [[49000, 2500], [69000, 3000], [999999999, 4500]];
+let DEPOSIT_TIERS: [number, number][] = [[29999, 2500], [39999, 3500], [49999, 4500], [59999, 5500], [69999, 6500], [79999, 7500], [89999, 8500], [99999, 9500], [109999, 10500], [119999, 11500], [129999, 12500], [139999, 13500], [149999, 14500], [159999, 15500], [169999, 16500], [179999, 17500], [189999, 18500], [199999, 19500], [999999999, 20500]];
 export function setDepositTiers(t: [number, number][] | undefined | null) { if (t?.length) DEPOSIT_TIERS = t; }
 /** Záloha (rezerva) podľa konečnej sumy. */
 export function depositForTotal(total: number) {

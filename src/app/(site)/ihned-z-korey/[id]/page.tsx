@@ -12,6 +12,7 @@ import { SpecIcon } from "@/components/Icons";
 import { LeadForm } from "@/components/LeadForm";
 import { Crumbs, breadcrumbLd } from "@/components/Sections";
 import { JsonLd } from "@/components/JsonLd";
+import { KrInspectionBlock } from "@/components/KrInspection";
 
 // Detail sa vyrába pri návšteve a neukladá sa do ISR cache (tisíce áut × obnova každú hodinu míňali limit ISR zápisov na Verceli)
 export const dynamic = "force-dynamic";
@@ -83,6 +84,7 @@ export default async function KrCarPage({ params }: Props) {
               <span className="ok"><SpecIcon k="check" />Ihneď k odberu</span>
               <span><SpecIcon k="pin" />{car.region ? `${car.region}, ` : ""}Južná Kórea</span>
               <span><SpecIcon k="ship" />Dovoz na kľúč s EČV</span>
+              {car.inspection && <a href="#protokol" className="ok"><SpecIcon k="check" />{car.inspection.findings.length ? "Protokol o technickom stave" : "Protokol: karoséria bez opráv"}</a>}
             </div>
           </div>
           <div className="detail">
@@ -99,16 +101,18 @@ export default async function KrCarPage({ params }: Props) {
               {car.options.length > 0 && (
                 <div className="block"><h2>Výbava</h2><div className="panel"><ul className="equip">{car.options.map((e) => <li key={e}>{e}</li>)}</ul></div></div>
               )}
-              <div className="block">
-                <h2>Stav auta</h2>
-                <p className="prose">Auto je v ponuke predajcu v Južnej Kórei. Pred podpisom zmluvy overíme jeho dostupnosť, históriu v kórejskom poistnom registri a technickú prehliadku. Po podpise auto na mieste skontroluje náš agent a pripraví vývozné doklady.</p>
-              </div>
+              <KrInspectionBlock ins={car.inspection} km={car.km} />
             </div>
             <aside className="detail__side" aria-label="Cena a objednávka">
               <div className="panel pricebox">
                 <small className="note" style={{ margin: 0 }}>Orientačná cena so slovenskými značkami</small>
                 <div className="kr-price">{eur(car.price)}</div>
                 <p className="note">Vrátane dopravy, cla, DPH, schválenia a prihlásenia. Cena je odhad podľa aktuálneho kurzu, konečnú sumu potvrdíme v ponuke.</p>
+                <ul className="ticks" style={{ marginTop: 10 }}>
+                  {car.inspection && <li><a href="#protokol">Kórejský protokol o technickom stave</a></li>}
+                  <li>Kontrola auta naším agentom pred vývozom</li>
+                  <li>Platíte postupne, až keď náklad vznikne</li>
+                </ul>
                 <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
                   <a className="rc-btn rc-btn--primary rc-btn--block" href="#objednat">Mám záujem</a>
                   <a className="rc-btn rc-btn--outline rc-btn--block" href={wa("Dobrý deň, mám otázku k")} target="_blank" rel="noopener">Chcem viac info</a>

@@ -25,7 +25,7 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Koľko je záloha a čo sa s ňou stane, ak aukciu prehráme?",
-    a: "Záloha závisí od odhadovanej konečnej ceny auta: do 49 000 € je 2 500 €, do 69 000 € je 3 000 € a nad 69 000 € je 4 500 €. Je to povinná rezerva na nepredvídané náklady, do konečnej ceny sa nezapočítava a jej nevyčerpaná časť sa vracia. Ak aukciu prehráme, zálohu Vám vrátime do 5 pracovných dní alebo ju na Vašu žiadosť presunieme na ďalšie auto."
+    a: "Záloha závisí od odhadovanej konečnej ceny auta: do 29 999 € je 2 500 €, od 30 000 € do 39 999 € je 3 500 €, od 40 000 € do 49 999 € je 4 500 € a za každých ďalších 10 000 € o 1 000 € viac. Je to povinná rezerva na nepredvídané náklady, do konečnej ceny sa nezapočítava a jej nevyčerpaná časť sa vracia. Ak aukciu prehráme, zálohu Vám vrátime do 5 pracovných dní alebo ju na Vašu žiadosť presunieme na ďalšie auto."
   },
   {
     q: "Ako dlho trvá dovoz auta z USA?",
