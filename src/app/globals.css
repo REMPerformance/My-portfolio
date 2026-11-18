@@ -1670,6 +1670,9 @@ button.trk-tl__h:hover{background:var(--rc-hover)}
 @media (max-width:760px){.kri__sum{grid-template-columns:repeat(2,1fr)}.kri__devgrid{grid-template-columns:1fr}}
 /* hlavná stránka: karta Kórey s tlačidlom na autá skladom */
 .ocard__link{position:absolute;inset:0;z-index:1}
-.ocard--kr .ocard__kr{position:relative;z-index:2;grid-column:1/-1;justify-self:stretch;justify-content:center}
+.ocard--kr .ocard__kr{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:10px;text-decoration:none}
+.ocard__krgo{display:inline-flex;align-items:center;gap:6px;color:var(--rc-red);white-space:nowrap}
+.ocard__krgo svg{width:14px;height:14px}
+.ocard__kr:hover .ocard__krgo{text-decoration:underline}
 .ocard--kr:hover{border-color:var(--rc-red-line);transform:translateY(-2px);box-shadow:var(--shadow)}
 .ocard--kr:hover .ocard__go{background:var(--rc-red)}

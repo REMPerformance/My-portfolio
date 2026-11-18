@@ -97,7 +97,7 @@ export default async function Home() {
                       <small>{ORIGIN_HINT[c.code]}</small>
                     </span>
                     <span className="ocard__go" aria-hidden="true"><IArrow /></span>
-                    <Link href="/ihned-z-korey" className="rc-btn rc-btn--primary rc-btn--sm ocard__kr">Ihneď k odberu: {kr.length.toLocaleString("sk-SK")} áut skladom <IArrow /></Link>
+                    <Link href="/ihned-z-korey" className="ocard__n has ocard__kr"><span>{kr.length.toLocaleString("sk-SK")} áut ihneď k odberu</span><span className="ocard__krgo">Pozrieť <IArrow /></span></Link>
                   </div>
                 );
               }
