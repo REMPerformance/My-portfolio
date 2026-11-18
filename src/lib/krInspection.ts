@@ -78,7 +78,7 @@ const VALUE: Record<string, string> = {
 };
 const SECTION: Record<string, string> = {
   "Self-Diagnosis": "Autodiagnostika", Engine: "Motor", Transmission: "Prevodovka", Powertrain: "Prenos sily", Steering: "Riadenie",
-  Braking: "Brzdy", Electrical: "Elektrika", Fuel: "Palivo", "High-voltage": "Vysoké napätie", "Air conditioning": "Klimatizácia"
+  Braking: "Brzdy", Electrical: "Elektrika", Fuel: "Palivo", "High-voltage": "Vysoké napätie", "High-Voltage EV": "Vysoké napätie", "Air conditioning": "Klimatizácia"
 };
 const ITEM: [RegExp, string][] = [
   [/^engine$/i, "Motor"], [/^transmission$/i, "Prevodovka"], [/operation \(idle\)/i, "Chod na voľnobeh"], [/engine oil level/i, "Hladina motorového oleja"],
@@ -89,7 +89,8 @@ const ITEM: [RegExp, string][] = [
   [/head\/gasket oil/i, "Únik oleja z hlavy valcov"], [/block\/oil pan/i, "Únik oleja z bloku a vane"], [/head\/gasket coolant/i, "Únik chladiva z hlavy valcov"],
   [/water-pump/i, "Únik chladiva z vodnej pumpy"], [/radiator coolant/i, "Únik chladiva z chladiča"], [/coolant level/i, "Hladina chladiva"],
   [/a\/t\) oil leak/i, "Únik oleja automatickej prevodovky"], [/a\/t\) oil level/i, "Olej automatickej prevodovky"], [/a\/t\) operation/i, "Chod automatickej prevodovky"],
-  [/m\/t\) oil leak/i, "Únik oleja manuálnej prevodovky"], [/gear shift/i, "Radenie"], [/clutch/i, "Spojka"], [/steering gear/i, "Prevodka riadenia"],
+  [/m\/t\) oil leak/i, "Únik oleja manuálnej prevodovky"], [/m\/t\) gearshift/i, "Radenie manuálnej prevodovky"], [/m\/t\) oil level/i, "Olej manuálnej prevodovky"],
+  [/m\/t\) operation/i, "Chod manuálnej prevodovky"], [/common rail/i, "Vstrekovanie common rail"], [/charging-port insulation/i, "Izolácia nabíjacieho portu"], [/high-voltage wiring/i, "Vysokonapäťová kabeláž"], [/gear shift/i, "Radenie"], [/clutch/i, "Spojka"], [/steering gear/i, "Prevodka riadenia"],
   [/steering pump/i, "Čerpadlo posilňovača"], [/tie-rod/i, "Tyče riadenia a čapy"], [/steering joint/i, "Kĺb riadenia"], [/high-pressure hose/i, "Tlaková hadica posilňovača"],
   [/compressor/i, "Kompresor klimatizácie"], [/charging port/i, "Nabíjací port"], [/battery/i, "Batéria"], [/inverter/i, "Menič"], [/motor/i, "Elektromotor"]
 ];
@@ -108,13 +109,18 @@ const tr = (m: Record<string, string>, v?: string) => (v ? m[v] ?? v : "");
 const trRe = (m: [RegExp, string][], v?: string) => (v ? m.find(([r]) => r.test(v))?.[1] ?? v : "");
 const date = (v?: string | null) => { const x = (v || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return x ? `${+x[3]}. ${+x[2]}. ${x[1]}` : null; };
 
-export function krInspection(ir: SsInspection | null | undefined): KrInspection | null {
+export function krInspection(ir: SsInspection | null | undefined, car: { fuel?: string | null; gear?: string | null } = {}): KrInspection | null {
   if (!ir || !ir.available) return null;
   const c = ir.condition || {};
   const findings = (c.findings || []).map((f) => ({
     code: f.code || "T", label: KR_CODE[f.code || ""]?.label || f.action || "", part: krPart(f.part), structural: /struct|frame|member/i.test(`${f.group} ${f.subgroup}`)
   }));
-  const devs = (c.devices || []).filter((d) => d.item);
+  // protokol obsahuje riadky pre všetky pohony; elektrické a manuálne/automatické riadky necháme len tam, kde k autu patria
+  const ev = /elektro|hybrid/i.test(car.fuel || ""), auto = /automat/i.test(car.gear || ""), manual = /manu/i.test(car.gear || "");
+  const devs = (c.devices || []).filter((d) => d.item
+    && !(/high-?voltage|\bev\b/i.test(`${d.section}`) && !ev)
+    && !(/\(m\/t\)|manual/i.test(`${d.item}`) && auto)
+    && !(/\(a\/t\)|automatic/i.test(`${d.item}`) && manual));
   const sections = new Map<string, { item: string; state: string; tone: Tone }[]>();
   for (const d of devs) {
     const s = tr(SECTION, d.section) || "Ostatné";

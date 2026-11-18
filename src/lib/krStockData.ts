@@ -98,7 +98,7 @@ export const getKrCar = cache(async (id: string): Promise<(KrCar & { included: s
   const s = raw ? { ...raw, drive: raw.drive || raw.listing?.drive || null, engine_cc: raw.engine_cc || raw.listing?.engine_cc || raw.inspection_record?.specification?.displacement_cc || null, first_registration: raw.listing?.first_registration_date || raw.first_registration } : null;
   const car = s ? toCar(s, cfg) : null;
   if (!s || !car) return null;
-  const inspection = krInspection(s.inspection_record);
+  const inspection = krInspection(s.inspection_record, car);
   if (inspection && !car.options.length) car.options = inspection.options;
   // zoznam „V cene je zahrnuté“ bez súm (nákupná cena a odmena sa zákazníkovi neukazujú)
   const est = krStockEstimate(cfg, { usd: s.price?.usd, krw: s.price?.krw, fuel: car.fuel, type: car.type });
