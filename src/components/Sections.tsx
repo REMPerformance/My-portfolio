@@ -43,9 +43,8 @@ export function Bonus({ b = DEFAULT_CONTENT.bonus }: { b?: SiteContent["bonus"] 
           <a href={SITE.racemUrl} target="_blank" rel="noopener" className="rc-btn rc-btn--ghost">RACEM.sk <IExt /></a>
         </div>
         <div className="tiers">
-          {b.tiers.map((t, i) => (
-            <div className={`tier${i === b.tiers.length - 1 ? " top" : ""}`} key={t.label + i}><span>{t.label}</span><b>{t.v} €</b></div>
-          ))}
+          {/* výška kreditu sa na webe neuvádza, je v cenovej ponuke a v zmluve (VOP čl. 14) */}
+          <div className="tier top"><span>Výška kreditu</span><b>v cenovej ponuke</b></div>
         </div>
       </div>
     </section>

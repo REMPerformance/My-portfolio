@@ -36,7 +36,7 @@ export default function Gdpr() {
           <h2>3. Komu údaje poskytujeme</h2>
           <ul>
             <li>poskytovatelia hostingu a databázy (Vercel Inc., Supabase Inc. – údaje uložené v EÚ, Frankfurt),</li>
-            <li>pri plnení zmluvy: broker a aukcia v USA (Copart, IAAI), prepravcovia, špeditér, colný deklarant, servis a stanica technickej kontroly – len v rozsahu nevyhnutnom na daný úkon,</li>
+            <li>pri plnení zmluvy: predajca vozidla, aukcia a jej sprostredkovateľ v krajine pôvodu vozidla, prepravcovia, špeditér, colný deklarant, servis a stanica technickej kontroly – len v rozsahu nevyhnutnom na daný úkon,</li>
             <li>účtovník a orgány verejnej moci, ak to vyžaduje zákon.</li>
           </ul>
           <p>Pri kúpe vozidla v USA dochádza k prenosu údajov do tretej krajiny. Prenos je nevyhnutný na plnenie zmluvy (čl. 49 ods. 1 písm. b) GDPR), prípadne prebieha na základe štandardných zmluvných doložiek alebo rámca EU-US Data Privacy Framework.</p>

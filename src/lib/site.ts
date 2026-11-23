@@ -4,7 +4,7 @@ export const SITE = {
   fullName: "REM Performance by RACEM",
   tagline: "Dovoz áut zo zahraničia na kľúč",
   description:
-    "Dovoz áut z USA, Dubaja (SAE), Kanady, Kórey, Japonska, Nemecka a EÚ na Slovensko na kľúč. Havarované aj nehavarované autá z aukcií Copart a IAAI aj od predajcov. Vopred vidíte celkovú cenu vrátane dopravy, cla a DPH. Kúpime, dovezieme, preclíme, homologizujeme a prihlásime.",
+    "Dovoz áut z USA, Dubaja (SAE), Kanady, Kórey, Japonska, Nemecka a EÚ na Slovensko na kľúč. Havarované aj nehavarované autá z aukcií aj od predajcov. Vopred vidíte odhad celkovej ceny vrátane dopravy, cla a DPH. Kúpime, dovezieme, preclíme, homologizujeme a prihlásime.",
   email: "info@remperformance.sk",
   phone: "+421 949 253 872",
   whatsapp: "421949253872",
@@ -19,7 +19,7 @@ export const SITE = {
     city: "Bratislava",
     country: "Slovensko",
     ico: "57321205",
-    dic: "",
+    dic: "1128793787",
     icDph: "SK1128793787",
     register: "Okresný úrad Piešťany, číslo živnostenského registra 230-24974"
   }

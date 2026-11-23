@@ -107,7 +107,7 @@ export default async function KrCarPage({ params }: Props) {
               <div className="panel pricebox">
                 <small className="note" style={{ margin: 0 }}>Orientačná cena so slovenskými značkami</small>
                 <div className="kr-price">{eur(car.price)}</div>
-                <p className="note">Vrátane dopravy, cla, DPH, schválenia a prihlásenia. Cena je odhad podľa aktuálneho kurzu, konečnú sumu potvrdíme v ponuke.</p>
+                <p className="note">Vrátane dopravy, cla, DPH, schválenia a prihlásenia. Cena je odhad podľa aktuálneho kurzu a nie je konečná. Skutočné náklady sa môžu znížiť aj zvýšiť.</p>
                 <ul className="ticks" style={{ marginTop: 10 }}>
                   {car.inspection && <li><a href="#protokol">Kórejský protokol o technickom stave</a></li>}
                   <li>Kontrola auta naším agentom pred vývozom</li>

@@ -12,7 +12,7 @@ export const revalidate = 21600;
 
 export const metadata: Metadata = {
   title: "Dovoz áut podľa značky a modelu: BMW, Mercedes, Porsche, Ford, Tesla",
-  description: "Dovoz áut podľa značky a modelu z USA, Dubaja, Kanady, Kórey, Japonska, Nemecka a EÚ: BMW, Mercedes-Benz, Audi, Porsche, Ford Mustang, Dodge, RAM, Tesla, Toyota, Lexus a ďalšie. Celková cena na slovenských značkách vopred.",
+  description: "Dovoz áut podľa značky a modelu z USA, Dubaja, Kanady, Kórey, Japonska, Nemecka a EÚ: BMW, Mercedes-Benz, Audi, Porsche, Ford Mustang, Dodge, RAM, Tesla, Toyota, Lexus a ďalšie. Odhad celkovej ceny na slovenských značkách vopred.",
   alternates: { canonical: "/znacky" },
   openGraph: { url: "/znacky" }
 };

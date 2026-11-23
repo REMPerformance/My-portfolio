@@ -67,9 +67,9 @@ export default async function Home() {
       <div className="perks">
         <div className="wrap">
           <div className="perk"><span className="ico"><SpecIcon k="ship" /></span><div><b>Dovoz až k Vám</b><small>Kúpa, doprava, clo aj prihlásenie</small></div></div>
-          <div className="perk"><span className="ico"><SpecIcon k="tag" /></span><div><b>Konečná cena vopred</b><small>Bez skrytých položiek na konci</small></div></div>
+          <div className="perk"><span className="ico"><SpecIcon k="tag" /></span><div><b>Rozpis nákladov vopred</b><small>Odhad všetkých položiek pred kúpou</small></div></div>
           <div className="perk"><span className="ico"><SpecIcon k="shield" /></span><div><b>Preverené autá</b><small>História, fotky a stav pred kúpou</small></div></div>
-          <div className="perk"><span className="ico"><SpecIcon k="gift" /></span><div><b>Kredit na tuning</b><small>Až 700 € do RACEM.sk</small></div></div>
+          <div className="perk"><span className="ico"><SpecIcon k="gift" /></span><div><b>Kredit na tuning</b><small>Kredit do RACEM.sk</small></div></div>
         </div>
       </div>
 
@@ -138,7 +138,7 @@ export default async function Home() {
           <div className="sec-head">
             <div>
               <h2 className="title" id="ponuka-h">Autá v ponuke {live.length ? <span className="cnt-n">({live.length})</span> : null}</h2>
-              <p className="sub">Cena pri každom aute je konečná suma na slovenských značkách – vrátane dopravy, cla, DPH a homologizácie.</p>
+              <p className="sub">Pri každom aute vidíte odhad celkovej sumy na slovenských značkách vrátane dopravy, cla, DPH a homologizácie.</p>
             </div>
             <Link href="/ponuka" className="rc-btn rc-btn--ghost">Celá ponuka <IArrow /></Link>
           </div>

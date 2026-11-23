@@ -32,8 +32,8 @@ function modelFaq(full: string, m: ModelDef, from: string[]) {
     {
       q: `Koľko stojí dovoz ${full}?`,
       a: onlyEu
-        ? `K cene auta sa pripočíta preprava po ceste na Slovensko, prihlásenie a náš poplatok. Pri aute z Európskej únie sa neplatí clo ani dovozná DPH a nie je potrebná homologizácia. Presnú sumu si spočítate v kalkulačke dovozu.`
-        : `K cene auta sa pripočítajú poplatky predajcu alebo aukcie, doprava do prístavu, námorná preprava, clo ${duty}, DPH 23 %, vykládka, kamión na Slovensko, homologizácia a prihlásenie.${from.includes("EU") ? " Pri kuse z Európskej únie odpadá clo, námorná preprava aj homologizácia." : ""} Pri každom aute v ponuke uvádzame celkovú cenu na slovenských značkách a vlastný výpočet si urobíte v kalkulačke dovozu.`
+        ? `K cene auta sa pripočíta preprava po ceste na Slovensko, prihlásenie a naše služby. Pri aute z Európskej únie sa neplatí clo ani dovozná DPH a nie je potrebná homologizácia. Odhad si spočítate v kalkulačke dovozu.`
+        : `K cene auta sa pripočítajú poplatky predajcu alebo aukcie, doprava do prístavu, námorná preprava, clo ${duty}, DPH 23 %, vykládka, kamión na Slovensko, homologizácia a prihlásenie.${from.includes("EU") ? " Pri kuse z Európskej únie odpadá clo, námorná preprava aj homologizácia." : ""} Pri každom aute v ponuke uvádzame odhad celkovej ceny na slovenských značkách a vlastný výpočet si urobíte v kalkulačke dovozu.`
     },
     { q: `Odkiaľ sa ${full} oplatí doviezť?`, a: `${full} najčastejšie dovážame ${fromList(from)}. ${m.note} Pred kúpou Vám porovnáme ponuky z viacerých krajín a spočítame, čo vychádza najlepšie.` },
     { q: `Dá sa doviezť aj nehavarovaný ${full}?`, a: `Áno. Okrem poškodených áut z aukcií dovážame aj nehavarované autá od predajcov a autá s čistými dokladmi. Poškodené kusy sú lacnejšie, pri nich vždy uvádzame rozsah poškodenia a odhad opravy.` },
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!mk || !m) return {};
   const full = `${mk.name} ${m.name}`;
   const title = `Dovoz ${full} ${countryDef(mk.from[0]).from} na kľúč`;
-  const description = `${full} na dovoz ${fromList(mk.from)}: havarované aj nehavarované kusy z aukcií a od predajcov. ${m.note} Celkovú cenu na slovenských značkách poznáte vopred.`;
+  const description = `${full} na dovoz ${fromList(mk.from)}: havarované aj nehavarované kusy z aukcií a od predajcov. ${m.note} Odhad celkovej ceny na slovenských značkách poznáte vopred.`;
   const path = `/znacky/${mk.slug}/${m.slug}`;
   return {
     title: { absolute: `${title} | REM Performance` },
@@ -96,7 +96,7 @@ export default async function ModelPage({ params }: Props) {
       <PageHead
         crumbs={crumbs}
         title={<>Dovoz <em>{full}</em> na kľúč</>}
-        sub={`${m.note} Nájdeme Vám ${full} podľa Vašich predstáv, havarovaný aj nehavarovaný, a dovezieme ho až k Vám so slovenskými značkami. Celkovú cenu poznáte vopred.`}
+        sub={`${m.note} Nájdeme Vám ${full} podľa Vašich predstáv, havarovaný aj nehavarovaný, a dovezieme ho až k Vám so slovenskými značkami. Odhad celkovej ceny poznáte vopred.`}
       />
       <section style={{ paddingTop: 16 }}>
         <div className="wrap">

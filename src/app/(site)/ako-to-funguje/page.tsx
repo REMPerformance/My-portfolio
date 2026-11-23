@@ -33,11 +33,11 @@ export default async function HowPage() {
       <section className="alt">
         <div className="wrap legal">
           <h2>1. Výber auta a odhad ceny</h2>
-          <p>Auto si vyberiete z našej <Link href="/ponuka">aktuálnej ponuky</Link> alebo nám pošlete odkaz na ľubovoľné auto – z aukcií Copart a IAAI v USA, od dealera v Dubaji, Kanade či Kórei. Ku každému autu pripravíme celkovú cenu na slovenských značkách: cenu auta, poplatky, dopravu do prístavu, námornú prepravu, clo, DPH, prístavné poplatky, kamión na Slovensko, homologizáciu a odhad opravy. Výpočet si môžete overiť aj v našej <Link href="/kalkulacka-dovozu">kalkulačke dovozu</Link>.</p>
+          <p>Auto si vyberiete z našej <Link href="/ponuka">aktuálnej ponuky</Link> alebo nám pošlete odkaz na ľubovoľné auto z aukcie v USA alebo od predajcu v Dubaji, Kanade či Kórei. Ku každému autu pripravíme odhad celkovej ceny na slovenských značkách: cenu auta, poplatky, dopravu do prístavu, námornú prepravu, clo, DPH, prístavné poplatky, kamión na Slovensko, homologizáciu a odhad opravy. Výpočet si môžete overiť aj v našej <Link href="/kalkulacka-dovozu">kalkulačke dovozu</Link>.</p>
           <p>Autá z aukcie majú uvedený <b>termín uzávierky objednávok</b>, spravidla 24 hodín pred koncom aukcie. Autá od predajcov majú uvedené, dokedy ponuka platí.</p>
 
           <h2>2. Zmluva o sprostredkovaní a záloha</h2>
-          <p>Po odoslaní dopytu Vás kontaktujeme, potvrdíme detaily a pošleme zmluvu o sprostredkovaní. V nej je Váš <b>maximálny limit</b>, do ktorého za Vás prihadzujeme, a výška nášho poplatku. Zložíte zálohu podľa odhadovanej konečnej ceny auta: {depositTiersText(cfg)}. Záloha je povinná rezerva na nepredvídané náklady, do konečnej ceny sa nezapočítava a jej nevyčerpaná časť sa vracia.</p>
+          <p>Po odoslaní dopytu Vás kontaktujeme, potvrdíme detaily a pošleme zmluvu o sprostredkovaní. V nej je Váš <b>maximálny limit</b>, do ktorého za Vás prihadzujeme, a odhad ceny. Všetky ceny sú odhad, skutočné náklady sa môžu znížiť aj zvýšiť. Zložíte zálohu podľa odhadovanej celkovej sumy: {depositTiersText(cfg)}. Záloha je povinná rezerva na nepredvídané náklady, do odhadovanej ceny sa nezapočítava a jej nevyčerpaná časť sa vracia po prihlásení auta.</p>
 
           <h2>3. Kúpa auta</h2>
           <p><b>Aukcia:</b> v deň aukcie za Vás prihadzujeme cez overeného brokera, nikdy nad limit zo zmluvy. Ak aukciu prehráme, zálohu vrátime do 5 pracovných dní alebo ju presunieme na ďalšie auto.</p>

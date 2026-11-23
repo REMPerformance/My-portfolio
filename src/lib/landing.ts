@@ -20,7 +20,7 @@ export const LANDINGS: Landing[] = [
     slug: "dovoz-auta-z-usa",
     country: "US",
     title: "Dovoz auta z USA na kľúč – Copart, IAAI, cena s clom a DPH",
-    description: "Dovoz auta z USA na Slovensko na kľúč: kúpa na aukcii Copart a IAAI alebo u predajcu, doprava z ktoréhokoľvek štátu, clo, DPH, homologizácia a prihlásenie. Celková cena vopred.",
+    description: "Dovoz auta z USA na Slovensko na kľúč: kúpa na aukcii Copart a IAAI alebo u predajcu, doprava z ktoréhokoľvek štátu, clo, DPH, homologizácia a prihlásenie. Odhad celkovej ceny vopred.",
     h1: ["Dovoz auta z USA", "na kľúč"],
     lead: "Americké autá vychádzajú často o 20 – 40 % lacnejšie ako na Slovensku – aj po zaplatení dopravy, cla a DPH. Kúpime Vám auto na aukcii Copart či IAAI alebo u predajcu v ktoromkoľvek z 50 štátov a dovezieme ho až k Vám so slovenskými značkami.",
     example: { label: "auto vydražené za 15 000 USD v Texase", price: 15000, place: "TX", auction: true },
@@ -66,7 +66,7 @@ export const LANDINGS: Landing[] = [
     faq: [
       { q: "Platí sa pri dovoze auta z Nemecka clo alebo DPH?", a: "Clo sa neplatí nikdy, pretože ide o pohyb tovaru v rámci Európskej únie. Pri jazdenom aute sa neplatí ani slovenská DPH z ceny auta. DPH sa na Slovensku platí pri novom aute, teda do 6 mesiacov od prvej registrácie alebo s nájazdom do 6 000 km, a pri aute kúpenom za cenu bez DPH." },
       { q: "Treba auto z EÚ homologizovať?", a: "Nie. Auto s európskym typovým schválením sa nehomologizuje. Potrebná je kontrola originality, doklady od auta (napríklad nemecké ZB1 a ZB2 a osvedčenie COC) a prihlásenie na dopravnom inšpektoráte." },
-      { q: "Koľko stojí dovoz auta z Nemecka?", a: "K cene auta sa pripočíta preprava po ceste, prihlásenie na Slovensku a náš poplatok za sprostredkovanie. Pri aukcii aj aukčné poplatky. Presnú sumu pre konkrétne auto Vám spočítame vopred." },
+      { q: "Koľko stojí dovoz auta z Nemecka?", a: "K cene auta sa pripočíta preprava po ceste, prihlásenie na Slovensku a naše služby. Pri aukcii aj aukčné poplatky. Odhad pre konkrétne auto Vám spočítame vopred." },
       { q: "Dovážate z Nemecka aj nehavarované autá?", a: "Áno. Väčšina áut, ktoré z EÚ dovážame od predajcov, je nehavarovaná. Na aukciách sa dajú kúpiť aj poškodené autá za nižšiu cenu, pri nich vždy uvádzame rozsah poškodenia." }
     ]
   },

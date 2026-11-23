@@ -54,8 +54,8 @@ export default async function MakePage({ params }: Props) {
   const what = jdm ? "JDM auta z Japonska" : `auta ${m.name}`;
   const onlyEu = m.from.length === 1 && m.from[0] === "EU";
   const faq = [
-    { q: `Odkiaľ sa oplatí dovoz ${what}?`, a: `${m.note} Najčastejšie dovážame z týchto krajín: ${fromTxt(m.from)}. Pred kúpou Vám porovnáme ponuky a spočítame celkovú cenu.` },
-    { q: `Koľko stojí dovoz ${what}?`, a: onlyEu ? "K cene auta sa pripočíta preprava po ceste na Slovensko, prihlásenie a náš poplatok. Pri aute z Európskej únie sa neplatí clo ani dovozná DPH a nie je potrebná homologizácia." : "K cene auta sa pripočítajú poplatky predajcu alebo aukcie, doprava, clo 10 % (pri pickupoch 22 %), DPH 23 %, homologizácia a prihlásenie. Pri aute z Európskej únie clo, námorná preprava aj homologizácia odpadajú. Presnú sumu si spočítate v kalkulačke dovozu." },
+    { q: `Odkiaľ sa oplatí dovoz ${what}?`, a: `${m.note} Najčastejšie dovážame z týchto krajín: ${fromTxt(m.from)}. Pred kúpou Vám porovnáme ponuky a spočítame odhad celkovej ceny.` },
+    { q: `Koľko stojí dovoz ${what}?`, a: onlyEu ? "K cene auta sa pripočíta preprava po ceste na Slovensko, prihlásenie a naše služby. Pri aute z Európskej únie sa neplatí clo ani dovozná DPH a nie je potrebná homologizácia." : "K cene auta sa pripočítajú poplatky predajcu alebo aukcie, doprava, clo 10 % (pri pickupoch 22 %), DPH 23 %, homologizácia a prihlásenie. Pri aute z Európskej únie clo, námorná preprava aj homologizácia odpadajú. Odhad si spočítate v kalkulačke dovozu." },
     { q: "Dovážate len havarované autá?", a: "Nie. Dovážame havarované autá z aukcií aj nehavarované autá od predajcov a z aukcií s čistými dokladmi. Pri poškodených kusoch vždy uvádzame rozsah poškodenia a odhad opravy." }
   ];
 
@@ -69,7 +69,7 @@ export default async function MakePage({ params }: Props) {
       <PageHead
         crumbs={crumbs}
         title={<>Dovoz {jdm ? <>JDM áut <em>z Japonska</em></> : <><em>{m.name}</em> na kľúč</>}</>}
-        sub={`${m.note} Nájdeme Vám ${jdm ? "auto" : m.name} podľa Vašich predstáv a dovezieme ho až k Vám so slovenskými značkami – celkovú cenu vrátane dopravy, cla a DPH poznáte vopred.`}
+        sub={`${m.note} Nájdeme Vám ${jdm ? "auto" : m.name} podľa Vašich predstáv a dovezieme ho až k Vám so slovenskými značkami – odhad celkovej ceny vrátane dopravy, cla a DPH poznáte vopred.`}
       />
       <section style={{ paddingTop: 16 }}>
         <div className="wrap">
