@@ -1,10 +1,16 @@
 "use client";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { eur, num } from "@/lib/format";
 import { Flag } from "./Flag";
 import { SpecIcon } from "./Icons";
-import type { KrCar } from "@/lib/krStockData";
+import type { KrRow } from "@/lib/krStockData";
+
+/** Auto v zozname (len údaje pre kartu a filtre). */
+interface KrListCar { id: string; make: string; model: string; trim: string | null; year: number | null; km: number | null; fuel: string | null; gear: string | null; region: string | null; price: number; photo: string | null }
+const IMG = "https://img-eu.ssancar.com/";
+const fromRow = ([id, make, model, trim, year, km, fuel, gear, region, price, photo]: KrRow): KrListCar =>
+  ({ id, make, model, trim, year, km, fuel, gear, region, price, photo: photo ? (/^https?:\/\//.test(photo) ? photo : IMG + photo) : null });
 
 const PRICES = [15000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 80000];
 const SORTS = [
@@ -17,8 +23,24 @@ const STEP = 24;
 const EMPTY = { q: "", make: "", model: "", fuel: "", ymin: "", kmax: "", pmax: "", sort: "new" };
 type F = typeof EMPTY;
 
-export function KrStockBrowser({ cars }: { cars: KrCar[] }) {
+export function KrStockBrowser({ initial, total, parts }: { initial: KrRow[]; total: number; parts: number }) {
+  const [cars, setCars] = useState<KrListCar[]>(() => initial.map(fromRow));
+  const [loaded, setLoaded] = useState(parts <= 0);
   const [f, setF] = useState<F>(EMPTY);
+
+  // celý sklad sa dotiahne po balíkoch, kým sa zobrazujú prvé autá
+  useEffect(() => {
+    if (parts <= 0) return;
+    let off = false;
+    Promise.all(Array.from({ length: parts }, (_, i) => fetch(`/api/kr-stock/${i}`).then((r) => (r.ok ? r.json() : { rows: [] })).catch(() => ({ rows: [] }))))
+      .then((res: { rows?: KrRow[] }[]) => {
+        if (off) return;
+        const all = res.flatMap((x) => x.rows || []).map(fromRow);
+        if (all.length) setCars(all);
+        setLoaded(true);
+      });
+    return () => { off = true; };
+  }, [parts]);
   const [shown, setShown] = useState(STEP);
   const set = (k: keyof F, v: string) => { setShown(STEP); setF((o) => ({ ...o, [k]: v, ...(k === "make" ? { model: "" } : {}) })); };
 
@@ -37,7 +59,7 @@ export function KrStockBrowser({ cars }: { cars: KrCar[] }) {
       (!f.make || c.make === f.make) && (!f.model || c.model === f.model) && (!f.fuel || c.fuel === f.fuel) &&
       (!f.ymin || (c.year || 0) >= Number(f.ymin)) && (!f.kmax || (c.km ?? Infinity) <= Number(f.kmax)) && (!f.pmax || c.price <= Number(f.pmax)) &&
       (!q || [c.make, c.model, c.trim, c.year].join(" ").toLowerCase().includes(q)));
-    const by: Record<string, (a: KrCar, b: KrCar) => number> = {
+    const by: Record<string, (a: KrListCar, b: KrListCar) => number> = {
       new: (a, b) => (b.year || 0) - (a.year || 0) || a.price - b.price,
       cheap: (a, b) => a.price - b.price,
       exp: (a, b) => b.price - a.price,
@@ -87,7 +109,7 @@ export function KrStockBrowser({ cars }: { cars: KrCar[] }) {
       </div>
 
       <div className="btoolbar">
-        <span className="bcount"><b>{num(list.length)}</b> {list.length === 1 ? "auto" : list.length > 1 && list.length < 5 ? "autá" : "áut"} ihneď k odberu</span>
+        <span className="bcount"><b>{num(loaded || any ? list.length : Math.max(total, list.length))}</b> {list.length === 1 ? "auto" : list.length > 1 && list.length < 5 ? "autá" : "áut"} ihneď k odberu</span>
         {any && <button type="button" className="linkbtn" onClick={() => { setShown(STEP); setF({ ...EMPTY, sort: f.sort }); }}>Zrušiť filtre</button>}
         <label className="bsort">
           <span className="sr-only">Triedenie</span>
@@ -111,15 +133,15 @@ export function KrStockBrowser({ cars }: { cars: KrCar[] }) {
   );
 }
 
-function KrCard({ car, eager }: { car: KrCar; eager: boolean }) {
+function KrCard({ car, eager }: { car: KrListCar; eager: boolean }) {
   const name = [car.year, car.make, car.model].filter(Boolean).join(" ");
   return (
     <article className="car">
       <Link prefetch={false} href={`/ihned-z-korey/${encodeURIComponent(car.id)}`} aria-label={`${name} ${car.trim ?? ""} – detail`} style={{ display: "contents" }}>
         <div className="car__img">
-          {car.photos[0]
+          {car.photo
             // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={car.photos[0]} alt={`${name} ${car.trim ?? ""}`} loading={eager ? "eager" : "lazy"} decoding="async" referrerPolicy="no-referrer" />
+            ? <img src={car.photo} alt={`${name} ${car.trim ?? ""}`} loading={eager ? "eager" : "lazy"} decoding="async" referrerPolicy="no-referrer" />
             : <span className="kr-nophoto">Fotky na vyžiadanie</span>}
           <span className="car__flag" title="Pôvod: Južná Kórea"><Flag code="KR" /></span>
           <div className="car__tags"><span className="tag tag--good">Ihneď k odberu</span></div>

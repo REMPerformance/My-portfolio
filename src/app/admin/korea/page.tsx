@@ -172,7 +172,7 @@ export default function KoreaPage() {
           <button className="rc-btn rc-btn--ghost rc-btn--sm" disabled={busy} onClick={refreshWeb}>Obnoviť ponuku na webe</button>
         </div>
       </div>
-      <p className="note" style={{ marginTop: 0 }}>Celý sklad sa zobrazuje sám na webe v sekcii Ihneď k odberu z Kórey s orientačnou cenou podľa cenníka v src/lib/krStock.ts (obnova každú hodinu). Tu nájdete sklad aj denné kórejské aukcie cez partnerské API SSANCAR. Auto sa importom otvorí ako nové auto s vyplnenými údajmi, fotkami a kalkuláciou, uloží sa až po Vašej kontrole. Názov aukčného domu ide len do internej poznámky.</p>
+      <p className="note" style={{ marginTop: 0 }}>Celý sklad sa zobrazuje sám na webe v sekcii Ihneď k odberu z Kórey s orientačnou cenou podľa cenníka v src/lib/krStock.ts (obnova každé 3 hodiny, celý sklad bez obmedzenia počtu). Tu nájdete sklad aj denné kórejské aukcie cez partnerské API SSANCAR. Auto sa importom otvorí ako nové auto s vyplnenými údajmi, fotkami a kalkuláciou, uloží sa až po Vašej kontrole. Názov aukčného domu ide len do internej poznámky.</p>
 
       {keyErr ? (
         <div className="empty" style={{ textAlign: "left" }}>

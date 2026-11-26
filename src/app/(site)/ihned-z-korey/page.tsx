@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getKrStock } from "@/lib/krStockData";
+import { getKrStock, krRow, KR_PART } from "@/lib/krStockData";
 import { SITE } from "@/lib/site";
 import { KrStockBrowser } from "@/components/KrStockBrowser";
 import { PageHead, breadcrumbLd } from "@/components/Sections";
@@ -9,6 +9,8 @@ import { QuickRequest } from "@/components/QuickRequest";
 
 // ponuka sa pripravuje vopred a obnovuje každé 3 hodiny (rovnako ako KR_REVALIDATE)
 export const revalidate = 10800;
+// prvé stiahnutie celého skladu zo SSANCAR môže trvať dlhšie
+export const maxDuration = 300;
 
 export const metadata: Metadata = {
   title: "Ihneď k odberu z Kórey: autá skladom u predajcov",
@@ -36,7 +38,7 @@ export default async function KrStockPage() {
       />
       <section style={{ paddingTop: 28 }}>
         <div className="wrap">
-          {cars.length ? <KrStockBrowser cars={cars} /> : (
+          {cars.length ? <KrStockBrowser initial={cars.slice(0, 48).map(krRow)} total={cars.length} parts={Math.ceil(cars.length / KR_PART)} /> : (
             <div className="empty">Ponuku áut z Kórey práve aktualizujeme. <Link href="/auto-na-mieru">Napíšte nám, aké auto hľadáte</Link>, a pošleme Vám aktuálne autá skladom.</div>
           )}
           <div className="kr-info">

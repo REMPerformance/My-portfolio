@@ -16,6 +16,7 @@ import { landingByCountry } from "@/lib/landing";
 import { getKrStock } from "@/lib/krStockData";
 
 export const revalidate = 3600;
+export const maxDuration = 300;
 
 export const metadata: Metadata = {
   title: { absolute: "Dovoz áut z USA, Dubaja a Kanady na kľúč | REM Performance" },

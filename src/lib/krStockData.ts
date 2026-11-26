@@ -10,8 +10,12 @@ import { krInspection, type KrInspection } from "./krInspection";
 
 /** Ako často sa ponuka z Kórey obnovuje (sekundy). Stránky sa generujú vopred a zákazník dostane hotovú ponuku. */
 export const KR_REVALIDATE = 10800;
-/** Najviac áut v sekcii (strán po 100). */
-const MAX_PAGES = 30;
+/** Veľkosť jednej strany z API (strana sa musí zmestiť do 2 MB, inak ju Next neuloží do dátovej cache). */
+const PAGE_SIZE = 200;
+/** Poistka proti nekonečnému stránkovaniu (400 × 200 = 80 000 áut). Sťahuje sa celý sklad. */
+const MAX_PAGES = 400;
+/** Koľko áut ide v jednom balíku do prehliadača (/api/kr-stock/[part]). */
+export const KR_PART = 3000;
 
 /** Auto zo skladu v Kórei tak, ako ho vidí zákazník: bez ŠPZ, odkazu na zdroj a nákupnej ceny. */
 export interface KrCar {
@@ -22,21 +26,30 @@ export interface KrCar {
   price: number;
 }
 
-async function ss<T>(path: string): Promise<T | null> {
+async function ss<T>(path: string, tries = 3): Promise<T | null> {
   const key = process.env.SSANCAR_API_KEY;
   if (!key) return null;
-  try {
-    const r = await fetch(SS_BASE + path, {
-      headers: { accept: "application/json", authorization: `Bearer ${key}` },
-      next: { revalidate: KR_REVALIDATE, tags: ["ssancar"] },
-      signal: AbortSignal.timeout(20000)
-    });
-    if (!r.ok) { if (r.status !== 404) console.error("ssancar", path, r.status); return null; }
-    return (await r.json()) as T;
-  } catch (e) {
-    console.error("ssancar", path, (e as Error).message);
-    return null;
+  for (let t = 1; t <= tries; t++) {
+    try {
+      const r = await fetch(SS_BASE + path, {
+        headers: { accept: "application/json", authorization: `Bearer ${key}` },
+        next: { revalidate: KR_REVALIDATE, tags: ["ssancar"] },
+        signal: AbortSignal.timeout(25000)
+      });
+      // limit požiadaviek za minútu: počkáme podľa Retry-After a skúsime znova
+      if ((r.status === 429 || r.status >= 500) && t < tries) {
+        const wait = Math.min(30, Math.max(1, Number(r.headers.get("retry-after")) || 2 * t));
+        await new Promise((ok) => setTimeout(ok, wait * 1000));
+        continue;
+      }
+      if (!r.ok) { if (r.status !== 404) console.error("ssancar", path, r.status); return null; }
+      return (await r.json()) as T;
+    } catch (e) {
+      console.error("ssancar", path, (e as Error).message);
+      if (t >= tries) return null;
+    }
   }
+  return null;
 }
 
 const FUEL: [RegExp, string][] = [[/plug/i, "Plug-in hybrid"], [/hybrid/i, "Hybrid"], [/electric|\bev\b/i, "Elektro"], [/hydrogen|fcev/i, "Vodík"], [/diesel/i, "Diesel"], [/lpg|lpi/i, "LPG"], [/gasoline|petrol|gas/i, "Benzín"]];
@@ -81,7 +94,7 @@ export const getKrStock = cache(async (): Promise<KrCar[]> => {
   const out: KrCar[] = [];
   let cursor: string | null = null;
   for (let n = 0; n < MAX_PAGES; n++) {
-    const p: SsPage<SsStock> | null = await ss<SsPage<SsStock>>(`/v1/stock?limit=100${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
+    const p: SsPage<SsStock> | null = await ss<SsPage<SsStock>>(`/v1/stock?limit=${PAGE_SIZE}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
     if (!p) break;
     for (const s of ssItems(p)) { const c = toCar(s, cfg); if (c) out.push(c); }
     if (!p.has_more || !p.next_cursor) break;
@@ -105,5 +118,13 @@ export const getKrCar = cache(async (id: string): Promise<(KrCar & { included: s
   const included = est ? includedItems(est).map((x) => (/^Námorná preprava/.test(x) ? `${x} (bez poistenia)` : x)) : [];
   return { ...car, included, inspection };
 });
+
+/** Kompaktný riadok auta pre zoznam v prehliadači (bez výbavy a ďalších fotiek, aby celý sklad nebol príliš veľký). */
+export type KrRow = [id: string, make: string, model: string, trim: string | null, year: number | null, km: number | null, fuel: string | null, gear: string | null, region: string | null, price: number, photo: string | null];
+const IMG = "https://img-eu.ssancar.com/";
+export const krRow = (c: KrCar): KrRow => {
+  const ph = c.photos[0] || null;
+  return [c.id, c.make, c.model, c.trim, c.year, c.km, c.fuel, c.gear, c.region, c.price, ph && ph.startsWith(IMG) ? ph.slice(IMG.length) : ph];
+};
 
 export const krName = (c: Pick<KrCar, "year" | "make" | "model">) => [c.year, c.make, c.model].filter(Boolean).join(" ");
