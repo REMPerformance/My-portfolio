@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getKrStock, krRow, KR_PART } from "@/lib/krStockData";
+import { getKrStock, krRow, KR_BUCKETS } from "@/lib/krStockData";
 import { SITE } from "@/lib/site";
 import { KrStockBrowser } from "@/components/KrStockBrowser";
 import { PageHead, breadcrumbLd } from "@/components/Sections";
@@ -38,7 +38,7 @@ export default async function KrStockPage() {
       />
       <section style={{ paddingTop: 28 }}>
         <div className="wrap">
-          {cars.length || process.env.SSANCAR_API_KEY ? <KrStockBrowser initial={cars.slice(0, 48).map(krRow)} total={cars.length} parts={Math.ceil(cars.length / KR_PART)} /> : (
+          {cars.length || process.env.SSANCAR_API_KEY ? <KrStockBrowser initial={cars.slice(0, 48).map(krRow)} total={cars.length} parts={KR_BUCKETS.length} /> : (
             <div className="empty">Ponuku áut z Kórey práve aktualizujeme. <Link href="/auto-na-mieru">Napíšte nám, aké auto hľadáte</Link>, a pošleme Vám aktuálne autá skladom.</div>
           )}
           <div className="kr-info">

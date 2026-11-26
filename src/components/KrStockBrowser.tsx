@@ -28,20 +28,23 @@ export function KrStockBrowser({ initial, total, parts }: { initial: KrRow[]; to
   const [loaded, setLoaded] = useState(false);
   const [f, setF] = useState<F>(EMPTY);
 
-  // celý sklad sa dotiahne po balíkoch, kým sa zobrazujú prvé autá (prvý balík povie, koľko ich je spolu)
+  // celý sklad sa dotiahne po ročníkoch (4 naraz, od najnovších) a autá pribúdajú postupne
   useEffect(() => {
+    if (parts <= 0) { setLoaded(true); return; }
     let off = false;
-    type Part = { rows?: KrRow[]; parts?: number };
-    const get = (i: number): Promise<Part> => fetch(`/api/kr-stock/${i}`).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
-    (async () => {
-      const first = await get(0);
-      const n = Math.min(15, Math.max(first.parts || 0, parts));
-      const rest = await Promise.all(Array.from({ length: Math.max(0, n - 1) }, (_, i) => get(i + 1)));
-      if (off) return;
-      const all = [first, ...rest].flatMap((x) => x.rows || []).map(fromRow);
-      if (all.length) setCars(all);
-      setLoaded(true);
-    })();
+    const got: KrListCar[][] = [];
+    let next = 0;
+    const work = async () => {
+      while (next < parts && !off) {
+        const i = next++;
+        const d: { rows?: KrRow[] } = await fetch(`/api/kr-stock/${i}`).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+        if (off) return;
+        got[i] = (d.rows || []).map(fromRow);
+        const all = got.flat();
+        if (all.length) setCars(all);
+      }
+    };
+    Promise.all(Array.from({ length: 4 }, work)).then(() => { if (!off) setLoaded(true); });
     return () => { off = true; };
   }, [parts]);
   const [shown, setShown] = useState(STEP);

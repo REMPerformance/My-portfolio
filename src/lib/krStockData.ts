@@ -14,8 +14,6 @@ export const KR_REVALIDATE = 10800;
 const PAGE_SIZE = 200;
 /** Poistka proti nekonečnému stránkovaniu (400 × 200 = 80 000 áut). Sťahuje sa celý sklad. */
 const MAX_PAGES = 400;
-/** Koľko áut ide v jednom balíku do prehliadača (/api/kr-stock/[part]). */
-export const KR_PART = 3000;
 
 /** Auto zo skladu v Kórei tak, ako ho vidí zákazník: bez ŠPZ, odkazu na zdroj a nákupnej ceny. */
 export interface KrCar {
@@ -87,21 +85,46 @@ function toCar(s: SsStock, cfg: Awaited<ReturnType<typeof getCalcConfig>>): KrCa
   };
 }
 
-/** Celá ponuka skladu v Kórei. Prázdne pole, ak API nie je pripojené. */
-export const getKrStock = cache(async (): Promise<KrCar[]> => {
-  // pri zostavovaní webu sa sklad nesťahuje (celý sklad trvá dlhšie ako limit buildu), načíta sa až na webe
-  if (!process.env.SSANCAR_API_KEY || process.env.NEXT_PHASE === "phase-production-build") return [];
+/**
+ * Sklad sa sťahuje po ročníkoch (API vie filtrovať year_min a year_max). Každý balík je tak samostatný a rýchly,
+ * nemusí čakať na celý sklad. Poradie od najnovších.
+ */
+const NOW_Y = new Date().getFullYear();
+export const KR_BUCKETS: { min?: number; max?: number }[] = [
+  { min: NOW_Y + 2 },
+  ...Array.from({ length: NOW_Y + 1 - 2009 + 1 }, (_, i) => ({ min: NOW_Y + 1 - i, max: NOW_Y + 1 - i })),
+  { max: 2008 }
+];
+
+const sortCars = (xs: KrCar[]) => xs.sort((a, b) => (b.year || 0) - (a.year || 0) || a.price - b.price);
+
+/** Autá jedného ročníka (balíka). */
+export const getKrBucket = cache(async (i: number): Promise<KrCar[]> => {
+  const b = KR_BUCKETS[i];
+  // pri zostavovaní webu sa sklad nesťahuje (trvá dlhšie ako limit buildu), načíta sa až na webe
+  if (!b || !process.env.SSANCAR_API_KEY || process.env.NEXT_PHASE === "phase-production-build") return [];
   const cfg = await getCalcConfig();
+  const q = `${b.min ? `&year_min=${b.min}` : ""}${b.max ? `&year_max=${b.max}` : ""}`;
   const out: KrCar[] = [];
   let cursor: string | null = null;
   for (let n = 0; n < MAX_PAGES; n++) {
-    const p: SsPage<SsStock> | null = await ss<SsPage<SsStock>>(`/v1/stock?limit=${PAGE_SIZE}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
+    const p: SsPage<SsStock> | null = await ss<SsPage<SsStock>>(`/v1/stock?limit=${PAGE_SIZE}${q}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
     if (!p) break;
     for (const s of ssItems(p)) { const c = toCar(s, cfg); if (c) out.push(c); }
     if (!p.has_more || !p.next_cursor) break;
     cursor = p.next_cursor;
   }
-  return out.sort((a, b) => (b.year || 0) - (a.year || 0) || a.price - b.price);
+  return sortCars(out);
+});
+
+/** Celá ponuka skladu v Kórei (všetky ročníky, po 4 naraz). Prázdne pole, ak API nie je pripojené. */
+export const getKrStock = cache(async (): Promise<KrCar[]> => {
+  const res: KrCar[][] = new Array(KR_BUCKETS.length);
+  let next = 0;
+  await Promise.all(Array.from({ length: 4 }, async () => {
+    while (next < KR_BUCKETS.length) { const i = next++; res[i] = await getKrBucket(i); }
+  }));
+  return sortCars(res.flat());
 });
 
 /** Jedno auto (aktuálny stav). null = predané, stiahnuté alebo API nie je pripojené. */

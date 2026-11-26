@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     revalidateTag("ssancar", "max");
     revalidatePath("/ihned-z-korey");
     revalidatePath("/");
-    for (let i = 0; i < 15; i++) revalidatePath(`/api/kr-stock/${i}`);
+    for (let i = 0; i < 40; i++) revalidatePath(`/api/kr-stock/${i}`);
   }
   const slugs = body.slugs || [];
   if (slugs.length) {
