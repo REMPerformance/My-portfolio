@@ -13,10 +13,9 @@ import { IArrow, SpecIcon, TypeArt } from "@/components/Icons";
 import { Flag } from "@/components/Flag";
 import { HeroSlides } from "@/components/HeroSlides";
 import { landingByCountry } from "@/lib/landing";
-import { getKrStock } from "@/lib/krStockData";
+import { KrCount } from "@/components/KrCount";
 
 export const revalidate = 3600;
-export const maxDuration = 300;
 
 export const metadata: Metadata = {
   title: { absolute: "Dovoz áut z USA, Dubaja a Kanady na kľúč | REM Performance" },
@@ -41,7 +40,8 @@ const ORIGIN_HINT: Record<string, string> = {
 };
 
 export default async function Home() {
-  const [{ cars }, ct, kr] = await Promise.all([getCardCars(), getContent(), getKrStock().catch(() => [])]);
+  const [{ cars }, ct] = await Promise.all([getCardCars(), getContent()]);
+  const hasKr = !!process.env.SSANCAR_API_KEY;
   const serverNow = Date.now();
   const live = cars.filter((c) => c.status === "published" && carPhase(c, serverNow) !== "ended");
   const sold = cars.filter((c) => c.status === "sold").sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at)).slice(0, 3);
@@ -86,7 +86,7 @@ export default async function Home() {
           <div className="origins">
             {COUNTRIES.map((c) => {
               const n = nCountry(c.code);
-              if (c.code === "KR" && kr.length) {
+              if (c.code === "KR" && hasKr) {
                 // Kórea: karta vedie na stránku krajiny, tlačidlo na autá skladom u predajcov
                 const href = `/${landingByCountry(c.code)?.slug ?? `ponuka?country=${c.code}`}`;
                 return (
@@ -98,7 +98,7 @@ export default async function Home() {
                       <small>{ORIGIN_HINT[c.code]}</small>
                     </span>
                     <span className="ocard__go" aria-hidden="true"><IArrow /></span>
-                    <Link href="/ihned-z-korey" className="ocard__n has ocard__kr"><span>{kr.length.toLocaleString("sk-SK")} áut ihneď k odberu</span><span className="ocard__krgo">Pozrieť <IArrow /></span></Link>
+                    <Link href="/ihned-z-korey" className="ocard__n has ocard__kr"><KrCount /><span className="ocard__krgo">Pozrieť <IArrow /></span></Link>
                   </div>
                 );
               }

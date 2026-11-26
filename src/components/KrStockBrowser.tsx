@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { eur, num } from "@/lib/format";
 import { Flag } from "./Flag";
 import { SpecIcon } from "./Icons";
@@ -19,61 +19,45 @@ const SORTS = [
   { v: "exp", l: "Najdrahšie" },
   { v: "km", l: "Najmenej najazdené" }
 ];
-const STEP = 24;
 const EMPTY = { q: "", make: "", model: "", fuel: "", ymin: "", kmax: "", pmax: "", sort: "new" };
 type F = typeof EMPTY;
 
-export function KrStockBrowser({ initial, total, parts }: { initial: KrRow[]; total: number; parts: number }) {
-  const [cars, setCars] = useState<KrListCar[]>(() => initial.map(fromRow));
-  const [loaded, setLoaded] = useState(false);
+type Res = { total: number; all: number; rows: KrRow[]; makes: [string, number][]; models: [string, number][]; fuels: [string, number][] };
+
+export function KrStockBrowser() {
   const [f, setF] = useState<F>(EMPTY);
+  const [q, setQ] = useState("");
+  const [page, setPage] = useState(0);
+  const [res, setRes] = useState<Res | null>(null);
+  const [cars, setCars] = useState<KrListCar[]>([]);
+  const [busy, setBusy] = useState(true);
+  const set = (k: keyof F, v: string) => { setPage(0); setF((o) => ({ ...o, [k]: v, ...(k === "make" ? { model: "" } : {}) })); };
 
-  // celý sklad sa dotiahne po ročníkoch (4 naraz, od najnovších) a autá pribúdajú postupne
+  // hľadanie textu s malým oneskorením, aby sa neposielal dotaz pri každom písmene
+  useEffect(() => { const t = setTimeout(() => { setPage(0); setF((o) => (o.q === q ? o : { ...o, q })); }, 350); return () => clearTimeout(t); }, [q]);
+
+  // server vráti len jednu stranu áut podľa filtrov
   useEffect(() => {
-    if (parts <= 0) { setLoaded(true); return; }
-    let off = false;
-    const got: KrListCar[][] = [];
-    let next = 0;
-    const work = async () => {
-      while (next < parts && !off) {
-        const i = next++;
-        const d: { rows?: KrRow[] } = await fetch(`/api/kr-stock/${i}`).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
-        if (off) return;
-        got[i] = (d.rows || []).map(fromRow);
-        const all = got.flat();
-        if (all.length) setCars(all);
-      }
-    };
-    Promise.all(Array.from({ length: 4 }, work)).then(() => { if (!off) setLoaded(true); });
-    return () => { off = true; };
-  }, [parts]);
-  const [shown, setShown] = useState(STEP);
-  const set = (k: keyof F, v: string) => { setShown(STEP); setF((o) => ({ ...o, [k]: v, ...(k === "make" ? { model: "" } : {}) })); };
+    const ctl = new AbortController();
+    const qs = new URLSearchParams(Object.entries({ ...f, page: page ? String(page) : "" }).filter(([, v]) => v) as [string, string][]);
+    setBusy(true);
+    fetch(`/api/kr-search?${qs}`, { signal: ctl.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: Res | null) => {
+        if (!d) return;
+        setRes(d);
+        const rows = d.rows.map(fromRow);
+        setCars((o) => (page ? [...o, ...rows] : rows));
+        setBusy(false);
+      })
+      .catch(() => {});
+    return () => ctl.abort();
+  }, [f, page]);
 
-  const opts = useMemo(() => {
-    const cnt = (xs: (string | null)[]) => [...xs.reduce((m, x) => (x ? m.set(x, (m.get(x) || 0) + 1) : m), new Map<string, number>())].sort((a, b) => a[0].localeCompare(b[0], "sk"));
-    return {
-      makes: cnt(cars.map((c) => c.make)),
-      models: cnt(cars.filter((c) => !f.make || c.make === f.make).map((c) => c.model)),
-      fuels: cnt(cars.map((c) => c.fuel))
-    };
-  }, [cars, f.make]);
-
-  const list = useMemo(() => {
-    const q = f.q.trim().toLowerCase();
-    const out = cars.filter((c) =>
-      (!f.make || c.make === f.make) && (!f.model || c.model === f.model) && (!f.fuel || c.fuel === f.fuel) &&
-      (!f.ymin || (c.year || 0) >= Number(f.ymin)) && (!f.kmax || (c.km ?? Infinity) <= Number(f.kmax)) && (!f.pmax || c.price <= Number(f.pmax)) &&
-      (!q || [c.make, c.model, c.trim, c.year].join(" ").toLowerCase().includes(q)));
-    const by: Record<string, (a: KrListCar, b: KrListCar) => number> = {
-      new: (a, b) => (b.year || 0) - (a.year || 0) || a.price - b.price,
-      cheap: (a, b) => a.price - b.price,
-      exp: (a, b) => b.price - a.price,
-      km: (a, b) => (a.km ?? 1e9) - (b.km ?? 1e9)
-    };
-    return out.sort(by[f.sort] || by.new);
-  }, [cars, f]);
-
+  const list = cars;
+  const opts = { makes: res?.makes || [], models: res?.models || [], fuels: res?.fuels || [] };
+  const total = res?.total ?? 0;
+  const loaded = !!res;
   const any = Object.entries(f).some(([k, v]) => k !== "sort" && v);
   const sel = (k: keyof F, label: string, items: [string, number][], all: string) => (
     <div className="field">
@@ -90,7 +74,7 @@ export function KrStockBrowser({ initial, total, parts }: { initial: KrRow[]; to
       <div className="fbar open" role="search" aria-label="Filtre ponuky z Kórey">
         <div className="field fb-q">
           <label htmlFor="kr-q">Hľadať</label>
-          <input id="kr-q" className="input" type="search" placeholder="Značka, model, výbava…" value={f.q} onChange={(e) => set("q", e.target.value)} />
+          <input id="kr-q" className="input" type="search" placeholder="Značka, model, výbava…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {sel("make", "Značka", opts.makes, "Všetky značky")}
         {sel("model", "Model", opts.models, "Všetky modely")}
@@ -115,8 +99,8 @@ export function KrStockBrowser({ initial, total, parts }: { initial: KrRow[]; to
       </div>
 
       <div className="btoolbar">
-        <span className="bcount" style={!loaded && !list.length ? { visibility: "hidden" } : undefined}><b>{num(loaded || any ? list.length : Math.max(total, list.length))}</b> {list.length === 1 ? "auto" : list.length > 1 && list.length < 5 ? "autá" : "áut"} ihneď k odberu</span>
-        {any && <button type="button" className="linkbtn" onClick={() => { setShown(STEP); setF({ ...EMPTY, sort: f.sort }); }}>Zrušiť filtre</button>}
+        <span className="bcount" style={!loaded ? { visibility: "hidden" } : undefined}><b>{num(total)}</b> {total === 1 ? "auto" : total > 1 && total < 5 ? "autá" : "áut"} ihneď k odberu</span>
+        {any && <button type="button" className="linkbtn" onClick={() => { setPage(0); setQ(""); setF({ ...EMPTY, sort: f.sort }); }}>Zrušiť filtre</button>}
         <label className="bsort">
           <span className="sr-only">Triedenie</span>
           <select className="input" value={f.sort} onChange={(e) => set("sort", e.target.value)}>
@@ -126,13 +110,13 @@ export function KrStockBrowser({ initial, total, parts }: { initial: KrRow[]; to
       </div>
 
       <div className="grid">
-        {list.length ? list.slice(0, shown).map((c, i) => <KrCard key={c.id} car={c} eager={i < 3} />) : !loaded ? null : (
-          <div className="empty">Týmto filtrom nezodpovedá žiadne auto. <button type="button" className="linkbtn" onClick={() => setF({ ...EMPTY })}>Zrušiť filtre</button> alebo <Link href="/auto-na-mieru">nám napíšte, čo hľadáte</Link>.</div>
+        {list.length ? list.map((c, i) => <KrCard key={c.id} car={c} eager={i < 3} />) : !loaded || busy ? null : (
+          <div className="empty">Týmto filtrom nezodpovedá žiadne auto. <button type="button" className="linkbtn" onClick={() => { setPage(0); setQ(""); setF({ ...EMPTY }); }}>Zrušiť filtre</button> alebo <Link href="/auto-na-mieru">nám napíšte, čo hľadáte</Link>.</div>
         )}
       </div>
-      {list.length > shown && (
+      {total > list.length && (
         <p style={{ textAlign: "center", marginTop: 24 }}>
-          <button type="button" className="rc-btn rc-btn--ghost" onClick={() => setShown((s) => s + STEP * 2)}>Zobraziť ďalšie ({num(list.length - shown)})</button>
+          <button type="button" className="rc-btn rc-btn--ghost" disabled={busy} onClick={() => setPage((n) => n + 1)}>Zobraziť ďalšie ({num(total - list.length)})</button>
         </p>
       )}
     </div>
