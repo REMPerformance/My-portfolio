@@ -9,7 +9,8 @@ import { eur, money, slugify } from "@/lib/format";
 import { COUNTRIES, CURRENCIES, countryDef, guessPlace } from "@/lib/origins";
 import { PlacePicker } from "@/components/admin/PlacePicker";
 import { parseListing, type Parsed } from "@/lib/listingParse";
-import { bookmarklet, decodeImport, fromImport } from "@/lib/importListing";
+import { bookmarklet, decodeImport, fromImport, type ImportPayload } from "@/lib/importListing";
+import { fromAuto1, looksLikeAuto1 } from "@/lib/importAuto1";
 import { enrichImport } from "@/lib/importEnrich";
 import { takeImportTarget } from "@/components/admin/mailStore";
 import { carSeoDescription, carSeoTitle, isDamaged } from "@/lib/carSeo";
@@ -141,6 +142,16 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
     const j = r ? await r.json().catch(() => ({})) : {};
     if (!r || !r.ok) return toast((j as { error?: string }).error || "VIN sa nepodarilo overiť.", true);
     apply((j as { data: Parsed }).data, "VIN");
+  }
+
+  // vložený text: stránka auta z AUTO1 má vlastné rozpoznávanie (cena, poškodenie z inšpekcie, výbava), ostatné ide cez všeobecné
+  function pasteText() {
+    if (!looksLikeAuto1(paste)) return apply(parseListing(paste), "textu");
+    const r = fromAuto1({ u: "", t: "", x: paste } as ImportPayload);
+    apply(r.parsed, "textu z AUTO1");
+    patch({ ...r.patch, ...(r.url ? { auction_url: r.url } : {}) });
+    setUnit("km");
+    setTodo(r.missing);
   }
 
   // ak v časti E-maily čaká rozpísaný e-mail na auto z aukcie, import patrí jemu a nie novému autu na webe
@@ -302,7 +313,7 @@ export default function EditCar({ params }: { params: Promise<{ id: string }> })
                   <summary>Vložiť text z inzerátu</summary>
                   <div>
                     <textarea className="input" rows={6} value={paste} onChange={(e) => setPaste(e.target.value)} placeholder={"Označte na stránke inzerátu všetko (Ctrl+A), skopírujte (Ctrl+C) a vložte sem.\nRozpoznám rok, značku, model, VIN, km, poškodenie, lokalitu, lot, kľúče…"} />
-                    <button type="button" className="rc-btn rc-btn--ghost" style={{ marginTop: 8 }} onClick={() => apply(parseListing(paste), "textu")} disabled={!paste.trim()}>Rozpoznať údaje</button>
+                    <button type="button" className="rc-btn rc-btn--ghost" style={{ marginTop: 8 }} onClick={pasteText} disabled={!paste.trim()}>Rozpoznať údaje</button>
                   </div>
                 </details>
               </div>

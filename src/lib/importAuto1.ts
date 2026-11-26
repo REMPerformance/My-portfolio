@@ -10,6 +10,8 @@ import { MAKES, MAKE_NAMES } from "./makes";
 import { modelsOf } from "./models";
 import type { CalcOverride, CarExtra, DamageZone, Severity } from "./types";
 
+/** Text skopírovaný zo stránky auta na AUTO1 (pole „Vložiť text z inzerátu“). */
+export const looksLikeAuto1 = (t: string) => /Skladové číslo:\s*[A-Z]{2}\d{5}|Stock number:\s*[A-Z]{2}\d{5}/i.test(t) && /(Stav tachometra|Mileage|Kilometerstand)\s*:/i.test(t);
 export const isAuto1 = (u: string) => /(^|\.)auto1\.com$/i.test((() => { try { return new URL(u).hostname; } catch { return ""; } })()) && /\/car\/[A-Z0-9]{5,}/i.test(u);
 
 const roundUpK = (x: number) => (Math.floor(x / 1000) + 1) * 1000;
@@ -18,7 +20,7 @@ const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 /** Hodnota za popiskom „Popisok: hodnota“ alebo na ďalšom riadku. */
 function val(t: string, ...keys: string[]) {
   for (const k of keys) {
-    const m = t.match(new RegExp(`(?:^|\\n)\\s*${esc(k)}\\s*:?[ \\t]*\\n?[ \\t]*([^\\n]+)`, "i"));
+    const m = t.match(new RegExp(`(?:^|\\n)[ \\t]*${esc(k)}[ \\t]*(?::[ \\t]*|\\n[ \\t]*)([^\\n]+)`, "i"));
     if (m && m[1].trim() && m[1].trim() !== "-") return m[1].trim();
   }
   return undefined;
@@ -29,14 +31,22 @@ function eurAmount(v?: string) {
   if (!v || !/€|\bEUR\b/i.test(v)) return 0;
   return Number(v.replace(/[^\d,.-]/g, "").replace(/[.,](?=\d{3}\b)/g, "").replace(",", ".")) || 0;
 }
-/** Prvá suma v EUR do niekoľkých riadkov za popiskom. */
-function priceAfter(t: string, re: RegExp) {
-  const m = t.match(re);
-  if (!m || m.index === undefined) return 0;
-  const after = t.slice(m.index + m[0].length).split("\n").slice(0, 4);
-  for (const l of after) { const n = eurAmount(l); if (n > 0) return n; }
+/** Suma v EUR pri popisku: najprv na tom istom riadku, potom na susedných riadkoch v poradí podľa „order“ (AUTO1 dáva cenu Kúpiť ihneď nad tlačidlo, minimálnu ponuku za popisok). */
+function priceNear(t: string, re: RegExp, order: "after" | "before" = "after") {
+  const ls = t.split("\n");
+  const i = ls.findIndex((l) => re.test(l));
+  if (i < 0) return 0;
+  const same = eurAmount(ls[i].replace(re, ""));
+  if (same > 0) return same;
+  const isLabel = (l: string) => /[a-záčďéíľĺňóôŕšťúýž]{3,}\s*:/i.test(l) && !eurAmount(l);
+  const after = ls.slice(i + 1, i + 3), before = ls.slice(Math.max(0, i - 2), i).reverse();
+  for (const l of order === "after" ? [...after, ...before] : [...before, ...after]) {
+    if (eurAmount(l) > 0 && !/ponuka|cena|price|gebot/i.test(l)) return eurAmount(l);
+    if (isLabel(l)) break;
+  }
   return 0;
 }
+const priceAfter = (t: string, re: RegExp) => priceNear(t, re, "after");
 
 const COUNTRY: Record<string, string> = {
   DE: "Nemecko", AT: "Rakúsko", CZ: "Česko", HU: "Maďarsko", PL: "Poľsko", IT: "Taliansko", NL: "Holandsko", BE: "Belgicko", FR: "Francúzsko",
@@ -63,21 +73,21 @@ const PARTS: [RegExp, string][] = [
   [/predný ľavý blatník|ľavý predný blatník|front left (fender|wing)|kotflügel vorne links/i, "fl_fender"], [/predný pravý blatník|pravý predný blatník|front right (fender|wing)|kotflügel vorne rechts/i, "fr_fender"],
   [/zadný ľavý blatník|ľavý zadný blatník|rear left (fender|wing|quarter)|seitenwand hinten links/i, "rl_quarter"], [/zadný pravý blatník|pravý zadný blatník|rear right (fender|wing|quarter)|seitenwand hinten rechts/i, "rr_quarter"],
   [/ľavý prah|prah vľavo|left sill|schweller links/i, "l_sill"], [/pravý prah|prah vpravo|right sill|schweller rechts/i, "r_sill"],
-  [/ľavé (vonkajšie )?zrkadlo|left mirror|spiegel links/i, "l_mirror"], [/pravé (vonkajšie )?zrkadlo|right mirror|spiegel rechts/i, "r_mirror"],
+  [/ľavé (vonkajšie )?zrkadlo|ľavého zrkadla|left mirror|spiegel links/i, "l_mirror"], [/pravé (vonkajšie )?zrkadlo|pravého zrkadla|right mirror|spiegel rechts/i, "r_mirror"],
   [/ľavý (predný )?svetlomet|predný ľavý svetlomet|left headl|scheinwerfer links/i, "fl_light"], [/pravý (predný )?svetlomet|predný pravý svetlomet|right headl|scheinwerfer rechts/i, "fr_light"],
   [/ľavé zadné svetlo|zadné ľavé svetlo|left (tail|rear) light|rückleuchte links/i, "rl_light"], [/pravé zadné svetlo|zadné pravé svetlo|right (tail|rear) light|rückleuchte rechts/i, "rr_light"],
   [/(disk|koleso|pneumatika|ráfik)\w* predn\w* ľav|predn\w* ľav\w* (disk|koleso|pneumatika|ráfik)|front left (wheel|rim|tyre)/i, "fl_wheel"],
   [/(disk|koleso|pneumatika|ráfik)\w* predn\w* prav|predn\w* prav\w* (disk|koleso|pneumatika|ráfik)|front right (wheel|rim|tyre)/i, "fr_wheel"],
   [/(disk|koleso|pneumatika|ráfik)\w* zadn\w* ľav|zadn\w* ľav\w* (disk|koleso|pneumatika|ráfik)|rear left (wheel|rim|tyre)/i, "rl_wheel"],
   [/(disk|koleso|pneumatika|ráfik)\w* zadn\w* prav|zadn\w* prav\w* (disk|koleso|pneumatika|ráfik)|rear right (wheel|rim|tyre)/i, "rr_wheel"],
-  [/interiér|sedadl|čalún|palubn|lišta|interior|seat|dashboard|innenraum|sitz/i, "interior"],
+  [/interiér|sedadl|čalún|palubn|lišta|volant|navigačn|konzol|strop|koberc|interior|seat|dashboard|steering wheel|innenraum|sitz|lenkrad/i, "interior"],
   [/motor|engine/i, "engine"], [/prevodov|gearbox|getriebe/i, "transmission"], [/podvoz|underbody|unterboden/i, "undercarriage"]
 ];
 /** Druhy poškodenia, ktoré AUTO1 uvádza v prvom stĺpci. */
 const KINDS: [RegExp, string][] = [
   [/vydutin|preliač|dent|delle|beule/i, "preliačina"], [/škrab|scratch|kratzer/i, "škrabanec"], [/kamien|stone chip|steinschlag/i, "poškodenie kamienkom"],
-  [/prasklin|crack|riss/i, "prasklina"], [/zlomen|rozbit|broken|gebrochen/i, "zlomené"], [/chýb|missing|fehlt/i, "chýba"], [/hrdz|korózi|rust|rost/i, "korózia"],
-  [/oprav|lak|repair|repaint|nachlack/i, "oprava laku"], [/opotreb|wear|verschlei/i, "opotrebenie"], [/poškodenie čalúnenia|upholstery|polster/i, "poškodenie čalúnenia"],
+  [/prasklin|puklin|crack|riss/i, "prasklina"], [/zlomen|rozbit|broken|gebrochen/i, "zlomené"], [/chýb|missing|fehlt/i, "chýba"], [/hrdz|korózi|rust|rost/i, "korózia"],
+  [/opravovan|prelakovan|neodborná oprava|repaint|poor repair|nachlack/i, "oprava laku"], [/opotreb|wear|verschlei/i, "opotrebenie"], [/poškodenie čalúnenia|upholstery|polster/i, "poškodenie čalúnenia"],
   [/špinav|dirty|verschmutz/i, "znečistenie"], [/deform|deformation|verform/i, "deformácia"]
 ];
 
@@ -92,7 +102,7 @@ function damage(t: string) {
     const k = KINDS.find(([r]) => r.test(raw));
     if (k) kind = k[1];
     // dotknuté časti sú na konci riadku: „Zadné ľavé dvere (1), Zadný ľavý blatník (1)“
-    const parts = [...raw.matchAll(/([A-ZÁČĎÉÍĽĹŇÓÔŔŠŤÚÝŽÄÖÜ][^,()\d]*?)\s*\((\d+(?:-\d+)?)\)/g)];
+    const parts = [...raw.matchAll(/([A-ZÁČĎÉÍĽĹŇÓÔŔŠŤÚÝŽÄÖÜ][^,()\d<>≤≥]*?)\s*\(\s*([<>≤≥]?\s*\d+(?:\s*-\s*\d+)?)\s*\)/g)];
     if (!parts.length) continue;
     const deep = /hlbok|základn|deep|primer|poškodenie laku|lackschaden/i.test(raw);
     const big = /≥\s*50\s*mm|≥\s*100\s*mm/.test(raw);
@@ -102,7 +112,7 @@ function damage(t: string) {
     const what = `${kind || "poškodenie"}${deep && kind === "škrabanec" ? " až po základný náter" : ""}`;
     for (const p of parts) {
       const name = p[1].trim();
-      lines.push(`${name}: ${what} (${p[2]}×)`);
+      lines.push(`${name}: ${what} (${p[2].replace(/\s+/g, "")}×)`);
       const id = PARTS.find(([r]) => r.test(name))?.[1];
       if (!id) continue;
       const cur = zones.get(id);
@@ -115,17 +125,32 @@ function damage(t: string) {
 
 /* ───────── výbava: dvojice „kategória / podrobnosť“ ───────── */
 
+/** Kategórie výbavy, ako ich AUTO1 píše po slovensky. Riadky za kategóriou sú jej podrobnosti (často po anglicky, niekedy viac riadkov). */
+const EQ_CATS = ["xenónové svetlá", "led svetlá", "laserové svetlá", "vyhrievané sedadlá", "ventilované sedadlá", "masážne sedadlá", "nastavenie sedadla", "pamäť sedadiel",
+  "parkovacie zariadenie (určuje vzdialenosť od prekážky)", "parkovacie zariadenie", "parkovacia kamera", "kamera", "posilňovač riadenia", "hands-free systém", "športový podvozok", "športové sedadlá",
+  "zábavná konzola", "navigácia", "airbag", "klimatizácia", "samosvorný diferenciál (lsd)", "elektricky ovládané okná", "esp", "abs", "imobilizér", "pohon všetkých kolies", "palubný počítač",
+  "varovné zariadenia / bezpečnostný alarm", "tempomat", "ťažné zariadenie", "panoramatická strecha", "strešné okno", "kožené sedadlá", "head-up displej", "bezkľúčový prístup", "centrálne zamykanie",
+  "elektrické zrkadlá", "zliatinové disky", "hliníkové disky", "rádio", "zvukový systém", "isofix", "vzduchové odpruženie", "adaptívny podvozok", "vyhrievaný volant", "multifunkčný volant",
+  "asistent jazdného pruhu", "asistent mŕtveho uhla", "dažďový senzor", "svetelný senzor", "hmlové svetlá", "start-stop", "strešné nosiče", "tónované sklá", "elektrické sedadlá", "digitálny prístrojový panel"];
+
 function equipment(t: string) {
-  const m = t.match(/\n\s*(VYBAVENIE VOZIDLA|VEHICLE EQUIPMENT|AUSSTATTUNG)\s*\n([\s\S]*?)\n\s*(PODROBNOSTI O SERVISE|SERVICE DETAILS|SERVICEDETAILS|PODROBNOSTI O ELEKTROMOBILE|VSTUPNÁ DIAGNOSTIKA)/i);
-  if (!m) return [];
-  const ls = m[2].split("\n").map((x) => x.trim()).filter((x) => x && !/automaticky preložený|ukázať originál|automatically translated|show original/i.test(x));
   const out: string[] = [];
-  for (let k = 0; k < ls.length; k += 2) {
-    const cat = ls[k], det = ls[k + 1];
-    if (!cat) continue;
-    out.push(det && det.toLowerCase() !== cat.toLowerCase() ? `${cat}: ${det}` : cat);
+  const m = t.match(/\n\s*(VYBAVENIE VOZIDLA|VEHICLE EQUIPMENT|AUSSTATTUNG)\s*\n([\s\S]*?)\n\s*(PODROBNOSTI O SERVISE|SERVICE DETAILS|SERVICEDETAILS|PODROBNOSTI O ELEKTROMOBILE|VSTUPNÁ DIAGNOSTIKA|INFORMÁCIE O VOZIDLE NA ZÁKLADE)/i);
+  const skip = (x: string) => !x || /automaticky preložený|ukázať originál|automatically translated|show original|zobraziť viac|show more/i.test(x);
+  if (m) {
+    let cat = "", det: string[] = [];
+    const flush = () => { if (cat) out.push(det.length ? `${cat}: ${det.join(", ")}` : cat); cat = ""; det = []; };
+    for (const l of m[2].split("\n").map((x) => x.trim()).filter((x) => !skip(x))) {
+      if (EQ_CATS.includes(l.toLowerCase())) { flush(); cat = l; }
+      else if (cat) det.push(l);
+      else out.push(l);
+    }
+    flush();
   }
-  return [...new Set(out)].slice(0, 80);
+  // ďalšia výbava podľa VIN: jeden riadok = jedna položka
+  const v = t.match(/\n\s*INFORMÁCIE O VOZIDLE NA ZÁKLADE[^\n]*\n([\s\S]*?)(\n\s*(ZOBRAZIŤ VIAC|Zobraziť viac|PODOBNÉ VOZIDLÁ|SLEDOVANÉ VOZIDLÁ)|$)/i);
+  if (v) for (const l of v[1].split("\n").map((x) => x.trim())) if (!skip(l) && l.length < 140) out.push(l);
+  return [...new Set(out)].slice(0, 100);
 }
 
 /* ───────── značka a model z nadpisu ───────── */
@@ -162,9 +187,13 @@ export function fromAuto1(p: ImportPayload): Imported {
   if (stock) out.lot = stock.toUpperCase();
 
   /* nadpis: riadok pred „Minimálna ponuka“, záloha h1 alebo názov stránky */
-  const h = (p as ImportPayload & { h?: string }).h || "";
-  const before = own.split(/\n\s*(Minimálna ponuka|Minimum bid|Mindestgebot|Aktuálna ponuka|Kúpiť|Okamžit)/i)[0].split("\n").map((x) => x.trim()).filter(Boolean);
-  const titleLine = h.trim() || [...before].reverse().find((l) => /[a-z]/i.test(l) && !/^\d|aukcia|auction|ponuka|^[\d\s]+$/i.test(l) && l.length > 3) || (p.t || "").replace(/\s*[|-]\s*auto1.*$/i, "");
+  const h = ((p as ImportPayload & { h?: string }).h || "").trim();
+  const docTitle = (p.t || "").replace(/\s*[|-]\s*auto1.*$/i, "").trim();
+  const ls0 = own.split("\n").map((x) => x.trim());
+  const afterClock = ls0[ls0.findIndex((l) => /^\d{8,}$/.test(l)) + 1] || "";
+  const beforeWatch = ls0[ls0.findIndex((l) => /^(SLEDOVANÉ VOZIDLÁ|VLOŽIŤ BID|WATCHLIST|PLACE BID)$/i.test(l)) - 1] || "";
+  const ok = (x: string) => x.length > 3 && /[a-z]/i.test(x) && !/^(auto1|auto1\.com)$|kúpiť|buy it now|aukci|auction|ponuka|dopyt|zoznam|^\d/i.test(x);
+  const titleLine = [docTitle, h, afterClock, beforeWatch].find(ok) || "";
   const nm = splitName(titleLine);
   if (nm.make) out.make = nm.make;
   if (nm.model) out.model = nm.model;
@@ -221,6 +250,23 @@ export function fromAuto1(p: ImportPayload): Imported {
   if (origin) specs.push({ label: "Krajina pôvodu", value: COUNTRY[origin.toUpperCase()] || origin });
   const service = val(own, "Detaily servisnej knižky", "Service book", "Serviceheft");
   if (service && !/nedostupn|not available|nicht verfügbar/i.test(service)) specs.push({ label: "Servisná knižka", value: service });
+  const tuning = val(own, "Tuningové vozidlo", "Tuned vehicle", "Tuning-Fahrzeug");
+  const tuningNote = val(own, "Poznámka o tuningu", "Tuning note", "Tuning-Hinweis");
+  const origEngine = val(own, "Originálny motor", "Original engine", "Originalmotor");
+  const tuned = !!tuning && /^(áno|yes|ja)/i.test(tuning);
+  if (tuned) {
+    specs.push({ label: "Úpravy (tuning)", value: tuningNote ? `Áno (${tuningNote.replace(/[-\s]+$/, "").replace(/-\s*/g, ", ")})` : "Áno" });
+    missing.push(`POZOR, tuning: auto je upravené${tuningNote ? ` (${tuningNote.replace(/[-\s]+$/, "")})` : ""}. Úpravy sa musia dať schváliť na Slovensku alebo vrátiť do pôvodného stavu, zohľadnite to v cene a v popise`);
+  }
+  if (origEngine && /^(nie|no|nein)/i.test(origEngine)) {
+    specs.push({ label: "Originálny motor", value: "Nie" });
+    missing.push("POZOR: auto nemá originálny motor (vymenený motor treba doložiť pri schválení)");
+  }
+  const lastService = val(own, "Posledná prehliadka", "Last service", "Letzter Service");
+  const serviceKm = digits(val(own, "Stav tachometra pri poslednom servise", "Mileage at last service", "Kilometerstand beim letzten Service"));
+  const serviceSome = val(own, "Servisná prehliadka", "Service history", "Servicehistorie");
+  if (serviceSome && !/^(-|žiadny|none|keine)$/i.test(serviceSome)) specs.push({ label: "Servisná história", value: serviceSome });
+  if (lastService && lastService !== "-") specs.push({ label: "Posledný servis", value: `${lastService.replace(/\s+/g, " ")}${serviceKm ? ` pri ${num(serviceKm)} km` : ""}` });
   const battery = val(own, "Batéria prenajatá", "Battery leased", "Batterie gemietet");
   if (battery && /^(áno|yes|ja)/i.test(battery)) missing.push("pozor, batéria je prenajatá (nájom batérie sa musí riešiť zvlášť)");
   const cable = val(own, "Je k dispozícii nabíjací kábel", "Charging cable available", "Ladekabel vorhanden");
@@ -240,10 +286,16 @@ export function fromAuto1(p: ImportPayload): Imported {
   const findings: string[] = [];
   const td = own.match(/\n\s*(INFORMÁCIE O TESTOVACEJ JAZDE|TEST DRIVE INFORMATION|PROBEFAHRT)[^\n]*\n([\s\S]*?)\n\s*(ZHRNUTIE POŠKODENIA|DAMAGE SUMMARY|SCHADEN)/i);
   if (td) {
-    const ls = td[2].split("\n").map((x) => x.trim()).filter(Boolean);
-    for (let k = 0; k < ls.length - 1; k++) if (/:$/.test(ls[k]) && !/žiadne špecifické zistenia|no specific findings|keine besonderen/i.test(ls[k + 1]) && !/:$/.test(ls[k + 1])) findings.push(`${ls[k]} ${ls[k + 1]}`);
+    let head = "", body: string[] = [];
+    const flush = () => { const b = body.join(" ").replace(/\s*:\s*/g, ": ").trim(); if (head && b && !/žiadne špecifické zistenia|no specific findings|keine besonderen/i.test(b)) findings.push(`${head} ${b}`); head = ""; body = []; };
+    for (const l of td[2].split("\n").map((x) => x.trim()).filter(Boolean)) {
+      if (/^MIESTO TESTOVACEJ|^TEST DRIVE LOCATION/i.test(l)) continue;
+      if (/^[^:]{2,40}:$/.test(l)) { flush(); head = l; } else if (head) body.push(l);
+    }
+    flush();
   }
-  out.run_status = drove ? (findings.some((f) => /motor|engine|štart|start/i.test(f)) ? "starts" : "run_drive") : "unknown";
+  // auto, ktoré prešlo testovacou jazdou, ide a jazdí; zistenia z jazdy sú v histórii a v zozname na doplnenie
+  out.run_status = drove ? "run_drive" : "unknown";
   const dmg = damage(own);
   const accident = own.match(/(Predchádzajúce poškodenie \/ Havária[^\n]*?|Previous damage[^\n]*?|Unfallschaden[^\n]*?)\s+(Áno|Nie|Yes|No|Ja|Nein)\s*(?:\n|$)/i);
   const hadAccident = !!accident && /^(áno|yes|ja)$/i.test(accident[2]);
@@ -255,22 +307,24 @@ export function fromAuto1(p: ImportPayload): Imported {
   out.title_type = coc && /^(áno|yes|ja)/i.test(coc) ? "EÚ doklady (COC)" : "EÚ doklady";
 
   /* cena: Kúpiť hneď (pevná) alebo aukcia s minimálnou ponukou. Ponuka na AUTO1 už zahŕňa čistý aukčný poplatok. */
-  const buyNow = priceAfter(own, /\n\s*(Kúpiť (hneď|teraz|ihneď)|Okamžit\w* (nákup|kúpa)|Cena (pri )?okamžitej kúpe|Buy now|Instant purchase|Sofort kaufen|Sofortkauf)\s*:?/i);
-  const minBid = priceAfter(own, /\n\s*(Minimálna ponuka|Minimum bid|Mindestgebot)\s*:?/i);
-  const curBid = priceAfter(own, /\n\s*(Aktuálna ponuka|Najvyššia ponuka|Current bid|Highest bid|Aktuelles Gebot|Höchstgebot)\s*:?/i);
+  const buyNow = priceNear(own, /^\s*(Kúpiť (hneď|teraz|ihneď)|Okamžit\w* (nákup|kúpa)|Buy (it )?now|Instant purchase|Sofort kaufen|Sofortkauf)\s*$/i, "before")
+    || priceNear(own, /^\s*(Auto1 cena|Auto1 price|Auto1 Preis|Pevná cena|Fixed price|Festpreis)\s*:?/i, "after");
+  const minBid = priceAfter(own, /^\s*(Minimálna ponuka|Minimum bid|Mindestgebot)\s*:?/i);
+  const curBid = priceAfter(own, /^\s*(Aktuálna ponuka|Najvyššia ponuka|Vaša ponuka|Current bid|Highest bid|Aktuelles Gebot|Höchstgebot)\s*:?/i);
   const channel = (own.match(/\n\s*(24H AUKCIA|ŠPECIÁLNA PONUKA[^\n]*|[^\n]*AUKCIA|24H AUCTION|[^\n]*AUCTION)\s*\n/i) || [])[1]?.trim();
   const blurred = /\n\s*-\s?[\d\s]+\s*[A-Z]{3}\s*\n/.test(own) && !minBid && !buyNow;
   let price = 0;
   if (buyNow > 0) {
     price = roundUpK(buyNow);
-    missing.push(`kontrolu ceny: AUTO1 uvádza cenu Kúpiť hneď ${num(buyNow)} €, nastavil som pevnú cenu ${num(price)} € (zaokrúhlené nahor na celú tisícku)`);
+    missing.push(`kontrolu ceny: cena Kúpiť ihneď je ${num(buyNow)} €${minBid ? ` (v aukcii minimálna ponuka ${num(minBid)} €)` : ""}, nastavil som pevnú cenu ${num(price)} € (zaokrúhlené nahor na celú tisícku)`);
   } else if (curBid > 0 || minBid > 0) {
     const base = Math.max(curBid, minBid);
     price = roundUpK(base);
     missing.push(`váš odhad vydraženia: ${channel ? `${channel.toLowerCase()}, ` : ""}${curBid ? `aktuálna ponuka ${num(curBid)} €` : `minimálna ponuka ${num(minBid)} €`}. Ako cenu som zatiaľ nastavil ${num(price)} € (zaokrúhlené nahor na celú tisícku), prepíšte ju sumou, s ktorou rátate`);
   } else missing.push(blurred ? "cenu auta (AUTO1 ju ukáže až po overení účtu, potom importujte znova)" : "cenu auta (stránka ju neukázala)");
   // DPH z aukčného poplatku platí kupujúci podľa svojej daňovej situácie, AUTO1 ju uvádza orientačne
-  const feeVat = Number((own.match(/zaplatiť sumu okolo\s+([\d\s.,]+)\s*(?:€|EUR)?|pay (?:an amount of )?around\s+€?\s*([\d\s.,]+)/i) || []).slice(1).find(Boolean)?.replace(/[^\d]/g, "") || 0);
+  const feeRaw = (own.match(/zaplatiť sumu okolo\s+(-?[\d\s.,]+)\s*(?:€|EUR)?|pay (?:an amount of )?around\s+€?\s*(-?[\d\s.,]+)/i) || []).slice(1).find(Boolean) || "";
+  const feeVat = /^-/.test(feeRaw.trim()) ? 0 : Math.ceil(Number(feeRaw.replace(/\s/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", ".")) || 0);
   const override: CalcOverride = {};
   if (feeVat > 0) {
     override.extraCosts = [{ label: "Poplatky predajcu", eur: feeVat }];
@@ -279,7 +333,7 @@ export function fromAuto1(p: ImportPayload): Imported {
   missing.push("DPH auta: overte na AUTO1, či je auto s odpočtom DPH (cena bez DPH) alebo v osobitnej úprave. Ak je cena bez DPH, vypnite pri aute prepínač „Cena auta je konečná“");
 
   /* doprava: ak AUTO1 ukáže cenu doručenia, len ju pripomenieme, kalkulácia počíta dopravu podľa krajiny */
-  const delivery = priceAfter(own, /\n\s*(Doručenie na moju adresu|Delivery to my address|Lieferung an meine Adresse)\s*\n/i);
+  const delivery = priceAfter(own, /^\s*(Doručenie na moju adresu|Delivery to my address|Lieferung an meine Adresse)\s*$/i);
   missing.push(delivery ? `kontrolu dopravy: AUTO1 ponúka doručenie na vašu adresu za ${num(delivery)} €, kalkulácia počíta dopravu z krajiny ${COUNTRY[state]} podľa Nastavení` : `dopravu: AUTO1 doručenie na Slovensko neukázalo, kalkulácia počíta dopravu z krajiny ${COUNTRY[state]} podľa Nastavení (pri vyzdvihnutí v logistickom centre si dopravu objednávame sami)`);
 
   /* popis (zobrazuje sa na webe) */
@@ -292,16 +346,17 @@ export function fromAuto1(p: ImportPayload): Imported {
   if (km) parts.push(`Nájazd ${num(km)} km.`);
   if (reg) parts.push(`Prvá registrácia ${reg.replace(/\s+/g, " ").replace(/^(\d{1,2})\.\s*(\d{4})$/, (_, m, y) => `${Number(m)}/${y}`)}.`);
   if (hadAccident) parts.push("Auto bolo podľa predchádzajúceho majiteľa po nehode.");
-  else if (heavy || medium) parts.push("Auto je nehavarované, inšpekcia uvádza poškodenia karosérie, ich zoznam je pri aute.");
-  else if (zl.length) parts.push("Auto je nehavarované, inšpekcia uvádza len bežné opotrebenie (drobné škrabance a preliačiny).");
+  else if (heavy || medium) parts.push(`${accident ? "Podľa predchádzajúceho majiteľa auto nebolo havarované. " : ""}Inšpekcia uvádza poškodenia karosérie, ich zoznam je pri aute.`);
+  else if (zl.length) parts.push(`${accident ? "Podľa predchádzajúceho majiteľa auto nebolo havarované. " : ""}Inšpekcia uvádza len bežné opotrebenie (drobné škrabance a preliačiny).`);
   else if (dmg.found) parts.push("Inšpekcia neuvádza žiadne poškodenie.");
   parts.push(drove ? (findings.length ? "Auto prešlo testovacou jazdou so zisteniami uvedenými pri aute." : "Auto prešlo testovacou jazdou bez zistení.") : "Stav auta overíme pred kúpou.");
+  if (tuned) parts.push("Auto má úpravy výkonu alebo vzhľadu, ktoré pred prihlásením riešime podľa predpisov.");
   if (keys) parts.push(keys > 1 ? `K autu sú ${keys} kľúče.` : "K autu je jeden kľúč.");
   parts.push("Auto je v Európskej únii, takže sa neplatí clo ani dovozná DPH a nie je potrebná homologizácia.");
 
   const history: string[] = [];
   if (dmg.lines.length) history.push(`Poškodenia podľa inšpekcie: ${dmg.lines.join("; ")}.`);
-  if (findings.length) history.push(`Zistenia z testovacej jazdy: ${findings.join("; ")}.`);
+  if (findings.length) history.push(`Zistenia z testovacej jazdy: ${findings.map((f) => f.replace(/\.+$/, "")).join("; ")}.`);
   const extra: CarExtra = { specs };
   const eq = equipment(own);
   if (eq.length) extra.equipment = eq;
@@ -313,11 +368,11 @@ export function fromAuto1(p: ImportPayload): Imported {
   if (!out.make || !out.model) missing.push("značku a model (nadpis sa nepodarilo rozdeliť)");
   else if (!modelsOf(MAKES.find((x) => x.name.toLowerCase() === out.make!.toLowerCase())?.slug || "").length) missing.push(`kontrolu rozdelenia názvu na značku, model a výbavu („${titleLine}“)`);
   if (findings.length) missing.push("preklad zistení z testovacej jazdy do popisu");
-  if (!(p.bv && p.bv >= 4)) missing.unshift("STARÁ ZÁLOŽKA: pre AUTO1 odstráňte záložku Import do REM z lišty a potiahnite ju sem nanovo, inak sa nemusí načítať celá stránka (výbava, poškodenie)");
+  if (p.u && !(p.bv && p.bv >= 4)) missing.unshift("STARÁ ZÁLOŽKA: pre AUTO1 odstráňte záložku Import do REM z lišty a potiahnite ju sem nanovo, inak sa nemusí načítať celá stránka (výbava, poškodenie)");
   missing.push("cenu na Slovensku");
 
   const images = photos(p, out.lot);
-  if (!images.length) missing.push("fotky");
+  if (!images.length) missing.push(p.u ? "fotky" : "fotky (z vloženého textu sa nedajú stiahnuť, použite záložku Import do REM priamo na stránke auta)");
   (Object.keys(out) as (keyof Parsed)[]).forEach((k) => out[k] === undefined && delete out[k]);
   return {
     parsed: out,
@@ -326,7 +381,7 @@ export function fromAuto1(p: ImportPayload): Imported {
       ...(price ? { price_usd: price } : {}), seller_fee_usd: 0,
       damage_zones: zl, extra, ...(Object.keys(override).length ? { calc_override: override } : {}), description: parts.join(" ")
     },
-    url: p.u.split("?")[0], images, saleEnd: null, source: "auto1.com", missing
+    url: p.u ? p.u.split("?")[0] : (out.lot ? `https://www.auto1.com/sk/app/merchant/car/${out.lot}` : ""), images, saleEnd: null, source: "auto1.com", missing
   };
 }
 
