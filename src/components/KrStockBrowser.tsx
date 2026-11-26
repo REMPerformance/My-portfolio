@@ -25,20 +25,23 @@ type F = typeof EMPTY;
 
 export function KrStockBrowser({ initial, total, parts }: { initial: KrRow[]; total: number; parts: number }) {
   const [cars, setCars] = useState<KrListCar[]>(() => initial.map(fromRow));
-  const [loaded, setLoaded] = useState(parts <= 0);
+  const [loaded, setLoaded] = useState(false);
   const [f, setF] = useState<F>(EMPTY);
 
-  // celý sklad sa dotiahne po balíkoch, kým sa zobrazujú prvé autá
+  // celý sklad sa dotiahne po balíkoch, kým sa zobrazujú prvé autá (prvý balík povie, koľko ich je spolu)
   useEffect(() => {
-    if (parts <= 0) return;
     let off = false;
-    Promise.all(Array.from({ length: parts }, (_, i) => fetch(`/api/kr-stock/${i}`).then((r) => (r.ok ? r.json() : { rows: [] })).catch(() => ({ rows: [] }))))
-      .then((res: { rows?: KrRow[] }[]) => {
-        if (off) return;
-        const all = res.flatMap((x) => x.rows || []).map(fromRow);
-        if (all.length) setCars(all);
-        setLoaded(true);
-      });
+    type Part = { rows?: KrRow[]; parts?: number };
+    const get = (i: number): Promise<Part> => fetch(`/api/kr-stock/${i}`).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+    (async () => {
+      const first = await get(0);
+      const n = Math.min(15, Math.max(first.parts || 0, parts));
+      const rest = await Promise.all(Array.from({ length: Math.max(0, n - 1) }, (_, i) => get(i + 1)));
+      if (off) return;
+      const all = [first, ...rest].flatMap((x) => x.rows || []).map(fromRow);
+      if (all.length) setCars(all);
+      setLoaded(true);
+    })();
     return () => { off = true; };
   }, [parts]);
   const [shown, setShown] = useState(STEP);
@@ -109,7 +112,7 @@ export function KrStockBrowser({ initial, total, parts }: { initial: KrRow[]; to
       </div>
 
       <div className="btoolbar">
-        <span className="bcount"><b>{num(loaded || any ? list.length : Math.max(total, list.length))}</b> {list.length === 1 ? "auto" : list.length > 1 && list.length < 5 ? "autá" : "áut"} ihneď k odberu</span>
+        <span className="bcount" style={!loaded && !list.length ? { visibility: "hidden" } : undefined}><b>{num(loaded || any ? list.length : Math.max(total, list.length))}</b> {list.length === 1 ? "auto" : list.length > 1 && list.length < 5 ? "autá" : "áut"} ihneď k odberu</span>
         {any && <button type="button" className="linkbtn" onClick={() => { setShown(STEP); setF({ ...EMPTY, sort: f.sort }); }}>Zrušiť filtre</button>}
         <label className="bsort">
           <span className="sr-only">Triedenie</span>
@@ -120,7 +123,7 @@ export function KrStockBrowser({ initial, total, parts }: { initial: KrRow[]; to
       </div>
 
       <div className="grid">
-        {list.length ? list.slice(0, shown).map((c, i) => <KrCard key={c.id} car={c} eager={i < 3} />) : (
+        {list.length ? list.slice(0, shown).map((c, i) => <KrCard key={c.id} car={c} eager={i < 3} />) : !loaded ? null : (
           <div className="empty">Týmto filtrom nezodpovedá žiadne auto. <button type="button" className="linkbtn" onClick={() => setF({ ...EMPTY })}>Zrušiť filtre</button> alebo <Link href="/auto-na-mieru">nám napíšte, čo hľadáte</Link>.</div>
         )}
       </div>

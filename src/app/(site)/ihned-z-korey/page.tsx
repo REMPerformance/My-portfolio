@@ -38,7 +38,7 @@ export default async function KrStockPage() {
       />
       <section style={{ paddingTop: 28 }}>
         <div className="wrap">
-          {cars.length ? <KrStockBrowser initial={cars.slice(0, 48).map(krRow)} total={cars.length} parts={Math.ceil(cars.length / KR_PART)} /> : (
+          {cars.length || process.env.SSANCAR_API_KEY ? <KrStockBrowser initial={cars.slice(0, 48).map(krRow)} total={cars.length} parts={Math.ceil(cars.length / KR_PART)} /> : (
             <div className="empty">Ponuku áut z Kórey práve aktualizujeme. <Link href="/auto-na-mieru">Napíšte nám, aké auto hľadáte</Link>, a pošleme Vám aktuálne autá skladom.</div>
           )}
           <div className="kr-info">

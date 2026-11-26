@@ -16,7 +16,12 @@ export async function POST(req: Request) {
   if (!isAdmin) return NextResponse.json({ ok: false }, { status: 403 });
   const body = (await req.json().catch(() => ({}))) as { slugs?: string[]; ssancar?: boolean };
   // ponuka „Ihneď k odberu z Kórey“: nové stiahnutie skladu z Kórey
-  if (body.ssancar) { revalidateTag("ssancar", "max"); revalidatePath("/ihned-z-korey"); }
+  if (body.ssancar) {
+    revalidateTag("ssancar", "max");
+    revalidatePath("/ihned-z-korey");
+    revalidatePath("/");
+    for (let i = 0; i < 15; i++) revalidatePath(`/api/kr-stock/${i}`);
+  }
   const slugs = body.slugs || [];
   if (slugs.length) {
     // zmena konkrétnych áut: obnovia sa len stránky, kde sa autá zobrazujú (nie celý web)

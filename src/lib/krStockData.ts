@@ -89,7 +89,8 @@ function toCar(s: SsStock, cfg: Awaited<ReturnType<typeof getCalcConfig>>): KrCa
 
 /** Celá ponuka skladu v Kórei. Prázdne pole, ak API nie je pripojené. */
 export const getKrStock = cache(async (): Promise<KrCar[]> => {
-  if (!process.env.SSANCAR_API_KEY) return [];
+  // pri zostavovaní webu sa sklad nesťahuje (celý sklad trvá dlhšie ako limit buildu), načíta sa až na webe
+  if (!process.env.SSANCAR_API_KEY || process.env.NEXT_PHASE === "phase-production-build") return [];
   const cfg = await getCalcConfig();
   const out: KrCar[] = [];
   let cursor: string | null = null;
