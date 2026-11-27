@@ -18,7 +18,7 @@ import { KrCount } from "@/components/KrCount";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: { absolute: "Dovoz áut z USA, Dubaja a Kanady na kľúč | REM Performance" },
+  title: { absolute: "Dovoz áut z USA na kľúč, odhad ceny vopred | REM Performance" },
   description: SITE.description,
   alternates: { canonical: "/" }
 };

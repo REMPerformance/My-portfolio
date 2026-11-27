@@ -27,7 +27,7 @@ export const ARTICLES: Article[] = [
     priceTable: [10000, 20000, 30000, 40000],
     sections: [
       { h: "Z čoho sa skladá cena dovezeného auta", list: [
-        "Cena auta – vydražená suma na aukcii Copart či IAAI alebo cena u predajcu.",
+        "Cena auta: vydražená suma na americkej aukcii alebo cena u predajcu.",
         "Aukčné poplatky – poplatok kupujúceho, ktorý si účtuje aukcia (podľa ceny auta niekoľko sto až vyše tisíc dolárov).",
         "Doprava do prístavu – odťah z aukčného dvora do najbližšieho prístavu, podľa štátu zhruba 300 – 900 USD.",
         "Námorná preprava – kontajner do Európy (zvyčajne Bremerhaven alebo Rotterdam), 1 150 – 1 900 USD podľa prístavu.",
@@ -83,13 +83,13 @@ export const ARTICLES: Article[] = [
     links: [{ href: "/kalkulacka-dovozu", label: "Spočítať clo a DPH" }, { href: "/dovoz-auta-z-korey", label: "Dovoz z Kórey" }, { href: "/dovoz-auta-z-japonska", label: "Dovoz z Japonska" }]
   },
   {
-    slug: "copart-a-iaai-ako-kupit-auto-z-americkej-aukcie",
-    title: "Copart a IAAI – ako kúpiť auto z americkej aukcie zo Slovenska",
-    description: "Ako fungujú aukcie Copart a IAAI, čo znamená Salvage a Clean title, typy poškodení, Run and Drive a prečo na kúpu potrebujete sprostredkovateľa. Návod pre kupujúcich zo Slovenska.",
-    h1: "Copart a IAAI – ako kúpiť auto z americkej aukcie",
+    slug: "americke-aukcie-ako-kupit-auto-z-usa",
+    title: "Americké aukcie áut: ako kúpiť auto z aukcie v USA zo Slovenska",
+    description: "Ako fungujú veľké americké aukcie áut, čo znamená Salvage a Clean title, typy poškodení, Run and Drive a prečo na kúpu potrebujete sprostredkovateľa. Návod pre kupujúcich zo Slovenska.",
+    h1: "Americké aukcie áut: ako kúpiť auto z aukcie v USA",
     date: "2026-09-29",
     updated: "2026-09-29",
-    lead: "Copart a IAAI (Insurance Auto Auctions) sú najväčšie aukcie áut v USA. Každý týždeň na nich poisťovne, leasingovky a predajcovia predávajú desaťtisíce áut. Vysvetlíme, ako to funguje a na čo si dať pozor.",
+    lead: "Veľké americké aukcie áut patria k najväčším trhom s autami na svete. Každý týždeň na nich poisťovne, leasingovky a predajcovia predávajú desaťtisíce áut. Vysvetlíme, ako to funguje a na čo si dať pozor.",
     sections: [
       { h: "Kto na aukciách predáva", p: ["Najčastejšie poisťovne – autá po nehode, krúpobití, záplave či krádeži, ktoré poisťovňa vyplatila ako totálnu škodu. Ďalej leasingové spoločnosti, autopožičovne a predajcovia. Preto sú ceny nízke, ale veľa áut je poškodených."] },
       { h: "Typy titulov (dokladov)", list: [
@@ -106,7 +106,7 @@ export const ARTICLES: Article[] = [
         "Odometer – nájazd v míľach (1 míľa = 1,609 km), niekedy s poznámkou, že nie je overený."
       ] },
       { h: "Prečo potrebujete sprostredkovateľa", p: [
-        "Na väčšinu áut na Coparte a IAAI môže prihadzovať len licencovaný kupujúci. Sprostredkovateľ za Vás auto preverí, prihadzuje do Vami schváleného limitu, zaplatí aukcii, zariadi odvoz, prepravu, preclenie a všetko okolo prihlásenia.",
+        "Na väčšinu áut na amerických aukciách môže prihadzovať len licencovaný kupujúci. Sprostredkovateľ za Vás auto preverí, prihadzuje do Vami schváleného limitu, zaplatí aukcii, zariadi odvoz, prepravu, preclenie a všetko okolo prihlásenia.",
         "U nás navyše dopredu vidíte celkovú cenu na slovenských značkách a nad Váš limit nikdy neprihodíme."
       ] }
     ],

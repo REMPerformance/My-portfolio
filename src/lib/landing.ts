@@ -11,6 +11,8 @@ export interface Landing {
   /** príklad pre výpočet */
   example: { label: string; price: number; place: string; auction: boolean };
   why: { t: string; d: string }[];
+  /** dlhší text pre SEO (nadpis a odseky) */
+  body?: { h: string; p: string[] }[];
   watch: string[];
   faq: { q: string; a: string }[];
 }
@@ -19,28 +21,49 @@ export const LANDINGS: Landing[] = [
   {
     slug: "dovoz-auta-z-usa",
     country: "US",
-    title: "Dovoz auta z USA na kľúč – Copart, IAAI, cena s clom a DPH",
-    description: "Dovoz auta z USA na Slovensko na kľúč: kúpa na aukcii Copart a IAAI alebo u predajcu, doprava z ktoréhokoľvek štátu, clo, DPH, homologizácia a prihlásenie. Odhad celkovej ceny vopred.",
-    h1: ["Dovoz auta z USA", "na kľúč"],
-    lead: "Americké autá vychádzajú často o 20 – 40 % lacnejšie ako na Slovensku – aj po zaplatení dopravy, cla a DPH. Kúpime Vám auto na aukcii Copart či IAAI alebo u predajcu v ktoromkoľvek z 50 štátov a dovezieme ho až k Vám so slovenskými značkami.",
+    title: "Dovoz áut z USA na kľúč, odhad ceny vopred",
+    description: "Dovoz áut z USA na Slovensko na kľúč. Kúpa na americkej aukcii alebo u predajcu, doprava z ktoréhokoľvek štátu, clo, homologizácia a prihlásenie. Odhad celkovej ceny vopred.",
+    h1: ["Dovoz áut z USA", "na kľúč"],
+    lead: "Americké autá vychádzajú často výrazne lacnejšie ako na Slovensku, aj keď započítate dopravu, clo a dovoznú DPH. Kúpime Vám auto na aukcii alebo u predajcu v ktoromkoľvek z 50 štátov USA a dovezieme ho až k Vám so slovenskými evidenčnými číslami.",
     example: { label: "auto vydražené za 15 000 USD v Texase", price: 15000, place: "TX", auction: true },
     why: [
-      { t: "Najväčší výber na svete", d: "Na aukciách Copart a IAAI je denne desaťtisíce áut – od bežných SUV po Corvetty, Mustangy a pickupy, ktoré sa v Európe nepredávajú." },
-      { t: "Nižšie ceny aj s dovozom", d: "Aj po započítaní dopravy, 10 % cla a 23 % DPH vychádza väčšina áut výrazne lacnejšie ako porovnateľné auto na Slovensku." },
-      { t: "Bohatšia výbava", d: "Americké verzie majú často silnejšie motory a vyššiu výbavu v základe – automat, kožu, adaptívny tempomat či prémiové audio." },
-      { t: "Doprava z každého štátu", d: "Dopravu počítame podľa konkrétneho štátu a najbližšieho prístavu – New Jersey, Georgia, Florida, Texas alebo Kalifornia." }
+      { t: "Najväčší výber áut", d: "Na amerických aukciách a u predajcov je každý deň desaťtisíce áut, od bežných SUV po Corvetty, Mustangy a pickupy, ktoré sa v Európe vôbec nepredávajú." },
+      { t: "Nižšie ceny aj s dovozom", d: "Aj po započítaní dopravy, cla a dovoznej DPH vychádza veľa áut lacnejšie ako porovnateľné auto na slovenskom trhu." },
+      { t: "Bohatšia výbava", d: "Americké verzie majú často silnejšie motory a vyššiu výbavu už v základe: automat, kožu, adaptívny tempomat či prémiové audio." },
+      { t: "Doprava z každého štátu", d: "Dopravu počítame podľa konkrétneho štátu a najbližšieho prístavu, napríklad New Jersey, Georgia, Florida, Texas alebo Kalifornia." }
+    ],
+    body: [
+      { h: "Ako funguje dovoz áut z USA cez REM Performance", p: [
+        "Dovoz auta z Ameriky nie je zložitý, ak ho robí niekto, kto pozná aukcie, dopravu aj slovenské úrady. Vy si vyberiete auto z našej ponuky alebo nám napíšete, čo hľadáte. My auto preveríme, pošleme Vám rozpis všetkých nákladov a po podpise zmluvy ho kúpime na aukcii alebo u predajcu v USA.",
+        "Auto potom zo štátu, kde sa nachádza, odvezieme do prístavu, odkiaľ ide loďou do Európy. V prístave v EÚ ho preclí colný deklarant, kamiónom ho privezieme na Slovensko a zariadime opravu, homologizáciu, technickú kontrolu aj prihlásenie. Vy dostanete auto so slovenskými evidenčnými číslami a celý čas viete, kde sa nachádza, vďaka sledovaniu dovozu podľa VIN."
+      ] },
+      { h: "Koľko stojí dovoz auta z USA na Slovensko", p: [
+        "Celková cena sa skladá z ceny auta, aukčných poplatkov, dopravy po USA do prístavu, námornej prepravy (bez poistenia), prístavných poplatkov s colným deklarantom, kamiónu na Slovensko, cla, dovoznej DPH, homologizácie a prihlásenia. Pri každom aute v ponuke vidíte odhad celkovej ceny a v kalkulačke si ho spočítate aj pre auto, ktoré ste si našli sami.",
+        "Clo na osobné autá a SUV je 10 % z colnej hodnoty, na pickupy a úžitkové autá 22 %. Pri autách vyrobených v USA môže byť clo nulové, ak je k dispozícii doklad o pôvode. Dovozná DPH sa platí podľa krajiny, kde sa auto preclí. Všetky sumy sú odhad, konečná cena sa môže mierne líšiť podľa kurzu a skutočných nákladov."
+      ] },
+      { h: "Aké autá sa oplatí dovážať z USA", p: [
+        "Najviac sa oplatia autá, ktoré sú v Európe drahé alebo sa tu vôbec nepredávajú: Ford Mustang, Dodge Challenger a Charger, Chevrolet Camaro a Corvette, pickupy RAM, Ford F-150 a Chevrolet Silverado, veľké SUV ako Chevrolet Tahoe, Cadillac Escalade či Jeep Grand Cherokee. Dobre vychádzajú aj Tesla, BMW, Mercedes-Benz, Audi, Porsche a Lexus, ktoré majú v amerických verziách často bohatšiu výbavu.",
+        "Na aukciách je veľa áut po nehode, krúpobití alebo s ľahkým poškodením, ktoré poisťovňa vyplatila. Takéto auto môže byť po oprave na Slovensku výrazne lacnejšie ako nepoškodené auto u nás. Ku každému autu preto uvádzame odhad opravy a pomôžeme Vám vybrať auto, pri ktorom sa oprava naozaj oplatí."
+      ] },
+      { h: "Homologizácia a prihlásenie auta z USA", p: [
+        "Auto dovezené z USA nemá európske schválenie typu, preto ho pred prihlásením treba schváliť ako jednotlivo dovezené vozidlo. Zvyčajne sa upravujú svetlá a smerovky, dopĺňa sa zadné hmlové svetlo a prepína sa tachometer na kilometre. Všetko to zariadime za Vás, vrátane technickej a emisnej kontroly, prekladov dokladov a evidenčných čísel."
+      ] }
     ],
     watch: [
-      "Väčšina áut na Coparte a IAAI je poškodená (salvage) – ku každému autu uvádzame odhad opravy.",
-      "Clo na osobné autá je 10 %, na pickupy a úžitkové autá 22 %.",
-      "Americké autá potrebujú pri homologizácii úpravu svetiel a smeroviek – je to v cene.",
-      "Doprava trvá zvyčajne 6 – 10 týždňov podľa štátu a prístavu."
+      "Veľa áut na amerických aukciách je poškodených (salvage), ku každému autu preto uvádzame odhad opravy.",
+      "Clo na osobné autá je 10 %, na pickupy a úžitkové autá 22 %, pri autách vyrobených v USA môže byť s dokladom o pôvode 0 %.",
+      "Americké autá potrebujú pri homologizácii úpravu svetiel a smeroviek, s tým v odhade počítame.",
+      "Doprava trvá zvyčajne 6 až 10 týždňov podľa štátu a prístavu."
     ],
     faq: [
-      { q: "Koľko stojí dovoz auta z USA?", a: "K cene auta pripočítajte aukčné poplatky, dopravu do prístavu (300 – 900 USD podľa štátu), námornú prepravu (1 150 – 1 900 USD), 10 % clo, 23 % DPH, vykládku, kamión do SR a homologizáciu. Presnú sumu pre konkrétne auto uvidíte v kalkulačke alebo pri každom aute v ponuke." },
-      { q: "Ako dlho trvá dovoz auta z USA?", a: "Od kúpy po odovzdanie na Slovensku zvyčajne 6 – 10 týždňov. Najrýchlejšie sú autá z východného pobrežia (New Jersey, Georgia), najdlhšie z Kalifornie a Aljašky." },
-      { q: "Je lepšie kúpiť auto na aukcii alebo u predajcu?", a: "Aukcie Copart a IAAI sú najlacnejšie, ale autá bývajú poškodené. Autá od predajcov sú drahšie, zato často nepoškodené a s históriou. Poradíme Vám, čo sa pri Vašom rozpočte oplatí viac." },
-      { q: "Musím ísť do USA osobne?", a: "Nie. Všetko vybavíme za Vás – kúpu, dopravu, preclenie, homologizáciu aj prihlásenie. Auto Vám odovzdáme na Slovensku so značkami." }
+      { q: "Koľko stojí dovoz auta z USA?", a: "K cene auta pripočítajte aukčné poplatky, dopravu do prístavu, námornú prepravu, prístav s colným deklarantom, kamión na Slovensko, clo, dovoznú DPH, homologizáciu a prihlásenie. Odhad pre konkrétne auto uvidíte pri každom aute v ponuke alebo v kalkulačke dovozu." },
+      { q: "Ako dlho trvá dovoz auta z USA?", a: "Od kúpy po odovzdanie na Slovensku zvyčajne 6 až 10 týždňov. Najrýchlejšie sú autá z východného pobrežia (New Jersey, Georgia), najdlhšie z Kalifornie a Aljašky." },
+      { q: "Koľko je clo na auto z USA?", a: "Na osobné autá a SUV 10 % z colnej hodnoty, ktorú tvorí cena auta, aukčné poplatky a doprava. Na pickupy a úžitkové autá 22 %. Pri autách vyrobených v USA môže byť clo s dokladom o pôvode nulové." },
+      { q: "Je lepšie kúpiť auto na aukcii alebo u predajcu?", a: "Aukcie sú najlacnejšie, ale autá bývajú poškodené. Autá od predajcov sú drahšie, zato často nepoškodené a s históriou. Poradíme Vám, čo sa pri Vašom rozpočte oplatí viac." },
+      { q: "Dá sa dovezené auto z USA prihlásiť na Slovensku?", a: "Áno. Auto prejde schválením ako jednotlivo dovezené vozidlo, potrebnými úpravami, technickou a emisnou kontrolou a potom sa prihlási. Všetko vybavíme za Vás." },
+      { q: "Ako zistím históriu auta z USA?", a: "Pred kúpou preveríme históriu auta podľa VIN, fotky z aukcie, typ dokladu (title) a záznamy o nehodách. Pri každom aute Vám povieme, čo sme zistili." },
+      { q: "Musím ísť do USA osobne?", a: "Nie. Všetko vybavíme za Vás: kúpu, dopravu, preclenie, homologizáciu aj prihlásenie. Auto Vám odovzdáme na Slovensku so značkami." },
+      { q: "Dovážate autá z USA aj do Česka?", a: "Áno, dovážame pre zákazníkov zo Slovenska aj z Česka. Napíšte nám, aké auto hľadáte, a pošleme Vám odhad ceny." }
     ]
   },
   {

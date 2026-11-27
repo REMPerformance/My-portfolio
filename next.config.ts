@@ -34,7 +34,10 @@ const nextConfig: NextConfig = {
     return [
       { source: "/index.html", destination: "/", permanent: true },
       { source: "/auta", destination: "/ponuka", permanent: true },
-      { source: "/archiv", destination: "/skoncene-aukcie", permanent: true }
+      { source: "/archiv", destination: "/skoncene-aukcie", permanent: true },
+      { source: "/dovoz-aut-z-usa", destination: "/dovoz-auta-z-usa", permanent: true },
+      { source: "/auta-z-usa", destination: "/dovoz-auta-z-usa", permanent: true },
+      { source: "/poradna/copart-a-iaai-ako-kupit-auto-z-americkej-aukcie", destination: "/poradna/americke-aukcie-ako-kupit-auto-z-usa", permanent: true }
     ];
   }
 };

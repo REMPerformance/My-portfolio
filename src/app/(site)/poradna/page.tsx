@@ -7,7 +7,7 @@ import { IArrow } from "@/components/Icons";
 
 export const metadata: Metadata = {
   title: "Poradňa – všetko o dovoze auta z USA a zo zahraničia",
-  description: "Návody a rady k dovozu auta z USA, Dubaja a Ázie: koľko stojí dovoz, clo a DPH, aukcie Copart a IAAI, homologizácia a prihlásenie na Slovensku.",
+  description: "Návody a rady k dovozu auta z USA, Dubaja a Ázie: koľko stojí dovoz, clo a DPH, americké aukcie áut, homologizácia a prihlásenie na Slovensku.",
   alternates: { canonical: "/poradna" },
   openGraph: { url: "/poradna" }
 };

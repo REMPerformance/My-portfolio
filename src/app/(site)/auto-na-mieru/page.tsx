@@ -12,7 +12,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: "Auto na mieru – nájdeme a dovezieme Vám auto zo zahraničia",
   description:
-    "Napíšte nám značku, model a rozpočet – nájdeme Vám auto na aukciách Copart a IAAI, u predajcov v USA, Dubaji, Kanade či Ázii a dovezieme ho na kľúč so slovenskými značkami. Nezáväzne a bezplatne.",
+    "Napíšte nám značku, model a rozpočet. Nájdeme Vám auto na amerických aukciách, u predajcov v USA, Dubaji, Kanade či Ázii a dovezieme ho na kľúč so slovenskými značkami. Nezáväzne a bezplatne.",
   alternates: { canonical: "/auto-na-mieru" },
   openGraph: { url: "/auto-na-mieru", title: "Auto na mieru – dovoz na kľúč | REM Performance" }
 };
@@ -44,13 +44,13 @@ export default async function AutoNaMieru({ searchParams }: Props) {
           provider: { "@id": `${SITE.url}/#org` },
           areaServed: { "@type": "Country", name: "Slovensko" },
           url: `${SITE.url}/auto-na-mieru`,
-          description: "Vyhľadanie auta podľa požiadaviek na aukciách Copart a IAAI a u predajcov v USA, SAE, Kanade, Kórei, Japonsku a Číne, kúpa, doprava, preclenie, homologizácia a prihlásenie na Slovensku."
+          description: "Vyhľadanie auta podľa požiadaviek na amerických aukciách a u predajcov v USA, SAE, Kanade, Kórei, Japonsku a Číne, kúpa, doprava, preclenie, homologizácia a prihlásenie na Slovensku."
         }}
       />
       <PageHead
         crumbs={crumbs}
         title={<>Auto na mieru – <em>nájdeme ho za Vás</em></>}
-        sub="Napíšte nám, aké auto hľadáte a koľko chcete minúť. Prehľadáme aukcie Copart a IAAI aj predajcov v USA, Dubaji, Kanade a Ázii a do 24 hodín Vám pošleme vhodné autá s celkovou cenou na slovenských značkách."
+        sub="Napíšte nám, aké auto hľadáte a koľko chcete minúť. Prehľadáme americké aukcie aj predajcov v USA, Dubaji, Kanade a Ázii a do 24 hodín Vám pošleme vhodné autá s celkovou cenou na slovenských značkách."
       />
       <section style={{ paddingTop: 28 }}>
         <div className="wrap req-grid">

@@ -80,10 +80,23 @@ export default async function LandingPage({ params }: Props) {
 
       <section>
         <div className="wrap">
-          <div className="sec-head"><div><span className="eyebrow">Prečo {cd.from}</span><h2 className="title">Prečo sa oplatí dovoz auta {cd.from}</h2></div></div>
+          <div className="sec-head"><div><span className="eyebrow">Prečo {cd.from}</span><h2 className="title">Prečo sa oplatí {l.h1[0].charAt(0).toLowerCase() + l.h1[0].slice(1)}</h2></div></div>
           <div className="lp-why">
             {l.why.map((w) => <div key={w.t} className="panel"><h3>{w.t}</h3><p>{w.d}</p></div>)}
           </div>
+          {l.body && (
+            <div className="lp-body" style={{ maxWidth: 900, marginTop: 40 }}>
+              {l.body.map((b) => (
+                <div key={b.h} style={{ marginTop: 28 }}>
+                  <h2 className="title" style={{ fontSize: 24 }}>{b.h}</h2>
+                  {b.p.map((t, i) => <p key={i} className="sub" style={{ marginTop: 10 }}>{t}</p>)}
+                </div>
+              ))}
+              <p className="sub" style={{ marginTop: 18 }}>
+                Pozrite si <Link href={`/ponuka?country=${cd.code}`}>autá {cd.from} v ponuke</Link>, spočítajte si cenu v <Link href="/kalkulacka-dovozu">kalkulačke dovozu</Link> alebo nám napíšte cez <Link href="/auto-na-mieru">vyhľadanie auta na mieru</Link>.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -93,7 +106,7 @@ export default async function LandingPage({ params }: Props) {
             <span className="eyebrow">Príklad výpočtu</span>
             <h2 className="title">Koľko stojí dovoz auta {cd.from}</h2>
             <p className="sub">Príklad: {l.example.label} ({money(l.example.price, cd.currency)}). Celková cena na slovenských značkách vychádza približne na <b>{eur(ex.total)}</b>, {ex.local ? "vrátane prepravy po ceste a prihlásenia. Clo ani homologizácia sa pri aute z EÚ neplatia." : "vrátane dopravy, cla, DPH, homologizácie a prihlásenia."}</p>
-            <p className="sub">Každé auto je iné – dopravu počítame podľa konkrétneho miesta a prístavu. Presnú cenu si spočítate v <Link href="/kalkulacka-dovozu">kalkulačke dovozu</Link>.</p>
+            <p className="sub">Každé auto je iné, dopravu počítame podľa konkrétneho miesta a prístavu. Presnú cenu si spočítate v <Link href="/kalkulacka-dovozu">kalkulačke dovozu</Link>.</p>
             <h3 style={{ marginTop: 24, fontSize: 17, fontWeight: 800 }}>Na čo si dať pozor</h3>
             <ul className="ticks" style={{ marginTop: 10 }}>{l.watch.map((w) => <li key={w}>{w}</li>)}</ul>
           </div>
@@ -129,7 +142,7 @@ export default async function LandingPage({ params }: Props) {
             </div>
           )}
           <div>
-            <h2 className="title" style={{ fontSize: 24 }}>{cd.placeLabel === "Štát" ? "Odkiaľ v USA dovážame" : `${cd.placeLabel} – odkiaľ dovážame`}</h2>
+            <h2 className="title" style={{ fontSize: 24 }}>{cd.placeLabel === "Štát" ? "Odkiaľ v USA dovážame" : `${cd.placeLabel}: odkiaľ dovážame`}</h2>
             <p className="note">{places.map((p) => p.name).join(" · ")}</p>
             <p className="note">Prístavy: {cd.ports.map((p) => p.name).join(", ")}</p>
           </div>
@@ -138,7 +151,7 @@ export default async function LandingPage({ params }: Props) {
 
       <section className="alt">
         <div className="wrap" style={{ maxWidth: 900 }}>
-          <div className="sec-head"><div><span className="eyebrow">Otázky</span><h2 className="title">Dovoz auta {cd.from} – časté otázky</h2></div></div>
+          <div className="sec-head"><div><span className="eyebrow">Otázky</span><h2 className="title">Dovoz auta {cd.from}: časté otázky</h2></div></div>
           <Faq items={l.faq} />
         </div>
       </section>
@@ -148,7 +161,7 @@ export default async function LandingPage({ params }: Props) {
           <div className="cta-band">
             <div>
               <h2>Hľadáte konkrétne auto {cd.from}?</h2>
-              <p>Napíšte nám značku, model a rozpočet – do 24 hodín Vám pošleme vhodné autá s celkovou cenou.</p>
+              <p>Napíšte nám značku, model a rozpočet a do 24 hodín Vám pošleme vhodné autá s celkovou cenou.</p>
             </div>
             <div className="actions" style={{ marginTop: 0 }}>
               <Link href="/auto-na-mieru" className="rc-btn rc-btn--light">Nájdite mi auto <IArrow /></Link>
